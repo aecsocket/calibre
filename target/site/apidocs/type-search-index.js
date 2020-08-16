@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"me.aecsocket.calibre.handle","l":"CalibreCommand"},{"p":"me.aecsocket.calibre","l":"CalibreHook"},{"p":"me.aecsocket.calibre","l":"CalibrePlugin"}]

@@ -1,2 +1,6 @@
 me.aecsocket.calibre
 me.aecsocket.calibre.handle
+me.aecsocket.calibre.item.blueprint
+me.aecsocket.calibre.item.component
+me.aecsocket.calibre.item.system
+me.aecsocket.calibre.util

@@ -1,16 +1,19 @@
 package me.aecsocket.calibre;
 
 import co.aikar.commands.PaperCommandManager;
-import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.aecsocket.calibre.handle.CalibreCommand;
+import me.aecsocket.calibre.item.blueprint.Blueprint;
+import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.unifiedframework.locale.LocaleManager;
 import me.aecsocket.unifiedframework.locale.Translation;
 import me.aecsocket.unifiedframework.registry.Identifiable;
 import me.aecsocket.unifiedframework.registry.Registry;
+import me.aecsocket.unifiedframework.resource.LoadResult;
 import me.aecsocket.unifiedframework.resource.ResourceLoadException;
 import me.aecsocket.unifiedframework.resource.Settings;
+import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.log.LabelledLogger;
 import me.aecsocket.unifiedframework.util.log.LogLevel;
 import org.bukkit.Bukkit;
@@ -18,13 +21,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -39,6 +41,7 @@ public class CalibrePlugin extends JavaPlugin {
     private final Settings settings = new Settings();
     private final LocaleManager localeManager = new LocaleManager();
     private final Registry registry = new Registry();
+    private final Set<CalibreHook> hooks = new HashSet<>();
     private PaperCommandManager commandManager;
     private Gson gson;
 
@@ -47,17 +50,17 @@ public class CalibrePlugin extends JavaPlugin {
         commandManager = new PaperCommandManager(this);
 
         String pluginName = getDescription().getName();
-        List<CalibreHook> hooks = Stream.of(Bukkit.getPluginManager().getPlugins())
+        hooks.add(new CalibreDefaultHook()); // TODO an option to disable the default hook
+        Stream.of(Bukkit.getPluginManager().getPlugins())
                 .filter(plugin -> plugin instanceof CalibreHook && plugin.getDescription().getLoadBefore().contains(pluginName))
                 .map(plugin -> (CalibreHook) plugin)
-                .collect(Collectors.toList());
+                .forEach(hooks::add);
 
-        GsonBuilder gsonBuilder = new GsonBuilder()
-                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
-        hooks.forEach(hook -> hook.initializeGson(gsonBuilder));
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        hooks.forEach(hook -> hook.initializeGson(this, gsonBuilder));
         gson = gsonBuilder.create();
 
-        load();
+        load().forEach(entry -> log(entry.isSuccessful() ? LogLevel.VERBOSE : LogLevel.WARN, (String) entry.getData()));
 
         commandManager.registerCommand(new CalibreCommand(this));
     }
@@ -71,62 +74,72 @@ public class CalibrePlugin extends JavaPlugin {
 
     /**
      * Reloads settings from the settings file and applies some initial settings.
+     * @return A {@link LoadResult} of messages during loading.
      */
-    public void loadSettings() {
+    public LoadResult<String, String> loadSettings() {
         try {
             settings.loadFrom(this);
         } catch (ResourceLoadException e) {
-            log(LogLevel.WARN, "Failed to load settings file: {msg}", "msg", e.getCause().getMessage());
-            return;
+            LoadResult<String, String> result = new LoadResult<>();
+            return result.addFailure(null, TextUtils.format("Failed to load settings file: {msg}", "msg", e.getCause().getMessage()));
         }
         log(LogLevel.VERBOSE, "Loaded settings file");
         LogLevel level = LogLevel.valueOfDefault(setting("log_level", String.class, "verbose").toUpperCase());
         if (level != null) logger.setLevel(level);
         String defaultLocale = setting("locale", String.class, localeManager.getDefaultLocale());
         if (defaultLocale != null) localeManager.setDefaultLocale(defaultLocale);
+        return new LoadResult<>();
     }
 
     /**
      * Reloads languages and locales using {@link LocaleManager#loadFrom(Gson, Plugin)}.
+     * @return A {@link LoadResult} of messages during loading.
      */
-    public void loadLocales() {
-        localeManager.unregisterAll();
+    public LoadResult<String, String> loadLocales() {
+        LoadResult<String, String> result = new LoadResult<>();
         try {
             localeManager.loadFrom(gson, this).forEach(entry -> {
                 Path path = entry.getPath();
                 if (entry.isSuccessful())
-                    log(LogLevel.VERBOSE, "Loaded translation {path} ({locale})", "path", path, "locale", ((Translation) entry.getData()).getLocale());
+                    result.addSuccess(path, TextUtils.format("Loaded translation {path} ({locale})", "path", path, "locale", ((Translation) entry.getData()).getLocale()));
                 else
-                    log(LogLevel.WARN, "Failed to load translation {path}: {msg}", "path", path, "msg", ((Exception) entry.getData()).getMessage());
+                    result.addFailure(path, TextUtils.format("Failed to load translation {path}: {msg}", "path", path, "msg", ((Exception) entry.getData()).getMessage()));
             });
         } catch (ResourceLoadException e) {
-            log(LogLevel.WARN, "Failed to load locale files: {msg}", "msg", e.getMessage());
+            result.addFailure(null, TextUtils.format("Failed to load locale files: {msg}", "msg", e.getMessage()));
         }
+        return result;
     }
 
     /**
      * Reloads all the items in the plugin's {@link Registry} using {@link Registry#loadFrom(Gson, Plugin)}.
      * <p>
-     * There are no configured subdirectories currently.
+     * Configured subdirectories:
+     * <ul>
+     *     <li><code>component</code>: {@link CalibreComponent}</li>
+     *     <li><code>blueprint</code>: {@link Blueprint}</li>
+     * </ul>
+     * @return A {@link LoadResult} of messages during loading.
      */
-    public void loadRegistry() {
-        registry.unregisterAll();
+    public LoadResult<String, String> loadRegistry() {
+        LoadResult<String, String> result = new LoadResult<>();
         try {
             registry.loadFrom(gson, this)
-                    //.with("component", CalibreComponent.class)
-                    //.with("blueprint", Blueprint.class)
+                    .with("component", CalibreComponent.class)
+                    .with("blueprint", Blueprint.class)
                     .load()
                     .forEach(entry -> {
                         Path path = entry.getPath();
                         if (entry.isSuccessful()) {
                             Identifiable id = (Identifiable) entry.getData();
-                            log(LogLevel.VERBOSE, "Loaded {class} {id}", "class", id.getClass().getSimpleName(), "id", id.getId());
+                            result.addSuccess(path, TextUtils.format("Loaded {class} {id}", "class", id.getClass().getSimpleName(), "id", id.getId()));
                         } else
-                            log(LogLevel.WARN, "Failed to load {path}: {msg}", "path", path, "msg", ((Exception) entry.getData()).getMessage());
+                            result.addFailure(path, TextUtils.format("Failed to load {path}: {msg}", "path", path, "msg", ((Exception) entry.getData()).getMessage()));
                     });
         } catch (ResourceLoadException e) {
-            log(LogLevel.WARN, "Failed to load object files: {msg}", "msg", e.getMessage());
+            result.addFailure(null, TextUtils.format("Failed to load object files: {msg}", "msg", e.getMessage()));
         }
+        return result;
     }
 
     /**
@@ -136,17 +149,36 @@ public class CalibrePlugin extends JavaPlugin {
      *     <li>{@link CalibrePlugin#loadLocales()}</li>
      *     <li>{@link CalibrePlugin#loadRegistry()}</li>
      * </ol>
+     * <p>
+     * This version does not take into account hooks. Use {@link CalibrePlugin#load()} to incorporate hooks.
+     * @return A {@link LoadResult} of messages during loading.
      */
-    public void load() {
+    public LoadResult<String, String> cleanLoad() {
+        LoadResult<String, String> result = new LoadResult<>();
         File root = getDataFolder();
         if (!root.exists()) {
-            log(LogLevel.ERROR, "Failed to load data directory");
-            return;
+            result.addFailure(null, "Failed to load data directory");
+            return result;
         }
 
-        loadSettings();
-        loadLocales();
-        loadRegistry();
+        return result
+                .combine(loadSettings())
+                .combine(loadLocales())
+                .combine(loadRegistry());
+    }
+
+    /**
+     * Clears the registry and locale manager, initializes hooks, then calls {@link CalibrePlugin#cleanLoad()}.
+     * @return A {@link LoadResult} of messages during loading.
+     */
+    public LoadResult<String, String> load() {
+        localeManager.unregisterAll();
+        registry.unregisterAll();
+
+        hooks.forEach(hook -> hook.preLoadRegister(this, registry, localeManager, settings));
+        LoadResult<String, String> result = cleanLoad();
+        hooks.forEach(hook -> hook.postLoadRegister(this, registry, localeManager, settings));
+        return result;
     }
 
     /**

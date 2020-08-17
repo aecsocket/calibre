@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"me.aecsocket.calibre"},{"l":"me.aecsocket.calibre.handle"}]
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"me.aecsocket.calibre"},{"l":"me.aecsocket.calibre.handle"},{"l":"me.aecsocket.calibre.item.blueprint"},{"l":"me.aecsocket.calibre.item.component"},{"l":"me.aecsocket.calibre.item.system"},{"l":"me.aecsocket.calibre.util"}]

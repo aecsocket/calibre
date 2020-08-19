@@ -1,10 +1,13 @@
-package me.aecsocket.calibre.item;
+package me.aecsocket.calibre.util;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
+/**
+ * A description of an {@link ItemStack}.
+ */
 public class ItemDescriptor {
     private Material material;
     private int modelData;
@@ -36,6 +39,10 @@ public class ItemDescriptor {
     public int getDamage() { return damage; }
     public void setDamage(int damage) { this.damage = damage; }
 
+    /**
+     * Creates the {@link ItemStack}.
+     * @return The ItemStack.
+     */
     public ItemStack create() {
         ItemStack result = new ItemStack(material);
         ItemMeta meta = result.getItemMeta();
@@ -45,4 +52,7 @@ public class ItemDescriptor {
         result.setItemMeta(meta);
         return result;
     }
+
+    @Override
+    public String toString() { return material + "{modelData=" + modelData + ",damage=" + damage + "}"; }
 }

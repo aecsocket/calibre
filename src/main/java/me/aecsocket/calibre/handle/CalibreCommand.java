@@ -19,6 +19,8 @@ import org.bukkit.plugin.PluginDescriptionFile;
  */
 @CommandAlias("calibre|cal")
 public class CalibreCommand extends BaseCommand {
+    public static final String WILDCARD = "*";
+
     private final CalibrePlugin plugin;
 
     public CalibreCommand(CalibrePlugin plugin) {
@@ -57,10 +59,13 @@ public class CalibreCommand extends BaseCommand {
     @CommandPermission("calibre.command.list")
     @CommandCompletion("@registry")
     public void list(CommandSender sender, @Optional String nameFilter, @Optional String typeFilter) {
-        if (nameFilter != null) nameFilter = nameFilter.toLowerCase();
-        if (typeFilter != null) typeFilter = typeFilter.toLowerCase();
+        if (WILDCARD.equals(nameFilter)) nameFilter = null;
+        else if (nameFilter != null) nameFilter = nameFilter.toLowerCase();
+        if (WILDCARD.equals(typeFilter)) typeFilter = null;
+        else if (typeFilter != null) typeFilter = typeFilter.toLowerCase();
         final String fNameFilter = nameFilter;
         final String fTypeFilter = typeFilter;
+        int[] results = {0};
         plugin.getRegistry().getRegistry().forEach((id, ref) -> {
             Identifiable object = ref.get();
             String type = object.getClass().getSimpleName();
@@ -74,7 +79,10 @@ public class CalibreCommand extends BaseCommand {
                 if (!pass) return;
             }
             send(sender, "chat.command.list", "class", type, "id", id, "name", localizedName);
+            ++results[0];
         });
+        if (results[0] == 0)
+            send(sender, "chat.command.list.no_results");
     }
 
     @Subcommand("give")

@@ -10,9 +10,14 @@ import me.aecsocket.calibre.hook.CalibreHook;
 import me.aecsocket.calibre.item.CalibreItem;
 import me.aecsocket.calibre.item.blueprint.Blueprint;
 import me.aecsocket.calibre.item.component.CalibreComponent;
+import me.aecsocket.calibre.util.CalibrePlayer;
 import me.aecsocket.calibre.util.RegistryCommandContext;
+import me.aecsocket.unifiedframework.item.ItemManager;
 import me.aecsocket.unifiedframework.locale.LocaleManager;
 import me.aecsocket.unifiedframework.locale.Translation;
+import me.aecsocket.unifiedframework.loop.SchedulerLoop;
+import me.aecsocket.unifiedframework.loop.TickContext;
+import me.aecsocket.unifiedframework.loop.Tickable;
 import me.aecsocket.unifiedframework.registry.Identifiable;
 import me.aecsocket.unifiedframework.registry.Registry;
 import me.aecsocket.unifiedframework.resource.LoadResult;
@@ -22,19 +27,18 @@ import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.log.LabelledLogger;
 import me.aecsocket.unifiedframework.util.log.LogLevel;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -44,13 +48,16 @@ import java.util.stream.Stream;
  *     <li>Extending {@link CalibreHook}</li>
  * </ul>
  */
-public class CalibrePlugin extends JavaPlugin {
+public class CalibrePlugin extends JavaPlugin implements Tickable {
     private final LabelledLogger logger = new LabelledLogger(getLogger(), LogLevel.VERBOSE);
     private final Settings settings = new Settings();
     private final LocaleManager localeManager = new LocaleManager();
     private final Registry registry = new Registry();
     private final Set<CalibreHook> hooks = new HashSet<>();
     private final CalibreCoreHook coreHook = new CalibreCoreHook();
+    private final Map<Player, CalibrePlayer> players = new HashMap<>();
+    private final ItemManager itemManager = new ItemManager(this);
+    private final SchedulerLoop schedulerLoop = new SchedulerLoop(this);
     private PaperCommandManager commandManager;
     private Gson gson;
 
@@ -95,6 +102,8 @@ public class CalibrePlugin extends JavaPlugin {
             return result;
         });
         commandManager.registerCommand(new CalibreCommand(this));
+
+        schedulerLoop.registerTickable(this);
     }
 
     public LabelledLogger getPluginLogger() { return logger; }
@@ -103,8 +112,14 @@ public class CalibrePlugin extends JavaPlugin {
     public Registry getRegistry() { return registry; }
     public Set<CalibreHook> getHooks() { return hooks; }
     public CalibreCoreHook getCoreHook() { return coreHook; }
+    public Map<Player, CalibrePlayer> getPlayers() { return players; }
+    public ItemManager getItemManager() { return itemManager; }
+    public SchedulerLoop getSchedulerLoop() { return schedulerLoop; }
     public PaperCommandManager getCommandManager() { return commandManager; }
     public Gson getGson() { return gson; }
+
+    public CalibrePlayer getPlayerData(Player player) { return players.computeIfAbsent(player, p -> new CalibrePlayer(this, p)); }
+    public CalibrePlayer removePlayerData(Player player) { return players.remove(player); }
 
     /**
      * Reloads settings from the settings file and applies some initial settings.
@@ -216,6 +231,11 @@ public class CalibrePlugin extends JavaPlugin {
         return result;
     }
 
+    @Override
+    public void tick(TickContext tickContext) {
+        Bukkit.getOnlinePlayers().forEach(player -> tickContext.tick(getPlayerData(player)));
+    }
+
     /**
      * Gets a setting from the plugin's {@link Settings} instance.
      * @param path The path to the setting.
@@ -280,4 +300,18 @@ public class CalibrePlugin extends JavaPlugin {
      * @return The localized text.
      */
     public String gen(CommandSender sender, String key, Object... args) { return sender instanceof Player ? gen((Player) sender, key, args) : gen(key, args); }
+
+    /**
+     * Gets the {@link CalibreItem} representation of an {@link ItemStack}.
+     * @param stack The ItemStack.
+     * @return The CalibreItem.
+     */
+    public CalibreItem getItem(ItemStack stack) { return itemManager.getItem(stack, CalibreItem.class); }
+
+    /**
+     * Gets the {@link T} representation of an {@link ItemStack}.
+     * @param stack The ItemStack.
+     * @return The {@link T}.
+     */
+    public <T extends CalibreItem> T getItem(ItemStack stack, Class<T> type) { return itemManager.getItem(stack, type); }
 }

@@ -1,14 +1,15 @@
 package me.aecsocket.calibre.item.component;
 
+import com.google.gson.annotations.Expose;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.CalibreItem;
-import me.aecsocket.calibre.item.ItemDescriptor;
+import me.aecsocket.calibre.util.ItemDescriptor;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.calibre.util.AcceptsCalibrePlugin;
 import me.aecsocket.unifiedframework.component.Component;
 import me.aecsocket.unifiedframework.component.ComponentHolder;
 import me.aecsocket.unifiedframework.registry.ValidationException;
-import org.apache.commons.lang.Validate;
+import me.aecsocket.unifiedframework.stat.StatMap;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -29,8 +30,16 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
     private String id;
     private List<String> categories = new ArrayList<>();
     private Map<String, CalibreComponentSlot> slots = new HashMap<>();
-    private List<CalibreSystem> systems = new ArrayList<>();
+    private transient List<CalibreSystem> systems = new ArrayList<>();
+    private transient StatMap stats = new StatMap();
     private ItemDescriptor item;
+
+    public CalibreComponent(CalibrePlugin plugin, String id) {
+        this.plugin = plugin;
+        this.id = id;
+    }
+
+    public CalibreComponent() {}
 
     @Override public CalibrePlugin getPlugin() { return plugin; }
     @Override public void setPlugin(CalibrePlugin plugin) { this.plugin = plugin; }
@@ -45,6 +54,9 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
 
     public List<CalibreSystem> getSystems() { return systems; }
     public void setSystems(List<CalibreSystem> systems) { this.systems = systems; }
+
+    public StatMap getStats() { return stats; }
+    public void setStats(StatMap stats) { this.stats = stats; }
 
     public ItemDescriptor getItem() { return item; }
     public void setItem(ItemDescriptor item) { this.item = item; }

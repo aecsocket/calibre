@@ -6,7 +6,8 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import me.aecsocket.unifiedframework.registry.Registry;
-import me.aecsocket.unifiedframework.util.JsonAdapter;
+import me.aecsocket.unifiedframework.util.TextUtils;
+import me.aecsocket.unifiedframework.util.json.JsonAdapter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class SystemListAdapter implements TypeAdapterFactory, JsonAdapter {
                 for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
                     String systemId = entry.getKey();
                     CalibreSystem system = registry.getRaw(systemId, CalibreSystem.class);
-                    if (system == null) continue;
+                    if (system == null) throw new JsonParseException(TextUtils.format("System {id} does not exist", "id", systemId));
                     list.add(gson.fromJson(entry.getValue(), system.getClass()));
                 }
                 return (T) list;

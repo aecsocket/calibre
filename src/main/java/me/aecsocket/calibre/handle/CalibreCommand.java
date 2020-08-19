@@ -1,12 +1,17 @@
 package me.aecsocket.calibre.handle;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandPermission;
-import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.*;
 import me.aecsocket.calibre.CalibrePlugin;
+import me.aecsocket.calibre.item.CalibreItem;
+import me.aecsocket.unifiedframework.item.ItemCreationException;
+import me.aecsocket.unifiedframework.registry.Identifiable;
+import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.log.LogLevel;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 
 /**
@@ -46,5 +51,46 @@ public class CalibreCommand extends BaseCommand {
             send(sender, "chat.command.reload.complete");
         else
             send(sender, "chat.command.reload.complete.warnings", "warnings", warnings[0]);
+    }
+
+    @Subcommand("list")
+    @CommandPermission("calibre.command.list")
+    @CommandCompletion("@registry")
+    public void list(CommandSender sender, @Optional String nameFilter, @Optional String typeFilter) {
+        if (nameFilter != null) nameFilter = nameFilter.toLowerCase();
+        if (typeFilter != null) typeFilter = typeFilter.toLowerCase();
+        final String fNameFilter = nameFilter;
+        final String fTypeFilter = typeFilter;
+        plugin.getRegistry().getRegistry().forEach((id, ref) -> {
+            Identifiable object = ref.get();
+            String type = object.getClass().getSimpleName();
+            String localizedName = object instanceof CalibreItem ? ((CalibreItem) object).getLocalizedName(sender) : null;
+            if (fTypeFilter != null && !type.toLowerCase().contains(fTypeFilter)) return;
+            if (fNameFilter != null) {
+                boolean pass = false;
+                if (id.contains(fNameFilter)) pass = true;
+                else if (object instanceof CalibreItem && ChatColor.stripColor(localizedName).toLowerCase().contains(fNameFilter))
+                    pass = true;
+                if (!pass) return;
+            }
+            send(sender, "chat.command.list", "class", type, "id", id, "name", localizedName);
+        });
+    }
+
+    @Subcommand("give")
+    @CommandPermission("calibre.command.give")
+    @CommandCompletion("@players @registry:extends=me.aecsocket.calibre.item.CalibreItem")
+    public void give(CommandSender sender, Player target, CalibreItem item, @Optional Integer amount) {
+        if (amount == null) amount = 1;
+        ItemStack stack;
+        try {
+            stack = item.createItem(target);
+        } catch (ItemCreationException e) {
+            send(sender, "chat.command.give.error", "id", item.getId(), "msg", e.getMessage());
+            return;
+        }
+        for (int i = 0; i < amount; i++)
+            Utils.giveItem(target, stack);
+        send(sender, "chat.command.give", "amount", amount, "item", item.getLocalizedName(sender), "target", target.getDisplayName());
     }
 }

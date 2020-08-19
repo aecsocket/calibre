@@ -4,6 +4,7 @@ import me.aecsocket.unifiedframework.component.Component;
 import me.aecsocket.unifiedframework.component.ComponentSlot;
 import me.aecsocket.unifiedframework.component.IncompatibleComponentException;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -13,8 +14,8 @@ import java.util.List;
 public class CalibreComponentSlot implements ComponentSlot {
     private CalibreComponent component;
     private boolean required;
-    private List<String> compatibleCategories;
-    private List<String> compatibleIds;
+    private List<String> compatibleCategories = new ArrayList<>();
+    private List<String> compatibleIds = new ArrayList<>();
 
     public CalibreComponentSlot(CalibreComponent component, boolean required, List<String> compatibleCategories, List<String> compatibleIds) {
         this.component = component;
@@ -54,9 +55,9 @@ public class CalibreComponentSlot implements ComponentSlot {
         if (!(raw instanceof CalibreComponent)) return false;
         CalibreComponent component = (CalibreComponent) raw;
         return
-                ((compatibleIds == null || compatibleIds.isEmpty()) && (compatibleCategories == null || compatibleCategories.isEmpty()))
-                || (compatibleIds != null && compatibleIds.contains(component.getId()))
-                || (compatibleCategories != null && !Collections.disjoint(compatibleCategories, component.getCategories())
+                (compatibleIds.isEmpty() && compatibleCategories.isEmpty())
+                || compatibleIds.contains(component.getId())
+                || !Collections.disjoint(compatibleCategories, component.getCategories()
         );
     }
 

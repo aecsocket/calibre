@@ -1,6 +1,7 @@
-package me.aecsocket.calibre;
+package me.aecsocket.calibre.hook;
 
 import com.google.gson.GsonBuilder;
+import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.unifiedframework.locale.LocaleManager;
 import me.aecsocket.unifiedframework.registry.Registry;
 import me.aecsocket.unifiedframework.resource.Settings;

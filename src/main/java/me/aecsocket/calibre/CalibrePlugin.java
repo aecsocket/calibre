@@ -1,11 +1,16 @@
 package me.aecsocket.calibre;
 
+import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.PaperCommandManager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.aecsocket.calibre.handle.CalibreCommand;
+import me.aecsocket.calibre.hook.CalibreCoreHook;
+import me.aecsocket.calibre.hook.CalibreHook;
+import me.aecsocket.calibre.item.CalibreItem;
 import me.aecsocket.calibre.item.blueprint.Blueprint;
 import me.aecsocket.calibre.item.component.CalibreComponent;
+import me.aecsocket.calibre.util.RegistryCommandContext;
 import me.aecsocket.unifiedframework.locale.LocaleManager;
 import me.aecsocket.unifiedframework.locale.Translation;
 import me.aecsocket.unifiedframework.registry.Identifiable;
@@ -14,6 +19,7 @@ import me.aecsocket.unifiedframework.resource.LoadResult;
 import me.aecsocket.unifiedframework.resource.ResourceLoadException;
 import me.aecsocket.unifiedframework.resource.Settings;
 import me.aecsocket.unifiedframework.util.TextUtils;
+import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.log.LabelledLogger;
 import me.aecsocket.unifiedframework.util.log.LogLevel;
 import org.bukkit.Bukkit;
@@ -25,7 +31,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -42,6 +50,7 @@ public class CalibrePlugin extends JavaPlugin {
     private final LocaleManager localeManager = new LocaleManager();
     private final Registry registry = new Registry();
     private final Set<CalibreHook> hooks = new HashSet<>();
+    private final CalibreCoreHook coreHook = new CalibreCoreHook();
     private PaperCommandManager commandManager;
     private Gson gson;
 
@@ -50,7 +59,7 @@ public class CalibrePlugin extends JavaPlugin {
         commandManager = new PaperCommandManager(this);
 
         String pluginName = getDescription().getName();
-        hooks.add(new CalibreDefaultHook()); // TODO an option to disable the default hook
+        hooks.add(coreHook); // TODO an option to disable the core hook
         Stream.of(Bukkit.getPluginManager().getPlugins())
                 .filter(plugin -> plugin instanceof CalibreHook && plugin.getDescription().getLoadBefore().contains(pluginName))
                 .map(plugin -> (CalibreHook) plugin)
@@ -62,6 +71,29 @@ public class CalibrePlugin extends JavaPlugin {
 
         load().forEach(entry -> log(entry.isSuccessful() ? LogLevel.VERBOSE : LogLevel.WARN, (String) entry.getData()));
 
+        commandManager.getCommandContexts().registerContext(CalibreItem.class, new RegistryCommandContext<>(CalibreItem.class, registry));
+        commandManager.getCommandContexts().registerContext(Player.class, context -> {
+            String id = context.popFirstArg();
+            Player result = Utils.getCommandTarget(id, context.getSender());
+            if (result == null) throw new InvalidCommandArgument("No player with identifier " + id + " found");
+            return result;
+        });
+        commandManager.getCommandCompletions().registerCompletion("players", context -> Utils.getCommandPlayerEntries(context.getSender()));
+        commandManager.getCommandCompletions().registerCompletion("registry", context -> {
+            String extend = context.getConfig("extends");
+            Class<?> type = null;
+            if (extend != null) {
+                try { type = Class.forName(extend); }
+                catch (ClassNotFoundException ignore) {}
+            }
+            List<String> result = new ArrayList<>();
+            final Class<?> fType = type;
+            registry.getRegistry().forEach((id, ref) -> {
+                Identifiable raw = ref.get();
+                if (fType == null || fType.isAssignableFrom(raw.getClass())) result.add(id);
+            });
+            return result;
+        });
         commandManager.registerCommand(new CalibreCommand(this));
     }
 
@@ -69,6 +101,8 @@ public class CalibrePlugin extends JavaPlugin {
     public Settings getSettings() { return settings; }
     public LocaleManager getLocaleManager() { return localeManager; }
     public Registry getRegistry() { return registry; }
+    public Set<CalibreHook> getHooks() { return hooks; }
+    public CalibreCoreHook getCoreHook() { return coreHook; }
     public PaperCommandManager getCommandManager() { return commandManager; }
     public Gson getGson() { return gson; }
 
@@ -133,8 +167,9 @@ public class CalibrePlugin extends JavaPlugin {
                         if (entry.isSuccessful()) {
                             Identifiable id = (Identifiable) entry.getData();
                             result.addSuccess(path, TextUtils.format("Loaded {class} {id}", "class", id.getClass().getSimpleName(), "id", id.getId()));
-                        } else
+                        } else {
                             result.addFailure(path, TextUtils.format("Failed to load {path}: {msg}", "path", path, "msg", ((Exception) entry.getData()).getMessage()));
+                        }
                     });
         } catch (ResourceLoadException e) {
             result.addFailure(null, TextUtils.format("Failed to load object files: {msg}", "msg", e.getMessage()));

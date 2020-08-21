@@ -1,6 +1,8 @@
 package me.aecsocket.calibre.util;
 
+import me.aecsocket.calibre.CalibrePlugin;
 import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -51,6 +53,20 @@ public class ItemDescriptor {
             ((Damageable) meta).setDamage(damage);
         result.setItemMeta(meta);
         return result;
+    }
+
+    /**
+     * Gets lines of info used by other objects in <code>/calibre info</code>. The string is split
+     * by <code>\n</code> to create the line separations. Can be null.
+     * @param plugin The CalibrePlugin used for text generation.
+     * @param sender The command's sender.
+     * @return The info.
+     */
+    public String getLongInfo(CalibrePlugin plugin, CommandSender sender) {
+        return plugin.gen(sender, "chat.info.item",
+                "material", new ItemStack(material).getI18NDisplayName(),
+                "model_data", modelData,
+                "damage", damage);
     }
 
     @Override

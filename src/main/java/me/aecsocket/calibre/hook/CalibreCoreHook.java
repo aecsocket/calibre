@@ -8,6 +8,8 @@ import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptorAdapter
 import me.aecsocket.calibre.item.system.TestSystem;
 import me.aecsocket.calibre.util.AcceptsCalibrePluginAdapter;
 import me.aecsocket.unifiedframework.locale.LocaleManager;
+import me.aecsocket.unifiedframework.locale.TranslationMap;
+import me.aecsocket.unifiedframework.locale.TranslationMapAdapter;
 import me.aecsocket.unifiedframework.registry.Registry;
 import me.aecsocket.unifiedframework.resource.Settings;
 import me.aecsocket.unifiedframework.stat.StatMap;
@@ -31,6 +33,7 @@ public class CalibreCoreHook implements CalibreHook {
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .registerTypeAdapterFactory(new AcceptsCalibrePluginAdapter(plugin))
                 .registerTypeAdapter(StatMap.class, statMapAdapter)
+                .registerTypeAdapter(TranslationMap.class, new TranslationMapAdapter())
                 .registerTypeAdapterFactory(new CalibreComponentAdapter(plugin.getRegistry(), statMapAdapter))
 
                 .registerTypeAdapterFactory(componentDescriptorAdapter)

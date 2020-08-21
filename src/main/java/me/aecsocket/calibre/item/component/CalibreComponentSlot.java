@@ -1,8 +1,12 @@
 package me.aecsocket.calibre.item.component;
 
+import com.google.gson.annotations.SerializedName;
+import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.unifiedframework.component.Component;
 import me.aecsocket.unifiedframework.component.ComponentSlot;
 import me.aecsocket.unifiedframework.component.IncompatibleComponentException;
+import org.bukkit.command.CommandSender;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,7 +18,9 @@ import java.util.List;
 public class CalibreComponentSlot implements ComponentSlot {
     private CalibreComponent component;
     private boolean required;
+    @SerializedName("categories")
     private List<String> compatibleCategories = new ArrayList<>();
+    @SerializedName("ids")
     private List<String> compatibleIds = new ArrayList<>();
 
     public CalibreComponentSlot(CalibreComponent component, boolean required, List<String> compatibleCategories, List<String> compatibleIds) {
@@ -66,4 +72,28 @@ public class CalibreComponentSlot implements ComponentSlot {
 
     public List<String> getCompatibleCategories() { return compatibleCategories; }
     public List<String> getCompatibleIds() { return compatibleIds; }
+
+    /**
+     * Gets lines of info used by other objects in <code>/calibre info</code>. The string is split
+     * by <code>\n</code> to create the line separations. Can be null.
+     * @param plugin The CalibrePlugin used for text generation.
+     * @param sender The command's sender.
+     * @return The info.
+     */
+    public String getLongInfo(CalibrePlugin plugin, CommandSender sender) {
+        return plugin.gen(sender, "chat.info.slot",
+                "required", required,
+                "categories", String.join(", ", compatibleCategories),
+                "ids", String.join(", ", compatibleIds));
+    }
+
+    @Override public CalibreComponentSlot clone() { try { return (CalibreComponentSlot) super.clone(); } catch (CloneNotSupportedException e) { return null; } }
+    @Override
+    public CalibreComponentSlot copy() {
+        CalibreComponentSlot copy = clone();
+        copy.component = component.copy();
+        copy.compatibleCategories = new ArrayList<>(compatibleCategories);
+        copy.compatibleIds = new ArrayList<>(compatibleIds);
+        return copy;
+    }
 }

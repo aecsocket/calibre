@@ -10,6 +10,7 @@ import me.aecsocket.unifiedframework.component.ComponentSlot;
 import me.aecsocket.unifiedframework.registry.Registry;
 import me.aecsocket.unifiedframework.registry.ValidationException;
 import me.aecsocket.unifiedframework.util.TextUtils;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -75,4 +76,11 @@ public class Blueprint implements CalibreItem, AcceptsCalibrePlugin {
 
     @Override
     public ItemStack createItem(@Nullable Player player, int amount) { return createComponent().createItem(player, amount); }
+
+    @Override public @Nullable String getShortInfo(CommandSender sender) { return getLocalizedName(sender); }
+
+    @Override
+    public @Nullable String getLongInfo(CommandSender sender) {
+        return "TODO"; // TODO
+    }
 }

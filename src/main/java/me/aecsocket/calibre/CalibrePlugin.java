@@ -7,6 +7,7 @@ import com.google.gson.GsonBuilder;
 import me.aecsocket.calibre.handle.CalibreCommand;
 import me.aecsocket.calibre.hook.CalibreCoreHook;
 import me.aecsocket.calibre.hook.CalibreHook;
+import me.aecsocket.calibre.item.CalibreIdentifiable;
 import me.aecsocket.calibre.item.CalibreItem;
 import me.aecsocket.calibre.item.blueprint.Blueprint;
 import me.aecsocket.calibre.item.component.CalibreComponent;
@@ -19,7 +20,10 @@ import me.aecsocket.unifiedframework.loop.SchedulerLoop;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.loop.Tickable;
 import me.aecsocket.unifiedframework.registry.Identifiable;
+import me.aecsocket.unifiedframework.registry.Ref;
 import me.aecsocket.unifiedframework.registry.Registry;
+import me.aecsocket.unifiedframework.registry.ResolutionException;
+import me.aecsocket.unifiedframework.resource.DataResult;
 import me.aecsocket.unifiedframework.resource.LoadResult;
 import me.aecsocket.unifiedframework.resource.ResourceLoadException;
 import me.aecsocket.unifiedframework.resource.Settings;
@@ -76,8 +80,9 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
         hooks.forEach(hook -> hook.initializeGson(this, gsonBuilder));
         gson = gsonBuilder.create();
 
-        load().forEach(entry -> log(entry.isSuccessful() ? LogLevel.VERBOSE : LogLevel.WARN, (String) entry.getData()));
+        load().forEach(entry -> log(entry.isSuccessful() ? LogLevel.VERBOSE : LogLevel.WARN, (String) entry.getResult()));
 
+        commandManager.getCommandContexts().registerContext(CalibreIdentifiable.class, new RegistryCommandContext<>(CalibreIdentifiable.class, registry));
         commandManager.getCommandContexts().registerContext(CalibreItem.class, new RegistryCommandContext<>(CalibreItem.class, registry));
         commandManager.getCommandContexts().registerContext(Player.class, context -> {
             String id = context.popFirstArg();
@@ -125,37 +130,37 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
      * Reloads settings from the settings file and applies some initial settings.
      * @return A {@link LoadResult} of messages during loading.
      */
-    public LoadResult<String, String> loadSettings() {
+    public DataResult<String, String> loadSettings() {
         try {
             settings.loadFrom(this);
         } catch (ResourceLoadException e) {
-            LoadResult<String, String> result = new LoadResult<>();
-            return result.addFailure(null, TextUtils.format("Failed to load settings file: {msg}", "msg", e.getCause().getMessage()));
+            DataResult<String, String> result = new DataResult<>();
+            return result.addFailureData(TextUtils.format("Failed to load settings file: {msg}", "msg", e.getCause().getMessage()));
         }
         log(LogLevel.VERBOSE, "Loaded settings file");
         LogLevel level = LogLevel.valueOfDefault(setting("log_level", String.class, "verbose").toUpperCase());
         if (level != null) logger.setLevel(level);
         String defaultLocale = setting("locale", String.class, localeManager.getDefaultLocale());
         if (defaultLocale != null) localeManager.setDefaultLocale(defaultLocale);
-        return new LoadResult<>();
+        return new DataResult<>();
     }
 
     /**
      * Reloads languages and locales using {@link LocaleManager#loadFrom(Gson, Plugin)}.
      * @return A {@link LoadResult} of messages during loading.
      */
-    public LoadResult<String, String> loadLocales() {
-        LoadResult<String, String> result = new LoadResult<>();
+    public DataResult<String, String> loadLocales() {
+        DataResult<String, String> result = new DataResult<>();
         try {
             localeManager.loadFrom(gson, this).forEach(entry -> {
-                Path path = entry.getPath();
+                Path path = entry.getKey();
                 if (entry.isSuccessful())
-                    result.addSuccess(path, TextUtils.format("Loaded translation {path} ({locale})", "path", path, "locale", ((Translation) entry.getData()).getLocale()));
+                    result.addSuccessData(TextUtils.format("Loaded translation {path} ({locale})", "path", path, "locale", ((Translation) entry.getResult()).getLocale()));
                 else
-                    result.addFailure(path, TextUtils.format("Failed to load translation {path}: {msg}", "path", path, "msg", ((Exception) entry.getData()).getMessage()));
+                    result.addFailureData(TextUtils.format("Failed to load translation {path}: {msg}", "path", path, "msg", ((Exception) entry.getResult()).getMessage()));
             });
         } catch (ResourceLoadException e) {
-            result.addFailure(null, TextUtils.format("Failed to load locale files: {msg}", "msg", e.getMessage()));
+            result.addFailureData(TextUtils.format("Failed to load locale files: {msg}", "msg", e.getMessage()));
         }
         return result;
     }
@@ -170,24 +175,34 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
      * </ul>
      * @return A {@link LoadResult} of messages during loading.
      */
-    public LoadResult<String, String> loadRegistry() {
-        LoadResult<String, String> result = new LoadResult<>();
+    public DataResult<String, String> loadRegistry() {
+        DataResult<String, String> result = new DataResult<>();
         try {
-            registry.loadFrom(gson, this)
+            Registry.LoadContext load = registry.loadFrom(gson, this)
                     .with("component", CalibreComponent.class)
                     .with("blueprint", Blueprint.class)
                     .load()
-                    .forEach(entry -> {
-                        Path path = entry.getPath();
-                        if (entry.isSuccessful()) {
-                            Identifiable id = (Identifiable) entry.getData();
-                            result.addSuccess(path, TextUtils.format("Loaded {class} {id}", "class", id.getClass().getSimpleName(), "id", id.getId()));
-                        } else {
-                            result.addFailure(path, TextUtils.format("Failed to load {path}: {msg}", "path", path, "msg", ((Exception) entry.getData()).getMessage()));
-                        }
-                    });
+                    .resolve();
+            load.loadResult().forEach(entry -> {
+                Path path = entry.getKey();
+                if (entry.isSuccessful()) {
+                    Identifiable id = (Identifiable) entry.getResult();
+                    result.addSuccessData(TextUtils.format("Loaded {class} {id}", "class", id.getClass().getSimpleName(), "id", id.getId()));
+                } else {
+                    result.addFailureData(TextUtils.format("Failed to load {path}: {msg}", "path", path, "msg", ((Exception) entry.getResult()).getMessage()));
+                }
+            });
+            load.resolveResult().forEach(entry -> {
+                Identifiable id = entry.getKey().get();
+                String type = id.getClass().getSimpleName();
+                if (entry.isSuccessful()) {
+                    result.addSuccessData(TextUtils.format("Resolved {class} {id}", "class", type, "id", id.getId()));
+                } else {
+                    result.addFailureData(TextUtils.format("Failed to resolve {class} {id}: {msg}", "class", type, "id", id.getId(), "msg", ((Exception) entry.getResult()).getMessage()));
+                }
+            });
         } catch (ResourceLoadException e) {
-            result.addFailure(null, TextUtils.format("Failed to load object files: {msg}", "msg", e.getMessage()));
+            result.addFailureData(TextUtils.format("Failed to load object files: {msg}", "msg", e.getMessage()));
         }
         return result;
     }
@@ -203,11 +218,11 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
      * This version does not take into account hooks. Use {@link CalibrePlugin#load()} to incorporate hooks.
      * @return A {@link LoadResult} of messages during loading.
      */
-    public LoadResult<String, String> cleanLoad() {
-        LoadResult<String, String> result = new LoadResult<>();
+    public DataResult<String, String> cleanLoad() {
+        DataResult<String, String> result = new DataResult<>();
         File root = getDataFolder();
         if (!root.exists()) {
-            result.addFailure(null, "Failed to load data directory");
+            result.addFailureData("Failed to load data directory");
             return result;
         }
 
@@ -221,12 +236,12 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
      * Clears the registry and locale manager, initializes hooks, then calls {@link CalibrePlugin#cleanLoad()}.
      * @return A {@link LoadResult} of messages during loading.
      */
-    public LoadResult<String, String> load() {
+    public DataResult<String, String> load() {
         localeManager.unregisterAll();
         registry.unregisterAll();
 
         hooks.forEach(hook -> hook.preLoadRegister(this, registry, localeManager, settings));
-        LoadResult<String, String> result = cleanLoad();
+        DataResult<String, String> result = cleanLoad();
         hooks.forEach(hook -> hook.postLoadRegister(this, registry, localeManager, settings));
         return result;
     }

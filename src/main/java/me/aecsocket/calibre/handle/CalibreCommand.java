@@ -3,6 +3,7 @@ package me.aecsocket.calibre.handle;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import me.aecsocket.calibre.CalibrePlugin;
+import me.aecsocket.calibre.item.CalibreIdentifiable;
 import me.aecsocket.calibre.item.CalibreItem;
 import me.aecsocket.unifiedframework.item.ItemCreationException;
 import me.aecsocket.unifiedframework.registry.Identifiable;
@@ -43,9 +44,9 @@ public class CalibreCommand extends BaseCommand {
         send(sender, "chat.command.reload.progress");
         int[] warnings = {0};
         plugin.load().forEach(entry -> {
-            plugin.log(entry.isSuccessful() ? LogLevel.VERBOSE : LogLevel.WARN, (String) entry.getData());
+            plugin.log(entry.isSuccessful() ? LogLevel.VERBOSE : LogLevel.WARN, (String) entry.getResult());
             if (!entry.isSuccessful()) {
-                send(sender, "chat.command.reload.warning", "msg", entry.getData());
+                send(sender, "chat.command.reload.warning", "msg", entry.getResult());
                 ++warnings[0];
             }
         });
@@ -57,7 +58,7 @@ public class CalibreCommand extends BaseCommand {
 
     @Subcommand("list")
     @CommandPermission("calibre.command.list")
-    @CommandCompletion("@registry")
+    @CommandCompletion("@registry:extends=me.aecsocket.calibre.item.CalibreIdentifiable")
     public void list(CommandSender sender, @Optional String nameFilter, @Optional String typeFilter) {
         if (WILDCARD.equals(nameFilter)) nameFilter = null;
         else if (nameFilter != null) nameFilter = nameFilter.toLowerCase();
@@ -67,7 +68,8 @@ public class CalibreCommand extends BaseCommand {
         final String fTypeFilter = typeFilter;
         int[] results = {0};
         plugin.getRegistry().getRegistry().forEach((id, ref) -> {
-            Identifiable object = ref.get();
+            if (!(ref.get() instanceof CalibreIdentifiable)) return;
+            CalibreIdentifiable object = (CalibreIdentifiable) ref.get();
             String type = object.getClass().getSimpleName();
             String localizedName = object instanceof CalibreItem ? ((CalibreItem) object).getLocalizedName(sender) : null;
             if (fTypeFilter != null && !type.toLowerCase().contains(fTypeFilter)) return;
@@ -78,11 +80,29 @@ public class CalibreCommand extends BaseCommand {
                     pass = true;
                 if (!pass) return;
             }
-            send(sender, "chat.command.list", "class", type, "id", id, "name", localizedName);
+            String info = object.getShortInfo(sender);
+            if (info == null)
+                send(sender, "chat.command.list.no_info", "class", type, "id", id);
+            else
+                send(sender, "chat.command.list.info", "class", type, "id", id, "info", info);
             ++results[0];
         });
         if (results[0] == 0)
             send(sender, "chat.command.list.no_results");
+    }
+
+    @Subcommand("info")
+    @CommandPermission("calibre.command.info")
+    @CommandCompletion("@registry")
+    public void info(CommandSender sender, CalibreIdentifiable object) {
+        String info = object.getLongInfo(sender);
+        if (info == null) {
+            send(sender, "chat.command.info.no_info");
+            return;
+        }
+        String[] lines = info.split("\n");
+        for (String line : lines)
+            send(sender, "chat.command.info", "line", line);
     }
 
     @Subcommand("give")

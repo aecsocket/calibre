@@ -5,7 +5,6 @@ import me.aecsocket.calibre.item.CalibreItem;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.descriptor.ComponentCreationException;
 import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptor;
-import me.aecsocket.calibre.util.AcceptsCalibrePlugin;
 import me.aecsocket.unifiedframework.component.ComponentSlot;
 import me.aecsocket.unifiedframework.registry.Registry;
 import me.aecsocket.unifiedframework.registry.ValidationException;
@@ -15,18 +14,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
+import java.util.LinkedHashMap;
 
 /**
  * Represents a premade structure of components.
  */
-public class Blueprint implements CalibreItem, AcceptsCalibrePlugin {
+public class Blueprint extends CalibreItem {
     public static final String ITEM_TYPE = "blueprint";
 
     private transient CalibrePlugin plugin;
     private String id;
     private ComponentDescriptor root;
-    private Map<String, ComponentDescriptor> components;
+    private LinkedHashMap<String, ComponentDescriptor> components;
 
     @Override public CalibrePlugin getPlugin() { return plugin; }
     @Override public void setPlugin(CalibrePlugin plugin) { this.plugin = plugin; }
@@ -36,12 +35,12 @@ public class Blueprint implements CalibreItem, AcceptsCalibrePlugin {
     public ComponentDescriptor getRoot() { return root; }
     public void setRoot(ComponentDescriptor root) { this.root = root; }
 
-    public Map<String, ComponentDescriptor> getComponents() { return components; }
-    public void setComponents(Map<String, ComponentDescriptor> components) { this.components = components; }
+    public LinkedHashMap<String, ComponentDescriptor> getComponents() { return components; }
+    public void setComponents(LinkedHashMap<String, ComponentDescriptor> components) { this.components = components; }
 
     @Override
     public void validate() throws ValidationException {
-        CalibreItem.super.validate();
+        super.validate();
         if (root == null) throw new ValidationException("No root provided");
     }
 

@@ -20,9 +20,7 @@ import me.aecsocket.unifiedframework.loop.SchedulerLoop;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.loop.Tickable;
 import me.aecsocket.unifiedframework.registry.Identifiable;
-import me.aecsocket.unifiedframework.registry.Ref;
 import me.aecsocket.unifiedframework.registry.Registry;
-import me.aecsocket.unifiedframework.registry.ResolutionException;
 import me.aecsocket.unifiedframework.resource.DataResult;
 import me.aecsocket.unifiedframework.resource.LoadResult;
 import me.aecsocket.unifiedframework.resource.ResourceLoadException;
@@ -31,8 +29,8 @@ import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.log.LabelledLogger;
 import me.aecsocket.unifiedframework.util.log.LogLevel;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -60,8 +58,9 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     private final Set<CalibreHook> hooks = new HashSet<>();
     private final CalibreCoreHook coreHook = new CalibreCoreHook();
     private final Map<Player, CalibrePlayer> players = new HashMap<>();
-    private final ItemManager itemManager = new ItemManager(this);
     private final SchedulerLoop schedulerLoop = new SchedulerLoop(this);
+    private final ItemManager itemManager = new ItemManager(this);
+    private final Map<String, NamespacedKey> keys = new HashMap<>();
     private PaperCommandManager commandManager;
     private Gson gson;
 
@@ -76,8 +75,13 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                 .map(plugin -> (CalibreHook) plugin)
                 .forEach(hooks::add);
 
+        hooks.forEach(hook -> {
+            hook.acceptPlugin(this);
+            hook.initialize();
+        });
+
         GsonBuilder gsonBuilder = new GsonBuilder();
-        hooks.forEach(hook -> hook.initializeGson(this, gsonBuilder));
+        hooks.forEach(hook -> hook.initializeGson(gsonBuilder));
         gson = gsonBuilder.create();
 
         load().forEach(entry -> log(entry.isSuccessful() ? LogLevel.VERBOSE : LogLevel.WARN, (String) entry.getResult()));
@@ -109,6 +113,12 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
         commandManager.registerCommand(new CalibreCommand(this));
 
         schedulerLoop.registerTickable(this);
+        schedulerLoop.start();
+    }
+
+    @Override
+    public void onDisable() {
+        schedulerLoop.stop();
     }
 
     public LabelledLogger getPluginLogger() { return logger; }
@@ -118,8 +128,9 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     public Set<CalibreHook> getHooks() { return hooks; }
     public CalibreCoreHook getCoreHook() { return coreHook; }
     public Map<Player, CalibrePlayer> getPlayers() { return players; }
-    public ItemManager getItemManager() { return itemManager; }
     public SchedulerLoop getSchedulerLoop() { return schedulerLoop; }
+    public ItemManager getItemManager() { return itemManager; }
+    public Map<String, NamespacedKey> getKeys() { return keys; }
     public PaperCommandManager getCommandManager() { return commandManager; }
     public Gson getGson() { return gson; }
 
@@ -138,10 +149,13 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
             return result.addFailureData(TextUtils.format("Failed to load settings file: {msg}", "msg", e.getCause().getMessage()));
         }
         log(LogLevel.VERBOSE, "Loaded settings file");
+
         LogLevel level = LogLevel.valueOfDefault(setting("log_level", String.class, "verbose").toUpperCase());
         if (level != null) logger.setLevel(level);
+
         String defaultLocale = setting("locale", String.class, localeManager.getDefaultLocale());
         if (defaultLocale != null) localeManager.setDefaultLocale(defaultLocale);
+
         return new DataResult<>();
     }
 
@@ -240,9 +254,9 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
         localeManager.unregisterAll();
         registry.unregisterAll();
 
-        hooks.forEach(hook -> hook.preLoadRegister(this, registry, localeManager, settings));
+        hooks.forEach(hook -> hook.preLoadRegister(registry, localeManager, settings));
         DataResult<String, String> result = cleanLoad();
-        hooks.forEach(hook -> hook.postLoadRegister(this, registry, localeManager, settings));
+        hooks.forEach(hook -> hook.postLoadRegister(registry, localeManager, settings));
         return result;
     }
 
@@ -329,4 +343,11 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
      * @return The {@link T}.
      */
     public <T extends CalibreItem> T getItem(ItemStack stack, Class<T> type) { return itemManager.getItem(stack, type); }
+
+    /**
+     * Gets a {@link NamespacedKey} registered to this plugin, or create one if it does not exist.
+     * @param key The key name.
+     * @return The key.
+     */
+    public NamespacedKey key(String key) { return keys.computeIfAbsent(key, k -> new NamespacedKey(this, k)); }
 }

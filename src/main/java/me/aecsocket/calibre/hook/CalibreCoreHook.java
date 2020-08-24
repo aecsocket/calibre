@@ -5,8 +5,10 @@ import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.component.CalibreComponentAdapter;
 import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptor;
 import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptorAdapter;
+import me.aecsocket.calibre.item.system.OtherSystem;
 import me.aecsocket.calibre.item.system.TestSystem;
 import me.aecsocket.calibre.util.AcceptsCalibrePluginAdapter;
+import me.aecsocket.unifiedframework.item.ItemManager;
 import me.aecsocket.unifiedframework.locale.LocaleManager;
 import me.aecsocket.unifiedframework.locale.TranslationMap;
 import me.aecsocket.unifiedframework.locale.TranslationMapAdapter;
@@ -23,25 +25,39 @@ import me.aecsocket.unifiedframework.util.json.DefaultedRuntimeTypeAdapterFactor
 public class CalibreCoreHook implements CalibreHook {
     private final DefaultedRuntimeTypeAdapterFactory<ComponentDescriptor> componentDescriptorAdapter = DefaultedRuntimeTypeAdapterFactory.of(ComponentDescriptor.class);
     private final StatMapAdapter statMapAdapter = new StatMapAdapter();
+    private CalibreComponentAdapter componentAdapter;
+    private CalibrePlugin plugin;
 
     public DefaultedRuntimeTypeAdapterFactory<ComponentDescriptor> getComponentDescriptorAdapter() { return componentDescriptorAdapter; }
     public StatMapAdapter getStatMapAdapter() { return statMapAdapter; }
+    public CalibreComponentAdapter getComponentAdapter() { return componentAdapter; }
+    public CalibrePlugin getPlugin() { return plugin; }
+
+    @Override public void acceptPlugin(CalibrePlugin plugin) { this.plugin = plugin; }
 
     @Override
-    public void initializeGson(CalibrePlugin plugin, GsonBuilder builder) {
+    public void initialize() {
+        componentAdapter = new CalibreComponentAdapter(plugin, statMapAdapter);
+        ItemManager itemManager = plugin.getItemManager();
+        itemManager.registerAdapter(componentAdapter);
+    }
+
+    @Override
+    public void initializeGson(GsonBuilder builder) {
         builder
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .registerTypeAdapterFactory(new AcceptsCalibrePluginAdapter(plugin))
                 .registerTypeAdapter(StatMap.class, statMapAdapter)
                 .registerTypeAdapter(TranslationMap.class, new TranslationMapAdapter())
-                .registerTypeAdapterFactory(new CalibreComponentAdapter(plugin.getRegistry(), statMapAdapter))
+                .registerTypeAdapterFactory(componentAdapter)
 
                 .registerTypeAdapterFactory(componentDescriptorAdapter)
-                .registerTypeAdapter(ComponentDescriptor.class, new ComponentDescriptorAdapter());
+                .registerTypeAdapter(ComponentDescriptor.class, new ComponentDescriptorAdapter(plugin.getRegistry()));
     }
 
     @Override
-    public void preLoadRegister(CalibrePlugin plugin, Registry registry, LocaleManager localeManager, Settings settings) {
+    public void preLoadRegister(Registry registry, LocaleManager localeManager, Settings settings) {
         registry.register(new TestSystem()); // TODO remove
+        registry.register(new OtherSystem());
     }
 }

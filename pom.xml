@@ -41,6 +41,11 @@
             <artifactId>acf-paper</artifactId>
             <version>0.5.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.6</version>
+        </dependency>
     </dependencies>
 
     <repositories>
@@ -116,6 +121,10 @@
                         <relocation>
                             <pattern>me.aecsocket.unifiedframework</pattern>
                             <shadedPattern>${project.groupId}.unifiedframework</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.google.gson</pattern>
+                            <shadedPattern>${project.groupId}.gson</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

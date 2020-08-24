@@ -2,11 +2,15 @@ package me.aecsocket.calibre.handle;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.CalibreIdentifiable;
 import me.aecsocket.calibre.item.CalibreItem;
+import me.aecsocket.calibre.item.component.CalibreComponent;
+import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptor;
 import me.aecsocket.unifiedframework.item.ItemCreationException;
-import me.aecsocket.unifiedframework.registry.Identifiable;
+import me.aecsocket.unifiedframework.item.ItemManager;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.log.LogLevel;
 import org.bukkit.ChatColor;
@@ -14,6 +18,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
+
+import java.util.Map;
 
 /**
  * The plugin's command handler. Uses the ACF framework.
@@ -100,9 +106,31 @@ public class CalibreCommand extends BaseCommand {
             send(sender, "chat.command.info.no_info");
             return;
         }
+        Gson gson = plugin.getGson().newBuilder().setPrettyPrinting().create();
         String[] lines = info.split("\n");
+        send(sender, "chat.command.info", "id", object.getId());
         for (String line : lines)
-            send(sender, "chat.command.info", "line", line);
+            send(sender, "chat.command.info.line", "line", line);
+    }
+
+    @Subcommand("descriptor")
+    @CommandPermission("calibre.command.descriptor")
+    public void descriptor(CommandSender sender) {
+        if (!(sender instanceof Player)) {
+            send(sender, "chat.command.not_player");
+            return;
+        }
+        Player player = (Player) sender;
+        CalibreComponent component = plugin.getItem(player.getInventory().getItemInMainHand(), CalibreComponent.class);
+        if (component == null) {
+            send(player, "chat.command.descriptor.not_item");
+            return;
+        }
+        Gson gson = plugin.getGson().newBuilder().setPrettyPrinting().create();
+        String[] lines = gson.toJson(ComponentDescriptor.of(component)).split("\n");
+        send(player, "chat.command.descriptor", "id", component.getId(), "name", component.getLocalizedName(sender));
+        for (String line : lines)
+            send(player, "chat.command.descriptor.line", "line", line);
     }
 
     @Subcommand("give")

@@ -47,7 +47,7 @@ public class CalibreComponentSlot implements ComponentSlot {
 
     public CalibreComponentSlot() {}
 
-    @Override public Component get() { return component; }
+    @Override public CalibreComponent get() { return component; }
 
     @Override
     public void set(Component component) throws IncompatibleComponentException {
@@ -91,7 +91,7 @@ public class CalibreComponentSlot implements ComponentSlot {
     @Override
     public CalibreComponentSlot copy() {
         CalibreComponentSlot copy = clone();
-        copy.component = component.copy();
+        copy.component = component == null ? null : component.copy();
         copy.compatibleCategories = new ArrayList<>(compatibleCategories);
         copy.compatibleIds = new ArrayList<>(compatibleIds);
         return copy;

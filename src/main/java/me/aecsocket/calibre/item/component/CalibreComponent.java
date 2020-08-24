@@ -3,6 +3,7 @@ package me.aecsocket.calibre.item.component;
 import com.google.gson.*;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.CalibreItem;
+import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptor;
 import me.aecsocket.calibre.util.ItemDescriptor;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.calibre.util.AcceptsCalibrePlugin;
@@ -20,6 +21,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -28,7 +31,7 @@ import java.util.stream.Collectors;
 /**
  * A component, which can be nested to create component trees. The building block of an item.
  */
-public class CalibreComponent implements CalibreItem, Component, ComponentHolder<CalibreComponentSlot>, AcceptsCalibrePlugin {
+public class CalibreComponent extends CalibreItem implements Component, ComponentHolder<CalibreComponentSlot>, AcceptsCalibrePlugin {
     public static final String ITEM_TYPE = "component";
     // TODO figure out something better than this
     private static final StatMapAdapter statMapAdapter = new StatMapAdapter();
@@ -40,7 +43,7 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
     private String id;
     private List<String> categories = new ArrayList<>();
     private Map<String, CalibreComponentSlot> slots = new HashMap<>();
-    private transient Map<Class<? extends CalibreSystem>, CalibreSystem> systems = new HashMap<>();
+    private transient Map<Class<? extends CalibreSystem<?>>, CalibreSystem<?>> systems = new HashMap<>();
     private transient StatMap stats = new StatMap();
     private ItemDescriptor item;
 
@@ -62,8 +65,8 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
     @Override public Map<String, CalibreComponentSlot> getSlots() { return slots; }
     public void setSlots(Map<String, CalibreComponentSlot> slots) { this.slots = slots; }
 
-    public Map<Class<? extends CalibreSystem>, CalibreSystem> getSystems() { return systems; }
-    public void setSystems(Map<Class<? extends CalibreSystem>, CalibreSystem> systems) { this.systems = systems; }
+    public Map<Class<? extends CalibreSystem<?>>, CalibreSystem<?>> getSystems() { return systems; }
+    public void setSystems(Map<Class<? extends CalibreSystem<?>>, CalibreSystem<?>> systems) { this.systems = systems; }
 
     public StatMap getStats() { return stats; }
     public void setStats(StatMap stats) { this.stats = stats; }
@@ -93,6 +96,7 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
      * @param json The {@link JsonObject}.
      * @param gson The {@link Gson}.
      */
+    @SuppressWarnings("unchecked")
     public void load(ResolutionContext context, JsonObject json, Gson gson) {
         JsonAdapter util = JsonAdapter.INSTANCE;
 
@@ -101,15 +105,16 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
         JsonObject object = util.assertObject(util.get(json, "systems", new JsonObject()));
         for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
             String systemId = entry.getKey();
-            CalibreSystem system = context.get(systemId, CalibreSystem.class);
+            CalibreSystem<?> system = context.get(systemId, CalibreSystem.class);
             if (system == null) throw new ResolutionException(TextUtils.format("System {id} does not exist", "id", systemId));
             system = gson.fromJson(entry.getValue(), system.getClass());
-            systems.put(system.getClass(), system);
+            systems.put((Class<? extends CalibreSystem<?>>) system.getClass(), system);
         }
         // 2. Prepare the systems
         systems.forEach((type, system) -> {
-            Collection<Class<? extends CalibreSystem>> conflicts = system.getConflicts();
-            Collection<Class<? extends CalibreSystem>> dependencies = new ArrayList<>(system.getDependencies());
+            system.acceptParent(this);
+            Collection<Class<? extends CalibreSystem<?>>> conflicts = system.getConflicts();
+            Collection<Class<? extends CalibreSystem<?>>> dependencies = new ArrayList<>(system.getDependencies());
             systems.forEach((type2, system2) -> {
                 if (conflicts.contains(type2))
                     throw new ResolutionException(
@@ -127,7 +132,6 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
                                 "deps", String.join(", ", dependencies.stream().map(Class::getSimpleName).collect(Collectors.joining(", ")))
                         )
                 );
-            system.acceptSystems(systems);
         });
 
         // Load stats
@@ -157,8 +161,10 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
         if (base == null) return;
 
         slots.putAll(base.copySlots());
-        systems.putAll(base.systems.entrySet().stream().peek(entry -> entry.setValue(entry.getValue().copy())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-        stats.addAll(base.stats.copy());
+        systems.putAll(CalibreSystem.copyMap(base.systems));
+        StatMap stats = this.stats.copy();
+        this.stats = base.stats.copy();
+        this.stats.addAll(stats);
     }
 
     @Override public String getItemType() { return ITEM_TYPE; }
@@ -168,7 +174,12 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
         if (item == null) throw new ItemCreationException("Item is null");
         ItemStack result = item.create();
         result.setAmount(amount);
+        plugin.getItemManager().saveTypeKey(result, this);
         ItemMeta meta = result.getItemMeta();
+        PersistentDataContainer data = meta.getPersistentDataContainer();
+
+        data.set(plugin.key("data"), PersistentDataType.STRING, plugin.getGson().toJson(ComponentDescriptor.of(this)));
+
         meta.setDisplayName(getLocalizedName(player));
         result.setItemMeta(meta);
         return result;
@@ -191,8 +202,7 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
                         , prefix),
                 "systems", TextUtils.prefixLines(
                         systems.size() == 0 ? plugin.gen(sender, "chat.info.empty") :
-                                systems.entrySet().stream().map(entry -> {
-                                    CalibreSystem system = entry.getValue();
+                                systems.values().stream().map(system -> {
                                     String info = system.getLongInfo(sender);
                                     if (info == null)
                                         return plugin.gen(
@@ -225,7 +235,7 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
     public CalibreComponent copy() {
         CalibreComponent copy = clone();
         copy.slots = copySlots();
-        copy.systems = systems.entrySet().stream().peek(entry -> entry.setValue(entry.getValue().copy())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        copy.systems = CalibreSystem.copyMap(systems);
         copy.stats = stats.copy();
         return copy;
     }

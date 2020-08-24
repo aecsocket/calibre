@@ -9,6 +9,17 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Type adapter for {@link ComponentDescriptor}s.
+ * Serializes into:
+ * <ul>
+ *     <li>a JsonPrimitive of the ID if that is the only provided property</li>
+ *     <li>a JsonObject with <code>JsonPrimitive id</code>,
+ *     <code>JsonObject systems</code> (ID and system descriptor)
+ *     and <code>JsonObject slots</code> (name and component descriptor)</li>
+ * </ul>
+ * Same deserializaztion.
+ */
 public class ComponentDescriptorAdapter implements JsonSerializer<ComponentDescriptor>, JsonDeserializer<ComponentDescriptor>, JsonAdapter {
     private final Registry registry;
 

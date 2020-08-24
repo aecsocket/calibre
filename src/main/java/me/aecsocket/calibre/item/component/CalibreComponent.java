@@ -23,6 +23,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -40,6 +41,7 @@ public class CalibreComponent extends CalibreItem implements Component, Componen
             .create();
 
     private transient CalibrePlugin plugin;
+    private transient CalibreComponent parent;
     private String id;
     private List<String> categories = new ArrayList<>();
     private Map<String, CalibreComponentSlot> slots = new HashMap<>();
@@ -56,6 +58,9 @@ public class CalibreComponent extends CalibreItem implements Component, Componen
 
     @Override public CalibrePlugin getPlugin() { return plugin; }
     @Override public void setPlugin(CalibrePlugin plugin) { this.plugin = plugin; }
+
+    public CalibreComponent getParent() { return parent; }
+    public void setParent(CalibreComponent parent) { this.parent = parent; }
 
     @Override public String getId() { return id; }
 
@@ -91,7 +96,7 @@ public class CalibreComponent extends CalibreItem implements Component, Componen
     }
 
     /**
-     * Loads systems and stats. For internal use.
+     * Loads systems and stats. Mainly for internal use.
      * @param context The {@link ResolutionContext}.
      * @param json The {@link JsonObject}.
      * @param gson The {@link Gson}.
@@ -112,7 +117,6 @@ public class CalibreComponent extends CalibreItem implements Component, Componen
         }
         // 2. Prepare the systems
         systems.forEach((type, system) -> {
-            system.acceptParent(this);
             Collection<Class<? extends CalibreSystem<?>>> conflicts = system.getConflicts();
             Collection<Class<? extends CalibreSystem<?>>> dependencies = new ArrayList<>(system.getDependencies());
             systems.forEach((type2, system2) -> {
@@ -153,19 +157,31 @@ public class CalibreComponent extends CalibreItem implements Component, Componen
      *     <li>systems</li>
      *     <li>stats</li>
      * </ul>
-     * as the provided base. Existing fields will be overwritten.
+     * as the provided base. Existing fields will be merged, with the new ones taking precedence.
      * All collections involved are deep cloned. This may be an intensive operation.
      * @param base The base component.
      */
     public void extendBase(CalibreComponent base) {
-        if (base == null) return;
-
         slots.putAll(base.copySlots());
         systems.putAll(CalibreSystem.copyMap(base.systems));
-        StatMap stats = this.stats.copy();
-        this.stats = base.stats.copy();
-        this.stats.addAll(stats);
+        stats.addAll(base.stats);
     }
+
+    /**
+     * Gets the root component in this tree.
+     * @return The root component.
+     */
+    public @NotNull CalibreComponent getRoot() {
+        CalibreComponent parent = this;
+        while (parent.getParent() != null) { parent = parent.parent; }
+        return parent;
+    }
+
+    /**
+     * Gets if this component is the root component in its tree.
+     * @return The result.
+     */
+    public boolean isRoot() { return parent == null; }
 
     @Override public String getItemType() { return ITEM_TYPE; }
 

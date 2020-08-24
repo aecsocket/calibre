@@ -2,6 +2,7 @@ package me.aecsocket.calibre.hook;
 
 import com.google.gson.*;
 import me.aecsocket.calibre.CalibrePlugin;
+import me.aecsocket.calibre.handle.EventHandle;
 import me.aecsocket.calibre.item.component.CalibreComponentAdapter;
 import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptor;
 import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptorAdapter;
@@ -17,6 +18,7 @@ import me.aecsocket.unifiedframework.resource.Settings;
 import me.aecsocket.unifiedframework.stat.StatMap;
 import me.aecsocket.unifiedframework.stat.StatMapAdapter;
 import me.aecsocket.unifiedframework.util.json.DefaultedRuntimeTypeAdapterFactory;
+import org.bukkit.Bukkit;
 
 /**
  * The core {@link CalibreHook}. This provides core GSON adapters and capability to deserialize the most
@@ -40,6 +42,8 @@ public class CalibreCoreHook implements CalibreHook {
         componentAdapter = new CalibreComponentAdapter(plugin, statMapAdapter);
         ItemManager itemManager = plugin.getItemManager();
         itemManager.registerAdapter(componentAdapter);
+
+        Bukkit.getPluginManager().registerEvents(new EventHandle(plugin), plugin);
     }
 
     @Override

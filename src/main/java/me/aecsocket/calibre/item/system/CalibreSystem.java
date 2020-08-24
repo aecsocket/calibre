@@ -45,7 +45,7 @@ public interface CalibreSystem<D> extends CalibreIdentifiable, Cloneable {
      * Accepts the parent {@link CalibreComponent} that this System is a system of.
      * @param parent The parent component.
      */
-    void acceptParent(CalibreComponent parent);
+    void setParent(CalibreComponent parent);
 
     /**
      * Registers all of the listeners that this system uses into an {@link EventDispatcher}.
@@ -80,6 +80,11 @@ public interface CalibreSystem<D> extends CalibreIdentifiable, Cloneable {
     @Override @Nullable default String getShortInfo(CommandSender sender) { return null; }
     @Override @Nullable default String getLongInfo(CommandSender sender) { return null; }
 
+    /**
+     * Copies a map of class-systems, copying both the map and the systems. Used in {@link CalibreComponent#copy()}.
+     * @param original The original map.
+     * @return The copied map, with copied elements.
+     */
     static Map<Class<? extends CalibreSystem<?>>, CalibreSystem<?>> copyMap(Map<Class<? extends CalibreSystem<?>>, CalibreSystem<?>> original) {
         Map<Class<? extends CalibreSystem<?>>, CalibreSystem<?>> copy = new HashMap<>();
         for (Map.Entry<Class<? extends CalibreSystem<?>>, CalibreSystem<?>> entry : original.entrySet()) {

@@ -20,6 +20,9 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.io.IOException;
 
+/**
+ * Type and item adapter for {@link CalibreComponent}s.
+ */
 public class CalibreComponentAdapter implements TypeAdapterFactory, JsonAdapter, ItemAdapter<CalibreComponent> {
     private final CalibrePlugin plugin;
     private final StatMapAdapter statMapAdapter;
@@ -62,11 +65,6 @@ public class CalibreComponentAdapter implements TypeAdapterFactory, JsonAdapter,
         try {
             component = plugin.getGson().fromJson(itemData, ComponentDescriptor.class).create(registry);
         } catch (ComponentCreationException e) { return null; }
-
-        // Register event listeners
-        EventDispatcher dispatcher = new EventDispatcher();
-        component.getSystems().values().forEach(system -> system.registerListeners(dispatcher));
-        component.setEventDispatcher(dispatcher);
 
         return component;
     }

@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
  * </ul>
  */
 public interface CalibreIdentifiable extends Identifiable {
+    /** The valid characters that are accepted for the ID on validation. */
     String ID_CHARACTERS = "abcdefghijklmnopqrstuvwxyz0123456789_.";
 
     @Override

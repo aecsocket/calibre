@@ -8,6 +8,7 @@ import me.aecsocket.unifiedframework.stat.Stat;
 import me.aecsocket.unifiedframework.util.Utils;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -23,7 +24,7 @@ public class OtherSystem implements CalibreSystem<Void>, ItemEvents.Hold.Listene
     @Override public String getId() { return "other"; }
     @Override public Map<String, Stat<?>> getDefaultStats() { return STATS; }
 
-    @Override public void acceptParent(CalibreComponent parent) { this.parent = parent; }
+    @Override public void setParent(CalibreComponent parent) { this.parent = parent; }
     public CalibreComponent getParent() { return parent; }
 
     @Override
@@ -32,7 +33,7 @@ public class OtherSystem implements CalibreSystem<Void>, ItemEvents.Hold.Listene
     }
 
     @Override
-    public void onHold(Player player, EquipmentSlot hand) {}
+    public void onHold(ItemStack itemStack, Player player, EquipmentSlot hand) {}
 
     @Override public OtherSystem clone() { try { return (OtherSystem) super.clone(); } catch (CloneNotSupportedException e) { return null; } }
     @Override public OtherSystem copy() { return clone(); }

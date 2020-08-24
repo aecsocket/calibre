@@ -6,7 +6,6 @@ import me.aecsocket.unifiedframework.component.Component;
 import me.aecsocket.unifiedframework.component.ComponentSlot;
 import me.aecsocket.unifiedframework.component.IncompatibleComponentException;
 import org.bukkit.command.CommandSender;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,8 +69,23 @@ public class CalibreComponentSlot implements ComponentSlot {
     @Override public boolean isRequired() { return required; }
     public void setRequired(boolean required) { this.required = required; }
 
+    /**
+     * Gets all of the compatible categories of component that this slot accepts.
+     * To pass compatibility, a component must have at least one of the categories defined here (or it is
+     * passed automatically if the list is empty).
+     * @return The compatible categories.
+     */
     public List<String> getCompatibleCategories() { return compatibleCategories; }
+    public void setCompatibleCategories(List<String> compatibleCategories) { this.compatibleCategories = compatibleCategories; }
+
+    /**
+     * Gets all of the compatible IDs of component that this slot accepts.
+     * To pass compatibility, a component must match at least one of the IDs defined here (or it is
+     * passed automatically if the list is empty).
+     * @return The compatible IDs.
+     */
     public List<String> getCompatibleIds() { return compatibleIds; }
+    public void setCompatibleIds(List<String> compatibleIds) { this.compatibleIds = compatibleIds; }
 
     /**
      * Gets lines of info used by other objects in <code>/calibre info</code>. The string is split

@@ -3,10 +3,12 @@ package me.aecsocket.calibre.util;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.CalibreItem;
 import me.aecsocket.calibre.item.ItemEvents;
+import me.aecsocket.unifiedframework.event.Event;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.loop.Tickable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 /**
@@ -24,12 +26,26 @@ public class CalibrePlayer implements Tickable {
     public CalibrePlugin getPlugin() { return plugin; }
     public Player getPlayer() { return player; }
 
+    private void callEvent(ItemStack stack, Event<?>... events) {
+        CalibreItem item = plugin.getItem(stack, CalibreItem.class);
+        if (item != null) {
+            for (Event<?> event : events)
+                item.callEvent(event);
+        }
+    }
+
     @Override
     public void tick(TickContext tickContext) {
         PlayerInventory inv = player.getInventory();
-        CalibreItem mainHand = plugin.getItem(inv.getItemInMainHand());
-        if (mainHand != null) mainHand.sendEvent(new ItemEvents.Hold(player, EquipmentSlot.HAND));
-        CalibreItem offHand = plugin.getItem(inv.getItemInOffHand());
-        if (offHand != null) offHand.sendEvent(new ItemEvents.Hold(player, EquipmentSlot.OFF_HAND));
+        callEvent(inv.getItemInMainHand(),
+                new ItemEvents.Hold(
+                        inv.getItemInMainHand(),
+                        player,
+                        EquipmentSlot.HAND));
+        callEvent(inv.getItemInOffHand(),
+                new ItemEvents.Hold(
+                        inv.getItemInOffHand(),
+                        player,
+                        EquipmentSlot.OFF_HAND));
     }
 }

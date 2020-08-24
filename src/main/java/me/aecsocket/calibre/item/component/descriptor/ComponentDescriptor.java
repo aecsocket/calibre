@@ -3,6 +3,7 @@ package me.aecsocket.calibre.item.component.descriptor;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.CalibreComponentSlot;
 import me.aecsocket.calibre.item.system.CalibreSystem;
+import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.registry.Registry;
 import me.aecsocket.unifiedframework.util.TextUtils;
 import org.jetbrains.annotations.NotNull;
@@ -54,20 +55,30 @@ public class ComponentDescriptor {
     public void setSlots(Map<String, ComponentDescriptor> slots) { this.slots = slots; }
 
     /**
-     * Creates the {@link CalibreComponent} this can create.
+     * Creates the {@link CalibreComponent} this can create, also creating the component tree and setting
+     * up event handlers.
      * @param registry The {@link Registry} used for resolving other components.
+     * @param dispatcher The existing {@link EventDispatcher} used for the entire tree.
+     * @param parent The parent of the component to create.
      * @return The created {@link CalibreComponent}.
      * @throws ComponentCreationException If the component could not be created.
      */
-    public @NotNull CalibreComponent create(Registry registry) throws ComponentCreationException {
+    public @NotNull CalibreComponent create(Registry registry, EventDispatcher dispatcher, CalibreComponent parent) throws ComponentCreationException {
         CalibreComponent component = registry.getRaw(id, CalibreComponent.class);
         if (component == null) throw new ComponentCreationException(TextUtils.format("Failed to find component with ID {id}", "id", id));
         component = component.copy();
+
+        component.setEventDispatcher(dispatcher);
+        component.setParent(parent);
+
         // Systems
         for (Map.Entry<String, ?> entry : systems.entrySet()) {
             for (CalibreSystem<?> system : component.getSystems().values()) {
-                if (system.getId().equals(entry.getKey()))
+                if (system.getId().equals(entry.getKey())) {
                     provideDescriptor(system, entry.getValue());
+                    system.setParent(component);
+                    system.registerListeners(dispatcher);
+                }
             }
         }
         // Slots
@@ -75,12 +86,25 @@ public class ComponentDescriptor {
             String name = entry.getKey();
             if (component.getSlots().containsKey(name)) {
                 CalibreComponentSlot slot = component.getSlots().get(name);
-                CalibreComponent child = entry.getValue().create(registry);
+                CalibreComponent child = entry.getValue().create(registry, dispatcher, component);
                 if (slot.isCompatible(child))
                     slot.set(child);
             }
         }
+
         return component;
+    }
+
+    /**
+     * Creates the {@link CalibreComponent} this can create, also creating the component tree and setting
+     * up event handlers.
+     * @param registry The {@link Registry} used for resolving other components.
+     * @return The created {@link CalibreComponent}.
+     * @throws ComponentCreationException If the component could not be created.
+     */
+    public @NotNull CalibreComponent create(Registry registry) throws ComponentCreationException {
+        EventDispatcher dispatcher = new EventDispatcher();
+        return create(registry, dispatcher, null);
     }
 
     private <D> void provideDescriptor(CalibreSystem<D> system, Object descriptor) {

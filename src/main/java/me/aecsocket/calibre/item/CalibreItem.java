@@ -22,7 +22,7 @@ public abstract class CalibreItem implements CalibreIdentifiable, Item, AcceptsC
 
     public EventDispatcher getEventDispatcher() { return eventDispatcher; }
     public void setEventDispatcher(EventDispatcher eventDispatcher) { this.eventDispatcher = eventDispatcher; }
-    public void sendEvent(Event<?> event) { eventDispatcher.send(event); }
+    public void callEvent(Event<?> event) { eventDispatcher.call(event); }
 
     /**
      * Gets the localized name of the item, looked up in the plugin's locale manager.

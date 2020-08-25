@@ -1,4 +1,6 @@
 me.aecsocket.calibre
+me.aecsocket.calibre.defaults.gui
+me.aecsocket.calibre.defaults.melee
 me.aecsocket.calibre.handle
 me.aecsocket.calibre.hook
 me.aecsocket.calibre.item

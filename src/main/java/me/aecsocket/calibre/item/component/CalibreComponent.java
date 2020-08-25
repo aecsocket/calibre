@@ -9,7 +9,9 @@ import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.calibre.util.AcceptsCalibrePlugin;
 import me.aecsocket.unifiedframework.component.Component;
 import me.aecsocket.unifiedframework.component.ComponentHolder;
+import me.aecsocket.unifiedframework.event.Event;
 import me.aecsocket.unifiedframework.item.ItemCreationException;
+import me.aecsocket.unifiedframework.registry.Registry;
 import me.aecsocket.unifiedframework.registry.ResolutionContext;
 import me.aecsocket.unifiedframework.registry.ResolutionException;
 import me.aecsocket.unifiedframework.stat.Stat;
@@ -23,7 +25,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
 /**
  * A component, which can be nested to create component trees. The building block of an item.
  */
-public class CalibreComponent extends CalibreItem implements Component, ComponentHolder<CalibreComponentSlot>, AcceptsCalibrePlugin {
+public class CalibreComponent implements CalibreItem, Component, ComponentHolder<CalibreComponentSlot>, AcceptsCalibrePlugin {
     public static final String ITEM_TYPE = "component";
     // TODO figure out something better than this
     private static final StatMapAdapter statMapAdapter = new StatMapAdapter();
@@ -41,13 +42,15 @@ public class CalibreComponent extends CalibreItem implements Component, Componen
             .create();
 
     private transient CalibrePlugin plugin;
-    private transient CalibreComponent parent;
     private String id;
     private List<String> categories = new ArrayList<>();
     private Map<String, CalibreComponentSlot> slots = new HashMap<>();
     private transient Map<Class<? extends CalibreSystem<?>>, CalibreSystem<?>> systems = new HashMap<>();
     private transient StatMap stats = new StatMap();
     private ItemDescriptor item;
+
+    private transient CalibreComponent parent;
+    private transient ComponentTree tree;
 
     public CalibreComponent(CalibrePlugin plugin, String id) {
         this.plugin = plugin;
@@ -58,9 +61,6 @@ public class CalibreComponent extends CalibreItem implements Component, Componen
 
     @Override public CalibrePlugin getPlugin() { return plugin; }
     @Override public void setPlugin(CalibrePlugin plugin) { this.plugin = plugin; }
-
-    public CalibreComponent getParent() { return parent; }
-    public void setParent(CalibreComponent parent) { this.parent = parent; }
 
     @Override public String getId() { return id; }
 
@@ -78,6 +78,12 @@ public class CalibreComponent extends CalibreItem implements Component, Componen
 
     public ItemDescriptor getItem() { return item; }
     public void setItem(ItemDescriptor item) { this.item = item; }
+
+    public CalibreComponent getParent() { return parent; }
+    public void setParent(CalibreComponent parent) { this.parent = parent; }
+
+    public ComponentTree getTree() { return tree; }
+    public void setTree(ComponentTree tree) { this.tree = tree; }
 
     @Override
     public void resolve(ResolutionContext context) throws ResolutionException {
@@ -113,6 +119,7 @@ public class CalibreComponent extends CalibreItem implements Component, Componen
             CalibreSystem<?> system = context.get(systemId, CalibreSystem.class);
             if (system == null) throw new ResolutionException(TextUtils.format("System {id} does not exist", "id", systemId));
             system = gson.fromJson(entry.getValue(), system.getClass());
+            if (systems.containsKey(system.getClass())) throw new ResolutionException(TextUtils.format("Component already has system with same type as {id}", "id", systemId));
             systems.put((Class<? extends CalibreSystem<?>>) system.getClass(), system);
         }
         // 2. Prepare the systems
@@ -168,20 +175,23 @@ public class CalibreComponent extends CalibreItem implements Component, Componen
     }
 
     /**
-     * Gets the root component in this tree.
-     * @return The root component.
-     */
-    public @NotNull CalibreComponent getRoot() {
-        CalibreComponent parent = this;
-        while (parent.getParent() != null) { parent = parent.parent; }
-        return parent;
-    }
-
-    /**
      * Gets if this component is the root component in its tree.
      * @return The result.
      */
-    public boolean isRoot() { return parent == null; }
+    public boolean isRoot() { return tree.getRoot() == this; }
+
+    @Override
+    public void callEvent(Event<?> event) { tree.getEventDispatcher().call(event); }
+
+    /**
+     * When creating a tree of components, modifies the tree to this instance's needs, such as
+     * adding its stats to the tree.
+     * <p>
+     * In {@link ComponentDescriptor#create(Registry)}, this method is called depth-first in the tree, so the
+     * root component gets this method called last.
+     * @param tree The tree.
+     */
+    public void modifyTree(ComponentTree tree) { tree.getStats().addAll(stats); }
 
     @Override public String getItemType() { return ITEM_TYPE; }
 
@@ -200,8 +210,6 @@ public class CalibreComponent extends CalibreItem implements Component, Componen
         result.setItemMeta(meta);
         return result;
     }
-
-    @Override public @Nullable String getShortInfo(CommandSender sender) { return getLocalizedName(sender); }
 
     @Override
     public @Nullable String getLongInfo(CommandSender sender) {

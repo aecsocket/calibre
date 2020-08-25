@@ -40,12 +40,12 @@ public class CalibrePlayer implements Tickable {
         callEvent(inv.getItemInMainHand(),
                 new ItemEvents.Hold(
                         inv.getItemInMainHand(),
-                        player,
-                        EquipmentSlot.HAND));
+                        EquipmentSlot.HAND,
+                        player));
         callEvent(inv.getItemInOffHand(),
                 new ItemEvents.Hold(
                         inv.getItemInOffHand(),
-                        player,
-                        EquipmentSlot.OFF_HAND));
+                        EquipmentSlot.OFF_HAND,
+                        player));
     }
 }

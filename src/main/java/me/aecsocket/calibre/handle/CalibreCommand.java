@@ -3,14 +3,13 @@ package me.aecsocket.calibre.handle;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.CalibreIdentifiable;
 import me.aecsocket.calibre.item.CalibreItem;
+import me.aecsocket.calibre.item.CalibreItemSupplier;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptor;
 import me.aecsocket.unifiedframework.item.ItemCreationException;
-import me.aecsocket.unifiedframework.item.ItemManager;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.log.LogLevel;
 import org.bukkit.ChatColor;
@@ -19,10 +18,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 
-import java.util.Map;
-
 /**
- * The plugin's command handler. Uses the ACF framework.
+ * The plugin's command handler. Uses ACF.
  */
 @CommandAlias("calibre|cal")
 public class CalibreCommand extends BaseCommand {
@@ -77,7 +74,7 @@ public class CalibreCommand extends BaseCommand {
             if (!(ref.get() instanceof CalibreIdentifiable)) return;
             CalibreIdentifiable object = (CalibreIdentifiable) ref.get();
             String type = object.getClass().getSimpleName();
-            String localizedName = object instanceof CalibreItem ? ((CalibreItem) object).getLocalizedName(sender) : null;
+            String localizedName = object.getLocalizedName(sender);
             if (fTypeFilter != null && !type.toLowerCase().contains(fTypeFilter)) return;
             if (fNameFilter != null) {
                 boolean pass = false;
@@ -135,8 +132,8 @@ public class CalibreCommand extends BaseCommand {
 
     @Subcommand("give")
     @CommandPermission("calibre.command.give")
-    @CommandCompletion("@players @registry:extends=me.aecsocket.calibre.item.CalibreItem")
-    public void give(CommandSender sender, Player target, CalibreItem item, @Optional Integer amount) {
+    @CommandCompletion("@players @registry:extends=me.aecsocket.calibre.item.CalibreItemSupplier")
+    public void give(CommandSender sender, Player target, CalibreItemSupplier item, @Optional Integer amount) {
         if (amount == null) amount = 1;
         ItemStack stack;
         try {

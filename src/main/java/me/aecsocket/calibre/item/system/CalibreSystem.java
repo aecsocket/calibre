@@ -4,7 +4,6 @@ import com.google.gson.reflect.TypeToken;
 import me.aecsocket.calibre.item.CalibreIdentifiable;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
-import me.aecsocket.unifiedframework.registry.ValidationException;
 import me.aecsocket.unifiedframework.stat.Stat;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -42,6 +41,12 @@ public interface CalibreSystem<D> extends CalibreIdentifiable, Cloneable {
     default @NotNull Collection<Class<? extends CalibreSystem<?>>> getConflicts() { return Collections.emptyList(); }
 
     /**
+     * Gets the parent {@link CalibreComponent} that this System is a system of.
+     * @return The parent component.
+     */
+    CalibreComponent getParent();
+
+    /**
      * Accepts the parent {@link CalibreComponent} that this System is a system of.
      * @param parent The parent component.
      */
@@ -71,13 +76,14 @@ public interface CalibreSystem<D> extends CalibreIdentifiable, Cloneable {
      */
     default D createDescriptor() { return null; }
 
+    @Override default String getCalibreType() { return "system"; }
+
     /**
      * Creates an exact copy of this system, but with references in fields copied.
      * @return The copy.
      */
     CalibreSystem<D> copy();
 
-    @Override @Nullable default String getShortInfo(CommandSender sender) { return null; }
     @Override @Nullable default String getLongInfo(CommandSender sender) { return null; }
 
     /**

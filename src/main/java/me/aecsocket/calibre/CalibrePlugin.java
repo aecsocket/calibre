@@ -6,13 +6,16 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.aecsocket.calibre.handle.CalibreCommand;
 import me.aecsocket.calibre.hook.CalibreCoreHook;
+import me.aecsocket.calibre.hook.CalibreDefaultHook;
 import me.aecsocket.calibre.hook.CalibreHook;
 import me.aecsocket.calibre.item.CalibreIdentifiable;
 import me.aecsocket.calibre.item.CalibreItem;
+import me.aecsocket.calibre.item.CalibreItemSupplier;
 import me.aecsocket.calibre.item.blueprint.Blueprint;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.util.CalibrePlayer;
 import me.aecsocket.calibre.util.RegistryCommandContext;
+import me.aecsocket.unifiedframework.gui.GUIVector;
 import me.aecsocket.unifiedframework.item.ItemManager;
 import me.aecsocket.unifiedframework.locale.LocaleManager;
 import me.aecsocket.unifiedframework.locale.Translation;
@@ -52,15 +55,16 @@ import java.util.stream.Stream;
  */
 public class CalibrePlugin extends JavaPlugin implements Tickable {
     private final LabelledLogger logger = new LabelledLogger(getLogger(), LogLevel.VERBOSE);
-    private final Settings settings = new Settings();
     private final LocaleManager localeManager = new LocaleManager();
     private final Registry registry = new Registry();
     private final Set<CalibreHook> hooks = new HashSet<>();
     private final CalibreCoreHook coreHook = new CalibreCoreHook();
+    private final CalibreDefaultHook defaultHook = new CalibreDefaultHook();
     private final Map<Player, CalibrePlayer> players = new HashMap<>();
     private final SchedulerLoop schedulerLoop = new SchedulerLoop(this);
     private final ItemManager itemManager = new ItemManager(this);
     private final Map<String, NamespacedKey> keys = new HashMap<>();
+    private Settings settings;
     private PaperCommandManager commandManager;
     private Gson gson;
 
@@ -68,10 +72,10 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     public void onEnable() {
         commandManager = new PaperCommandManager(this);
 
-        String pluginName = getDescription().getName();
-        hooks.add(coreHook); // TODO an option to disable the core hook
+        hooks.add(coreHook);
+        hooks.add(defaultHook);
         Stream.of(Bukkit.getPluginManager().getPlugins())
-                .filter(plugin -> plugin instanceof CalibreHook && plugin.getDescription().getLoadBefore().contains(pluginName))
+                .filter(plugin -> plugin instanceof CalibreHook)
                 .map(plugin -> (CalibreHook) plugin)
                 .forEach(hooks::add);
 
@@ -83,11 +87,12 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
         GsonBuilder gsonBuilder = new GsonBuilder();
         hooks.forEach(hook -> hook.initializeGson(gsonBuilder));
         gson = gsonBuilder.create();
+        settings = new Settings(gson);
 
         load().forEach(entry -> log(entry.isSuccessful() ? LogLevel.VERBOSE : LogLevel.WARN, (String) entry.getResult()));
 
+        commandManager.getCommandContexts().registerContext(CalibreItemSupplier.class, new RegistryCommandContext<>(CalibreItemSupplier.class, registry));
         commandManager.getCommandContexts().registerContext(CalibreIdentifiable.class, new RegistryCommandContext<>(CalibreIdentifiable.class, registry));
-        commandManager.getCommandContexts().registerContext(CalibreItem.class, new RegistryCommandContext<>(CalibreItem.class, registry));
         commandManager.getCommandContexts().registerContext(Player.class, context -> {
             String id = context.popFirstArg();
             Player result = Utils.getCommandTarget(id, context.getSender());
@@ -127,6 +132,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     public Registry getRegistry() { return registry; }
     public Set<CalibreHook> getHooks() { return hooks; }
     public CalibreCoreHook getCoreHook() { return coreHook; }
+    public CalibreDefaultHook getDefaultHook() { return defaultHook; }
     public Map<Player, CalibrePlayer> getPlayers() { return players; }
     public SchedulerLoop getSchedulerLoop() { return schedulerLoop; }
     public ItemManager getItemManager() { return itemManager; }

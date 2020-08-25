@@ -6,15 +6,10 @@ import me.aecsocket.calibre.handle.EventHandle;
 import me.aecsocket.calibre.item.component.CalibreComponentAdapter;
 import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptor;
 import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptorAdapter;
-import me.aecsocket.calibre.item.system.OtherSystem;
-import me.aecsocket.calibre.item.system.TestSystem;
 import me.aecsocket.calibre.util.AcceptsCalibrePluginAdapter;
 import me.aecsocket.unifiedframework.item.ItemManager;
-import me.aecsocket.unifiedframework.locale.LocaleManager;
 import me.aecsocket.unifiedframework.locale.TranslationMap;
 import me.aecsocket.unifiedframework.locale.TranslationMapAdapter;
-import me.aecsocket.unifiedframework.registry.Registry;
-import me.aecsocket.unifiedframework.resource.Settings;
 import me.aecsocket.unifiedframework.stat.StatMap;
 import me.aecsocket.unifiedframework.stat.StatMapAdapter;
 import me.aecsocket.unifiedframework.util.json.DefaultedRuntimeTypeAdapterFactory;
@@ -33,8 +28,8 @@ public class CalibreCoreHook implements CalibreHook {
     public DefaultedRuntimeTypeAdapterFactory<ComponentDescriptor> getComponentDescriptorAdapter() { return componentDescriptorAdapter; }
     public StatMapAdapter getStatMapAdapter() { return statMapAdapter; }
     public CalibreComponentAdapter getComponentAdapter() { return componentAdapter; }
-    public CalibrePlugin getPlugin() { return plugin; }
 
+    public CalibrePlugin getPlugin() { return plugin; }
     @Override public void acceptPlugin(CalibrePlugin plugin) { this.plugin = plugin; }
 
     @Override
@@ -57,11 +52,5 @@ public class CalibreCoreHook implements CalibreHook {
 
                 .registerTypeAdapterFactory(componentDescriptorAdapter)
                 .registerTypeAdapter(ComponentDescriptor.class, new ComponentDescriptorAdapter(plugin.getRegistry()));
-    }
-
-    @Override
-    public void preLoadRegister(Registry registry, LocaleManager localeManager, Settings settings) {
-        registry.register(new TestSystem()); // TODO remove
-        registry.register(new OtherSystem());
     }
 }

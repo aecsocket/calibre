@@ -1,11 +1,10 @@
 package me.aecsocket.calibre.item.blueprint;
 
 import me.aecsocket.calibre.CalibrePlugin;
-import me.aecsocket.calibre.item.CalibreItem;
+import me.aecsocket.calibre.item.CalibreItemSupplier;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.descriptor.ComponentCreationException;
 import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptor;
-import me.aecsocket.unifiedframework.component.ComponentSlot;
 import me.aecsocket.unifiedframework.registry.Registry;
 import me.aecsocket.unifiedframework.registry.ValidationException;
 import me.aecsocket.unifiedframework.util.TextUtils;
@@ -14,34 +13,28 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.LinkedHashMap;
-
 /**
  * Represents a premade structure of components.
  */
-public class Blueprint extends CalibreItem {
+public class Blueprint implements CalibreItemSupplier {
     public static final String ITEM_TYPE = "blueprint";
 
     private transient CalibrePlugin plugin;
     private String id;
-    private ComponentDescriptor root;
-    private LinkedHashMap<String, ComponentDescriptor> components;
+    private ComponentDescriptor component;
 
     @Override public CalibrePlugin getPlugin() { return plugin; }
     @Override public void setPlugin(CalibrePlugin plugin) { this.plugin = plugin; }
 
     @Override public String getId() { return id; }
 
-    public ComponentDescriptor getRoot() { return root; }
-    public void setRoot(ComponentDescriptor root) { this.root = root; }
-
-    public LinkedHashMap<String, ComponentDescriptor> getComponents() { return components; }
-    public void setComponents(LinkedHashMap<String, ComponentDescriptor> components) { this.components = components; }
+    public ComponentDescriptor getComponent() { return component; }
+    public void setComponent(ComponentDescriptor component) { this.component = component; }
 
     @Override
     public void validate() throws ValidationException {
-        super.validate();
-        if (root == null) throw new ValidationException("No root provided");
+        CalibreItemSupplier.super.validate();
+        if (component == null) throw new ValidationException("No component provided");
     }
 
     @Override public String getItemType() { return ITEM_TYPE; }
@@ -53,24 +46,13 @@ public class Blueprint extends CalibreItem {
      */
     public CalibreComponent createComponent() throws BlueprintCreationException {
         Registry registry = plugin.getRegistry();
-        CalibreComponent root;
+        CalibreComponent component;
         try {
-            root = this.root.create(registry);
+            component = this.component.create(registry);
         } catch (ComponentCreationException e) {
             throw new BlueprintCreationException(TextUtils.format("Failed to create root component: {msg}", "msg", e.getMessage()), e);
         }
-        if (components != null) {
-            components.forEach((path, descriptor) -> {
-                ComponentSlot slot = root.getSlot(path);
-                if (slot == null)
-                    throw new BlueprintCreationException(TextUtils.format("Failed to find slot at path {path}", "path", path));
-                CalibreComponent component = descriptor.create(registry);
-                if (!slot.isCompatible(component))
-                    throw new BlueprintCreationException(TextUtils.format("Slot at path {path} is not compatible with {id}", "path", path, "id", component.getId()));
-                slot.set(component);
-            });
-        }
-        return root;
+        return component;
     }
 
     @Override

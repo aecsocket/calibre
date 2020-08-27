@@ -4,12 +4,14 @@ import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.defaults.gui.SlotViewGUI;
 import me.aecsocket.calibre.hook.CalibreDefaultHook;
 import me.aecsocket.calibre.item.component.CalibreComponent;
+import me.aecsocket.unifiedframework.util.Utils;
+import me.aecsocket.unifiedframework.util.data.SoundData;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
 
 /**
  * The {@link me.aecsocket.calibre.hook.CalibreDefaultHook}'s event handler.
@@ -28,20 +30,42 @@ public class DefaultEventHandle implements Listener {
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
-        if (event.getClick() != ClickType.RIGHT) return;
-        if (!plugin.setting("slot_view.enable", boolean.class, true)) return;
-
-        CalibreComponent component = plugin.getItem(event.getCurrentItem(), CalibreComponent.class);
         Player player = (Player) event.getWhoClicked();
-        if (component != null)
-            new SlotViewGUI(
-                    plugin,
-                    hook.getGUIManager(),
-                    component,
-                    plugin.setting("slot_view.enable_modification", boolean.class, true)
-                            && event.getClickedInventory() == event.getView().getBottomInventory(),
-                    player,
-                    event.getSlot())
-                    .open(player);
+        CalibreComponent root = plugin.getItem(event.getCurrentItem(), CalibreComponent.class);
+        if (root == null) return;
+        if (
+                !Utils.empty(event.getCursor())
+                && plugin.setting("quick_modify.enable", boolean.class, true)
+                && player.getGameMode() != GameMode.CREATIVE
+                && event.getCurrentItem().getAmount() == 1
+        ) {
+            CalibreComponent cursor = plugin.getItem(event.getCursor(), CalibreComponent.class);
+            if (cursor != null) {
+                event.setCancelled(true);
+                if (root.combine(cursor, plugin.setting("quick_modify.limited_modification", boolean.class, true)) != null) {
+                    event.getView().setCursor(null);
+                    event.setCurrentItem(root.createItem(player));
+                    SoundData.play(player, plugin.setting("quick_modify.sound", SoundData[].class, null));
+                }
+            }
+        } else if (
+                event.getClick() == ClickType.RIGHT
+                && plugin.setting("field_modify.enable", boolean.class, true)
+        ) {
+            if (root.getSlots().size() > 0 || plugin.setting("field_modify.enable_for_simple", boolean.class, false)) {
+                event.setCancelled(true);
+                new SlotViewGUI(
+                        plugin,
+                        hook.getGUIManager(),
+                        root,
+                        plugin.setting("field_modify.enable_modification", boolean.class, true)
+                                && event.getClickedInventory() == event.getView().getBottomInventory()
+                                && event.getCurrentItem().getAmount() == 1,
+                        plugin.setting("field_modify.limited_modification", boolean.class, true),
+                        player,
+                        event.getSlot())
+                        .open(player);
+            }
+        }
     }
 }

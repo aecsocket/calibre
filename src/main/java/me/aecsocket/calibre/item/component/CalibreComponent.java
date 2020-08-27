@@ -45,7 +45,7 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
     private String id;
     private List<String> categories = new ArrayList<>();
     private boolean completeRoot;
-    private Map<String, CalibreComponentSlot> slots = new HashMap<>();
+    private Map<String, CalibreComponentSlot> slots = new LinkedHashMap<>();
     private transient Map<Class<? extends CalibreSystem<?>>, CalibreSystem<?>> systems = new HashMap<>();
     private transient StatMap stats = new StatMap();
     private ItemDescriptor item;
@@ -222,6 +222,45 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
                     : getLocalizedName(player));
         });
     }
+
+    /**
+     * Generic method for combining another component into this component tree. This is achieved by
+     * iterating through this component's slots and finding one which is:
+     * <ol>
+     *     <li>empty</li>
+     *     <li>is compatible</li>
+     *     <li>modification is limited, passes {@link CalibreComponentSlot#canFieldModify()}</li>
+     * </ol>
+     * then sets the component.
+     * @param other The component to add on to this.
+     * @param limitModification If a slot has to pass {@link CalibreComponentSlot#canFieldModify()}.
+     * @return The modified slot.
+     */
+    public CalibreComponentSlot combine(CalibreComponent other, boolean limitModification) {
+        CalibreComponentSlot target = null;
+        for (CalibreComponentSlot slot : getSlots().values()) {
+            if (slot.get() == null && slot.isCompatible(other) && (!limitModification || slot.canFieldModify()))
+                target = slot;
+        }
+        if (target == null) return null;
+        target.set(other);
+        return target;
+    }
+
+    /**
+     * Generic method for combining another component into this component tree. This is achieved by
+     * iterating through this component's slots and finding one which is:
+     * <ol>
+     *     <li>empty</li>
+     *     <li>is compatible</li>
+     *     <li>modification is limited, passes {@link CalibreComponentSlot#canFieldModify()}</li>
+     * </ol>
+     * then sets the component.
+     * This version does not have limited modification.
+     * @param other The component to add on to this.
+     * @return The modified slot.
+     */
+    public CalibreComponentSlot combine(CalibreComponent other) { return combine(other, false); }
 
     /**
      * Gets the localized name of the item in its complete form, looked up in the plugin's locale manager.

@@ -19,12 +19,14 @@ public class SlotViewGUIItem implements GUIItem {
     private CalibreComponentSlot slot;
     private String name;
     private boolean allowModification;
+    private boolean limitedModification;
 
     public SlotViewGUIItem(SlotViewGUI gui, CalibreComponentSlot slot, String name) {
         this.gui = gui;
         this.slot = slot;
         this.name = name;
         this.allowModification = gui.allowsModification();
+        this.limitedModification = gui.isLimitedModification();
     }
 
     public SlotViewGUI getGUI() { return gui; }
@@ -37,6 +39,9 @@ public class SlotViewGUIItem implements GUIItem {
 
     public boolean allowsModification() { return allowModification; }
     public void setAllowModification(boolean allowModification) { this.allowModification = allowModification; }
+
+    public boolean isLimitedModification() { return limitedModification; }
+    public void setLimitedModification(boolean limitedModification) { this.limitedModification = limitedModification; }
 
     @Override
     public ItemStack createItem(GUIView view) {
@@ -54,7 +59,7 @@ public class SlotViewGUIItem implements GUIItem {
 
     @Override
     public void onClick(GUIView view, InventoryClickEvent event) {
-        if (!allowModification) {
+        if (!allowModification || (limitedModification && !slot.canFieldModify())) {
             event.setCancelled(true);
             return;
         }

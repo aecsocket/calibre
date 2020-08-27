@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.defaults.melee.MeleeSystem;
 import me.aecsocket.calibre.handle.DefaultEventHandle;
+import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.unifiedframework.gui.GUIManager;
 import me.aecsocket.unifiedframework.gui.GUIVector;
 import me.aecsocket.unifiedframework.locale.LocaleManager;

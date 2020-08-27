@@ -31,6 +31,7 @@ public class CalibreComponentSlot implements ComponentSlot, AcceptsCalibrePlugin
     @SerializedName("ids")
     private List<String> compatibleIds = new ArrayList<>();
     private GUIVector offset = new GUIVector();
+    private boolean canFieldModify;
 
     @Override public CalibrePlugin getPlugin() { return plugin; }
     @Override public void setPlugin(CalibrePlugin plugin) { this.plugin = plugin; }
@@ -84,6 +85,13 @@ public class CalibreComponentSlot implements ComponentSlot, AcceptsCalibrePlugin
     public void setOffset(GUIVector offset) { this.offset = offset; }
 
     /**
+     * Gets if this slot can be field modified in a slot view GUI.
+     * @return The result.
+     */
+    public boolean canFieldModify() { return canFieldModify; }
+    public void setCanFieldModify(boolean canFieldModify) { this.canFieldModify = canFieldModify; }
+
+    /**
      * Creates an icon used in a {@link me.aecsocket.calibre.defaults.gui.SlotViewGUI}.
      * @param player The player to create the icon for.
      * @param name The slot name.
@@ -97,7 +105,11 @@ public class CalibreComponentSlot implements ComponentSlot, AcceptsCalibrePlugin
                                 ? required ? "required" : "normal"
                                 : isCompatible(pickedComponent) ? "compatible" : "incompatible"
                 ), ItemDescriptor.class, new ItemDescriptor(Material.GRAY_STAINED_GLASS_PANE)).create(),
-                meta -> meta.setDisplayName(plugin.gen(player, "slot." + name)));
+                meta -> {
+                    meta.setDisplayName(plugin.gen(player, "slot." + name));
+                    if (canFieldModify)
+                        meta.setLore(Collections.singletonList(plugin.gen(player, "gui.slot_view.can_field_modify")));
+                });
     }
 
     /**

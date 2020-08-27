@@ -15,7 +15,6 @@ import me.aecsocket.calibre.item.blueprint.Blueprint;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.util.CalibrePlayer;
 import me.aecsocket.calibre.util.RegistryCommandContext;
-import me.aecsocket.unifiedframework.gui.GUIVector;
 import me.aecsocket.unifiedframework.item.ItemManager;
 import me.aecsocket.unifiedframework.locale.LocaleManager;
 import me.aecsocket.unifiedframework.locale.Translation;
@@ -30,10 +29,12 @@ import me.aecsocket.unifiedframework.resource.ResourceLoadException;
 import me.aecsocket.unifiedframework.resource.Settings;
 import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.Utils;
+import me.aecsocket.unifiedframework.util.data.SoundData;
 import me.aecsocket.unifiedframework.util.log.LabelledLogger;
 import me.aecsocket.unifiedframework.util.log.LogLevel;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -257,6 +258,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
      * @return A {@link LoadResult} of messages during loading.
      */
     public DataResult<String, String> load() {
+        settings.clear();
         localeManager.unregisterAll();
         registry.unregisterAll();
 
@@ -346,6 +348,8 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     /**
      * Gets the {@link T} representation of an {@link ItemStack}.
      * @param stack The ItemStack.
+     * @param type The type to deserialize the item as.
+     * @param <T> The type to deserialize the item as.
      * @return The {@link T}.
      */
     public <T extends CalibreItem> T getItem(ItemStack stack, Class<T> type) { return itemManager.getItem(stack, type); }

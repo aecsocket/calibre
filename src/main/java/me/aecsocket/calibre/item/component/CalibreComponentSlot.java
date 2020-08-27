@@ -2,10 +2,18 @@ package me.aecsocket.calibre.item.component;
 
 import com.google.gson.annotations.SerializedName;
 import me.aecsocket.calibre.CalibrePlugin;
+import me.aecsocket.calibre.util.AcceptsCalibrePlugin;
+import me.aecsocket.calibre.util.ItemDescriptor;
 import me.aecsocket.unifiedframework.component.Component;
 import me.aecsocket.unifiedframework.component.ComponentSlot;
 import me.aecsocket.unifiedframework.component.IncompatibleComponentException;
+import me.aecsocket.unifiedframework.gui.GUIVector;
+import me.aecsocket.unifiedframework.util.Utils;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,37 +22,18 @@ import java.util.List;
 /**
  * A slot which can hold a {@link CalibreComponent}.
  */
-public class CalibreComponentSlot implements ComponentSlot {
+public class CalibreComponentSlot implements ComponentSlot, AcceptsCalibrePlugin {
+    private transient CalibrePlugin plugin;
     private CalibreComponent component;
     private boolean required;
     @SerializedName("categories")
     private List<String> compatibleCategories = new ArrayList<>();
     @SerializedName("ids")
     private List<String> compatibleIds = new ArrayList<>();
+    private GUIVector offset = new GUIVector();
 
-    public CalibreComponentSlot(CalibreComponent component, boolean required, List<String> compatibleCategories, List<String> compatibleIds) {
-        this.component = component;
-        this.required = required;
-        this.compatibleCategories = compatibleCategories;
-        this.compatibleIds = compatibleIds;
-    }
-
-    public CalibreComponentSlot(CalibreComponent component, boolean required, List<String> compatibleCategories) {
-        this.component = component;
-        this.required = required;
-        this.compatibleCategories = compatibleCategories;
-    }
-
-    public CalibreComponentSlot(CalibreComponent component, boolean required) {
-        this.component = component;
-        this.required = required;
-    }
-
-    public CalibreComponentSlot(CalibreComponent component) {
-        this.component = component;
-    }
-
-    public CalibreComponentSlot() {}
+    @Override public CalibrePlugin getPlugin() { return plugin; }
+    @Override public void setPlugin(CalibrePlugin plugin) { this.plugin = plugin; }
 
     @Override public CalibreComponent get() { return component; }
 
@@ -86,6 +75,30 @@ public class CalibreComponentSlot implements ComponentSlot {
      */
     public List<String> getCompatibleIds() { return compatibleIds; }
     public void setCompatibleIds(List<String> compatibleIds) { this.compatibleIds = compatibleIds; }
+
+    /**
+     * Gets the offset that this is displayed at in a {@link me.aecsocket.calibre.defaults.gui.SlotViewGUI}.
+     * @return The offset.
+     */
+    public GUIVector getOffset() { return offset; }
+    public void setOffset(GUIVector offset) { this.offset = offset; }
+
+    /**
+     * Creates an icon used in a {@link me.aecsocket.calibre.defaults.gui.SlotViewGUI}.
+     * @param player The player to create the icon for.
+     * @param name The slot name.
+     * @param pickedComponent The component to check for compatibility, and to change the icon accordingly.
+     * @return The icon.
+     */
+    public ItemStack createIcon(Player player, String name, @Nullable CalibreComponent pickedComponent) {
+        return Utils.modMeta(
+                plugin.setting("slot_view.slot." + (
+                        pickedComponent == null
+                                ? required ? "required" : "normal"
+                                : isCompatible(pickedComponent) ? "compatible" : "incompatible"
+                ), ItemDescriptor.class, new ItemDescriptor(Material.GRAY_STAINED_GLASS_PANE)).create(),
+                meta -> meta.setDisplayName(plugin.gen(player, "slot." + name)));
+    }
 
     /**
      * Gets lines of info used by other objects in <code>/calibre info</code>. The string is split

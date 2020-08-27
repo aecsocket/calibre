@@ -1,6 +1,7 @@
 package me.aecsocket.calibre.util;
 
 import me.aecsocket.calibre.CalibrePlugin;
+import me.aecsocket.unifiedframework.util.Utils;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
@@ -46,13 +47,11 @@ public class ItemDescriptor {
      * @return The ItemStack.
      */
     public ItemStack create() {
-        ItemStack result = new ItemStack(material);
-        ItemMeta meta = result.getItemMeta();
-        meta.setCustomModelData(modelData);
-        if (meta instanceof Damageable)
-            ((Damageable) meta).setDamage(damage);
-        result.setItemMeta(meta);
-        return result;
+        return Utils.modMeta(new ItemStack(material), meta -> {
+            meta.setCustomModelData(modelData);
+            if (meta instanceof Damageable)
+                ((Damageable) meta).setDamage(damage);
+        });
     }
 
     /**

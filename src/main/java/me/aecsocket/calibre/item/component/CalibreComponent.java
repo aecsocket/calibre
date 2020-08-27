@@ -18,11 +18,11 @@ import me.aecsocket.unifiedframework.stat.Stat;
 import me.aecsocket.unifiedframework.stat.StatMap;
 import me.aecsocket.unifiedframework.stat.StatMapAdapter;
 import me.aecsocket.unifiedframework.util.TextUtils;
+import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.json.JsonAdapter;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
@@ -44,6 +44,7 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
     private transient CalibrePlugin plugin;
     private String id;
     private List<String> categories = new ArrayList<>();
+    private boolean completeRoot;
     private Map<String, CalibreComponentSlot> slots = new HashMap<>();
     private transient Map<Class<? extends CalibreSystem<?>>, CalibreSystem<?>> systems = new HashMap<>();
     private transient StatMap stats = new StatMap();
@@ -66,6 +67,9 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
 
     public List<String> getCategories() { return categories; }
     public void setCategories(List<String> categories) { this.categories = categories; }
+
+    public boolean isCompleteRoot() { return completeRoot; }
+    public void setCompleteRoot(boolean completeRoot) { this.completeRoot = completeRoot; }
 
     @Override public Map<String, CalibreComponentSlot> getSlots() { return slots; }
     public void setSlots(Map<String, CalibreComponentSlot> slots) { this.slots = slots; }
@@ -180,6 +184,13 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
      */
     public boolean isRoot() { return tree.getRoot() == this; }
 
+    /**
+     * Gets if this component is part of a complete tree.
+     * @return The result.
+     * @see ComponentTree#isComplete()
+     */
+    public boolean isComplete() { return tree.isComplete(); }
+
     @Override
     public void callEvent(Event<?> event) { tree.getEventDispatcher().call(event); }
 
@@ -201,15 +212,34 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
         ItemStack result = item.create();
         result.setAmount(amount);
         plugin.getItemManager().saveTypeKey(result, this);
-        ItemMeta meta = result.getItemMeta();
-        PersistentDataContainer data = meta.getPersistentDataContainer();
+        return Utils.modMeta(result, meta -> {
+            PersistentDataContainer data = meta.getPersistentDataContainer();
 
-        data.set(plugin.key("data"), PersistentDataType.STRING, plugin.getGson().toJson(ComponentDescriptor.of(this)));
+            data.set(plugin.key("data"), PersistentDataType.STRING, plugin.getGson().toJson(ComponentDescriptor.of(this)));
 
-        meta.setDisplayName(getLocalizedName(player));
-        result.setItemMeta(meta);
-        return result;
+            meta.setDisplayName(tree != null && isRoot() && tree.isComplete() && completeRoot
+                    ? getCompleteLocalizedName(player)
+                    : getLocalizedName(player));
+        });
     }
+
+    /**
+     * Gets the localized name of the item in its complete form, looked up in the plugin's locale manager.
+     * <p>
+     * This is defined as <code>{@link me.aecsocket.calibre.item.CalibreIdentifiable#getCalibreType()}.{@link me.aecsocket.unifiedframework.registry.Identifiable#getId()}.complete</code>.
+     * @param locale The locale to use.
+     * @return The localized name.
+     */
+    public String getCompleteLocalizedName(String locale) { return getPlugin().gen(locale, getCalibreType() + "." + getId() + ".complete"); }
+
+    /**
+     * Gets the localized name of the item in its complete form, looked up in the plugin's locale manager.
+     * <p>
+     * This is defined as <code>{@link me.aecsocket.calibre.item.CalibreIdentifiable#getCalibreType()}.{@link me.aecsocket.unifiedframework.registry.Identifiable#getId()}.complete</code>.
+     * @param sender The command sender to use the locale for.
+     * @return The localized name.
+     */
+    public String getCompleteLocalizedName(CommandSender sender) { return getCompleteLocalizedName(sender instanceof Player ? ((Player) sender).getLocale() : getPlugin().getLocaleManager().getDefaultLocale()); }
 
     @Override
     public @Nullable String getLongInfo(CommandSender sender) {
@@ -252,6 +282,16 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
                         , prefix),
                 "item", TextUtils.prefixLines(item == null ? "null" : item.getLongInfo(plugin, sender), prefix)
                 );
+    }
+
+    /**
+     * Creates a copy of this component, with no {@link ComponentTree}.
+     * @return The copy with no tree.
+     */
+    public CalibreComponent treeless() {
+        CalibreComponent copy = copy();
+        copy.setTree(null);
+        return copy;
     }
 
     @Override public CalibreComponent clone() { try { return (CalibreComponent) super.clone(); } catch (CloneNotSupportedException e) { return null; } }

@@ -106,6 +106,7 @@ public class ComponentDescriptor {
         ComponentTree tree = new ComponentTree();
         CalibreComponent root = create(registry, tree);
         tree.setRoot(root);
+        tree.rebuild();
         return root;
     }
 

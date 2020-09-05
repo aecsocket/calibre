@@ -2,6 +2,7 @@ package me.aecsocket.calibre.hook;
 
 import com.google.gson.GsonBuilder;
 import me.aecsocket.calibre.CalibrePlugin;
+import me.aecsocket.calibre.defaults.action.ActionSystem;
 import me.aecsocket.calibre.defaults.gui.SlotViewGUI;
 import me.aecsocket.calibre.defaults.gui.SlotViewGUIItem;
 import me.aecsocket.calibre.defaults.melee.MeleeSystem;
@@ -41,6 +42,7 @@ public class CalibreDefaultHook implements CalibreHook {
 
     @Override
     public void preLoadRegister(Registry registry, LocaleManager localeManager, Settings settings) {
+        registry.register(new ActionSystem(plugin));
         registry.register(new MeleeSystem(plugin));
     }
 

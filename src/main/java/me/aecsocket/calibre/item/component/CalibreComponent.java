@@ -21,7 +21,10 @@ import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.json.JsonAdapter;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -198,8 +201,8 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
      * When creating a tree of components, modifies the tree to this instance's needs, such as
      * adding its stats to the tree.
      * <p>
-     * In {@link ComponentDescriptor#create(Registry)}, this method is called depth-first in the tree, so the
-     * root component gets this method called last.
+     * In {@link ComponentDescriptor#create(Registry)}, this method is called breadth-first in the tree, so the
+     * root component gets this method called first.
      * @param tree The tree.
      */
     public void modifyTree(ComponentTree tree) { tree.getStats().addAll(stats); }
@@ -224,12 +227,26 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
     }
 
     /**
+     * Sets the item in the equipment slot of the specified entity's inventory to {@link CalibreComponent#createItem(Player, ItemStack)}.
+     * This retains the stack amount of the old slot.
+     * @param entity The entity to get the {@link EntityEquipment} of, and if a player, to be passed to {@link CalibreComponent#createItem(Player, ItemStack)}.
+     * @param slot The equipment slot.
+     * @return The new item.
+     */
+    public ItemStack updateItem(LivingEntity entity, EquipmentSlot slot) {
+        EntityEquipment equipment = entity.getEquipment();
+        ItemStack item = createItem(entity instanceof Player ? (Player) entity : null, equipment.getItem(slot));
+        equipment.setItem(slot, item);
+        return item;
+    }
+
+    /**
      * Generic method for combining another component into this component tree. This is achieved by
      * recursively walking through this component's slots and finding one which is:
      * <ol>
      *     <li>empty</li>
      *     <li>is compatible</li>
-     *     <li>modification is limited, passes {@link CalibreComponentSlot#canFieldModify()}</li>
+     *     <li>if modification is limited, passes {@link CalibreComponentSlot#canFieldModify()}</li>
      * </ol>
      * then sets the component.
      * @param other The component to add on to this.

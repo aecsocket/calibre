@@ -1,5 +1,6 @@
 package me.aecsocket.calibre.item;
 
+import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.util.Utils;
 import org.apache.commons.lang.Validate;
 import org.bukkit.block.Block;
@@ -11,7 +12,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
-import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -80,9 +80,14 @@ public final class ItemEvents {
     public static class Hold extends PlayerEvent<Hold.Listener> {
         public interface Listener { void onEvent(Hold event); }
 
-        public Hold(ItemStack itemStack, EquipmentSlot slot, Player player) {
+        private final TickContext tickContext;
+
+        public Hold(ItemStack itemStack, EquipmentSlot slot, Player player, TickContext tickContext) {
             super(itemStack, slot, player);
+            this.tickContext = tickContext;
         }
+
+        public TickContext getTickContext() { return tickContext; }
 
         @Override public void call(Listener listener) { listener.onEvent(this); }
     }

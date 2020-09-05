@@ -1,4 +1,6 @@
 me.aecsocket.calibre
+me.aecsocket.calibre.defaults.action
+me.aecsocket.calibre.defaults.animation
 me.aecsocket.calibre.defaults.gui
 me.aecsocket.calibre.defaults.gun
 me.aecsocket.calibre.defaults.melee
@@ -9,4 +11,5 @@ me.aecsocket.calibre.item.blueprint
 me.aecsocket.calibre.item.component
 me.aecsocket.calibre.item.component.descriptor
 me.aecsocket.calibre.item.system
+me.aecsocket.calibre.stat
 me.aecsocket.calibre.util

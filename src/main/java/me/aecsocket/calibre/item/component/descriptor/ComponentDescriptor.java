@@ -69,9 +69,12 @@ public class ComponentDescriptor {
 
         component.setTree(tree);
 
+        // Stats
+        component.modifyTree(tree);
+
         // Systems
         for (CalibreSystem<?> system : component.getSystems().values()) {
-            system.setParent(component);
+            system.acceptParent(component);
             system.registerListeners(tree.getEventDispatcher());
             String id = system.getId();
             if (systems.containsKey(id))
@@ -88,9 +91,6 @@ public class ComponentDescriptor {
                     slot.set(child);
             }
         }
-
-        // Stats
-        component.modifyTree(tree);
 
         return component;
     }

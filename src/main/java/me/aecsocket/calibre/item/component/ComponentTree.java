@@ -34,6 +34,14 @@ public class ComponentTree {
     public void setStats(StatMap stats) { this.stats = stats; }
 
     /**
+     * Gets a stat value from this instance's StatMap.
+     * @param key The key of the stat.
+     * @param <T> The stat's value's type.
+     * @return The stat value.
+     */
+    public <T> T stat(String key) { return stats.getValue(key); }
+
+    /**
      * Gets if all required component slots have a component in them,
      * or if there are no required slots, returns true.
      * @return The result.

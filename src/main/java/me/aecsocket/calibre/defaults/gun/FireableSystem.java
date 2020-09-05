@@ -31,7 +31,7 @@ public class FireableSystem implements CalibreSystem<Void>, ItemEvents.Interact.
     @Override public Map<String, Stat<?>> getDefaultStats() { return STATS; }
 
     @Override public CalibreComponent getParent() { return parent; }
-    @Override public void setParent(CalibreComponent parent) { this.parent = parent; }
+    @Override public void acceptParent(CalibreComponent parent) { this.parent = parent; }
 
     @Override
     public void registerListeners(EventDispatcher dispatcher) {

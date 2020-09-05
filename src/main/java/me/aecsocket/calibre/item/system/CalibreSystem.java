@@ -3,13 +3,17 @@ package me.aecsocket.calibre.item.system;
 import com.google.gson.reflect.TypeToken;
 import me.aecsocket.calibre.item.CalibreIdentifiable;
 import me.aecsocket.calibre.item.component.CalibreComponent;
+import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.stat.Stat;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -50,7 +54,7 @@ public interface CalibreSystem<D> extends CalibreIdentifiable, Cloneable {
      * Accepts the parent {@link CalibreComponent} that this System is a system of.
      * @param parent The parent component.
      */
-    void setParent(CalibreComponent parent);
+    void acceptParent(CalibreComponent parent);
 
     /**
      * Registers all of the listeners that this system uses into an {@link EventDispatcher}.
@@ -75,6 +79,47 @@ public interface CalibreSystem<D> extends CalibreIdentifiable, Cloneable {
      * @return The descriptor.
      */
     default D createDescriptor() { return null; }
+
+    /**
+     * Gets the {@link ComponentTree} that this instance's parent is a part of.
+     * @return The tree.
+     */
+    default ComponentTree getTree() { return getParent().getTree(); }
+
+    /**
+     * Gets a stat value from the {@link CalibreSystem#getTree()}'s StatMap.
+     * @param key The key of the stat.
+     * @param <T> The stat's value's type.
+     * @return The stat value.
+     */
+    default <T> T stat(String key) { return getTree().stat(key); }
+
+    /**
+     * Sets the item in the equipment slot of the specified player's inventory to this parent's tree's root's {@link CalibreComponent#createItem(Player, ItemStack)}.
+     * This retains the stack amount of the old slot.
+     * @param player The player.
+     * @param slot The equipment slot.
+     * @return The new item.
+     */
+    default ItemStack updateItem(Player player, EquipmentSlot slot) { return getTree().getRoot().updateItem(player, slot); }
+
+    /**
+     * Gets if the parent is {@link CalibreComponent#isCompleteRoot()}.
+     * @return The result.
+     */
+    default boolean isCompleteRoot() { return getParent().isCompleteRoot(); }
+
+    /**
+     * Gets another system on the parent component by its type.
+     * @param type The type of the system.
+     * @param <T> The type of the system.
+     * @return The system.
+     */
+    default <T extends CalibreSystem<?>> T getSystem(Class<T> type) {
+        CalibreSystem<?> system = getParent().getSystems().get(type);
+        if (system == null || !type.isAssignableFrom(system.getClass())) return null;
+        return type.cast(system);
+    }
 
     @Override default String getCalibreType() { return "system"; }
 

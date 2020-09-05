@@ -4,6 +4,7 @@ import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.defaults.gui.SlotViewGUI;
 import me.aecsocket.calibre.hook.CalibreDefaultHook;
 import me.aecsocket.calibre.item.component.CalibreComponent;
+import me.aecsocket.unifiedframework.gui.GUIView;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.data.SoundData;
 import org.bukkit.GameMode;
@@ -31,6 +32,15 @@ public class DefaultEventHandle implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
+        GUIView view = hook.getGUIManager().getView(event.getView());
+        if (view != null && view.getGUI() instanceof SlotViewGUI) {
+            SlotViewGUI gui = (SlotViewGUI) view.getGUI();
+            if (gui.getItemSlot() == event.getSlot() || gui.getItemSlot() == event.getHotbarButton()) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+
         CalibreComponent root = plugin.getItem(event.getCurrentItem(), CalibreComponent.class);
         if (root == null) return;
         if (
@@ -44,6 +54,7 @@ public class DefaultEventHandle implements Listener {
                 event.setCancelled(true);
                 if (root.combine(cursor, plugin.setting("quick_modify.limited_modification", boolean.class, true)) != null) {
                     event.getView().setCursor(null);
+                    hook.updateSlotView(player, root);
                     event.setCurrentItem(root.createItem(player));
                     SoundData.play(player, plugin.setting("quick_modify.sound", SoundData[].class, null));
                 }

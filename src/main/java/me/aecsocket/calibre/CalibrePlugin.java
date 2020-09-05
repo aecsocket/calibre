@@ -29,12 +29,11 @@ import me.aecsocket.unifiedframework.resource.ResourceLoadException;
 import me.aecsocket.unifiedframework.resource.Settings;
 import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.Utils;
-import me.aecsocket.unifiedframework.util.data.SoundData;
 import me.aecsocket.unifiedframework.util.log.LabelledLogger;
 import me.aecsocket.unifiedframework.util.log.LogLevel;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
-import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -144,6 +143,14 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     public CalibrePlayer getPlayerData(Player player) { return players.computeIfAbsent(player, p -> new CalibrePlayer(this, p)); }
     public CalibrePlayer removePlayerData(Player player) { return players.remove(player); }
 
+    private DataResult<String, String> addFailure(DataResult<String, String> result, Throwable throwable, String msg) {
+        if (setting("print_stack_traces", boolean.class, false))
+            result.addFailureData(msg + "\n" + TextUtils.joinLines(TextUtils.prefixLines(Utils.getStackTrace(throwable), "  ")));
+        else
+            result.addFailureData(msg);
+        return result;
+    }
+
     /**
      * Reloads settings from the settings file and applies some initial settings.
      * @return A {@link LoadResult} of messages during loading.
@@ -153,7 +160,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
             settings.loadFrom(this);
         } catch (ResourceLoadException e) {
             DataResult<String, String> result = new DataResult<>();
-            return result.addFailureData(TextUtils.format("Failed to load settings file: {msg}", "msg", e.getCause().getMessage()));
+            return addFailure(result, e, TextUtils.format("Failed to load settings file: {msg}", "msg", e.getCause().getMessage()));
         }
         log(LogLevel.VERBOSE, "Loaded settings file");
 
@@ -177,11 +184,13 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                 Path path = entry.getKey();
                 if (entry.isSuccessful())
                     result.addSuccessData(TextUtils.format("Loaded translation {path} ({locale})", "path", path, "locale", ((Translation) entry.getResult()).getLocale()));
-                else
-                    result.addFailureData(TextUtils.format("Failed to load translation {path}: {msg}", "path", path, "msg", ((Exception) entry.getResult()).getMessage()));
+                else {
+                    Exception exception = (Exception) entry.getResult();
+                    addFailure(result, exception, TextUtils.format("Failed to load translation {path}: {msg}", "path", path, "msg", exception.getMessage()));
+                }
             });
         } catch (ResourceLoadException e) {
-            result.addFailureData(TextUtils.format("Failed to load locale files: {msg}", "msg", e.getMessage()));
+            addFailure(result, e, TextUtils.format("Failed to load locale files: {msg}", "msg", e.getMessage()));
         }
         return result;
     }
@@ -210,7 +219,8 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                     Identifiable id = (Identifiable) entry.getResult();
                     result.addSuccessData(TextUtils.format("Loaded {class} {id}", "class", id.getClass().getSimpleName(), "id", id.getId()));
                 } else {
-                    result.addFailureData(TextUtils.format("Failed to load {path}: {msg}", "path", path, "msg", ((Exception) entry.getResult()).getMessage()));
+                    Exception exception = (Exception) entry.getResult();
+                    addFailure(result, exception, TextUtils.format("Failed to load {path}: {msg}", "path", path, "msg", exception.getMessage()));
                 }
             });
             load.resolveResult().forEach(entry -> {
@@ -219,11 +229,12 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                 if (entry.isSuccessful()) {
                     result.addSuccessData(TextUtils.format("Resolved {class} {id}", "class", type, "id", id.getId()));
                 } else {
-                    result.addFailureData(TextUtils.format("Failed to resolve {class} {id}: {msg}", "class", type, "id", id.getId(), "msg", ((Exception) entry.getResult()).getMessage()));
+                    Exception exception = (Exception) entry.getResult();
+                    addFailure(result, exception, TextUtils.format("Failed to resolve {class} {id}: {msg}", "class", type, "id", id.getId(), "msg", exception.getMessage()));
                 }
             });
         } catch (ResourceLoadException e) {
-            result.addFailureData(TextUtils.format("Failed to load object files: {msg}", "msg", e.getMessage()));
+            addFailure(result, e, TextUtils.format("Failed to load object files: {msg}", "msg", e.getMessage()));
         }
         return result;
     }
@@ -300,6 +311,22 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
      * @param args The arguments used in {@link me.aecsocket.unifiedframework.util.TextUtils#format(String, Object...)}.
      */
     public void log(LogLevel level, String text, Object... args) { logger.log(level, text, args); }
+
+    /**
+     * Logs a Throwable to the plugin's {@link LabelledLogger}, and its stack trace if the proper setting is set.
+     * @param level The {@link LogLevel}.
+     * @param throwable The throwable to get the stack trace of.
+     * @param text The text to log.
+     * @param args The arguments used in {@link me.aecsocket.unifiedframework.util.TextUtils#format(String, Object...)}.
+     */
+    public void elog(LogLevel level, Throwable throwable, String text, Object... args) {
+        log(level, text, args);
+
+        if (setting("print_stack_traces", boolean.class, false)) {
+            for (String line : Utils.getStackTrace(throwable))
+                log(level, line);
+        }
+    }
 
     /**
      * Generates some localized text.

@@ -225,7 +225,7 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
 
     /**
      * Generic method for combining another component into this component tree. This is achieved by
-     * iterating through this component's slots and finding one which is:
+     * recursively walking through this component's slots and finding one which is:
      * <ol>
      *     <li>empty</li>
      *     <li>is compatible</li>
@@ -237,19 +237,21 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
      * @return The modified slot.
      */
     public CalibreComponentSlot combine(CalibreComponent other, boolean limitModification) {
-        CalibreComponentSlot target = null;
-        for (CalibreComponentSlot slot : getSlots().values()) {
+        CalibreComponentSlot[] target = {null};
+        walk(data -> {
+            if (!(data.getSlot() instanceof CalibreComponentSlot)) return;
+            CalibreComponentSlot slot = (CalibreComponentSlot) data.getSlot();
             if (slot.get() == null && slot.isCompatible(other) && (!limitModification || slot.canFieldModify()))
-                target = slot;
-        }
-        if (target == null) return null;
-        target.set(other);
-        return target;
+                target[0] = slot;
+        });
+        if (target[0] == null) return null;
+        target[0].set(other);
+        return target[0];
     }
 
     /**
      * Generic method for combining another component into this component tree. This is achieved by
-     * iterating through this component's slots and finding one which is:
+     * recursively walking through this component's slots and finding one which is:
      * <ol>
      *     <li>empty</li>
      *     <li>is compatible</li>

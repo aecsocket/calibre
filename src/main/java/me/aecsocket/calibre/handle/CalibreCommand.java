@@ -14,6 +14,7 @@ import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.log.LogLevel;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -49,7 +50,8 @@ public class CalibreCommand extends BaseCommand {
         plugin.load().forEach(entry -> {
             plugin.log(entry.isSuccessful() ? LogLevel.VERBOSE : LogLevel.WARN, (String) entry.getResult());
             if (!entry.isSuccessful()) {
-                send(sender, "chat.command.reload.warning", "msg", entry.getResult());
+                if (!(sender instanceof ConsoleCommandSender))
+                    send(sender, "chat.command.reload.warning", "msg", entry.getResult());
                 ++warnings[0];
             }
         });

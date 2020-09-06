@@ -2,6 +2,7 @@ package me.aecsocket.calibre.item.system;
 
 import com.google.gson.reflect.TypeToken;
 import me.aecsocket.calibre.item.CalibreIdentifiable;
+import me.aecsocket.calibre.item.animation.Animation;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
@@ -102,6 +103,16 @@ public interface CalibreSystem<D> extends CalibreIdentifiable, Cloneable {
      * @return The new item.
      */
     default ItemStack updateItem(Player player, EquipmentSlot slot) { return getTree().getRoot().updateItem(player, slot); }
+
+    /**
+     * Sets the item in the equipment slot of the specified player's inventory to this parent's tree's root's {@link CalibreComponent#createItem(Player, ItemStack)}.
+     * This retains the stack amount of the old slot.
+     * @param player The player.
+     * @param slot The equipment slot.
+     * @param animationUsed The animation applied to this item before updating.
+     * @return The new item.
+     */
+    default ItemStack updateItem(Player player, EquipmentSlot slot, Animation animationUsed) { return getTree().getRoot().updateItem(player, slot, animationUsed); }
 
     /**
      * Gets if the parent is {@link CalibreComponent#isCompleteRoot()}.

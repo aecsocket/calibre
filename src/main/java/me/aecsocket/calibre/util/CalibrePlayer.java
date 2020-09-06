@@ -1,7 +1,7 @@
 package me.aecsocket.calibre.util;
 
 import me.aecsocket.calibre.CalibrePlugin;
-import me.aecsocket.calibre.defaults.animation.Animation;
+import me.aecsocket.calibre.item.animation.Animation;
 import me.aecsocket.calibre.item.CalibreItem;
 import me.aecsocket.calibre.item.ItemEvents;
 import me.aecsocket.unifiedframework.event.Event;
@@ -39,8 +39,8 @@ public class CalibrePlayer implements Tickable {
         }
     }
 
-    public Animation.Instance startAnimation(Animation animation) {
-        this.animation = animation.start(player);
+    public Animation.Instance startAnimation(Animation animation, EquipmentSlot slot) {
+        this.animation = animation.start(player, slot);
         return this.animation;
     }
 

@@ -1,15 +1,17 @@
 package me.aecsocket.calibre.defaults.melee;
 
 import me.aecsocket.calibre.CalibrePlugin;
-import me.aecsocket.calibre.defaults.action.ActionSystem;
+import me.aecsocket.calibre.defaults.ActionSystem;
 import me.aecsocket.calibre.item.ItemEvents;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.system.CalibreSystem;
+import me.aecsocket.calibre.stat.AnimationStat;
 import me.aecsocket.calibre.stat.DataStat;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.stat.NumberStat;
 import me.aecsocket.unifiedframework.stat.Stat;
 import me.aecsocket.unifiedframework.util.Utils;
+import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +27,7 @@ public class MeleeSystem implements CalibreSystem<Void>, ItemEvents.Interact.Lis
 
             .init("swing_delay", new NumberStat.Long(1L))
             .init("swing_sound", new DataStat.Sound())
+            .init("swing_animation", new AnimationStat())
             .get();
 
     private transient CalibrePlugin plugin;
@@ -74,10 +77,14 @@ public class MeleeSystem implements CalibreSystem<Void>, ItemEvents.Interact.Lis
         if (!actionSystem.isAvailable()) return;
         // todo
         Player damager = (Player) event.getDamager();
-        damager.sendMessage("damaged " + event.getVictim() + " for " + stat("damage"));
+        //damager.sendMessage("damaged " + event.getVictim() + " for " + stat("damage"));
         ((LivingEntity) event.getVictim()).damage(stat("damage"));
-        actionSystem.startAction(stat("swing_delay"));
-        updateItem(damager, event.getSlot());
+        Location location = damager.getLocation();
+        actionSystem.startAction(
+                stat("swing_delay"),
+                location, stat("swing_sound"), null,
+                damager, event.getSlot(), stat("swing_animation"));
+        updateItem(damager, event.getSlot(), stat("swing_animation"));
     }
 
     @Override

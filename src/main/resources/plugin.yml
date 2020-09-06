@@ -4,4 +4,4 @@ author: "aecsocket"
 version: "1.0"
 api-version: "1.13"
 main: "me.aecsocket.calibre.CalibrePlugin"
-loadbefore: [ "ProtocolLib" ]
+depend: [ "ProtocolLib" ]

@@ -1,8 +1,10 @@
 package me.aecsocket.calibre.item.component;
 
 import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.CalibreItem;
+import me.aecsocket.calibre.item.animation.Animation;
 import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptor;
 import me.aecsocket.calibre.util.ItemDescriptor;
 import me.aecsocket.calibre.item.system.CalibreSystem;
@@ -38,11 +40,6 @@ import java.util.stream.Collectors;
  */
 public class CalibreComponent implements CalibreItem, Component, ComponentHolder<CalibreComponentSlot>, AcceptsCalibrePlugin {
     public static final String ITEM_TYPE = "component";
-    // TODO figure out something better than this
-    private static final StatMapAdapter statMapAdapter = new StatMapAdapter();
-    private static final Gson statMapGson = new GsonBuilder()
-            .registerTypeAdapter(StatMap.class, statMapAdapter)
-            .create();
 
     private transient CalibrePlugin plugin;
     private String id;
@@ -55,6 +52,8 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
 
     private transient CalibreComponent parent;
     private transient ComponentTree tree;
+
+    private transient StatMapAdapter statMapAdapter;
 
     public CalibreComponent(CalibrePlugin plugin, String id) {
         this.plugin = plugin;
@@ -104,7 +103,7 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
             CalibreComponent base = context.get(baseId, CalibreComponent.class);
             if (base == null) throw new ResolutionException("Invalid base component " + baseId);
             extendBase(base);
-            load(context, json, context.getGson());
+            load(context, json, context.getGson(), statMapAdapter);
         }
     }
 
@@ -113,9 +112,11 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
      * @param context The {@link ResolutionContext}.
      * @param json The {@link JsonObject}.
      * @param gson The {@link Gson}.
+     * @param statMapAdapter The {@link StatMapAdapter} to load stats into. Must be registered in the provided Gson.
      */
     @SuppressWarnings("unchecked")
-    public void load(ResolutionContext context, JsonObject json, Gson gson) {
+    public void load(ResolutionContext context, JsonObject json, Gson gson, StatMapAdapter statMapAdapter) {
+        this.statMapAdapter = statMapAdapter;
         JsonAdapter util = JsonAdapter.INSTANCE;
 
         // Load systems
@@ -161,7 +162,7 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
         });
         // 2. Load stats with that map
         statMapAdapter.setStats(stats);
-        this.stats.addAll(statMapGson.fromJson(util.get(json, "stats", new JsonObject()), StatMap.class));
+        this.stats.addAll(gson.fromJson(util.get(json, "stats", new JsonObject()), StatMap.class));
     }
 
     /**
@@ -231,13 +232,38 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
      * This retains the stack amount of the old slot.
      * @param entity The entity to get the {@link EntityEquipment} of, and if a player, to be passed to {@link CalibreComponent#createItem(Player, ItemStack)}.
      * @param slot The equipment slot.
+     * @param hidden If the item should be passed through {@link CalibreComponent#setHidden(CalibrePlugin, ItemStack)} to improve animations.
+     * @return The new item.
+     */
+    public ItemStack updateItem(LivingEntity entity, EquipmentSlot slot, boolean hidden) {
+        EntityEquipment equipment = entity.getEquipment();
+        ItemStack item = createItem(entity instanceof Player ? (Player) entity : null, equipment.getItem(slot));
+        if (hidden) CalibreItem.setHidden(plugin, item);
+        equipment.setItem(slot, item);
+        return item;
+    }
+
+    /**
+     * Sets the item in the equipment slot of the specified entity's inventory to {@link CalibreComponent#createItem(Player, ItemStack)}.
+     * This retains the stack amount of the old slot.
+     * @param entity The entity to get the {@link EntityEquipment} of, and if a player, to be passed to {@link CalibreComponent#createItem(Player, ItemStack)}.
+     * @param slot The equipment slot.
+     * @param animationUsed The animation applied to this item before updating.
+     * @return The new item.
+     */
+    public ItemStack updateItem(LivingEntity entity, EquipmentSlot slot, Animation animationUsed) {
+        return updateItem(entity, slot, animationUsed != null);
+    }
+
+    /**
+     * Sets the item in the equipment slot of the specified entity's inventory to {@link CalibreComponent#createItem(Player, ItemStack)}.
+     * This retains the stack amount of the old slot.
+     * @param entity The entity to get the {@link EntityEquipment} of, and if a player, to be passed to {@link CalibreComponent#createItem(Player, ItemStack)}.
+     * @param slot The equipment slot.
      * @return The new item.
      */
     public ItemStack updateItem(LivingEntity entity, EquipmentSlot slot) {
-        EntityEquipment equipment = entity.getEquipment();
-        ItemStack item = createItem(entity instanceof Player ? (Player) entity : null, equipment.getItem(slot));
-        equipment.setItem(slot, item);
-        return item;
+        return updateItem(entity, slot, false);
     }
 
     /**
@@ -334,7 +360,7 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
                         stats.entrySet().stream().map(entry -> plugin.gen(
                                 sender, "chat.component.info.stats.entry",
                                 "key", entry.getKey(),
-                                "type", entry.getValue().getStat().getValueType(),
+                                "type", TypeToken.get(entry.getValue().getStat().getValueType()).getRawType().getSimpleName(),
                                 "value", entry.getValue().valueToString(),
                                 "default", entry.getValue().getStat().getDefaultValue())).collect(Collectors.joining("\n"))
                         , prefix),

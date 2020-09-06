@@ -2,6 +2,9 @@ package me.aecsocket.calibre;
 
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.PaperCommandManager;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.PacketContainer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.aecsocket.calibre.handle.CalibreCommand;
@@ -31,7 +34,6 @@ import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.log.LabelledLogger;
 import me.aecsocket.unifiedframework.util.log.LogLevel;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
@@ -41,6 +43,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.*;
@@ -66,11 +69,13 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     private final Map<String, NamespacedKey> keys = new HashMap<>();
     private Settings settings;
     private PaperCommandManager commandManager;
+    private ProtocolManager protocolManager;
     private Gson gson;
 
     @Override
     public void onEnable() {
         commandManager = new PaperCommandManager(this);
+        protocolManager = ProtocolLibrary.getProtocolManager();
 
         hooks.add(coreHook);
         hooks.add(defaultHook);
@@ -123,7 +128,8 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
 
     @Override
     public void onDisable() {
-        schedulerLoop.stop();
+        if (schedulerLoop.isRunning())
+            schedulerLoop.stop();
     }
 
     public LabelledLogger getPluginLogger() { return logger; }
@@ -138,6 +144,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     public ItemManager getItemManager() { return itemManager; }
     public Map<String, NamespacedKey> getKeys() { return keys; }
     public PaperCommandManager getCommandManager() { return commandManager; }
+    public ProtocolManager getProtocolManager() { return protocolManager; }
     public Gson getGson() { return gson; }
 
     public CalibrePlayer getPlayerData(Player player) { return players.computeIfAbsent(player, p -> new CalibrePlayer(this, p)); }
@@ -387,4 +394,17 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
      * @return The key.
      */
     public NamespacedKey key(String key) { return keys.computeIfAbsent(key, k -> new NamespacedKey(this, k)); }
+
+    /**
+     * Send a packet with error handling.
+     * @param player The player to send to.
+     * @param packet The packet to send.
+     */
+    public void sendPacket(Player player, PacketContainer packet) {
+        try {
+            protocolManager.sendServerPacket(player, packet);
+        } catch (InvocationTargetException | IllegalArgumentException e) {
+            elog(LogLevel.WARN, e, "Failed to send packet: {msg}", "msg", e.getMessage());
+        }
+    }
 }

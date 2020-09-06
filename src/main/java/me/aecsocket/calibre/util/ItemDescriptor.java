@@ -6,7 +6,6 @@ import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
 
 /**
  * A description of an {@link ItemStack}.
@@ -43,15 +42,25 @@ public class ItemDescriptor {
     public void setDamage(int damage) { this.damage = damage; }
 
     /**
-     * Creates the {@link ItemStack}.
-     * @return The ItemStack.
+     * Applies this instance's properties to an existing {@link ItemStack}.
+     * @param existing The existing item. Will be modified.
+     * @return The modified item.
      */
-    public ItemStack create() {
-        return Utils.modMeta(new ItemStack(material), meta -> {
+    public ItemStack apply(ItemStack existing) {
+        if (material != null) existing.setType(material);
+        return Utils.modMeta(existing, meta -> {
             meta.setCustomModelData(modelData);
             if (meta instanceof Damageable)
                 ((Damageable) meta).setDamage(damage);
         });
+    }
+
+    /**
+     * Creates the {@link ItemStack}.
+     * @return The ItemStack.
+     */
+    public ItemStack create() {
+        return apply(new ItemStack(Material.AIR));
     }
 
     /**

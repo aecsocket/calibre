@@ -51,7 +51,7 @@ public class CalibreComponentAdapter implements TypeAdapterFactory, JsonAdapter,
             public T read(JsonReader json) throws IOException {
                 JsonObject root = assertObject(Streams.parse(json));
                 T result = delegate.fromJsonTree(root);
-                ((CalibreComponent) result).load(new Registry.ResolutionContext(registry), root, gson);
+                ((CalibreComponent) result).load(new Registry.ResolutionContext(registry), root, gson, statMapAdapter);
                 return result;
             }
         };

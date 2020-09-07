@@ -4,6 +4,7 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.unifiedframework.util.Utils;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -35,7 +36,7 @@ public final class CalibreProtocol {
      * Send a packet setting an item in the player's inventory.
      * @param player The player to send to.
      * @param item The item to set to.
-     * @param slot The Minecraft protocol slot. Use {@link CalibreProtocol#toProtocol(int)}.
+     * @param slot The item slot.
      */
     public static void sendItem(Player player, ItemStack item, int slot) {
         PacketContainer packet = plugin.getProtocolManager().createPacket(PacketType.Play.Server.SET_SLOT);
@@ -56,27 +57,36 @@ public final class CalibreProtocol {
     }
 
     /**
-     * Converts a Bukkit inventory slot to a Minecraft protocol slot.
-     * @param bukkitSlot The Bukkit slot.
-     * @return The Minecraft protocol slot.
-     * @throws IllegalArgumentException If the slot cannot be handled by the converter.
-     */
-    public static int toProtocol(int bukkitSlot) throws IllegalArgumentException {
-        if (bukkitSlot < 0) throw new IllegalArgumentException("Cannot handle slots below 0");
-        if (bukkitSlot <= 8) return 36 + bukkitSlot;
-        if (bukkitSlot > 35) throw new IllegalArgumentException("Cannot handle slots above 35");
-        return bukkitSlot;
-    }
-
-    /**
-     * Gets the Minecraft protocol slot from an {@link EquipmentSlot} of a {@link Player}.
+     * Gets the inventory slot from an {@link EquipmentSlot} of a {@link Player}.
      * @param player The player.
      * @param slot The EquipmentSlot.
-     * @return The Minecraft protocol slot.
+     * @return The inventory slot.
      */
     public static int toProtocol(Player player, EquipmentSlot slot) {
         PlayerInventory inv = player.getInventory();
         if (slot == EquipmentSlot.HAND) return inv.getHeldItemSlot();
         return SLOT_MAPPING.get(slot);
+    }
+
+    /**
+     * Sends the damage animation for an entity to a player.
+     * @param player The player to send to.
+     * @param entity The entity to damage.
+     */
+    public static void damageAnimation(Player player, Entity entity) {
+        PacketContainer packet = plugin.getProtocolManager().createPacket(PacketType.Play.Server.ANIMATION);
+        packet.getIntegers().write(0, entity.getEntityId());
+        packet.getIntegers().write(1, 1);
+        plugin.sendPacket(player, packet);
+    }
+
+    /**
+     * Converts a Minecraft protocol slot to a Bukkit slot.
+     * @param slot The Minecraft protocol slot.
+     * @return The Bukkit slot.
+     */
+    public static int toBukkit(int slot) {
+        if (slot >= 36 && slot <= 44) return slot - 36;
+        return slot;
     }
 }

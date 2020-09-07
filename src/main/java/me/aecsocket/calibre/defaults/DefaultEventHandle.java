@@ -2,7 +2,6 @@ package me.aecsocket.calibre.defaults;
 
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.defaults.gui.SlotViewGUI;
-import me.aecsocket.calibre.hook.CalibreDefaultHook;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.unifiedframework.gui.GUIView;
 import me.aecsocket.unifiedframework.util.Utils;
@@ -15,7 +14,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
 /**
- * The {@link me.aecsocket.calibre.hook.CalibreDefaultHook}'s event handler.
+ * The {@link CalibreDefaultHook}'s event handler.
  */
 public class DefaultEventHandle implements Listener {
     private final CalibrePlugin plugin;

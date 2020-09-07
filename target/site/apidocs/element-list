@@ -3,8 +3,8 @@ me.aecsocket.calibre.defaults
 me.aecsocket.calibre.defaults.gui
 me.aecsocket.calibre.defaults.gun
 me.aecsocket.calibre.defaults.melee
+me.aecsocket.calibre.defaults.service.damage
 me.aecsocket.calibre.handle
-me.aecsocket.calibre.hook
 me.aecsocket.calibre.item
 me.aecsocket.calibre.item.animation
 me.aecsocket.calibre.item.blueprint

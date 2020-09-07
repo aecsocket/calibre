@@ -75,14 +75,16 @@ public final class ItemEvents {
 
 
     /**
-     * Runs when an item is held in either the main or offhand.
+     * Runs when an item is equipped by a player in any {@link EquipmentSlot}.
+     * Note that this event may not be run on the main thread, so if you need to access the Bukkit API, check:
+     * <code>event.getTickContext().getLoop() instanceof SchedulerLoop</code>
      */
-    public static class Hold extends PlayerEvent<Hold.Listener> {
-        public interface Listener { void onEvent(Hold event); }
+    public static class Equip extends PlayerEvent<Equip.Listener> {
+        public interface Listener { void onEvent(Equip event); }
 
         private final TickContext tickContext;
 
-        public Hold(ItemStack itemStack, EquipmentSlot slot, Player player, TickContext tickContext) {
+        public Equip(ItemStack itemStack, EquipmentSlot slot, Player player, TickContext tickContext) {
             super(itemStack, slot, player);
             this.tickContext = tickContext;
         }

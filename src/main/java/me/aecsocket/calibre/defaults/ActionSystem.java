@@ -39,7 +39,8 @@ public class ActionSystem implements CalibreSystem<ActionSystem> {
             ParticleData.spawn(location, particles);
         else
             ParticleData.spawn(location, particleData, particles);
-        if (animation != null) plugin.getPlayerData(player).startAnimation(animation, slot);
+        if (player != null)
+            if (animation != null) plugin.getPlayerData(player).startAnimation(animation, slot);
         if (delay != null) availableIn(delay);
     }
 

@@ -5,22 +5,32 @@ import co.aikar.commands.PaperCommandManager;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.aecsocket.calibre.handle.CalibreCommand;
-import me.aecsocket.calibre.hook.CalibreCoreHook;
-import me.aecsocket.calibre.hook.CalibreDefaultHook;
-import me.aecsocket.calibre.hook.CalibreHook;
+import me.aecsocket.calibre.handle.EventHandle;
+import me.aecsocket.calibre.defaults.CalibreDefaultHook;
 import me.aecsocket.calibre.item.CalibreIdentifiable;
 import me.aecsocket.calibre.item.CalibreItem;
 import me.aecsocket.calibre.item.CalibreItemSupplier;
+import me.aecsocket.calibre.item.animation.Animation;
+import me.aecsocket.calibre.item.animation.AnimationAdapter;
 import me.aecsocket.calibre.item.blueprint.Blueprint;
 import me.aecsocket.calibre.item.component.CalibreComponent;
+import me.aecsocket.calibre.item.component.CalibreComponentAdapter;
+import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptor;
+import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptorAdapter;
+import me.aecsocket.calibre.util.AcceptsCalibrePluginAdapter;
 import me.aecsocket.calibre.util.CalibrePlayer;
 import me.aecsocket.calibre.util.RegistryCommandContext;
+import me.aecsocket.calibre.util.protocol.CalibreProtocol;
 import me.aecsocket.unifiedframework.item.ItemManager;
 import me.aecsocket.unifiedframework.locale.LocaleManager;
 import me.aecsocket.unifiedframework.locale.Translation;
+import me.aecsocket.unifiedframework.locale.TranslationMap;
+import me.aecsocket.unifiedframework.locale.TranslationMapAdapter;
+import me.aecsocket.unifiedframework.loop.PreciseLoop;
 import me.aecsocket.unifiedframework.loop.SchedulerLoop;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.loop.Tickable;
@@ -30,8 +40,11 @@ import me.aecsocket.unifiedframework.resource.DataResult;
 import me.aecsocket.unifiedframework.resource.LoadResult;
 import me.aecsocket.unifiedframework.resource.ResourceLoadException;
 import me.aecsocket.unifiedframework.resource.Settings;
+import me.aecsocket.unifiedframework.stat.StatMap;
+import me.aecsocket.unifiedframework.stat.StatMapAdapter;
 import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.Utils;
+import me.aecsocket.unifiedframework.util.json.DefaultedRuntimeTypeAdapterFactory;
 import me.aecsocket.unifiedframework.util.log.LabelledLogger;
 import me.aecsocket.unifiedframework.util.log.LogLevel;
 import org.bukkit.Bukkit;
@@ -61,12 +74,15 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     private final LocaleManager localeManager = new LocaleManager();
     private final Registry registry = new Registry();
     private final Set<CalibreHook> hooks = new HashSet<>();
-    private final CalibreCoreHook coreHook = new CalibreCoreHook();
     private final CalibreDefaultHook defaultHook = new CalibreDefaultHook();
     private final Map<Player, CalibrePlayer> players = new HashMap<>();
     private final SchedulerLoop schedulerLoop = new SchedulerLoop(this);
+    private final PreciseLoop preciseLoop = new PreciseLoop(10);
     private final ItemManager itemManager = new ItemManager(this);
     private final Map<String, NamespacedKey> keys = new HashMap<>();
+    private final DefaultedRuntimeTypeAdapterFactory<ComponentDescriptor> componentDescriptorAdapter = DefaultedRuntimeTypeAdapterFactory.of(ComponentDescriptor.class);
+    private final StatMapAdapter statMapAdapter = new StatMapAdapter();
+    private CalibreComponentAdapter componentAdapter;
     private Settings settings;
     private PaperCommandManager commandManager;
     private ProtocolManager protocolManager;
@@ -74,11 +90,11 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
 
     @Override
     public void onEnable() {
+        componentAdapter = new CalibreComponentAdapter(this, statMapAdapter);
         commandManager = new PaperCommandManager(this);
         protocolManager = ProtocolLibrary.getProtocolManager();
 
-        hooks.add(coreHook);
-        hooks.add(defaultHook);
+        hooks.add(defaultHook); // TODO option to disable default hook
         Stream.of(Bukkit.getPluginManager().getPlugins())
                 .filter(plugin -> plugin instanceof CalibreHook)
                 .map(plugin -> (CalibreHook) plugin)
@@ -89,7 +105,16 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
             hook.initialize();
         });
 
-        GsonBuilder gsonBuilder = new GsonBuilder();
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .registerTypeAdapterFactory(new AcceptsCalibrePluginAdapter(this))
+                .registerTypeAdapterFactory(componentAdapter)
+                .registerTypeAdapterFactory(componentDescriptorAdapter)
+
+                .registerTypeAdapter(Animation.class, new AnimationAdapter(this))
+                .registerTypeAdapter(StatMap.class, statMapAdapter)
+                .registerTypeAdapter(TranslationMap.class, new TranslationMapAdapter())
+                .registerTypeAdapter(ComponentDescriptor.class, new ComponentDescriptorAdapter(this.getRegistry()));
         hooks.forEach(hook -> hook.initializeGson(gsonBuilder));
         gson = gsonBuilder.create();
         settings = new Settings(gson);
@@ -122,27 +147,42 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
         });
         commandManager.registerCommand(new CalibreCommand(this));
 
+        itemManager.registerAdapter(componentAdapter);
+
+        Bukkit.getPluginManager().registerEvents(new EventHandle(this), this);
+        CalibreProtocol.initialize(this);
+
         schedulerLoop.registerTickable(this);
         schedulerLoop.start();
+
+        preciseLoop.registerTickable(this);
+        preciseLoop.start();
     }
 
     @Override
     public void onDisable() {
+        hooks.forEach(CalibreHook::disable);
+
         if (schedulerLoop.isRunning())
             schedulerLoop.stop();
+        if (preciseLoop.isRunning())
+            preciseLoop.stop();
     }
 
     public LabelledLogger getPluginLogger() { return logger; }
-    public Settings getSettings() { return settings; }
     public LocaleManager getLocaleManager() { return localeManager; }
     public Registry getRegistry() { return registry; }
     public Set<CalibreHook> getHooks() { return hooks; }
-    public CalibreCoreHook getCoreHook() { return coreHook; }
     public CalibreDefaultHook getDefaultHook() { return defaultHook; }
     public Map<Player, CalibrePlayer> getPlayers() { return players; }
     public SchedulerLoop getSchedulerLoop() { return schedulerLoop; }
+    public PreciseLoop getPreciseLoop() { return preciseLoop; }
     public ItemManager getItemManager() { return itemManager; }
     public Map<String, NamespacedKey> getKeys() { return keys; }
+    public DefaultedRuntimeTypeAdapterFactory<ComponentDescriptor> getComponentDescriptorAdapter() { return componentDescriptorAdapter; }
+    public StatMapAdapter getStatMapAdapter() { return statMapAdapter; }
+    public CalibreComponentAdapter getComponentAdapter() { return componentAdapter; }
+    public Settings getSettings() { return settings; }
     public PaperCommandManager getCommandManager() { return commandManager; }
     public ProtocolManager getProtocolManager() { return protocolManager; }
     public Gson getGson() { return gson; }

@@ -8,9 +8,9 @@ import com.google.gson.stream.JsonWriter;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.component.descriptor.ComponentCreationException;
 import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptor;
-import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.item.ItemAdapter;
 import me.aecsocket.unifiedframework.registry.Registry;
+import me.aecsocket.unifiedframework.resource.ResourceLoadException;
 import me.aecsocket.unifiedframework.stat.StatMapAdapter;
 import me.aecsocket.unifiedframework.util.json.JsonAdapter;
 import org.bukkit.inventory.ItemStack;
@@ -51,7 +51,11 @@ public class CalibreComponentAdapter implements TypeAdapterFactory, JsonAdapter,
             public T read(JsonReader json) throws IOException {
                 JsonObject root = assertObject(Streams.parse(json));
                 T result = delegate.fromJsonTree(root);
-                ((CalibreComponent) result).load(new Registry.ResolutionContext(registry), root, gson, statMapAdapter);
+                try {
+                    ((CalibreComponent) result).load(new Registry.ResolutionContext(registry), root);
+                } catch (ResourceLoadException e) {
+                    throw new JsonParseException(e);
+                }
                 return result;
             }
         };

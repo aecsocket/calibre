@@ -16,8 +16,10 @@ public interface CalibreItem extends CalibreItemSupplier {
     /**
      * Calls an event to this item. Depends on the implementation.
      * @param event The event to call.
+     * @param <T> The called event type.
+     * @return The event called.
      */
-    void callEvent(Event<?> event);
+    <T extends Event<?>> T callEvent(T event);
 
     /**
      * Modifies a flag of an item which makes it hidden to the player who holds it. Items with this flag do not appear

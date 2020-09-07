@@ -16,6 +16,7 @@ import me.aecsocket.unifiedframework.item.ItemCreationException;
 import me.aecsocket.unifiedframework.registry.Registry;
 import me.aecsocket.unifiedframework.registry.ResolutionContext;
 import me.aecsocket.unifiedframework.registry.ResolutionException;
+import me.aecsocket.unifiedframework.resource.ResourceLoadException;
 import me.aecsocket.unifiedframework.stat.Stat;
 import me.aecsocket.unifiedframework.stat.StatMap;
 import me.aecsocket.unifiedframework.stat.StatMapAdapter;
@@ -52,8 +53,6 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
 
     private transient CalibreComponent parent;
     private transient ComponentTree tree;
-
-    private transient StatMapAdapter statMapAdapter;
 
     public CalibreComponent(CalibrePlugin plugin, String id) {
         this.plugin = plugin;
@@ -101,9 +100,14 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
         if (json.has("base")) {
             String baseId = json.get("base").getAsString();
             CalibreComponent base = context.get(baseId, CalibreComponent.class);
-            if (base == null) throw new ResolutionException("Invalid base component " + baseId);
+            if (base == null)
+                throw new ResolutionException("Invalid base component " + baseId);
             extendBase(base);
-            load(context, json, context.getGson(), statMapAdapter);
+            try {
+                load(context, json);
+            } catch (ResourceLoadException e) {
+                throw new ResolutionException(e);
+            }
         }
     }
 
@@ -111,13 +115,13 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
      * Loads systems and stats. Mainly for internal use.
      * @param context The {@link ResolutionContext}.
      * @param json The {@link JsonObject}.
-     * @param gson The {@link Gson}.
-     * @param statMapAdapter The {@link StatMapAdapter} to load stats into. Must be registered in the provided Gson.
+     * @throws ResourceLoadException If something errors.
      */
     @SuppressWarnings("unchecked")
-    public void load(ResolutionContext context, JsonObject json, Gson gson, StatMapAdapter statMapAdapter) {
-        this.statMapAdapter = statMapAdapter;
+    public void load(ResolutionContext context, JsonObject json) throws ResourceLoadException {
         JsonAdapter util = JsonAdapter.INSTANCE;
+        Gson gson = plugin.getGson();
+        StatMapAdapter statMapAdapter = plugin.getStatMapAdapter();
 
         // Load systems
         // 1. Generate the systems
@@ -125,9 +129,11 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
         for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
             String systemId = entry.getKey();
             CalibreSystem<?> system = context.get(systemId, CalibreSystem.class);
-            if (system == null) throw new ResolutionException(TextUtils.format("System {id} does not exist", "id", systemId));
+            if (system == null)
+                throw new ResourceLoadException(TextUtils.format("System {id} does not exist", "id", systemId));
             system = gson.fromJson(entry.getValue(), system.getClass());
-            if (systems.containsKey(system.getClass())) throw new ResolutionException(TextUtils.format("Component already has system with same type as {id}", "id", systemId));
+            if (systems.containsKey(system.getClass()))
+                throw new ResourceLoadException(TextUtils.format("Component already has system with same type as {id}", "id", systemId));
             systems.put((Class<? extends CalibreSystem<?>>) system.getClass(), system);
         }
         // 2. Prepare the systems
@@ -136,7 +142,7 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
             Collection<Class<? extends CalibreSystem<?>>> dependencies = new ArrayList<>(system.getDependencies());
             systems.forEach((type2, system2) -> {
                 if (conflicts.contains(type2))
-                    throw new ResolutionException(
+                    throw new ResourceLoadException(
                             TextUtils.format("System {id} is not compatible with system type {type}",
                                     "id", system.getId(),
                                     "type", type2.getSimpleName()
@@ -145,7 +151,7 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
                 dependencies.remove(type2);
             });
             if (dependencies.size() > 0)
-                throw new ResolutionException(
+                throw new ResourceLoadException(
                         TextUtils.format("System {id} has not had all dependencies fulfilled: {deps}",
                                 "id", system.getId(),
                                 "deps", String.join(", ", dependencies.stream().map(Class::getSimpleName).collect(Collectors.joining(", ")))
@@ -196,7 +202,7 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
     public boolean isComplete() { return tree.isComplete(); }
 
     @Override
-    public void callEvent(Event<?> event) { tree.getEventDispatcher().call(event); }
+    public <T extends Event<?>> T callEvent(T event) { tree.getEventDispatcher().call((Event<?>) event); return event; }
 
     /**
      * When creating a tree of components, modifies the tree to this instance's needs, such as

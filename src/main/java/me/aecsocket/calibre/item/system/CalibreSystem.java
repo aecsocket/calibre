@@ -5,9 +5,11 @@ import me.aecsocket.calibre.item.CalibreIdentifiable;
 import me.aecsocket.calibre.item.animation.Animation;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.ComponentTree;
+import me.aecsocket.unifiedframework.event.Event;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.stat.Stat;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -96,23 +98,31 @@ public interface CalibreSystem<D> extends CalibreIdentifiable, Cloneable {
     default <T> T stat(String key) { return getTree().stat(key); }
 
     /**
-     * Sets the item in the equipment slot of the specified player's inventory to this parent's tree's root's {@link CalibreComponent#createItem(Player, ItemStack)}.
+     * Sets the item in the equipment slot of the specified entity's inventory to this parent's tree's root's {@link CalibreComponent#createItem(Player, ItemStack)}.
      * This retains the stack amount of the old slot.
-     * @param player The player.
+     * @param entity The entity to get the {@link EntityEquipment} of, and if a player, to be passed to {@link CalibreComponent#createItem(Player, ItemStack)}.
      * @param slot The equipment slot.
      * @return The new item.
      */
-    default ItemStack updateItem(Player player, EquipmentSlot slot) { return getTree().getRoot().updateItem(player, slot); }
+    default ItemStack updateItem(LivingEntity entity, EquipmentSlot slot) { return getTree().getRoot().updateItem(entity, slot); }
 
     /**
-     * Sets the item in the equipment slot of the specified player's inventory to this parent's tree's root's {@link CalibreComponent#createItem(Player, ItemStack)}.
+     * Sets the item in the equipment slot of the specified entity's inventory to this parent's tree's root's {@link CalibreComponent#createItem(Player, ItemStack)}.
      * This retains the stack amount of the old slot.
-     * @param player The player.
+     * @param entity The entity to get the {@link EntityEquipment} of, and if a player, to be passed to {@link CalibreComponent#createItem(Player, ItemStack)}.
      * @param slot The equipment slot.
      * @param animationUsed The animation applied to this item before updating.
      * @return The new item.
      */
-    default ItemStack updateItem(Player player, EquipmentSlot slot, Animation animationUsed) { return getTree().getRoot().updateItem(player, slot, animationUsed); }
+    default ItemStack updateItem(LivingEntity entity, EquipmentSlot slot, Animation animationUsed) { return getTree().getRoot().updateItem(entity, slot, animationUsed); }
+
+    /**
+     * Calls an event to the tree.
+     * @param event The event to call.
+     * @param <T> The called event type.
+     * @return The event called.
+     */
+    default <T extends Event<?>> T callEvent(T event) { return getParent().callEvent(event); }
 
     /**
      * Gets if the parent is {@link CalibreComponent#isCompleteRoot()}.

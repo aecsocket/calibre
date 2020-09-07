@@ -1,4 +1,4 @@
-package me.aecsocket.calibre.hook;
+package me.aecsocket.calibre;
 
 import com.google.gson.GsonBuilder;
 import me.aecsocket.calibre.CalibrePlugin;
@@ -19,6 +19,11 @@ public interface CalibreHook {
      * Runs right after registering hooks.
      */
     default void initialize() {}
+
+    /**
+     * Runs right before plugin disabling.
+     */
+    default void disable() {}
 
     /**
      * Register custom type adapters to the plugin's {@link com.google.gson.Gson} instance.

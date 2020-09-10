@@ -32,6 +32,7 @@ public class CalibreComponentSlot implements ComponentSlot, AcceptsCalibrePlugin
     private List<String> compatibleIds = new ArrayList<>();
     private GUIVector offset = new GUIVector();
     private boolean canFieldModify;
+    private int priority;
 
     @Override public CalibrePlugin getPlugin() { return plugin; }
     @Override public void setPlugin(CalibrePlugin plugin) { this.plugin = plugin; }
@@ -90,6 +91,9 @@ public class CalibreComponentSlot implements ComponentSlot, AcceptsCalibrePlugin
      */
     public boolean canFieldModify() { return canFieldModify; }
     public void setCanFieldModify(boolean canFieldModify) { this.canFieldModify = canFieldModify; }
+
+    public int getPriority() { return priority; }
+    public void setPriority(int priority) { this.priority = priority; }
 
     /**
      * Creates an icon used in a {@link me.aecsocket.calibre.defaults.gui.SlotViewGUI}.

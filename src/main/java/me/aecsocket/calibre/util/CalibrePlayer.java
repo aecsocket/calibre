@@ -65,7 +65,7 @@ public class CalibrePlayer implements Tickable {
         cachedItems.forEach((slot, rep) -> {
                     if (rep.getItem() != null)
                         rep.getItem().callEvent(
-                                new ItemEvents.Equip(
+                                new ItemEvents.Equip<>(
                                         rep.getStack(),
                                         slot,
                                         player,
@@ -77,7 +77,8 @@ public class CalibrePlayer implements Tickable {
 
         if (animation != null) {
             tickContext.tick(animation);
-            if (animation.isFinished()) animation = null;
+            if (animation != null && animation.isFinished())
+                animation = null;
         }
     }
 }

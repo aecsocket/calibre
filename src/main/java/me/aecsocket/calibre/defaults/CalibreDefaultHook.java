@@ -4,9 +4,12 @@ import com.google.gson.GsonBuilder;
 import me.aecsocket.calibre.CalibreHook;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.defaults.gui.SlotViewGUI;
+import me.aecsocket.calibre.defaults.gun.BulletSystem;
+import me.aecsocket.calibre.defaults.gun.FireableSystem;
 import me.aecsocket.calibre.defaults.melee.MeleeSystem;
-import me.aecsocket.calibre.defaults.service.damage.CalibreDamageService;
-import me.aecsocket.calibre.defaults.service.damage.CalibreDamageProvider;
+import me.aecsocket.calibre.defaults.service.bukkit.damage.CalibreDamageService;
+import me.aecsocket.calibre.defaults.service.bukkit.damage.CalibreDamageProvider;
+import me.aecsocket.calibre.defaults.service.system.SimpleActionSystem;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.unifiedframework.gui.GUIManager;
 import me.aecsocket.unifiedframework.gui.GUIVector;
@@ -61,8 +64,12 @@ public class CalibreDefaultHook implements CalibreHook {
 
     @Override
     public void preLoadRegister(Registry registry, LocaleManager localeManager, Settings settings) {
-        registry.register(new ActionSystem(plugin));
+        registry.register(new SimpleActionSystem(plugin));
+
         registry.register(new MeleeSystem(plugin));
+
+        registry.register(new FireableSystem(plugin));
+        registry.register(new BulletSystem(plugin));
     }
 
     public void updateSlotView(Player player, CalibreComponent newComponent) {

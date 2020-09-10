@@ -4,7 +4,10 @@ import com.google.gson.reflect.TypeToken;
 import me.aecsocket.calibre.item.CalibreIdentifiable;
 import me.aecsocket.calibre.item.animation.Animation;
 import me.aecsocket.calibre.item.component.CalibreComponent;
+import me.aecsocket.calibre.item.component.CalibreComponentSlot;
 import me.aecsocket.calibre.item.component.ComponentTree;
+import me.aecsocket.calibre.util.SystemRepresentation;
+import me.aecsocket.unifiedframework.component.Component;
 import me.aecsocket.unifiedframework.event.Event;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.stat.Stat;
@@ -18,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * A system that can interact with a {@link CalibreComponent} through:
@@ -29,6 +33,7 @@ import java.util.*;
  * @param <D> The descriptor type.
  */
 public interface CalibreSystem<D> extends CalibreIdentifiable, Cloneable {
+    //region System Info
     /**
      * Gets all stats that this system provides.
      * @return A map of stats.
@@ -39,13 +44,13 @@ public interface CalibreSystem<D> extends CalibreIdentifiable, Cloneable {
      * Gets all systems that must be present for this to be able to load.
      * @return The list of system types.
      */
-    default @NotNull Collection<Class<? extends CalibreSystem<?>>> getDependencies() { return Collections.emptyList(); }
+    default @NotNull Collection<Class<?>> getDependencies() { return Collections.emptyList(); }
 
     /**
      * Gets all systems that must not be present for this to be able to load.
      * @return The list of system types.
      */
-    default @NotNull Collection<Class<? extends CalibreSystem<?>>> getConflicts() { return Collections.emptyList(); }
+    default @NotNull Collection<Class<?>> getConflicts() { return Collections.emptyList(); }
 
     /**
      * Gets the parent {@link CalibreComponent} that this System is a system of.
@@ -66,6 +71,12 @@ public interface CalibreSystem<D> extends CalibreIdentifiable, Cloneable {
     default void registerListeners(EventDispatcher dispatcher) {}
 
     /**
+     * Gets the types of services that this system provides, or null if it does not provide services.
+     * @return The types of services that this system provides.
+     */
+    default @Nullable Collection<Class<?>> getServiceTypes() { return null; }
+
+    /**
      * Gets the type of this system's descriptor of type {@link D}, or null if this system does not accept descriptors.
      * @return The type.
      */
@@ -83,6 +94,9 @@ public interface CalibreSystem<D> extends CalibreIdentifiable, Cloneable {
      */
     default D createDescriptor() { return null; }
 
+    //endregion
+
+    //region Utilities
     /**
      * Gets the {@link ComponentTree} that this instance's parent is a part of.
      * @return The tree.
@@ -136,11 +150,103 @@ public interface CalibreSystem<D> extends CalibreIdentifiable, Cloneable {
      * @param <T> The type of the system.
      * @return The system.
      */
-    default <T extends CalibreSystem<?>> T getSystem(Class<T> type) {
-        CalibreSystem<?> system = getParent().getSystems().get(type);
+    default <T> T getSystem(Class<T> type) {
+        T system = getParent().getSystem(type);
         if (system == null || !type.isAssignableFrom(system.getClass())) return null;
         return type.cast(system);
     }
+
+    /**
+     * Iterates over all systems in every component of the tree, starting from the root.
+     * @param consumer The consumer for each system.
+     */
+    default void walkSystems(Consumer<CalibreSystem<?>> consumer) {
+        getTree().getRoot().walk(data -> {
+            if (data.getComponent().isEmpty()) return;
+            Component component = data.getComponent().get();
+            if (!(component instanceof CalibreComponent)) return;
+            ((CalibreComponent) component).getSystems().forEach((type, system) -> consumer.accept(system));
+        });
+    }
+
+    /**
+     * Iterates over all systems of a specified type in every component of the tree, starting from the root.
+     * @param type The type of system.
+     * @param consumer The consumer for each system.
+     * @param <T> The type of system.
+     */
+    default <T> void walkSystems(Class<T> type, Consumer<T> consumer) {
+        walkSystems(system -> {
+            if (type.isAssignableFrom(system.getClass()))
+                consumer.accept(type.cast(system));
+        });
+    }
+
+    /**
+     * Iterates over all systems in every component of the tree, and adds them to a collection.
+     * @return The collection.
+     */
+    default Collection<CalibreSystem<?>> getAllSystems() {
+        Collection<CalibreSystem<?>> result = new ArrayList<>();
+        walkSystems(result::add);
+        return result;
+    }
+
+    /**
+     * Iterates over all systems of a specified type in every component of the tree, and adds them to a collection.
+     * @param type The type of system.
+     * @param <T> The type of system.
+     * @return The collection.
+     */
+    default <T> Collection<T> getAllSystems(Class<T> type) {
+        Collection<T> result = new ArrayList<>();
+        walkSystems(type, result::add);
+        return result;
+    }
+
+    /**
+     * Iterates over all systems in every component of the tree, and if their parent's slot's
+     * {@link CalibreComponentSlot#getPriority()} equals the target priority, collects them.
+     * @param targetPriority The target priority.
+     * @return The collection.
+     */
+    default Collection<SystemRepresentation<?>> getAllSystems(int targetPriority) {
+        Collection<SystemRepresentation<?>> result = new ArrayList<>();
+        getTree().getRoot().walk(data -> {
+            if (!(data.getSlot() instanceof CalibreComponentSlot)) return;
+            CalibreComponentSlot slot = (CalibreComponentSlot) data.getSlot();
+            if (slot.getPriority() != targetPriority) return;
+            slot.get().getSystems().values().forEach(system ->
+                    result.add(new SystemRepresentation<>(system, data)));
+        });
+        return result;
+    }
+
+    /**
+     * Iterates over all systems of a specified type in every component of the tree, and if their parent's slot's
+     * {@link CalibreComponentSlot#getPriority()} equals the target priority, collects them.
+     * @param type The type of system.
+     * @param targetPriority The target priority.
+     * @param <T> The type of system.
+     * @return The collection.
+     */
+    default <T> Collection<SystemRepresentation<T>> getAllSystems(Class<T> type, int targetPriority) {
+        Collection<SystemRepresentation<T>> result = new ArrayList<>();
+        getTree().getRoot().walk(data -> {
+            if (data.getComponent().isEmpty() || !(data.getSlot() instanceof CalibreComponentSlot)) return;
+            CalibreComponentSlot slot = (CalibreComponentSlot) data.getSlot();
+            if (slot.getPriority() != targetPriority) return;
+            slot.get().getSystems().values().forEach(system -> {
+                if (type.isAssignableFrom(system.getClass()))
+                    result.add(new SystemRepresentation<>(type.cast(system), data));
+            });
+        });
+        return result;
+    }
+
+    //endregion
+
+    //region Identifiable Info
 
     @Override default String getCalibreType() { return "system"; }
 
@@ -152,14 +258,16 @@ public interface CalibreSystem<D> extends CalibreIdentifiable, Cloneable {
 
     @Override @Nullable default String getLongInfo(CommandSender sender) { return null; }
 
+    //endregion
+
     /**
      * Copies a map of class-systems, copying both the map and the systems. Used in {@link CalibreComponent#copy()}.
      * @param original The original map.
      * @return The copied map, with copied elements.
      */
-    static Map<Class<? extends CalibreSystem<?>>, CalibreSystem<?>> copyMap(Map<Class<? extends CalibreSystem<?>>, CalibreSystem<?>> original) {
-        Map<Class<? extends CalibreSystem<?>>, CalibreSystem<?>> copy = new HashMap<>();
-        for (Map.Entry<Class<? extends CalibreSystem<?>>, CalibreSystem<?>> entry : original.entrySet()) {
+    static Map<Class<?>, CalibreSystem<?>> copyMap(Map<Class<?>, CalibreSystem<?>> original) {
+        Map<Class<?>, CalibreSystem<?>> copy = new HashMap<>();
+        for (Map.Entry<Class<?>, CalibreSystem<?>> entry : original.entrySet()) {
             copy.put(entry.getKey(), entry.getValue().copy());
         }
         return copy;

@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * The {@link CalibreDefaultHook}'s event handler.
@@ -42,17 +43,18 @@ public class DefaultEventHandle implements Listener {
 
         CalibreComponent root = plugin.getItem(event.getCurrentItem(), CalibreComponent.class);
         if (root == null) return;
+        ItemStack cursorStack = event.getCursor();
         if (
-                !Utils.empty(event.getCursor())
+                !Utils.empty(cursorStack)
                 && plugin.setting("quick_modify.enable", boolean.class, true)
                 && player.getGameMode() != GameMode.CREATIVE
                 && event.getCurrentItem().getAmount() == 1
         ) {
-            CalibreComponent cursor = plugin.getItem(event.getCursor(), CalibreComponent.class);
+            CalibreComponent cursor = plugin.getItem(cursorStack, CalibreComponent.class);
             if (cursor != null) {
                 event.setCancelled(true);
                 if (root.combine(cursor, plugin.setting("quick_modify.limited_modification", boolean.class, true)) != null) {
-                    event.getView().setCursor(null);
+                    event.getView().setCursor(cursorStack.subtract());
                     hook.updateSlotView(player, root);
                     event.setCurrentItem(root.createItem(player));
                     SoundData.play(player, plugin.setting("quick_modify.sound", SoundData[].class, null));

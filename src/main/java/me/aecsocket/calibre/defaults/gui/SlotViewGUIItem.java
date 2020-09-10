@@ -70,20 +70,21 @@ public class SlotViewGUIItem implements GUIItem {
             return;
         }
 
+        ItemStack cursor = view.getRawCursor();
         Player player = view.getPlayer();
-        if (Utils.empty(view.getRawCursor()) && slot.get() != null) {
+        if (Utils.empty(cursor) && slot.get() != null) {
             view.setRawCursor(slot.get().createItem(view.getPlayer()));
             slot.set(null);
             SoundData.play(player, plugin.setting("slot_view.remove_sound", SoundData[].class, null));
-        } else if (!Utils.empty(view.getRawCursor())) {
-            CalibreComponent component = plugin.getItem(view.getRawCursor(), CalibreComponent.class);
+        } else if (!Utils.empty(cursor)) {
+            CalibreComponent component = plugin.getItem(cursor, CalibreComponent.class);
             if (component == null || !slot.isCompatible(component)) {
                 event.setCancelled(true);
                 return;
             }
 
             view.setRawCursor(slot.get() == null
-                    ? null
+                    ? cursor.subtract()
                     : slot.get().createItem(player));
             slot.set(component);
             SoundData.play(player, plugin.setting("slot_view.place_sound", SoundData[].class, null));

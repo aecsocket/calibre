@@ -47,7 +47,7 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
     private List<String> categories = new ArrayList<>();
     private boolean completeRoot;
     private Map<String, CalibreComponentSlot> slots = new LinkedHashMap<>();
-    private transient Map<Class<? extends CalibreSystem<?>>, CalibreSystem<?>> systems = new HashMap<>();
+    private transient Map<Class<?>, CalibreSystem<?>> systems = new HashMap<>();
     private transient StatMap stats = new StatMap();
     private ItemDescriptor item;
 
@@ -75,8 +75,8 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
     @Override public Map<String, CalibreComponentSlot> getSlots() { return slots; }
     public void setSlots(Map<String, CalibreComponentSlot> slots) { this.slots = slots; }
 
-    public Map<Class<? extends CalibreSystem<?>>, CalibreSystem<?>> getSystems() { return systems; }
-    public void setSystems(Map<Class<? extends CalibreSystem<?>>, CalibreSystem<?>> systems) { this.systems = systems; }
+    public Map<Class<?>, CalibreSystem<?>> getSystems() { return systems; }
+    public void setSystems(Map<Class<?>, CalibreSystem<?>> systems) { this.systems = systems; }
 
     public StatMap getStats() { return stats; }
     public void setStats(StatMap stats) { this.stats = stats; }
@@ -117,7 +117,7 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
      * @param json The {@link JsonObject}.
      * @throws ResourceLoadException If something errors.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public void load(ResolutionContext context, JsonObject json) throws ResourceLoadException {
         JsonAdapter util = JsonAdapter.INSTANCE;
         Gson gson = plugin.getGson();
@@ -132,14 +132,27 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
             if (system == null)
                 throw new ResourceLoadException(TextUtils.format("System {id} does not exist", "id", systemId));
             system = gson.fromJson(entry.getValue(), system.getClass());
-            if (systems.containsKey(system.getClass()))
-                throw new ResourceLoadException(TextUtils.format("Component already has system with same type as {id}", "id", systemId));
-            systems.put((Class<? extends CalibreSystem<?>>) system.getClass(), system);
+
+            Collection<Class<?>> services = system.getServiceTypes();
+            if (services == null) services = Collections.singleton(system.getClass());
+
+            for (Class<?> serviceType : services) {
+                if (!serviceType.isAssignableFrom(system.getClass()))
+                    throw new ResourceLoadException(TextUtils.format("System {id} states it implements service {service} but does not extend class",
+                            "service", serviceType.getSimpleName(),
+                            "id", systemId));
+                if (systems.containsKey(serviceType))
+                    throw new ResourceLoadException(TextUtils.format("Component already has system implementing service type {service} (on {id})",
+                            "service", serviceType.getSimpleName(),
+                            "id", systemId));
+                systems.put(serviceType, system);
+            }
+
         }
         // 2. Prepare the systems
         systems.forEach((type, system) -> {
-            Collection<Class<? extends CalibreSystem<?>>> conflicts = system.getConflicts();
-            Collection<Class<? extends CalibreSystem<?>>> dependencies = new ArrayList<>(system.getDependencies());
+            Collection<Class<?>> conflicts = system.getConflicts();
+            Collection<Class<?>> dependencies = new ArrayList<>(system.getDependencies());
             systems.forEach((type2, system2) -> {
                 if (conflicts.contains(type2))
                     throw new ResourceLoadException(
@@ -213,6 +226,9 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
      * @param tree The tree.
      */
     public void modifyTree(ComponentTree tree) { tree.getStats().addAll(stats); }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getSystem(Class<T> type) { return (T) systems.get(type); }
 
     @Override public String getItemType() { return ITEM_TYPE; }
 

@@ -1,8 +1,8 @@
 package me.aecsocket.calibre.item;
 
+import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.util.Utils;
-import org.apache.commons.lang.Validate;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
@@ -56,18 +56,11 @@ public final class ItemEvents {
     }
 
     /**
-     * The base class for all item events involving an entity.
-     * @param <T> The listener type.
+     * An event which was called by a system.
+     * @param <S> The system type.
      */
-    public static abstract class EntityEvent<T> extends Event<T> {
-        private final Entity entity;
-
-        public EntityEvent(ItemStack itemStack, EquipmentSlot slot, Entity entity) {
-            super(itemStack, slot);
-            this.entity = entity;
-        }
-
-        public Entity getEntity() { return entity; }
+    public interface SystemEvent<S extends CalibreSystem<?>> {
+        S getSystem();
     }
 
 
@@ -79,8 +72,8 @@ public final class ItemEvents {
      * Note that this event may not be run on the main thread, so if you need to access the Bukkit API, check:
      * <code>event.getTickContext().getLoop() instanceof SchedulerLoop</code>
      */
-    public static class Equip extends PlayerEvent<Equip.Listener> {
-        public interface Listener { void onEvent(Equip event); }
+    public static class Equip<L extends Equip.Listener> extends PlayerEvent<L> {
+        public interface Listener { void onEvent(Equip<?> event); }
 
         private final TickContext tickContext;
 
@@ -97,8 +90,8 @@ public final class ItemEvents {
     /**
      * Runs when an item is left or right clicked.
      */
-    public static class Interact extends PlayerEvent<Interact.Listener> {
-        public interface Listener { void onEvent(Interact event); }
+    public static class Interact<L extends Interact.Listener> extends PlayerEvent<L> {
+        public interface Listener { void onEvent(Interact<?> event); }
 
         private final BlockFace clickedFace;
         private final Block clickedBlock;
@@ -121,26 +114,23 @@ public final class ItemEvents {
     /**
      * Bukkit event-based version of {@link Interact}.
      */
-    public static class BukkitInteract extends PlayerEvent<BukkitInteract.Listener> {
-        public interface Listener { void onEvent(BukkitInteract event); }
+    public static class BukkitInteract<L extends BukkitInteract.Listener> extends Interact<L> {
+        public interface Listener extends Interact.Listener { void onEvent(BukkitInteract<?> event); }
 
         private final PlayerInteractEvent bukkitEvent;
 
         public BukkitInteract(PlayerInteractEvent bukkitEvent) {
-            super(bukkitEvent.getItem(), bukkitEvent.getHand(), bukkitEvent.getPlayer());
+            super(bukkitEvent.getItem(), bukkitEvent.getHand(), bukkitEvent.getPlayer(),
+                    bukkitEvent.getBlockFace(), bukkitEvent.getClickedBlock(), Utils.isRightClick(bukkitEvent));
             this.bukkitEvent = bukkitEvent;
         }
 
         public PlayerInteractEvent getBukkitEvent() { return bukkitEvent; }
-        public EquipmentSlot getSlot() { return bukkitEvent.getHand(); }
-        public BlockFace getClickedFace() { return bukkitEvent.getBlockFace(); }
-        public Block getClickedBlock() { return bukkitEvent.getClickedBlock(); }
-        public boolean isRightClick() { return Utils.isRightClick(bukkitEvent); }
 
         @Override public void call(Listener listener) { listener.onEvent(this); }
 
-        public Interact toRaw() {
-            return new Interact(
+        public Interact<?> toRaw() {
+            return new Interact<>(
                     getItemStack(),
                     getSlot(),
                     getPlayer(),
@@ -153,8 +143,8 @@ public final class ItemEvents {
     /**
      * Runs when an item is swapped from the main to offhand and vice versa.
      */
-    public static class SwapHands extends PlayerEvent<SwapHands.Listener> {
-        public interface Listener { void onEvent(SwapHands event); }
+    public static class SwapHands<L extends SwapHands.Listener> extends PlayerEvent<L> {
+        public interface Listener { void onEvent(SwapHands<?> event); }
 
         public SwapHands(ItemStack itemStack, EquipmentSlot fromSlot, Player player) {
             super(itemStack, fromSlot, player);
@@ -166,8 +156,8 @@ public final class ItemEvents {
     /**
      * Bukkit event-based version of {@link SwapHands}.
      */
-    public static class BukkitSwapHands extends PlayerEvent<BukkitSwapHands.Listener> {
-        public interface Listener { void onEvent(BukkitSwapHands event); }
+    public static class BukkitSwapHands<L extends BukkitSwapHands.Listener> extends SwapHands<L> {
+        public interface Listener extends SwapHands.Listener { void onEvent(BukkitSwapHands<?> event); }
 
         private final PlayerSwapHandItemsEvent bukkitEvent;
 
@@ -183,8 +173,8 @@ public final class ItemEvents {
 
         @Override public void call(Listener listener) { listener.onEvent(this); }
 
-        public SwapHands toRaw() {
-            return new SwapHands(
+        public SwapHands<?> toRaw() {
+            return new SwapHands<>(
                     getItemStack(),
                     getSlot(),
                     getPlayer());
@@ -194,8 +184,8 @@ public final class ItemEvents {
     /**
      * Runs when an entity is damaged by another entity with an item.
      */
-    public static class Damage extends Event<Damage.Listener> {
-        public interface Listener { void onEvent(Damage event); }
+    public static class Damage<L extends Damage.Listener> extends Event<L> {
+        public interface Listener { void onEvent(Damage<?> event); }
 
         private final Entity victim;
         private final LivingEntity damager;
@@ -221,34 +211,28 @@ public final class ItemEvents {
         @Override public void call(Listener listener) { listener.onEvent(this); }
     }
 
-    public static class BukkitDamage extends Event<BukkitDamage.Listener> {
-        public interface Listener { void onEvent(BukkitDamage event); }
+    public static class BukkitDamage<L extends BukkitDamage.Listener> extends Damage<L> {
+        public interface Listener extends Damage.Listener { void onEvent(BukkitDamage<?> event); }
 
         private final EntityDamageByEntityEvent bukkitEvent;
 
         public BukkitDamage(EntityDamageByEntityEvent bukkitEvent, boolean mainHand) {
             super(
-                    bukkitEvent.getDamager() instanceof LivingEntity
-                            ? mainHand
-                                    ? ((LivingEntity) bukkitEvent.getDamager()).getEquipment().getItemInMainHand()
-                                    :  ((LivingEntity) bukkitEvent.getDamager()).getEquipment().getItemInOffHand()
-                            : null,
-                    mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
-            Validate.isTrue(bukkitEvent.getDamager() instanceof LivingEntity, "Damager is not of type LivingEntity");
+                    mainHand
+                        ? ((LivingEntity) bukkitEvent.getDamager()).getEquipment().getItemInMainHand()
+                        :  ((LivingEntity) bukkitEvent.getDamager()).getEquipment().getItemInOffHand(),
+                    mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND,
+                    bukkitEvent.getEntity(), (LivingEntity) bukkitEvent.getDamager(),
+                    bukkitEvent.getDamage(), bukkitEvent.getFinalDamage(), bukkitEvent.getCause());
             this.bukkitEvent = bukkitEvent;
         }
 
         public EntityDamageByEntityEvent getBukkitEvent() { return bukkitEvent; }
-        public Entity getVictim() { return bukkitEvent.getEntity(); }
-        public LivingEntity getDamager() { return (LivingEntity) bukkitEvent.getDamager(); }
-        public double getDamage() { return bukkitEvent.getDamage(); }
-        public double getFinalDamage() { return bukkitEvent.getFinalDamage(); }
-        public EntityDamageEvent.DamageCause getCause() { return bukkitEvent.getCause(); }
 
         @Override public void call(Listener listener) { listener.onEvent(this); }
 
-        public Damage toRaw() {
-            return new Damage(
+        public Damage<?> toRaw() {
+            return new Damage<>(
                     getItemStack(),
                     getSlot(),
                     getVictim(),

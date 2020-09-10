@@ -2,11 +2,12 @@ package me.aecsocket.calibre.defaults.melee;
 
 import com.google.gson.reflect.TypeToken;
 import me.aecsocket.calibre.CalibrePlugin;
-import me.aecsocket.calibre.defaults.ActionSystem;
+import me.aecsocket.calibre.defaults.service.system.ActionSystem;
+import me.aecsocket.calibre.defaults.service.system.MainSystem;
 import me.aecsocket.calibre.item.ItemEvents;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.system.CalibreSystem;
-import me.aecsocket.calibre.defaults.service.damage.CalibreDamageService;
+import me.aecsocket.calibre.defaults.service.bukkit.damage.CalibreDamageService;
 import me.aecsocket.calibre.stat.AnimationStat;
 import me.aecsocket.calibre.stat.DataStat;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
@@ -18,7 +19,6 @@ import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -32,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class MeleeSystem implements CalibreSystem<MeleeSystem>,
+        MainSystem,
         ItemEvents.Interact.Listener,
         ItemEvents.Damage.Listener,
         ItemEvents.BukkitDamage.Listener {
@@ -57,6 +58,8 @@ public class MeleeSystem implements CalibreSystem<MeleeSystem>,
     @Override public CalibrePlugin getPlugin() { return plugin; }
     @Override public void setPlugin(CalibrePlugin plugin) { this.plugin = plugin; }
 
+    public ActionSystem getActionSystem() { return actionSystem; }
+
     @Override public String getId() { return "melee"; }
     @Override public Map<String, Stat<?>> getDefaultStats() { return STATS; }
 
@@ -67,7 +70,7 @@ public class MeleeSystem implements CalibreSystem<MeleeSystem>,
     }
 
     @Override
-    public @NotNull Collection<Class<? extends CalibreSystem<?>>> getDependencies() {
+    public @NotNull Collection<Class<?>> getDependencies() {
         return Arrays.asList(
                 ActionSystem.class
         );
@@ -80,74 +83,71 @@ public class MeleeSystem implements CalibreSystem<MeleeSystem>,
         dispatcher.registerListener(ItemEvents.BukkitDamage.class, this, 0);
     }
 
+    public void swing(Events.Swing event) {
+        if (callEvent(event).cancelled) return;
+
+        double damage = event.damage;
+        LivingEntity swinger = event.swinger;
+        Entity victim = event.victim;
+        Location location = swinger.getLocation();
+
+        lastDamage = Bukkit.getCurrentTick();
+
+        double fDamage = damage;
+        RayTraceResult ray = swinger.getWorld().rayTrace(
+                swinger.getEyeLocation(), location.getDirection(), 5, FluidCollisionMode.NEVER, true, 0, e -> e == victim);
+        Utils.useService(CalibreDamageService.class, provider -> provider.damage(
+                swinger, victim, fDamage, ray == null ? new Vector() : ray.getHitPosition(), event.getItemStack()));
+
+        actionSystem.startAction(
+                stat("swing_delay"),
+                location, stat("swing_sound"), null,
+                swinger, event.getSlot(), stat("swing_animation"));
+        updateItem(swinger, event.getSlot(), stat("swing_animation"));
+    }
+
     @Override
-    public void onEvent(ItemEvents.Interact event) {
+    public void onEvent(ItemEvents.Interact<?> event) {
         if (!isCompleteRoot()) return;
         if (event.isRightClick()) return;
         if (!actionSystem.isAvailable()) return;
 
-        Player player = event.getPlayer();
-
-        if (callEvent(new Events.Swing(
+        swing(new Events.Swing(
                 event.getItemStack(),
                 event.getSlot(),
-                player,
+                this,
+                event.getPlayer(),
                 null,
                 0
-        )).cancelled)
-            return;
-
-        actionSystem.startAction(
-                stat("swing_delay"),
-                player.getLocation(), stat("swing_sound"), null,
-                player, event.getSlot(), stat("swing_animation"));
-        lastDamage = Bukkit.getCurrentTick();
-        updateItem(player, event.getSlot(), stat("swing_animation"));
+        ));
     }
 
     @Override
-    public void onEvent(ItemEvents.Damage event) {
+    public void onEvent(ItemEvents.Damage<?> event) {
         if (!isCompleteRoot()) return;
         if (!actionSystem.isAvailable()) return;
         if (lastDamage == Bukkit.getCurrentTick()) return;
 
         LivingEntity damager = event.getDamager();
         Entity victim = event.getVictim();
-        Location location = damager.getLocation();
 
         double damage = stat("damage");
-        double dot = location.getDirection().dot(victim.getLocation().getDirection());
+        double dot = damager.getLocation().getDirection().dot(victim.getLocation().getDirection());
         if (dot > (double) stat("backstab_threshold"))
             damage *= (double) stat("backstab_multiplier");
 
-        Events.Swing iEvent = new Events.Swing(
+        swing(new Events.Swing(
                 event.getItemStack(),
                 event.getSlot(),
+                this,
                 damager,
                 victim,
                 damage
-        );
-        if (callEvent(iEvent).cancelled)
-            return;
-
-        damage = iEvent.damage;
-
-        actionSystem.startAction(
-                stat("swing_delay"),
-                location, stat("swing_sound"), null,
-                damager instanceof Player ? (Player) damager : null, event.getSlot(), stat("swing_animation"));
-        lastDamage = Bukkit.getCurrentTick();
-        updateItem(damager, event.getSlot(), stat("swing_animation"));
-
-        double fDamage = damage;
-        RayTraceResult ray = damager.getWorld().rayTrace(
-                damager.getEyeLocation(), location.getDirection(), 5, FluidCollisionMode.NEVER, true, 0, e -> e == victim);
-        Utils.useService(CalibreDamageService.class, provider -> provider.damage(
-                damager, victim, fDamage, ray == null ? new Vector() : ray.getHitPosition(), event.getItemStack()));
+        ));
     }
 
     @Override
-    public void onEvent(ItemEvents.BukkitDamage event) {
+    public void onEvent(ItemEvents.BukkitDamage<?> event) {
         if (!isCompleteRoot()) return;
         if (lastDamage == Bukkit.getCurrentTick()) return;
         event.getBukkitEvent().setCancelled(true);
@@ -171,22 +171,25 @@ public class MeleeSystem implements CalibreSystem<MeleeSystem>,
         /**
          * Runs when a component with a MeleeSystem is left-clicked or damages an entity.
          */
-        public static class Swing extends ItemEvents.Event<Swing.Listener> implements Cancellable {
+        public static class Swing<L extends Swing.Listener> extends ItemEvents.Event<L> implements ItemEvents.SystemEvent<MeleeSystem>, Cancellable {
             public interface Listener { void onEvent(Swing event); }
 
-            private final LivingEntity damager;
+            private final MeleeSystem system;
+            private final LivingEntity swinger;
             private final Entity victim;
             private double damage;
             private boolean cancelled;
 
-            public Swing(ItemStack itemStack, EquipmentSlot slot, LivingEntity damager, Entity victim, double damage) {
+            public Swing(ItemStack itemStack, EquipmentSlot slot, MeleeSystem system, LivingEntity swinger, Entity victim, double damage) {
                 super(itemStack, slot);
-                this.damager = damager;
+                this.system = system;
+                this.swinger = swinger;
                 this.victim = victim;
                 this.damage = damage;
             }
 
-            public LivingEntity getDamager() { return damager; }
+            @Override public MeleeSystem getSystem() { return system; }
+            public LivingEntity getSwinger() { return swinger; }
             public Entity getVictim() { return victim; }
 
             public double getDamage() { return damage; }

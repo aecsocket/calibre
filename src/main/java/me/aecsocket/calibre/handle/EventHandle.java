@@ -36,18 +36,18 @@ public class EventHandle implements Listener {
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         callEvent(event.getItem(),
-                new ItemEvents.BukkitInteract(event).toRaw(),
-                new ItemEvents.BukkitInteract(event));
+                new ItemEvents.BukkitInteract<>(event).toRaw(),
+                new ItemEvents.BukkitInteract<>(event));
     }
 
     @EventHandler
     public void onSwapHand(PlayerSwapHandItemsEvent event) {
         callEvent(event.getOffHandItem(),
-                new ItemEvents.BukkitSwapHands(event, true).toRaw(),
-                new ItemEvents.BukkitSwapHands(event, true));
+                new ItemEvents.BukkitSwapHands<>(event, true).toRaw(),
+                new ItemEvents.BukkitSwapHands<>(event, true));
         callEvent(event.getMainHandItem(),
-                new ItemEvents.BukkitSwapHands(event, false).toRaw(),
-                new ItemEvents.BukkitSwapHands(event, false));
+                new ItemEvents.BukkitSwapHands<>(event, false).toRaw(),
+                new ItemEvents.BukkitSwapHands<>(event, false));
     }
 
     @EventHandler
@@ -55,10 +55,10 @@ public class EventHandle implements Listener {
         if (!(event.getDamager() instanceof LivingEntity)) return;
         EntityEquipment equipment = ((LivingEntity) event.getDamager()).getEquipment();
         callEvent(equipment.getItemInMainHand(),
-                new ItemEvents.BukkitDamage(event, true).toRaw(),
-                new ItemEvents.BukkitDamage(event, true));
+                new ItemEvents.BukkitDamage<>(event, true).toRaw(),
+                new ItemEvents.BukkitDamage<>(event, true));
         callEvent(equipment.getItemInOffHand(),
-                new ItemEvents.BukkitDamage(event, false).toRaw(),
-                new ItemEvents.BukkitDamage(event, false));
+                new ItemEvents.BukkitDamage<>(event, false).toRaw(),
+                new ItemEvents.BukkitDamage<>(event, false));
     }
 }

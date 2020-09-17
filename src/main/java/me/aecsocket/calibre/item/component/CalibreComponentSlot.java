@@ -30,6 +30,7 @@ public class CalibreComponentSlot implements ComponentSlot, AcceptsCalibrePlugin
     private List<String> compatibleCategories = new ArrayList<>();
     @SerializedName("ids")
     private List<String> compatibleIds = new ArrayList<>();
+    private List<String> tags = new ArrayList<>();
     private GUIVector offset = new GUIVector();
     private boolean canFieldModify;
     private int priority;
@@ -62,6 +63,7 @@ public class CalibreComponentSlot implements ComponentSlot, AcceptsCalibrePlugin
 
     /**
      * Gets all of the compatible categories of component that this slot accepts.
+     * <p>
      * To pass compatibility, a component must have at least one of the categories defined here (or it is
      * passed automatically if the list is empty).
      * @return The compatible categories.
@@ -71,12 +73,16 @@ public class CalibreComponentSlot implements ComponentSlot, AcceptsCalibrePlugin
 
     /**
      * Gets all of the compatible IDs of component that this slot accepts.
+     * <p>
      * To pass compatibility, a component must match at least one of the IDs defined here (or it is
      * passed automatically if the list is empty).
      * @return The compatible IDs.
      */
     public List<String> getCompatibleIds() { return compatibleIds; }
     public void setCompatibleIds(List<String> compatibleIds) { this.compatibleIds = compatibleIds; }
+
+    public List<String> getTags() { return tags; }
+    public void setTags(List<String> tags) { this.tags = tags; }
 
     /**
      * Gets the offset that this is displayed at in a {@link me.aecsocket.calibre.defaults.gui.SlotViewGUI}.

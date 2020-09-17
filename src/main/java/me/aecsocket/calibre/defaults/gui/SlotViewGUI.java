@@ -95,7 +95,7 @@ public class SlotViewGUI extends GUI {
     public Map<Integer, GUIItem> getItems(Player player) {
         Map<Integer, GUIItem> map = new HashMap<>();
         GUIVector center = plugin.setting("slot_view.center", GUIVector.class, new GUIVector(4, 3));
-        map.put(center.toSlot(), v -> component.treeless().createItem(player));
+        map.put(center.toSlot(), v -> component.simpleTree().createItem(player));
         component.getSlots().forEach((name, slot) -> putItems(map, name, slot, center));
         return map;
     }
@@ -129,11 +129,11 @@ public class SlotViewGUI extends GUI {
         if (!validate(view)) return;
 
         view.reopen();
-        if (component.getTree() != null) component.getTree().rebuild();
+        component.getTree().rebuild();
 
         if (player != null && existingStack != null) {
             PlayerInventory inv = player.getInventory();
-            existingStack = component.createItem(player, inv.getItem(itemSlot).getAmount());
+            existingStack = component.createItem(player, inv.getItem(itemSlot));
             inv.setItem(itemSlot, existingStack);
         }
     }

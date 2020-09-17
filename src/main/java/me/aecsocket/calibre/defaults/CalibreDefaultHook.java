@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder;
 import me.aecsocket.calibre.CalibreHook;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.defaults.gui.SlotViewGUI;
+import me.aecsocket.calibre.defaults.gun.AmmoContainerSystem;
 import me.aecsocket.calibre.defaults.gun.BulletSystem;
 import me.aecsocket.calibre.defaults.gun.FireableSystem;
 import me.aecsocket.calibre.defaults.melee.MeleeSystem;
@@ -11,6 +12,8 @@ import me.aecsocket.calibre.defaults.service.bukkit.damage.CalibreDamageService;
 import me.aecsocket.calibre.defaults.service.bukkit.damage.CalibreDamageProvider;
 import me.aecsocket.calibre.defaults.service.system.SimpleActionSystem;
 import me.aecsocket.calibre.item.component.CalibreComponent;
+import me.aecsocket.calibre.util.componentlist.CalibreComponentList;
+import me.aecsocket.calibre.util.componentlist.CalibreComponentListAdapter;
 import me.aecsocket.unifiedframework.gui.GUIManager;
 import me.aecsocket.unifiedframework.gui.GUIVector;
 import me.aecsocket.unifiedframework.gui.GUIView;
@@ -21,6 +24,7 @@ import me.aecsocket.unifiedframework.util.json.JsonAdapters;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.ServicePriority;
+import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,7 +63,9 @@ public class CalibreDefaultHook implements CalibreHook {
     @Override
     public void initializeGson(GsonBuilder builder) {
         builder
-                .registerTypeAdapter(GUIVector.class, JsonAdapters.GUI_VECTOR);
+                .registerTypeAdapter(Vector.class, JsonAdapters.VECTOR)
+                .registerTypeAdapter(GUIVector.class, JsonAdapters.GUI_VECTOR)
+                .registerTypeAdapter(CalibreComponentList.class, new CalibreComponentListAdapter(plugin.getRegistry()));
     }
 
     @Override
@@ -70,6 +76,7 @@ public class CalibreDefaultHook implements CalibreHook {
 
         registry.register(new FireableSystem(plugin));
         registry.register(new BulletSystem(plugin));
+        registry.register(new AmmoContainerSystem(plugin));
     }
 
     public void updateSlotView(Player player, CalibreComponent newComponent) {

@@ -10,11 +10,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Can create a {@link CalibreComponent} if provided with a {@link Registry}.
  * <p>
  * These are used in tandem with system descriptors so that a user can write, for example:
+ * <p>
  * <code>
  * {                                                      # the component descriptor
  *   "id": "magazine_component",
@@ -23,6 +25,7 @@ import java.util.Map;
  *   }
  * }
  * </code>
+ * <p>
  * rather than just writing out the component's (and the systems') definition again.
  * <p>
  * It is also not viable to store just a string reference to the ID of the component,
@@ -63,6 +66,7 @@ public class ComponentDescriptor {
      * @throws ComponentCreationException If the component could not be created.
      */
     public @NotNull CalibreComponent create(Registry registry, ComponentTree tree) throws ComponentCreationException {
+        // todo: a lot of this is a duplicate of ComponentTree#rebuild's code. do something here?
         CalibreComponent component = registry.getRaw(id, CalibreComponent.class);
         if (component == null) throw new ComponentCreationException(TextUtils.format("Failed to find component with ID {id}", "id", id));
         component = component.copy();
@@ -116,6 +120,21 @@ public class ComponentDescriptor {
         if (descriptorType == null) return;
         if (descriptorType.isAssignableFrom(descriptor.getClass()))
             system.acceptDescriptor(descriptorType.cast(descriptor));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ComponentDescriptor that = (ComponentDescriptor) o;
+        return id.equals(that.id) &&
+                systems.equals(that.systems) &&
+                slots.equals(that.slots);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, systems, slots);
     }
 
     /**

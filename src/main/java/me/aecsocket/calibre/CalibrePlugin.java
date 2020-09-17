@@ -399,7 +399,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
      * @param args The arguments used in {@link me.aecsocket.unifiedframework.util.TextUtils#format(String, Object...)}.
      * @return The localized text.
      */
-    public String gen(Player player, String key, Object... args) { return gen(player.getLocale(), key, args); }
+    public String gen(Player player, String key, Object... args) { return player == null ? gen(key, args) : gen(player.getLocale(), key, args); }
 
     /**
      * Generates some localized text for a {@link CommandSender}.

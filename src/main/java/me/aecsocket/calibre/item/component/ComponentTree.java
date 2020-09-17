@@ -1,5 +1,6 @@
 package me.aecsocket.calibre.item.component;
 
+import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.stat.StatMap;
 
@@ -17,6 +18,12 @@ public class ComponentTree {
         this.eventDispatcher = eventDispatcher;
         this.root = root;
         this.stats = stats;
+    }
+
+    public ComponentTree(CalibreComponent root) {
+        this.eventDispatcher = new EventDispatcher();
+        this.root = root;
+        this.stats = new StatMap();
     }
 
     public ComponentTree() {
@@ -49,13 +56,26 @@ public class ComponentTree {
     public boolean isComplete() { return complete; }
 
     /**
-     * Recursively sets all components' parents to their proper value, to rebuild the tree.
+     * Recursively initializes components and systems in the tree.
      * Also updates {@link ComponentTree#complete}.
      */
-    public void rebuild() { rebuild(root); }
+    public void rebuild() {
+        eventDispatcher.unregisterAll();
+        stats = new StatMap();
+        rebuild(root);
+    }
 
     private void rebuild(CalibreComponent parent) {
         complete = true;
+
+        parent.setTree(this);
+        parent.modifyTree(this);
+
+        for (CalibreSystem<?> system : parent.getSystems().values()) {
+            system.acceptParent(parent);
+            system.registerListeners(eventDispatcher);
+        }
+
         parent.getSlots().forEach((name, slot) -> {
             CalibreComponent child = slot.get();
             if (child == null) {
@@ -65,5 +85,24 @@ public class ComponentTree {
             child.setParent(parent);
             rebuild(child);
         });
+    }
+
+    @Override
+    public String toString() {
+        return "ComponentTree{" +
+                "root=" + root +
+                ", complete=" + complete +
+                '}';
+    }
+
+    /**
+     * Creates a simple component tree for a premade component. Is automatically built.
+     * @param root The premade root component.
+     * @return The tree.
+     */
+    public static ComponentTree of(CalibreComponent root) {
+        ComponentTree tree = new ComponentTree(root);
+        tree.rebuild();
+        return tree;
     }
 }

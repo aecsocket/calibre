@@ -3,11 +3,13 @@ package me.aecsocket.calibre.handle;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.CalibreIdentifiable;
 import me.aecsocket.calibre.item.CalibreItem;
 import me.aecsocket.calibre.item.CalibreItemSupplier;
 import me.aecsocket.calibre.item.component.CalibreComponent;
+import me.aecsocket.calibre.item.component.descriptor.ComponentCreationException;
 import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptor;
 import me.aecsocket.unifiedframework.item.ItemCreationException;
 import me.aecsocket.unifiedframework.util.Utils;
@@ -63,7 +65,7 @@ public class CalibreCommand extends BaseCommand {
 
     @Subcommand("list")
     @CommandPermission("calibre.command.list")
-    @CommandCompletion("@registry:extends=me.aecsocket.calibre.item.CalibreIdentifiable")
+    @CommandCompletion("@registry:extends=me.aecsocket.calibre.item.CalibreIdentifiable [namefilter] [typeFilter]")
     public void list(CommandSender sender, @Optional String nameFilter, @Optional String typeFilter) {
         if (WILDCARD.equals(nameFilter)) nameFilter = null;
         else if (nameFilter != null) nameFilter = nameFilter.toLowerCase();
@@ -134,7 +136,7 @@ public class CalibreCommand extends BaseCommand {
 
     @Subcommand("give")
     @CommandPermission("calibre.command.give")
-    @CommandCompletion("@players @registry:extends=me.aecsocket.calibre.item.CalibreItemSupplier")
+    @CommandCompletion("@players @registry:extends=me.aecsocket.calibre.item.CalibreItemSupplier [amount]")
     public void give(CommandSender sender, Player target, CalibreItemSupplier item, @Optional Integer amount) {
         if (amount == null) amount = 1;
         ItemStack stack;
@@ -147,5 +149,24 @@ public class CalibreCommand extends BaseCommand {
         for (int i = 0; i < amount; i++)
             Utils.giveItem(target, stack);
         send(sender, "chat.command.give", "amount", amount, "item", item.getLocalizedName(sender), "target", target.getDisplayName());
+    }
+
+    @Subcommand("create")
+    @CommandPermission("calibre.command.create")
+    @CommandCompletion("@players <json> [amount]")
+    public void create(CommandSender sender, Player target, String json, @Optional Integer amount) {
+        if (amount == null) amount = 1;
+        CalibreComponent component;
+        try {
+            ComponentDescriptor descriptor = plugin.getGson().fromJson(json, ComponentDescriptor.class);
+            component = descriptor.create(plugin.getRegistry());
+        } catch (JsonParseException e) {
+            send(sender, "chat.command.create.error.json", "msg", e.getMessage());
+            return;
+        } catch (ComponentCreationException e) {
+            send(sender, "chat.command.create.error.creation", "msg", e.getMessage());
+            return;
+        }
+        give(sender, target, component, amount);
     }
 }

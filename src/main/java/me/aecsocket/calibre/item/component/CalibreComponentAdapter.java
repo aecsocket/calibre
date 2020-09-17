@@ -52,7 +52,8 @@ public class CalibreComponentAdapter implements TypeAdapterFactory, JsonAdapter,
                 JsonObject root = assertObject(Streams.parse(json));
                 T result = delegate.fromJsonTree(root);
                 try {
-                    ((CalibreComponent) result).load(new Registry.ResolutionContext(registry), root);
+                    CalibreComponent component = (CalibreComponent) result;
+                    component.load(new Registry.ResolutionContext(registry), root);
                 } catch (ResourceLoadException e) {
                     throw new JsonParseException(e);
                 }

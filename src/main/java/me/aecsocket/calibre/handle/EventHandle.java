@@ -4,11 +4,16 @@ import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.CalibreItem;
 import me.aecsocket.calibre.item.ItemEvents;
 import me.aecsocket.unifiedframework.event.Event;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
@@ -35,6 +40,8 @@ public class EventHandle implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
+        if (plugin.getPlayerData(event.getPlayer()).getLastClicked() == Bukkit.getCurrentTick())
+            return;
         callEvent(event.getItem(),
                 new ItemEvents.BukkitInteract<>(event).toRaw(),
                 new ItemEvents.BukkitInteract<>(event));
@@ -60,5 +67,15 @@ public class EventHandle implements Listener {
         callEvent(equipment.getItemInOffHand(),
                 new ItemEvents.BukkitDamage<>(event, false).toRaw(),
                 new ItemEvents.BukkitDamage<>(event, false));
+    }
+
+    @EventHandler
+    public void onSwapItem(PlayerItemHeldEvent event) {
+        plugin.getPlayerData(event.getPlayer()).setAnimation(null);
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onClick(InventoryClickEvent event) {
+        plugin.getPlayerData((Player) event.getWhoClicked()).setLastClicked(Bukkit.getCurrentTick());
     }
 }

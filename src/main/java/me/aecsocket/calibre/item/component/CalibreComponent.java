@@ -4,11 +4,16 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.CalibreItem;
+import me.aecsocket.calibre.item.ItemEvents;
 import me.aecsocket.calibre.item.animation.Animation;
 import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptor;
+import me.aecsocket.calibre.item.system.SystemSearchOptions;
+import me.aecsocket.calibre.item.system.SystemSearchResult;
 import me.aecsocket.calibre.util.ItemDescriptor;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.calibre.util.AcceptsCalibrePlugin;
+import me.aecsocket.calibre.util.itemuser.ItemUser;
+import me.aecsocket.calibre.util.itemuser.PlayerItemUser;
 import me.aecsocket.unifiedframework.component.Component;
 import me.aecsocket.unifiedframework.component.ComponentHolder;
 import me.aecsocket.unifiedframework.event.Event;
@@ -24,9 +29,7 @@ import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.json.JsonAdapter;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -34,6 +37,8 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -117,7 +122,6 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
      * @param json The {@link JsonObject}.
      * @throws ResourceLoadException If something errors.
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
     public void load(ResolutionContext context, JsonObject json) throws ResourceLoadException {
         JsonAdapter util = JsonAdapter.INSTANCE;
         Gson gson = plugin.getGson();
@@ -182,6 +186,9 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
         // 2. Load stats with that map
         statMapAdapter.setStats(stats);
         this.stats.addAll(gson.fromJson(util.get(json, "stats", new JsonObject()), StatMap.class));
+
+        // Create simple component tree for this instance
+        tree = ComponentTree.of(this);
     }
 
     /**
@@ -246,46 +253,57 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
             meta.setDisplayName(tree != null && isRoot() && tree.isComplete() && completeRoot
                     ? getCompleteLocalizedName(player)
                     : getLocalizedName(player));
+
+            List<String> sections = new ArrayList<>();
+            ItemEvents.ItemCreation<?> event = new ItemEvents.ItemCreation<>(
+                    player, amount, result, meta, sections
+            );
+            callEvent(event);
+
+            StringJoiner lore = new StringJoiner(plugin.gen(player, "lore.separator"));
+            sections.forEach(lore::add);
+            List<String> loreLines = Arrays.asList(lore.toString().split("\n"));
+            if (loreLines.size() > 0 && !(loreLines.size() == 1 && loreLines.get(0).length() == 0))
+                meta.setLore(loreLines);
         });
     }
 
     /**
      * Sets the item in the equipment slot of the specified entity's inventory to {@link CalibreComponent#createItem(Player, ItemStack)}.
      * This retains the stack amount of the old slot.
-     * @param entity The entity to get the {@link EntityEquipment} of, and if a player, to be passed to {@link CalibreComponent#createItem(Player, ItemStack)}.
+     * @param user The user to get items from, and if a {@link me.aecsocket.calibre.util.itemuser.PlayerItemUser}, to be passed to {@link CalibreComponent#createItem(Player, ItemStack)}.
      * @param slot The equipment slot.
      * @param hidden If the item should be passed through {@link CalibreComponent#setHidden(CalibrePlugin, ItemStack)} to improve animations.
      * @return The new item.
      */
-    public ItemStack updateItem(LivingEntity entity, EquipmentSlot slot, boolean hidden) {
-        EntityEquipment equipment = entity.getEquipment();
-        ItemStack item = createItem(entity instanceof Player ? (Player) entity : null, equipment.getItem(slot));
+    public ItemStack updateItem(ItemUser user, EquipmentSlot slot, boolean hidden) {
+        ItemStack item = createItem(user instanceof PlayerItemUser ? ((PlayerItemUser) user).getEntity() : null, user.getItem(slot));
         if (hidden) CalibreItem.setHidden(plugin, item);
-        equipment.setItem(slot, item);
+        user.setItem(slot, item);
         return item;
     }
 
     /**
      * Sets the item in the equipment slot of the specified entity's inventory to {@link CalibreComponent#createItem(Player, ItemStack)}.
      * This retains the stack amount of the old slot.
-     * @param entity The entity to get the {@link EntityEquipment} of, and if a player, to be passed to {@link CalibreComponent#createItem(Player, ItemStack)}.
+     * @param user The user to get items from, and if a {@link me.aecsocket.calibre.util.itemuser.PlayerItemUser}, to be passed to {@link CalibreComponent#createItem(Player, ItemStack)}.
      * @param slot The equipment slot.
      * @param animationUsed The animation applied to this item before updating.
      * @return The new item.
      */
-    public ItemStack updateItem(LivingEntity entity, EquipmentSlot slot, Animation animationUsed) {
-        return updateItem(entity, slot, animationUsed != null);
+    public ItemStack updateItem(ItemUser user, EquipmentSlot slot, Animation animationUsed) {
+        return updateItem(user, slot, animationUsed != null);
     }
 
     /**
      * Sets the item in the equipment slot of the specified entity's inventory to {@link CalibreComponent#createItem(Player, ItemStack)}.
      * This retains the stack amount of the old slot.
-     * @param entity The entity to get the {@link EntityEquipment} of, and if a player, to be passed to {@link CalibreComponent#createItem(Player, ItemStack)}.
+     * @param user The user to get items from, and if a {@link me.aecsocket.calibre.util.itemuser.PlayerItemUser}, to be passed to {@link CalibreComponent#createItem(Player, ItemStack)}.
      * @param slot The equipment slot.
      * @return The new item.
      */
-    public ItemStack updateItem(LivingEntity entity, EquipmentSlot slot) {
-        return updateItem(entity, slot, false);
+    public ItemStack updateItem(ItemUser user, EquipmentSlot slot) {
+        return updateItem(user, slot, false);
     }
 
     /**
@@ -328,6 +346,31 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
      * @return The modified slot.
      */
     public CalibreComponentSlot combine(CalibreComponent other) { return combine(other, false); }
+
+    /**
+     * Iterates through all slots, components and systems which match the {@link SystemSearchOptions} and runs the
+     * consumer on them.
+     * @param options The {@link SystemSearchOptions}.
+     * @param consumer The action to run for each {@link SystemSearchResult}. If returns true, will stop searching.
+     * @param <T> The type of system to search for.
+     */
+    public <T> void searchSystems(SystemSearchOptions<T> options, Predicate<SystemSearchResult<T>> consumer) {
+        boolean[] exit = {false};
+        walk(data -> {
+            if (exit[0]) return;
+            if (!(data.getSlot() instanceof CalibreComponentSlot)) return;
+            CalibreComponentSlot slot = (CalibreComponentSlot) data.getSlot();
+            if (!options.test(slot)) return;
+
+            CalibreComponent component = slot.get();
+            if (component == null) return;
+            component.getSystems().values().forEach(system -> {
+                T result = options.systemOf(system);
+                if (result != null)
+                    exit[0] = consumer.test(new SystemSearchResult<>(result, data));
+            });
+        });
+    }
 
     /**
      * Gets the localized name of the item in its complete form, looked up in the plugin's locale manager.
@@ -391,12 +434,12 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
     }
 
     /**
-     * Creates a copy of this component, with no {@link ComponentTree}.
-     * @return The copy with no tree.
+     * Creates a copy of this component, with a simple {@link ComponentTree}.
+     * @return The copy with a simple component tree.
      */
-    public CalibreComponent treeless() {
+    public CalibreComponent simpleTree() {
         CalibreComponent copy = copy();
-        copy.setTree(null);
+        copy.tree = ComponentTree.of(copy);
         return copy;
     }
 
@@ -408,5 +451,29 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
         copy.systems = CalibreSystem.copyMap(systems);
         copy.stats = stats.copy();
         return copy;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CalibreComponent that = (CalibreComponent) o;
+        return completeRoot == that.completeRoot &&
+                id.equals(that.id) &&
+                categories.equals(that.categories) &&
+                slots.equals(that.slots) &&
+                systems.equals(that.systems) &&
+                stats.equals(that.stats) &&
+                Objects.equals(item, that.item);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, categories, completeRoot, slots, systems, stats, item);
+    }
+
+    @Override
+    public String toString() {
+        return plugin.getGson().toJson(ComponentDescriptor.of(this));
     }
 }

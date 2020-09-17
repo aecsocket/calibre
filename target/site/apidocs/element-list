@@ -4,6 +4,7 @@ me.aecsocket.calibre.defaults.gui
 me.aecsocket.calibre.defaults.gun
 me.aecsocket.calibre.defaults.melee
 me.aecsocket.calibre.defaults.service.bukkit.damage
+me.aecsocket.calibre.defaults.service.bukkit.raytrace
 me.aecsocket.calibre.defaults.service.system
 me.aecsocket.calibre.handle
 me.aecsocket.calibre.item
@@ -14,4 +15,6 @@ me.aecsocket.calibre.item.component.descriptor
 me.aecsocket.calibre.item.system
 me.aecsocket.calibre.stat
 me.aecsocket.calibre.util
+me.aecsocket.calibre.util.componentlist
+me.aecsocket.calibre.util.itemuser
 me.aecsocket.calibre.util.protocol

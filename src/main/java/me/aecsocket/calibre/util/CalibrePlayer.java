@@ -4,10 +4,12 @@ import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.animation.Animation;
 import me.aecsocket.calibre.item.CalibreItem;
 import me.aecsocket.calibre.item.ItemEvents;
+import me.aecsocket.calibre.util.itemuser.PlayerItemUser;
 import me.aecsocket.unifiedframework.event.Event;
 import me.aecsocket.unifiedframework.loop.SchedulerLoop;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.loop.Tickable;
+import me.aecsocket.unifiedframework.util.Projectile;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -24,6 +26,7 @@ public class CalibrePlayer implements Tickable {
     private final Player player;
     private Animation.Instance animation;
     private final EnumMap<EquipmentSlot, ItemRepresentation> cachedItems = new EnumMap<>(EquipmentSlot.class);
+    private int lastClicked;
 
     public CalibrePlayer(CalibrePlugin plugin, Player player) {
         this.plugin = plugin;
@@ -40,6 +43,9 @@ public class CalibrePlayer implements Tickable {
     public void setAnimation(Animation.Instance animation) { this.animation = animation; }
 
     public Map<EquipmentSlot, ItemRepresentation> getCachedItems() { return cachedItems; }
+
+    public int getLastClicked() { return lastClicked; }
+    public void setLastClicked(int lastClicked) { this.lastClicked = lastClicked; }
 
     private void callEvent(ItemStack stack, Event<?>... events) {
         CalibreItem item = plugin.getItem(stack, CalibreItem.class);
@@ -68,7 +74,7 @@ public class CalibrePlayer implements Tickable {
                                 new ItemEvents.Equip<>(
                                         rep.getStack(),
                                         slot,
-                                        player,
+                                        new PlayerItemUser(player),
                                         tickContext
                                 )
                         );

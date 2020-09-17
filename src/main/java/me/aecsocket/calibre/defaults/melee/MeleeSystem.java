@@ -2,6 +2,7 @@ package me.aecsocket.calibre.defaults.melee;
 
 import com.google.gson.reflect.TypeToken;
 import me.aecsocket.calibre.CalibrePlugin;
+import me.aecsocket.calibre.defaults.service.bukkit.raytrace.CalibreRaytraceService;
 import me.aecsocket.calibre.defaults.service.system.ActionSystem;
 import me.aecsocket.calibre.defaults.service.system.MainSystem;
 import me.aecsocket.calibre.item.ItemEvents;
@@ -10,6 +11,7 @@ import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.calibre.defaults.service.bukkit.damage.CalibreDamageService;
 import me.aecsocket.calibre.stat.AnimationStat;
 import me.aecsocket.calibre.stat.DataStat;
+import me.aecsocket.calibre.util.itemuser.ItemUser;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.stat.NumberStat;
 import me.aecsocket.unifiedframework.stat.Stat;
@@ -83,27 +85,27 @@ public class MeleeSystem implements CalibreSystem<MeleeSystem>,
         dispatcher.registerListener(ItemEvents.BukkitDamage.class, this, 0);
     }
 
-    public void swing(Events.Swing event) {
+    public void swing(Events.Swing<?> event) {
         if (callEvent(event).cancelled) return;
 
         double damage = event.damage;
-        LivingEntity swinger = event.swinger;
+        ItemUser swinger = event.swinger;
         Entity victim = event.victim;
-        Location location = swinger.getLocation();
+        Location location = swinger.getBasePosition();
 
         lastDamage = Bukkit.getCurrentTick();
 
         double fDamage = damage;
-        RayTraceResult ray = swinger.getWorld().rayTrace(
-                swinger.getEyeLocation(), location.getDirection(), 5, FluidCollisionMode.NEVER, true, 0, e -> e == victim);
-        Utils.useService(CalibreDamageService.class, provider -> provider.damage(
-                swinger, victim, fDamage, ray == null ? new Vector() : ray.getHitPosition(), event.getItemStack()));
+        RayTraceResult[] ray = {null};
+        Utils.useService(CalibreRaytraceService.class, provider -> ray[0] =
+                provider.rayTrace(location, location.getDirection(), 5, 0));
+        Utils.useService(CalibreDamageService.class, provider ->
+                provider.damage(swinger, victim, fDamage, ray[0] == null ? new Vector() : ray[0].getHitPosition(), event.getItemStack()));
 
         actionSystem.startAction(
                 stat("swing_delay"),
                 location, stat("swing_sound"), null,
                 swinger, event.getSlot(), stat("swing_animation"));
-        updateItem(swinger, event.getSlot(), stat("swing_animation"));
     }
 
     @Override
@@ -112,11 +114,11 @@ public class MeleeSystem implements CalibreSystem<MeleeSystem>,
         if (event.isRightClick()) return;
         if (!actionSystem.isAvailable()) return;
 
-        swing(new Events.Swing(
+        swing(new Events.Swing<>(
                 event.getItemStack(),
                 event.getSlot(),
                 this,
-                event.getPlayer(),
+                event.getUser(),
                 null,
                 0
         ));
@@ -128,15 +130,15 @@ public class MeleeSystem implements CalibreSystem<MeleeSystem>,
         if (!actionSystem.isAvailable()) return;
         if (lastDamage == Bukkit.getCurrentTick()) return;
 
-        LivingEntity damager = event.getDamager();
+        ItemUser damager = event.getDamager();
         Entity victim = event.getVictim();
 
         double damage = stat("damage");
-        double dot = damager.getLocation().getDirection().dot(victim.getLocation().getDirection());
+        double dot = damager.getBasePosition().getDirection().dot(victim.getLocation().getDirection());
         if (dot > (double) stat("backstab_threshold"))
             damage *= (double) stat("backstab_multiplier");
 
-        swing(new Events.Swing(
+        swing(new Events.Swing<>(
                 event.getItemStack(),
                 event.getSlot(),
                 this,
@@ -172,15 +174,15 @@ public class MeleeSystem implements CalibreSystem<MeleeSystem>,
          * Runs when a component with a MeleeSystem is left-clicked or damages an entity.
          */
         public static class Swing<L extends Swing.Listener> extends ItemEvents.Event<L> implements ItemEvents.SystemEvent<MeleeSystem>, Cancellable {
-            public interface Listener { void onEvent(Swing event); }
+            public interface Listener { void onEvent(Swing<?> event); }
 
             private final MeleeSystem system;
-            private final LivingEntity swinger;
+            private final ItemUser swinger;
             private final Entity victim;
             private double damage;
             private boolean cancelled;
 
-            public Swing(ItemStack itemStack, EquipmentSlot slot, MeleeSystem system, LivingEntity swinger, Entity victim, double damage) {
+            public Swing(ItemStack itemStack, EquipmentSlot slot, MeleeSystem system, ItemUser swinger, Entity victim, double damage) {
                 super(itemStack, slot);
                 this.system = system;
                 this.swinger = swinger;
@@ -189,7 +191,7 @@ public class MeleeSystem implements CalibreSystem<MeleeSystem>,
             }
 
             @Override public MeleeSystem getSystem() { return system; }
-            public LivingEntity getSwinger() { return swinger; }
+            public ItemUser getSwinger() { return swinger; }
             public Entity getVictim() { return victim; }
 
             public double getDamage() { return damage; }

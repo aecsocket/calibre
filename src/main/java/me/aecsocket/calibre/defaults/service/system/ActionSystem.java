@@ -1,6 +1,8 @@
 package me.aecsocket.calibre.defaults.service.system;
 
 import me.aecsocket.calibre.item.animation.Animation;
+import me.aecsocket.calibre.item.system.CalibreSystem;
+import me.aecsocket.calibre.util.itemuser.ItemUser;
 import me.aecsocket.unifiedframework.util.data.ParticleData;
 import me.aecsocket.unifiedframework.util.data.SoundData;
 import org.bukkit.Location;
@@ -25,14 +27,14 @@ public interface ActionSystem {
 
     void startAction(Long delay,
                      Location location, SoundData[] sound, ParticleData[] particles, Object particleData,
-                     LivingEntity entity, EquipmentSlot slot, Animation animation);
+                     ItemUser user, EquipmentSlot slot, Animation animation);
 
     default void startAction(Long delay,
                      Location location, SoundData[] sound, ParticleData[] particles,
-                     LivingEntity entity, EquipmentSlot slot, Animation animation) {
+                     ItemUser user, EquipmentSlot slot, Animation animation) {
         startAction(delay,
                 location, sound, particles, null,
-                entity, slot, animation);
+                user, slot, animation);
     }
 
     default void startAction(Long delay,

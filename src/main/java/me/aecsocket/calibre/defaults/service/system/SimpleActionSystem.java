@@ -5,6 +5,7 @@ import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.animation.Animation;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.system.CalibreSystem;
+import me.aecsocket.calibre.util.itemuser.ItemUser;
 import me.aecsocket.unifiedframework.util.data.ParticleData;
 import me.aecsocket.unifiedframework.util.data.SoundData;
 import org.bukkit.Location;
@@ -51,15 +52,16 @@ public class SimpleActionSystem implements CalibreSystem<SimpleActionSystem>, Ac
     @Override
     public void startAction(Long delay,
                             Location location, SoundData[] sound, ParticleData[] particles, Object particleData,
-                            LivingEntity entity, EquipmentSlot slot, Animation animation) {
+                            ItemUser user, EquipmentSlot slot, Animation animation) {
         SoundData.play(location, sound);
         if (particleData == null)
             ParticleData.spawn(location, particles);
         else
             ParticleData.spawn(location, particleData, particles);
-        if (entity instanceof Player)
-            if (animation != null) plugin.getPlayerData((Player) entity).startAnimation(animation, slot);
+        if (animation != null)
+            user.startAnimation(plugin, animation, slot);
         if (delay != null) availableIn(delay);
+        updateItem(user, slot, animation);
     }
 
     @Override public TypeToken<SimpleActionSystem> getDescriptorType() { return new TypeToken<>(){}; }

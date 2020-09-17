@@ -49,7 +49,7 @@ public class SlotViewGUIItem implements GUIItem {
         if (slot.get() == null)
             return slot.createIcon(player, name, gui.getPlugin().getItem(view.getRawCursor(), CalibreComponent.class));
         else {
-            return Utils.modMeta(slot.get().createItem(player), meta -> {
+            return Utils.modMeta(slot.get().simpleTree().createItem(player), meta -> {
                 List<String> lore = meta.hasLore() ? meta.getLore() : new ArrayList<>();
                 lore.add(gui.getPlugin().gen(player, "slot." + name));
                 meta.setLore(lore);
@@ -73,7 +73,7 @@ public class SlotViewGUIItem implements GUIItem {
         ItemStack cursor = view.getRawCursor();
         Player player = view.getPlayer();
         if (Utils.empty(cursor) && slot.get() != null) {
-            view.setRawCursor(slot.get().createItem(view.getPlayer()));
+            view.setRawCursor(slot.get().simpleTree().createItem(view.getPlayer()));
             slot.set(null);
             SoundData.play(player, plugin.setting("slot_view.remove_sound", SoundData[].class, null));
         } else if (!Utils.empty(cursor)) {

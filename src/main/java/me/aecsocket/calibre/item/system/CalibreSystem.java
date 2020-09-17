@@ -6,7 +6,7 @@ import me.aecsocket.calibre.item.animation.Animation;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.CalibreComponentSlot;
 import me.aecsocket.calibre.item.component.ComponentTree;
-import me.aecsocket.calibre.util.SystemRepresentation;
+import me.aecsocket.calibre.util.itemuser.ItemUser;
 import me.aecsocket.unifiedframework.component.Component;
 import me.aecsocket.unifiedframework.event.Event;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
@@ -21,7 +21,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * A system that can interact with a {@link CalibreComponent} through:
@@ -114,21 +116,21 @@ public interface CalibreSystem<D> extends CalibreIdentifiable, Cloneable {
     /**
      * Sets the item in the equipment slot of the specified entity's inventory to this parent's tree's root's {@link CalibreComponent#createItem(Player, ItemStack)}.
      * This retains the stack amount of the old slot.
-     * @param entity The entity to get the {@link EntityEquipment} of, and if a player, to be passed to {@link CalibreComponent#createItem(Player, ItemStack)}.
+     * @param user The user to get items from, and if a {@link me.aecsocket.calibre.util.itemuser.PlayerItemUser}, to be passed to {@link CalibreComponent#createItem(Player, ItemStack)}.
      * @param slot The equipment slot.
      * @return The new item.
      */
-    default ItemStack updateItem(LivingEntity entity, EquipmentSlot slot) { return getTree().getRoot().updateItem(entity, slot); }
+    default ItemStack updateItem(ItemUser user, EquipmentSlot slot) { return getTree().getRoot().updateItem(user, slot); }
 
     /**
      * Sets the item in the equipment slot of the specified entity's inventory to this parent's tree's root's {@link CalibreComponent#createItem(Player, ItemStack)}.
      * This retains the stack amount of the old slot.
-     * @param entity The entity to get the {@link EntityEquipment} of, and if a player, to be passed to {@link CalibreComponent#createItem(Player, ItemStack)}.
+     * @param user The user to get items from, and if a {@link me.aecsocket.calibre.util.itemuser.PlayerItemUser}, to be passed to {@link CalibreComponent#createItem(Player, ItemStack)}.
      * @param slot The equipment slot.
      * @param animationUsed The animation applied to this item before updating.
      * @return The new item.
      */
-    default ItemStack updateItem(LivingEntity entity, EquipmentSlot slot, Animation animationUsed) { return getTree().getRoot().updateItem(entity, slot, animationUsed); }
+    default ItemStack updateItem(ItemUser user, EquipmentSlot slot, Animation animationUsed) { return getTree().getRoot().updateItem(user, slot, animationUsed); }
 
     /**
      * Calls an event to the tree.
@@ -157,91 +159,14 @@ public interface CalibreSystem<D> extends CalibreIdentifiable, Cloneable {
     }
 
     /**
-     * Iterates over all systems in every component of the tree, starting from the root.
-     * @param consumer The consumer for each system.
+     * Iterates through all slots, components and systems which match the {@link SystemSearchOptions} and runs the
+     * consumer on them.
+     * @param options The {@link SystemSearchOptions}.
+     * @param consumer The action to run for each {@link SystemSearchResult}. If returns true, will stop searching.
+     * @param <T> The type of system to search for.
      */
-    default void walkSystems(Consumer<CalibreSystem<?>> consumer) {
-        getTree().getRoot().walk(data -> {
-            if (data.getComponent().isEmpty()) return;
-            Component component = data.getComponent().get();
-            if (!(component instanceof CalibreComponent)) return;
-            ((CalibreComponent) component).getSystems().forEach((type, system) -> consumer.accept(system));
-        });
-    }
-
-    /**
-     * Iterates over all systems of a specified type in every component of the tree, starting from the root.
-     * @param type The type of system.
-     * @param consumer The consumer for each system.
-     * @param <T> The type of system.
-     */
-    default <T> void walkSystems(Class<T> type, Consumer<T> consumer) {
-        walkSystems(system -> {
-            if (type.isAssignableFrom(system.getClass()))
-                consumer.accept(type.cast(system));
-        });
-    }
-
-    /**
-     * Iterates over all systems in every component of the tree, and adds them to a collection.
-     * @return The collection.
-     */
-    default Collection<CalibreSystem<?>> getAllSystems() {
-        Collection<CalibreSystem<?>> result = new ArrayList<>();
-        walkSystems(result::add);
-        return result;
-    }
-
-    /**
-     * Iterates over all systems of a specified type in every component of the tree, and adds them to a collection.
-     * @param type The type of system.
-     * @param <T> The type of system.
-     * @return The collection.
-     */
-    default <T> Collection<T> getAllSystems(Class<T> type) {
-        Collection<T> result = new ArrayList<>();
-        walkSystems(type, result::add);
-        return result;
-    }
-
-    /**
-     * Iterates over all systems in every component of the tree, and if their parent's slot's
-     * {@link CalibreComponentSlot#getPriority()} equals the target priority, collects them.
-     * @param targetPriority The target priority.
-     * @return The collection.
-     */
-    default Collection<SystemRepresentation<?>> getAllSystems(int targetPriority) {
-        Collection<SystemRepresentation<?>> result = new ArrayList<>();
-        getTree().getRoot().walk(data -> {
-            if (!(data.getSlot() instanceof CalibreComponentSlot)) return;
-            CalibreComponentSlot slot = (CalibreComponentSlot) data.getSlot();
-            if (slot.getPriority() != targetPriority) return;
-            slot.get().getSystems().values().forEach(system ->
-                    result.add(new SystemRepresentation<>(system, data)));
-        });
-        return result;
-    }
-
-    /**
-     * Iterates over all systems of a specified type in every component of the tree, and if their parent's slot's
-     * {@link CalibreComponentSlot#getPriority()} equals the target priority, collects them.
-     * @param type The type of system.
-     * @param targetPriority The target priority.
-     * @param <T> The type of system.
-     * @return The collection.
-     */
-    default <T> Collection<SystemRepresentation<T>> getAllSystems(Class<T> type, int targetPriority) {
-        Collection<SystemRepresentation<T>> result = new ArrayList<>();
-        getTree().getRoot().walk(data -> {
-            if (data.getComponent().isEmpty() || !(data.getSlot() instanceof CalibreComponentSlot)) return;
-            CalibreComponentSlot slot = (CalibreComponentSlot) data.getSlot();
-            if (slot.getPriority() != targetPriority) return;
-            slot.get().getSystems().values().forEach(system -> {
-                if (type.isAssignableFrom(system.getClass()))
-                    result.add(new SystemRepresentation<>(type.cast(system), data));
-            });
-        });
-        return result;
+    default <T> void searchSystems(SystemSearchOptions<T> options, Predicate<SystemSearchResult<T>> consumer) {
+        getParent().searchSystems(options, consumer);
     }
 
     //endregion

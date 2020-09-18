@@ -14,8 +14,9 @@ import org.bukkit.inventory.meta.Damageable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class Animation {
+public class Animation implements Cloneable {
     public class Instance implements Tickable {
         private final Player player;
         private final EquipmentSlot slot;
@@ -72,7 +73,7 @@ public class Animation {
         }
     }
 
-    public static class Frame {
+    public static class Frame implements Cloneable {
         private final CalibrePlugin plugin;
         private long duration;
         private EquipmentSlot slot;
@@ -137,6 +138,8 @@ public class Animation {
             CalibreProtocol.sendItem(player, create(player, slot), slot);
         }
 
+        public Frame clone() { try { return (Frame) super.clone(); } catch (CloneNotSupportedException e) { return null; } }
+
         @Override
         public String toString() {
             return duration + "ms / " + slot + "{" + (
@@ -166,6 +169,13 @@ public class Animation {
         Instance instance = new Instance(player, slot);
         instance.apply();
         return instance;
+    }
+
+    public Animation clone() { try { return (Animation) super.clone(); } catch (CloneNotSupportedException e) { return null; } }
+    public Animation copy() {
+        Animation copy = clone();
+        copy.frames = frames.stream().map(Frame::clone).collect(Collectors.toList());
+        return copy;
     }
 
     @Override

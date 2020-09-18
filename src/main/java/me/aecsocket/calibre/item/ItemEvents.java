@@ -1,5 +1,6 @@
 package me.aecsocket.calibre.item;
 
+import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.calibre.util.itemuser.ItemUser;
 import me.aecsocket.calibre.util.itemuser.PlayerItemUser;
@@ -13,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -158,8 +160,8 @@ public final class ItemEvents {
 
         private final PlayerInteractEvent bukkitEvent;
 
-        public BukkitInteract(PlayerInteractEvent bukkitEvent) {
-            super(bukkitEvent.getItem(), bukkitEvent.getHand(), new PlayerItemUser(bukkitEvent.getPlayer()),
+        public BukkitInteract(CalibrePlugin plugin, PlayerInteractEvent bukkitEvent) {
+            super(bukkitEvent.getItem(), bukkitEvent.getHand(), new PlayerItemUser(plugin, bukkitEvent.getPlayer()),
                     bukkitEvent.getBlockFace(), bukkitEvent.getClickedBlock(), Utils.isRightClick(bukkitEvent));
             this.bukkitEvent = bukkitEvent;
         }
@@ -202,11 +204,11 @@ public final class ItemEvents {
 
         private final PlayerSwapHandItemsEvent bukkitEvent;
 
-        public BukkitSwapHands(PlayerSwapHandItemsEvent bukkitEvent, boolean fromMainHand) {
+        public BukkitSwapHands(CalibrePlugin plugin, PlayerSwapHandItemsEvent bukkitEvent, boolean fromMainHand) {
             super(
                     fromMainHand ? bukkitEvent.getOffHandItem() : bukkitEvent.getMainHandItem(),
                     fromMainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND,
-                    new PlayerItemUser(bukkitEvent.getPlayer()));
+                    new PlayerItemUser(plugin, bukkitEvent.getPlayer()));
             this.bukkitEvent = bukkitEvent;
         }
 
@@ -262,13 +264,13 @@ public final class ItemEvents {
 
         private final EntityDamageByEntityEvent bukkitEvent;
 
-        public BukkitDamage(EntityDamageByEntityEvent bukkitEvent, boolean mainHand) {
+        public BukkitDamage(CalibrePlugin plugin, EntityDamageByEntityEvent bukkitEvent, boolean mainHand) {
             super(
                     mainHand
                         ? ((LivingEntity) bukkitEvent.getDamager()).getEquipment().getItemInMainHand()
                         :  ((LivingEntity) bukkitEvent.getDamager()).getEquipment().getItemInOffHand(),
                     mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND,
-                    ItemUser.ofDefault(bukkitEvent.getDamager()), bukkitEvent.getEntity(),
+                    ItemUser.ofDefault(plugin, bukkitEvent.getDamager()), bukkitEvent.getEntity(),
                     bukkitEvent.getDamage(), bukkitEvent.getFinalDamage(), bukkitEvent.getCause());
             this.bukkitEvent = bukkitEvent;
         }
@@ -287,5 +289,74 @@ public final class ItemEvents {
                     getFinalDamage(),
                     getCause());
         }
+    }
+
+    /**
+     * Runs when an item is equipped and held.
+     * @param <L> The listener type.
+     */
+    public static class Draw<L extends Draw.Listener> extends UserEvent<L> {
+        public interface Listener { void onEvent(Draw<?> event); }
+
+        private final int itemSlot;
+
+        public Draw(ItemStack itemStack, EquipmentSlot slot, ItemUser user, int itemSlot) {
+            super(itemStack, slot, user);
+            this.itemSlot = itemSlot;
+        }
+
+        public int getItemSlot() { return itemSlot; }
+
+        @Override public void call(L listener) { listener.onEvent(this); }
+    }
+
+    /**
+     * Bukkit event-based version of {@link Draw}.
+     * @param <L> The listener type.
+     */
+    public static class BukkitDraw<L extends BukkitDraw.Listener> extends Draw<L> {
+        public interface Listener extends Draw.Listener { void onEvent(BukkitDraw<?> event); }
+
+        private final PlayerItemHeldEvent bukkitEvent;
+
+        public BukkitDraw(CalibrePlugin plugin, PlayerItemHeldEvent bukkitEvent) {
+            super(
+                    bukkitEvent.getPlayer().getInventory().getItem(bukkitEvent.getNewSlot()),
+                    EquipmentSlot.HAND,
+                    new PlayerItemUser(plugin, bukkitEvent.getPlayer()),
+                    bukkitEvent.getNewSlot());
+            this.bukkitEvent = bukkitEvent;
+        }
+
+        public PlayerItemHeldEvent getBukkitEvent() { return bukkitEvent; }
+
+        @Override public void call(L listener) { listener.onEvent(this); }
+
+        public Draw<?> toRaw() {
+            return new Draw<>(
+                    getItemStack(),
+                    getSlot(),
+                    getUser(),
+                    getItemSlot());
+        }
+    }
+
+    /**
+     * Runs when an item is unequipped from a hand.
+     * @param <L> The listener type.
+     */
+    public static class Holster<L extends Holster.Listener> extends UserEvent<L> {
+        public interface Listener { void onEvent(Holster<?> event); }
+
+        private final int itemSlot;
+
+        public Holster(ItemStack itemStack, EquipmentSlot slot, ItemUser user, int itemSlot) {
+            super(itemStack, slot, user);
+            this.itemSlot = itemSlot;
+        }
+
+        public int getItemSlot() { return itemSlot; }
+
+        @Override public void call(L listener) { listener.onEvent(this); }
     }
 }

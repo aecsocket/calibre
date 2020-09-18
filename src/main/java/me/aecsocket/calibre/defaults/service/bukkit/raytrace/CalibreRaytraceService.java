@@ -14,7 +14,7 @@ public interface CalibreRaytraceService {
     /**
      * Ray traces for entities and blocks from the specified start position towards the direction.
      * If using {@link org.bukkit.World#rayTrace(Location, Vector, double, FluidCollisionMode, boolean, double, Predicate)}, implies
-     * {@link FluidCollisionMode#NEVER}, pass through passable blocks, and no predicate.
+     * {@link FluidCollisionMode#NEVER}, ignores passable blocks, and <code>null</code> predicate.
      * @param location The start position.
      * @param direction The direction to raytrace in.
      * @param distance The distance to raytrace up to.

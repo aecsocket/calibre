@@ -52,12 +52,12 @@ public class DefaultEventHandle implements Listener {
         ) {
             CalibreComponent cursor = plugin.getItem(cursorStack, CalibreComponent.class);
             if (cursor != null) {
-                event.setCancelled(true);
                 if (root.combine(cursor, plugin.setting("quick_modify.limited_modification", boolean.class, true)) != null) {
                     event.getView().setCursor(cursorStack.subtract());
                     hook.updateSlotView(player, root);
                     event.setCurrentItem(root.createItem(player));
                     SoundData.play(player, plugin.setting("quick_modify.sound", SoundData[].class, null));
+                    event.setCancelled(true);
                 }
             }
         } else if (

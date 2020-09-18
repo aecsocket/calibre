@@ -10,6 +10,10 @@ import me.aecsocket.calibre.defaults.gun.FireableSystem;
 import me.aecsocket.calibre.defaults.melee.MeleeSystem;
 import me.aecsocket.calibre.defaults.service.bukkit.damage.CalibreDamageService;
 import me.aecsocket.calibre.defaults.service.bukkit.damage.CalibreDamageProvider;
+import me.aecsocket.calibre.defaults.service.bukkit.raytrace.CalibreRaytraceProvider;
+import me.aecsocket.calibre.defaults.service.bukkit.raytrace.CalibreRaytraceService;
+import me.aecsocket.calibre.defaults.service.bukkit.spread.CalibreSpreadProvider;
+import me.aecsocket.calibre.defaults.service.bukkit.spread.CalibreSpreadService;
 import me.aecsocket.calibre.defaults.service.system.SimpleActionSystem;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.util.componentlist.CalibreComponentList;
@@ -20,6 +24,7 @@ import me.aecsocket.unifiedframework.gui.GUIView;
 import me.aecsocket.unifiedframework.locale.LocaleManager;
 import me.aecsocket.unifiedframework.registry.Registry;
 import me.aecsocket.unifiedframework.resource.Settings;
+import me.aecsocket.unifiedframework.util.Vector2;
 import me.aecsocket.unifiedframework.util.json.JsonAdapters;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -54,10 +59,8 @@ public class CalibreDefaultHook implements CalibreHook {
         plugin.getProtocolManager().addPacketListener(packetAdapter);
 
         registerInbuiltService(CalibreDamageService.class, new CalibreDamageProvider(plugin));
-    }
-
-    @Override
-    public void disable() {
+        registerInbuiltService(CalibreRaytraceService.class, new CalibreRaytraceProvider());
+        registerInbuiltService(CalibreSpreadService.class, new CalibreSpreadProvider());
     }
 
     @Override
@@ -65,12 +68,14 @@ public class CalibreDefaultHook implements CalibreHook {
         builder
                 .registerTypeAdapter(Vector.class, JsonAdapters.VECTOR)
                 .registerTypeAdapter(GUIVector.class, JsonAdapters.GUI_VECTOR)
+                .registerTypeAdapter(Vector2.class, JsonAdapters.VECTOR2)
                 .registerTypeAdapter(CalibreComponentList.class, new CalibreComponentListAdapter(plugin.getRegistry()));
     }
 
     @Override
     public void preLoadRegister(Registry registry, LocaleManager localeManager, Settings settings) {
         registry.register(new SimpleActionSystem(plugin));
+        registry.register(new AttributeSystem(plugin));
 
         registry.register(new MeleeSystem(plugin));
 
@@ -88,7 +93,7 @@ public class CalibreDefaultHook implements CalibreHook {
         }
     }
 
-    public <T> void registerInbuiltService(Class<T> serviceType, T provider) {
+    private <T> void registerInbuiltService(Class<T> serviceType, T provider) {
         inbuiltProviders.put(serviceType, provider);
         Bukkit.getServicesManager().register(serviceType, provider, plugin, ServicePriority.Lowest);
     }

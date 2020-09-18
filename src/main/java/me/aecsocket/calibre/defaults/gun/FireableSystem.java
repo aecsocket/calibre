@@ -1,6 +1,7 @@
 package me.aecsocket.calibre.defaults.gun;
 
 import me.aecsocket.calibre.CalibrePlugin;
+import me.aecsocket.calibre.defaults.service.bukkit.spread.CalibreSpreadService;
 import me.aecsocket.calibre.defaults.service.system.ActionSystem;
 import me.aecsocket.calibre.defaults.service.system.MainSystem;
 import me.aecsocket.calibre.defaults.service.system.ProjectileProviderSystem;
@@ -13,15 +14,14 @@ import me.aecsocket.calibre.item.system.SystemSearchResult;
 import me.aecsocket.calibre.stat.AnimationStat;
 import me.aecsocket.calibre.stat.DataStat;
 import me.aecsocket.calibre.util.itemuser.EntityItemUser;
+import me.aecsocket.calibre.util.itemuser.GunItemUser;
 import me.aecsocket.calibre.util.itemuser.ItemUser;
 import me.aecsocket.unifiedframework.event.Cancellable;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
-import me.aecsocket.unifiedframework.stat.BooleanStat;
-import me.aecsocket.unifiedframework.stat.NumberStat;
-import me.aecsocket.unifiedframework.stat.Stat;
-import me.aecsocket.unifiedframework.stat.VectorStat;
+import me.aecsocket.unifiedframework.stat.*;
 import me.aecsocket.unifiedframework.util.Projectile;
 import me.aecsocket.unifiedframework.util.Utils;
+import me.aecsocket.unifiedframework.util.Vector2;
 import me.aecsocket.unifiedframework.util.data.ParticleData;
 import org.bukkit.*;
 import org.bukkit.inventory.EquipmentSlot;
@@ -42,6 +42,15 @@ public class FireableSystem implements CalibreSystem<Void>,
             .init("ammo_priority", new NumberStat.Int(0))
             .init("auto_chamber", new BooleanStat(true))
             .init("damage", new NumberStat.Double(0d))
+
+            .init("base_spread", new NumberStat.Double(0d))
+            .init("shot_spread", new NumberStat.Double(0d))
+            .init("projectile_spread", new NumberStat.Double(0d))
+            .init("recoil", new Vector2Stat(new Vector2()))
+            .init("recoil_speed", new NumberStat.Double(1d))
+            .init("recoil_recover_after", new NumberStat.Long(1L))
+            .init("recoil_recovery", new NumberStat.Double(1d))
+            .init("recoil_recovery_speed", new NumberStat.Double(1d))
 
             .init("projectiles", new NumberStat.Int(1))
             .init("projectile_velocity", new NumberStat.Double(0d))
@@ -103,7 +112,7 @@ public class FireableSystem implements CalibreSystem<Void>,
     }
 
     public Location getBarrelLocation(ItemUser user) {
-        Location location = Utils.getFacingRelative(user.getBasePosition(), stat("barrel_offset"));
+        Location location = Utils.getFacingRelative(user.getLocation(), stat("barrel_offset"));
         if (user instanceof EntityItemUser)
             return Utils.isObstructed(((EntityItemUser) user).getEntity(), location) ? null : location;
         else
@@ -113,11 +122,15 @@ public class FireableSystem implements CalibreSystem<Void>,
     public void fire(Events.PreFire<?> event) {
         if (callEvent(event).cancelled) return;
 
-        ItemUser shooter = event.shooter;
+        ItemUser shooter = event.getUser();
+        GunItemUser gShooter = null;
+        if (shooter instanceof GunItemUser)
+            gShooter = (GunItemUser) shooter;
         Location barrelLocation = getBarrelLocation(shooter);
 
         if (barrelLocation == null) return;
 
+        // Find chamber
         List<SystemSearchResult<ProjectileProviderSystem>> chambers = new ArrayList<>();
         searchSystems(
                 SystemSearchOptions.of("chamber", stat("chamber_priority"), ProjectileProviderSystem.class),
@@ -125,7 +138,7 @@ public class FireableSystem implements CalibreSystem<Void>,
         );
         if (chambers.size() == 0) {
             chamber(new Events.PreChamber<>(
-                    event.getItemStack(), event.getSlot(), event.system, event.shooter,
+                    event.getItemStack(), event.getSlot(), event.getUser(), this,
                     barrelLocation
             ));
             return;
@@ -136,21 +149,42 @@ public class FireableSystem implements CalibreSystem<Void>,
         ProjectileProviderSystem chamberSystem = chamber.getSystem();
         CalibreComponentSlot chamberSlot = chamber.getSlot();
 
+        // Calculate spread
+        double spread = stat("base_spread");
+        double shotSpread = 0;
+        if (gShooter != null)
+            shotSpread = gShooter.getSpread();
+        spread += shotSpread;
+
         Events.Fire<?> event2 = new Events.Fire<>(
-                event.getItemStack(), event.getSlot(), event.system, event.shooter,
-                barrelLocation.clone(), chamberSystem, chamberSlot
+                event.getItemStack(), event.getSlot(), event.getUser(), this,
+                barrelLocation.clone(), chamberSystem, chamberSlot, spread
         );
         if (callEvent(event2).isCancelled()) return;
 
         barrelLocation = event2.barrelLocation;
         chamberSystem = event2.chamber;
         chamberSlot = event2.chamberSlot;
+        double fSpread = event2.spread;
+
         chamberSlot.set(null);
 
+        // Apply per-shot spread
+        Vector[] baseDirection = {barrelLocation.getDirection()};
+        Utils.useService(CalibreSpreadService.class, provider ->
+                baseDirection[0] = provider.applySpread(baseDirection[0], fSpread));
+
         for (int i = 0; i < (int) stat("projectiles"); i++) {
+            // Apply per-projectile spread
+            double projSpread = stat("projectile_spread");
+            Vector[] direction = {baseDirection[0].clone()};
+            if (projSpread > 0)
+                Utils.useService(CalibreSpreadService.class, provider ->
+                        direction[0] = provider.applySpread(direction[0], projSpread));
+
             Projectile projectile = chamberSystem.create(
                     new ProjectileData(
-                            barrelLocation, barrelLocation.getDirection().multiply((double) stat("projectile_velocity")),
+                            barrelLocation, direction[0].normalize().multiply((double) stat("projectile_velocity")),
                             stat("projectile_bounce"), stat("projectile_drag"), stat("projectile_gravity"), stat("projectile_expansion"),
                             stat("projectile_trail"), stat("projectile_trail_step_size"),
                             shooter, stat("damage"), event.getItemStack(), this
@@ -159,6 +193,16 @@ public class FireableSystem implements CalibreSystem<Void>,
             plugin.getSchedulerLoop().registerTickable(projectile);
         }
 
+        // Spread, recoil
+        if (gShooter != null) {
+            gShooter.setSpread(shotSpread + (double) stat("shot_spread"));
+            gShooter.applyRecoil(
+                    stat("recoil"), stat("recoil_speed"),
+                    stat("recoil_recover_after"),
+                    stat("recoil_recovery"), stat("recoil_recovery_speed"));
+        }
+
+        // Auto chamber
         if (stat("auto_chamber")) {
             CalibreComponentSlot fChamberSlot = chamberSlot;
             searchSystems(
@@ -233,7 +277,7 @@ public class FireableSystem implements CalibreSystem<Void>,
     public void chamber(Events.PreChamber<?> event) {
         if (callEvent(event).isCancelled()) return;
 
-        ItemUser shooter = event.getShooter();
+        ItemUser shooter = event.getUser();
         Location location = event.barrelLocation;
 
         // Chambers all chamber slots if they are empty
@@ -288,13 +332,13 @@ public class FireableSystem implements CalibreSystem<Void>,
         fire(new Events.PreFire<>(
                 event.getItemStack(),
                 event.getSlot(),
-                this,
-                event.getUser()
+                event.getUser(),
+                this
         ));
     }
 
     @Override public FireableSystem clone() { try { return (FireableSystem) super.clone(); } catch (CloneNotSupportedException e) { return null; } }
-    @Override public CalibreSystem<Void> copy() { return clone(); }
+    @Override public FireableSystem copy() { return clone(); }
 
     public static class ProjectileData extends ProjectileProviderSystem.Data {
         private final FireableSystem system;
@@ -310,21 +354,18 @@ public class FireableSystem implements CalibreSystem<Void>,
     public static final class Events {
         private Events() {}
 
-        public static class PreFire<L extends PreFire.Listener> extends ItemEvents.Event<L> implements ItemEvents.SystemEvent<FireableSystem>, Cancellable {
+        public static class PreFire<L extends PreFire.Listener> extends ItemEvents.UserEvent<L> implements ItemEvents.SystemEvent<FireableSystem>, Cancellable {
             public interface Listener { void onEvent(PreFire<?> event); }
 
             private final FireableSystem system;
-            private final ItemUser shooter;
             private boolean cancelled;
 
-            public PreFire(ItemStack itemStack, EquipmentSlot slot, FireableSystem system, ItemUser shooter) {
-                super(itemStack, slot);
+            public PreFire(ItemStack itemStack, EquipmentSlot slot, ItemUser user, FireableSystem system) {
+                super(itemStack, slot, user);
                 this.system = system;
-                this.shooter = shooter;
             }
 
             @Override public FireableSystem getSystem() { return system; }
-            public ItemUser getShooter() { return shooter; }
 
             @Override public boolean isCancelled() { return cancelled; }
             @Override public void setCancelled(boolean cancelled) { this.cancelled = cancelled; }
@@ -337,8 +378,8 @@ public class FireableSystem implements CalibreSystem<Void>,
 
             private Location barrelLocation;
 
-            public PreChamber(ItemStack itemStack, EquipmentSlot slot, FireableSystem system, ItemUser shooter, Location barrelLocation) {
-                super(itemStack, slot, system, shooter);
+            public PreChamber(ItemStack itemStack, EquipmentSlot slot, ItemUser user, FireableSystem system, Location barrelLocation) {
+                super(itemStack, slot, user, system);
                 this.barrelLocation = barrelLocation;
             }
 
@@ -354,12 +395,14 @@ public class FireableSystem implements CalibreSystem<Void>,
             private Location barrelLocation;
             private ProjectileProviderSystem chamber;
             private CalibreComponentSlot chamberSlot;
+            private double spread;
 
-            public Fire(ItemStack itemStack, EquipmentSlot slot, FireableSystem system, ItemUser shooter, Location barrelLocation, ProjectileProviderSystem chamber, CalibreComponentSlot chamberSlot) {
-                super(itemStack, slot, system, shooter);
+            public Fire(ItemStack itemStack, EquipmentSlot slot, ItemUser user, FireableSystem system, Location barrelLocation, ProjectileProviderSystem chamber, CalibreComponentSlot chamberSlot, double spread) {
+                super(itemStack, slot, user, system);
                 this.barrelLocation = barrelLocation;
                 this.chamber = chamber;
                 this.chamberSlot = chamberSlot;
+                this.spread = spread;
             }
 
             public Location getBarrelLocation() { return barrelLocation; }
@@ -370,6 +413,9 @@ public class FireableSystem implements CalibreSystem<Void>,
 
             public CalibreComponentSlot getChamberSlot() { return chamberSlot; }
             public void setChamberSlot(CalibreComponentSlot chamberSlot) { this.chamberSlot = chamberSlot; }
+
+            public double getSpread() { return spread; }
+            public void setSpread(double spread) { this.spread = spread; }
 
             @Override public void call(Listener listener) { listener.onEvent(this); }
         }

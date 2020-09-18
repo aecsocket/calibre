@@ -1,5 +1,6 @@
 package me.aecsocket.calibre.defaults.service.system;
 
+import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.defaults.service.bukkit.damage.CalibreDamageService;
 import me.aecsocket.calibre.defaults.service.bukkit.raytrace.CalibreRaytraceService;
 import me.aecsocket.calibre.util.itemuser.ItemUser;
@@ -75,15 +76,26 @@ public interface ProjectileProviderSystem {
     }
 
     class Projectile extends me.aecsocket.unifiedframework.util.Projectile {
+        private final CalibrePlugin plugin;
         private Data data;
 
-        public Projectile(Data data) {
+        public Projectile(CalibrePlugin plugin, Data data) {
             super(data.location, data.velocity, data.bounce, data.drag, data.gravity, data.expansion);
+            this.plugin = plugin;
             this.data = data;
         }
 
+        public CalibrePlugin getPlugin() { return plugin; }
+
         public Data getData() { return data; }
         public void setData(Data data) { this.data = data; }
+
+        @Override
+        public void tick(TickContext tickContext) {
+            super.tick(tickContext);
+            if (getTravelled() > plugin.setting("projectile.max_distance", double.class, 2048d))
+                tickContext.remove();
+        }
 
         @Override
         protected RayTraceResult rayTrace(double distance) {

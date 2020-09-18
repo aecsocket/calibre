@@ -6,6 +6,10 @@ import me.aecsocket.unifiedframework.util.data.ParticleData;
 
 import java.lang.reflect.Type;
 
+/**
+ * A stat which holds arrays of Calibre data classes. This supports the same operations as {@link ArrayStat}.
+ * @param <E> The array type.
+ */
 public abstract class DataStat<E> extends ArrayStat<E> {
     public DataStat(E[] defaultValue) { super(defaultValue); }
     public DataStat() {}

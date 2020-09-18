@@ -17,10 +17,8 @@ import me.aecsocket.unifiedframework.stat.NumberStat;
 import me.aecsocket.unifiedframework.stat.Stat;
 import me.aecsocket.unifiedframework.util.Utils;
 import org.bukkit.Bukkit;
-import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -91,7 +89,7 @@ public class MeleeSystem implements CalibreSystem<MeleeSystem>,
         double damage = event.damage;
         ItemUser swinger = event.swinger;
         Entity victim = event.victim;
-        Location location = swinger.getBasePosition();
+        Location location = swinger.getLocation();
 
         lastDamage = Bukkit.getCurrentTick();
 
@@ -134,7 +132,7 @@ public class MeleeSystem implements CalibreSystem<MeleeSystem>,
         Entity victim = event.getVictim();
 
         double damage = stat("damage");
-        double dot = damager.getBasePosition().getDirection().dot(victim.getLocation().getDirection());
+        double dot = damager.getLocation().getDirection().dot(victim.getLocation().getDirection());
         if (dot > (double) stat("backstab_threshold"))
             damage *= (double) stat("backstab_multiplier");
 

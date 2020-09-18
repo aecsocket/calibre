@@ -59,7 +59,7 @@ public class SimpleActionSystem implements CalibreSystem<SimpleActionSystem>, Ac
         else
             ParticleData.spawn(location, particleData, particles);
         if (animation != null)
-            user.startAnimation(plugin, animation, slot);
+            user.startAnimation(animation, slot);
         if (delay != null) availableIn(delay);
         updateItem(user, slot, animation);
     }

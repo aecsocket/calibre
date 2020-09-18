@@ -16,8 +16,8 @@ public class BulletSystem implements CalibreSystem<Void>,
     private transient CalibreComponent parent;
 
     public static class Projectile extends ProjectileProviderSystem.Projectile {
-        public Projectile(Data data) {
-            super(data);
+        public Projectile(CalibrePlugin plugin, Data data) {
+            super(plugin, data);
         }
 
         @Override
@@ -40,7 +40,7 @@ public class BulletSystem implements CalibreSystem<Void>,
 
     @Override
     public Projectile create(Data data) {
-        return new Projectile(data);
+        return new Projectile(plugin, data);
     }
 
     public BulletSystem clone() { try { return (BulletSystem) super.clone(); } catch (CloneNotSupportedException e) { return null; } }

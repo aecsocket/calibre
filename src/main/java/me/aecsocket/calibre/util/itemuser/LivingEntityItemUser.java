@@ -19,8 +19,8 @@ public class LivingEntityItemUser implements EntityItemUser {
 
     public LivingEntity getEntity() { return entity; }
 
-    @Override public Location getBasePosition() { return entity.getEyeLocation(); }
-    @Override public void startAnimation(CalibrePlugin plugin, Animation animation, EquipmentSlot slot) {}
+    @Override public Location getLocation() { return entity.getEyeLocation(); }
+    @Override public void startAnimation(Animation animation, EquipmentSlot slot) {}
 
     @Override public ItemStack getItem(EquipmentSlot slot) { return entity.getEquipment().getItem(slot); }
     @Override public void setItem(EquipmentSlot slot, ItemStack item) { entity.getEquipment().setItem(slot, item); }

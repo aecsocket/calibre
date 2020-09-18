@@ -11,6 +11,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+/**
+ * Default implementation of {@link CalibreDamageService}.
+ */
 public class CalibreDamageProvider implements CalibreDamageService {
     private final CalibrePlugin plugin;
 

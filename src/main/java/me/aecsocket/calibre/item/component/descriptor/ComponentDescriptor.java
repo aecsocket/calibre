@@ -78,8 +78,6 @@ public class ComponentDescriptor {
 
         // Systems
         for (CalibreSystem<?> system : component.getSystems().values()) {
-            system.acceptParent(component);
-            system.registerListeners(tree.getEventDispatcher());
             String id = system.getId();
             if (systems.containsKey(id))
                 provideDescriptor(system, systems.get(id));

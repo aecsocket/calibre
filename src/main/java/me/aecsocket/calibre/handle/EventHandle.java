@@ -4,7 +4,6 @@ import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.CalibreItem;
 import me.aecsocket.calibre.item.ItemEvents;
 import me.aecsocket.calibre.util.itemuser.PlayerItemUser;
-import me.aecsocket.unifiedframework.event.Event;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -34,10 +33,10 @@ public class EventHandle implements Listener {
 
     public CalibrePlugin getPlugin() { return plugin; }
 
-    private void callEvent(ItemStack stack, Event<?>... events) {
+    private void callEvent(ItemStack stack, Object... events) {
         CalibreItem item = plugin.getItem(stack, CalibreItem.class);
         if (item != null) {
-            for (Event<?> event : events)
+            for (Object event : events)
                 item.callEvent(event);
         }
     }
@@ -47,18 +46,18 @@ public class EventHandle implements Listener {
         if (plugin.getPlayerData(event.getPlayer()).getLastClicked() == Bukkit.getCurrentTick())
             return;
         callEvent(event.getItem(),
-                new ItemEvents.BukkitInteract<>(plugin, event).toRaw(),
-                new ItemEvents.BukkitInteract<>(plugin, event));
+                new ItemEvents.BukkitInteract(plugin, event).toRaw(),
+                new ItemEvents.BukkitInteract(plugin, event));
     }
 
     @EventHandler
     public void onSwapHand(PlayerSwapHandItemsEvent event) {
         callEvent(event.getOffHandItem(),
-                new ItemEvents.BukkitSwapHands<>(plugin, event, true).toRaw(),
-                new ItemEvents.BukkitSwapHands<>(plugin, event, true));
+                new ItemEvents.BukkitSwapHands(plugin, event, true).toRaw(),
+                new ItemEvents.BukkitSwapHands(plugin, event, true));
         callEvent(event.getMainHandItem(),
-                new ItemEvents.BukkitSwapHands<>(plugin, event, false).toRaw(),
-                new ItemEvents.BukkitSwapHands<>(plugin, event, false));
+                new ItemEvents.BukkitSwapHands(plugin, event, false).toRaw(),
+                new ItemEvents.BukkitSwapHands(plugin, event, false));
     }
 
     @EventHandler
@@ -66,11 +65,11 @@ public class EventHandle implements Listener {
         if (!(event.getDamager() instanceof LivingEntity)) return;
         EntityEquipment equipment = ((LivingEntity) event.getDamager()).getEquipment();
         callEvent(equipment.getItemInMainHand(),
-                new ItemEvents.BukkitDamage<>(plugin, event, true).toRaw(),
-                new ItemEvents.BukkitDamage<>(plugin, event, true));
+                new ItemEvents.BukkitDamage(plugin, event, true).toRaw(),
+                new ItemEvents.BukkitDamage(plugin, event, true));
         callEvent(equipment.getItemInOffHand(),
-                new ItemEvents.BukkitDamage<>(plugin, event, false).toRaw(),
-                new ItemEvents.BukkitDamage<>(plugin, event, false));
+                new ItemEvents.BukkitDamage(plugin, event, false).toRaw(),
+                new ItemEvents.BukkitDamage(plugin, event, false));
     }
 
     @EventHandler
@@ -79,10 +78,10 @@ public class EventHandle implements Listener {
         Player player = event.getPlayer();
         PlayerInventory inv = player.getInventory();
         callEvent(inv.getItem(event.getNewSlot()),
-                new ItemEvents.BukkitDraw<>(plugin, event).toRaw(),
-                new ItemEvents.BukkitDraw<>(plugin, event));
+                new ItemEvents.BukkitDraw(plugin, event).toRaw(),
+                new ItemEvents.BukkitDraw(plugin, event));
         callEvent(inv.getItem(event.getPreviousSlot()),
-                new ItemEvents.Holster<>(
+                new ItemEvents.Holster(
                         inv.getItem(event.getPreviousSlot()),
                         EquipmentSlot.HAND,
                         new PlayerItemUser(plugin, player),
@@ -107,14 +106,14 @@ public class EventHandle implements Listener {
 
     private void callDrawHolsterEvents(ItemStack from, ItemStack to, int slot, Player player) {
         callEvent(from,
-                new ItemEvents.Holster<>(
+                new ItemEvents.Holster(
                         from,
                         EquipmentSlot.HAND,
                         new PlayerItemUser(plugin, player),
                         slot
                 ));
         callEvent(to,
-                new ItemEvents.Draw<>(
+                new ItemEvents.Draw(
                         to,
                         EquipmentSlot.HAND,
                         new PlayerItemUser(plugin, player),

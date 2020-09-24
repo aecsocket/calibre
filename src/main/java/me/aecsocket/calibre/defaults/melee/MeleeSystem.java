@@ -7,6 +7,7 @@ import me.aecsocket.calibre.defaults.service.system.ActionSystem;
 import me.aecsocket.calibre.defaults.service.system.MainSystem;
 import me.aecsocket.calibre.item.ItemEvents;
 import me.aecsocket.calibre.item.component.CalibreComponent;
+import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.calibre.defaults.service.bukkit.damage.CalibreDamageService;
 import me.aecsocket.calibre.stat.AnimationStat;
@@ -25,17 +26,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class MeleeSystem implements CalibreSystem<MeleeSystem>,
-        MainSystem,
-        ItemEvents.Interact.Listener,
-        ItemEvents.Damage.Listener,
-        ItemEvents.BukkitDamage.Listener {
+public class MeleeSystem implements CalibreSystem<MeleeSystem>, MainSystem {
     public static final Map<String, Stat<?>> STATS = new Utils.MapInitializer<String, Stat<?>, LinkedHashMap<String, Stat<?>>>(new LinkedHashMap<>())
             .init("damage", new NumberStat.Double(0d))
             .init("backstab_threshold", new NumberStat.Double(0d))
@@ -70,6 +68,11 @@ public class MeleeSystem implements CalibreSystem<MeleeSystem>,
     }
 
     @Override
+    public @Nullable Collection<Class<?>> getServiceTypes() {
+        return Arrays.asList(MainSystem.class);
+    }
+
+    @Override
     public @NotNull Collection<Class<?>> getDependencies() {
         return Arrays.asList(
                 ActionSystem.class
@@ -77,17 +80,18 @@ public class MeleeSystem implements CalibreSystem<MeleeSystem>,
     }
 
     @Override
-    public void registerListeners(EventDispatcher dispatcher) {
-        dispatcher.registerListener(ItemEvents.Interact.class, this, 0);
-        dispatcher.registerListener(ItemEvents.Damage.class, this, 0);
-        dispatcher.registerListener(ItemEvents.BukkitDamage.class, this, 0);
+    public void acceptTree(ComponentTree tree) {
+        EventDispatcher dispatcher = tree.getEventDispatcher();
+        dispatcher.registerListener(ItemEvents.Interact.class, this::onEvent, 0);
+        dispatcher.registerListener(ItemEvents.Damage.class, this::onEvent, 0);
+        dispatcher.registerListener(ItemEvents.BukkitDamage.class, this::onEvent, 0);
     }
 
-    public void swing(Events.Swing<?> event) {
+    public void swing(Events.Swing event) {
         if (callEvent(event).cancelled) return;
 
         double damage = event.damage;
-        ItemUser swinger = event.swinger;
+        ItemUser swinger = event.getUser();
         Entity victim = event.victim;
         Location location = swinger.getLocation();
 
@@ -106,29 +110,27 @@ public class MeleeSystem implements CalibreSystem<MeleeSystem>,
                 swinger, event.getSlot(), stat("swing_animation"));
     }
 
-    @Override
-    public void onEvent(ItemEvents.Interact<?> event) {
+    public void onEvent(ItemEvents.Interact event) {
         if (!isCompleteRoot()) return;
         if (event.isRightClick()) return;
         if (!actionSystem.isAvailable()) return;
 
-        swing(new Events.Swing<>(
+        swing(new Events.Swing(
                 event.getItemStack(),
                 event.getSlot(),
-                this,
                 event.getUser(),
+                this,
                 null,
                 0
         ));
     }
 
-    @Override
-    public void onEvent(ItemEvents.Damage<?> event) {
+    public void onEvent(ItemEvents.Damage event) {
         if (!isCompleteRoot()) return;
         if (!actionSystem.isAvailable()) return;
         if (lastDamage == Bukkit.getCurrentTick()) return;
 
-        ItemUser damager = event.getDamager();
+        ItemUser damager = event.getUser();
         Entity victim = event.getVictim();
 
         double damage = stat("damage");
@@ -136,31 +138,29 @@ public class MeleeSystem implements CalibreSystem<MeleeSystem>,
         if (dot > (double) stat("backstab_threshold"))
             damage *= (double) stat("backstab_multiplier");
 
-        swing(new Events.Swing<>(
+        swing(new Events.Swing(
                 event.getItemStack(),
                 event.getSlot(),
-                this,
                 damager,
+                this,
                 victim,
                 damage
         ));
     }
 
-    @Override
-    public void onEvent(ItemEvents.BukkitDamage<?> event) {
+    public void onEvent(ItemEvents.BukkitDamage event) {
         if (!isCompleteRoot()) return;
         if (lastDamage == Bukkit.getCurrentTick()) return;
         event.getBukkitEvent().setCancelled(true);
     }
 
     @Override public TypeToken<MeleeSystem> getDescriptorType() { return new TypeToken<>(){}; }
-
+    @Override public MeleeSystem createDescriptor() { return this; }
     @Override
     public void acceptDescriptor(MeleeSystem descriptor) {
         lastDamage = descriptor.lastDamage;
     }
 
-    @Override public MeleeSystem createDescriptor() { return this; }
 
     @Override public MeleeSystem clone() { try { return (MeleeSystem) super.clone(); } catch (CloneNotSupportedException e) { return null; } }
     @Override public MeleeSystem copy() { return clone(); }
@@ -169,27 +169,33 @@ public class MeleeSystem implements CalibreSystem<MeleeSystem>,
         private Events() {}
 
         /**
+         * Base class for MeleeSystem-related events.
+         */
+        public static class MeleeEvent extends ItemEvents.BaseEvent implements ItemEvents.SystemEvent<MeleeSystem> {
+            private final MeleeSystem system;
+
+            public MeleeEvent(ItemStack itemStack, EquipmentSlot slot, ItemUser user, MeleeSystem system) {
+                super(itemStack, slot, user);
+                this.system = system;
+            }
+
+            @Override public MeleeSystem getSystem() { return system; }
+        }
+
+        /**
          * Runs when a component with a MeleeSystem is left-clicked or damages an entity.
          */
-        public static class Swing<L extends Swing.Listener> extends ItemEvents.Event<L> implements ItemEvents.SystemEvent<MeleeSystem>, Cancellable {
-            public interface Listener { void onEvent(Swing<?> event); }
-
-            private final MeleeSystem system;
-            private final ItemUser swinger;
+        public static class Swing extends MeleeEvent implements Cancellable {
             private final Entity victim;
             private double damage;
             private boolean cancelled;
 
-            public Swing(ItemStack itemStack, EquipmentSlot slot, MeleeSystem system, ItemUser swinger, Entity victim, double damage) {
-                super(itemStack, slot);
-                this.system = system;
-                this.swinger = swinger;
+            public Swing(ItemStack itemStack, EquipmentSlot slot, ItemUser user, MeleeSystem system, Entity victim, double damage) {
+                super(itemStack, slot, user, system);
                 this.victim = victim;
                 this.damage = damage;
             }
 
-            @Override public MeleeSystem getSystem() { return system; }
-            public ItemUser getSwinger() { return swinger; }
             public Entity getVictim() { return victim; }
 
             public double getDamage() { return damage; }
@@ -197,8 +203,6 @@ public class MeleeSystem implements CalibreSystem<MeleeSystem>,
 
             @Override public boolean isCancelled() { return cancelled; }
             @Override public void setCancelled(boolean cancelled) { this.cancelled = cancelled; }
-
-            public void call(Listener listener) { listener.onEvent(this); }
         }
     }
 }

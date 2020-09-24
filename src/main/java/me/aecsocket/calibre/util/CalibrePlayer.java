@@ -6,7 +6,6 @@ import me.aecsocket.calibre.item.CalibreItem;
 import me.aecsocket.calibre.item.ItemEvents;
 import me.aecsocket.calibre.util.itemuser.PlayerItemUser;
 import me.aecsocket.calibre.util.protocol.CalibreProtocol;
-import me.aecsocket.unifiedframework.event.Event;
 import me.aecsocket.unifiedframework.loop.SchedulerLoop;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.loop.Tickable;
@@ -81,10 +80,10 @@ public class CalibrePlayer implements Tickable {
     public Vector2 getRecoilToRecover() { return recoilToRecover; }
     public void setRecoilToRecover(Vector2 recoilToRecover) { this.recoilToRecover = recoilToRecover; }
 
-    private void callEvent(ItemStack stack, Event<?>... events) {
+    private void callEvent(ItemStack stack, Object... events) {
         CalibreItem item = plugin.getItem(stack, CalibreItem.class);
         if (item != null) {
-            for (Event<?> event : events)
+            for (Object event : events)
                 item.callEvent(event);
         }
     }
@@ -105,6 +104,8 @@ public class CalibrePlayer implements Tickable {
 
     @Override
     public void tick(TickContext tickContext) {
+        if (player.isDead()) return;
+
         if (tickContext.getLoop() instanceof SchedulerLoop) {
             EntityEquipment equipment = player.getEquipment();
             for (EquipmentSlot slot : EquipmentSlot.values())
@@ -114,7 +115,7 @@ public class CalibrePlayer implements Tickable {
         cachedItems.forEach((slot, rep) -> {
                     if (rep.getItem() != null)
                         rep.getItem().callEvent(
-                                new ItemEvents.Equip<>(
+                                new ItemEvents.Equip(
                                         rep.getStack(),
                                         slot,
                                         new PlayerItemUser(plugin, player),

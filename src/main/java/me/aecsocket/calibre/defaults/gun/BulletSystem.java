@@ -6,6 +6,10 @@ import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import org.bukkit.util.RayTraceResult;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * Implementation of {@link ProjectileProviderSystem} for {@link FireableSystem}s.
@@ -37,6 +41,11 @@ public class BulletSystem implements CalibreSystem<Void>,
 
     @Override public CalibreComponent getParent() { return parent; }
     @Override public void acceptParent(CalibreComponent parent) { this.parent = parent; }
+
+    @Override
+    public @Nullable Collection<Class<?>> getServiceTypes() {
+        return Arrays.asList(ProjectileProviderSystem.class);
+    }
 
     @Override
     public Projectile create(Data data) {

@@ -19,13 +19,17 @@ public interface ItemUser {
     Location getLocation();
 
     /**
-     * Starts an animation for this user.
-     * @param animation The animation.
-     * @param slot The item slot to animate.
+     * Gets an item from this user's equipment.
+     * @param slot The slot to get the item from.
+     * @return The item.
      */
-    void startAnimation(Animation animation, EquipmentSlot slot);
-
     ItemStack getItem(EquipmentSlot slot);
+
+    /**
+     * Sets an item in this user's equipment.
+     * @param slot The slot to set the item in.
+     * @param item The item.
+     */
     void setItem(EquipmentSlot slot, ItemStack item);
 
     /**

@@ -16,7 +16,6 @@ import me.aecsocket.calibre.util.itemuser.ItemUser;
 import me.aecsocket.calibre.util.itemuser.PlayerItemUser;
 import me.aecsocket.unifiedframework.component.Component;
 import me.aecsocket.unifiedframework.component.ComponentHolder;
-import me.aecsocket.unifiedframework.event.Event;
 import me.aecsocket.unifiedframework.item.ItemCreationException;
 import me.aecsocket.unifiedframework.registry.Registry;
 import me.aecsocket.unifiedframework.registry.ResolutionContext;
@@ -52,7 +51,8 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
     private List<String> categories = new ArrayList<>();
     private boolean completeRoot;
     private Map<String, CalibreComponentSlot> slots = new LinkedHashMap<>();
-    private transient Map<Class<?>, CalibreSystem<?>> systems = new HashMap<>();
+    private transient Map<String, CalibreSystem<?>> systems = new HashMap<>();
+    private transient Map<Class<?>, String> services = new HashMap<>();
     private transient StatMap stats = new StatMap();
     private ItemDescriptor item;
 
@@ -80,8 +80,11 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
     @Override public Map<String, CalibreComponentSlot> getSlots() { return slots; }
     public void setSlots(Map<String, CalibreComponentSlot> slots) { this.slots = slots; }
 
-    public Map<Class<?>, CalibreSystem<?>> getSystems() { return systems; }
-    public void setSystems(Map<Class<?>, CalibreSystem<?>> systems) { this.systems = systems; }
+    public Map<String, CalibreSystem<?>> getSystems() { return systems; }
+    public void setSystems(Map<String, CalibreSystem<?>> systems) { this.systems = systems; }
+
+    public Map<Class<?>, String> getServices() { return services; }
+    public void setServices(Map<Class<?>, String> services) { this.services = services; }
 
     public StatMap getStats() { return stats; }
     public void setStats(StatMap stats) { this.stats = stats; }
@@ -128,7 +131,7 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
         StatMapAdapter statMapAdapter = plugin.getStatMapAdapter();
 
         // Load systems
-        // 1. Generate the systems
+        // Generate the systems
         JsonObject object = util.assertObject(util.get(json, "systems", new JsonObject()));
         for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
             String systemId = entry.getKey();
@@ -137,53 +140,53 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
                 throw new ResourceLoadException(TextUtils.format("System {id} does not exist", "id", systemId));
             system = gson.fromJson(entry.getValue(), system.getClass());
 
-            Collection<Class<?>> services = system.getServiceTypes();
-            if (services == null) services = Collections.singleton(system.getClass());
-
-            for (Class<?> serviceType : services) {
-                if (!serviceType.isAssignableFrom(system.getClass()))
-                    throw new ResourceLoadException(TextUtils.format("System {id} states it implements service {service} but does not extend class",
-                            "service", serviceType.getSimpleName(),
-                            "id", systemId));
-                if (systems.containsKey(serviceType))
-                    throw new ResourceLoadException(TextUtils.format("Component already has system implementing service type {service} (on {id})",
-                            "service", serviceType.getSimpleName(),
-                            "id", systemId));
-                systems.put(serviceType, system);
-            }
-
+            systems.put(systemId, system);
         }
-        // 2. Prepare the systems
-        systems.forEach((type, system) -> {
+        // Update service map
+        updateServices();
+        // Validate the systems
+        systems.forEach((id, system) -> {
             Collection<Class<?>> conflicts = system.getConflicts();
             Collection<Class<?>> dependencies = new ArrayList<>(system.getDependencies());
-            systems.forEach((type2, system2) -> {
-                if (conflicts.contains(type2))
+            services.forEach((type, id2) -> {
+                if (conflicts.contains(type))
                     throw new ResourceLoadException(
                             TextUtils.format("System {id} is not compatible with system type {type}",
-                                    "id", system.getId(),
-                                    "type", type2.getSimpleName()
+                                    "id", id,
+                                    "type", type.getSimpleName()
                             )
                     );
-                dependencies.remove(type2);
+                dependencies.remove(type);
             });
             if (dependencies.size() > 0)
                 throw new ResourceLoadException(
                         TextUtils.format("System {id} has not had all dependencies fulfilled: {deps}",
-                                "id", system.getId(),
+                                "id", id,
                                 "deps", String.join(", ", dependencies.stream().map(Class::getSimpleName).collect(Collectors.joining(", ")))
                         )
                 );
         });
 
         // Load stats
-        // 1. Combine all system stats into one stat map
+        // Combine all system stats into one stat map
+        Collection<CalibreSystem<?>> statSystems = new ArrayList<>();
+        statSystems.addAll(systems.values());
+        if (json.has("stat_systems")) {
+            util.assertArray(json.get("stat_systems")).forEach(elem -> {
+                String systemId = util.assertStringPrimitive(util.assertPrimitive(elem));
+                CalibreSystem<?> system = context.get(systemId, CalibreSystem.class);
+                if (system == null)
+                    throw new ResourceLoadException(TextUtils.format("System {id} does not exist", "id", systemId));
+                statSystems.add(system);
+            });
+        }
+
         Map<String, Stat<?>> stats = new LinkedHashMap<>();
-        systems.forEach((id, system) -> {
+        statSystems.forEach(system -> {
             Map<String, Stat<?>> toAdd = system.getDefaultStats();
             if (toAdd != null) stats.putAll(toAdd);
         });
-        // 2. Load stats with that map
+        // Load stats with that map
         statMapAdapter.setStats(stats);
         this.stats.addAll(gson.fromJson(util.get(json, "stats", new JsonObject()), StatMap.class));
 
@@ -209,6 +212,30 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
     }
 
     /**
+     * Updates the service map to properly map services to systems.
+     * @throws ResourceLoadException If a service could not be mapped to a system.
+     */
+    public void updateServices() throws ResourceLoadException {
+        services.clear();
+        systems.forEach((id, system) -> {Collection<Class<?>> systemServices = system.getServiceTypes();
+            systemServices = systemServices == null ? new HashSet<>() : new HashSet<>(systemServices);
+            systemServices.add(system.getClass());
+
+            for (Class<?> serviceType : systemServices) {
+                if (!serviceType.isAssignableFrom(system.getClass()))
+                    throw new ResourceLoadException(TextUtils.format("System {id} states it implements service {service} but does not extend class",
+                            "service", serviceType.getSimpleName(),
+                            "id", id));
+                if (services.containsKey(serviceType))
+                    throw new ResourceLoadException(TextUtils.format("Component already has system implementing service type {service} (on {id})",
+                            "service", serviceType.getSimpleName(),
+                            "id", id));
+                services.put(serviceType, id);
+            }
+        });
+    }
+
+    /**
      * Gets if this component is the root component in its tree.
      * @return The result.
      */
@@ -222,7 +249,7 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
     public boolean isComplete() { return tree.isComplete(); }
 
     @Override
-    public <T extends Event<?>> T callEvent(T event) { tree.getEventDispatcher().call((Event<?>) event); return event; }
+    public <T> T callEvent(T event) { tree.getEventDispatcher().call(event); return event; }
 
     /**
      * When creating a tree of components, modifies the tree to this instance's needs, such as
@@ -232,10 +259,27 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
      * root component gets this method called first.
      * @param tree The tree.
      */
-    public void modifyTree(ComponentTree tree) { tree.getStats().addAll(stats); }
+    public void modifyTree(ComponentTree tree) {
+        tree.getStats().addAll(stats);
+    }
 
+    /**
+     * Gets a system on this component by its ID.
+     * @param id The ID of the system.
+     * @param <T> The system type.
+     * @return The system.
+     */
     @SuppressWarnings("unchecked")
-    public <T> T getSystem(Class<T> type) { return (T) systems.get(type); }
+    public <T extends CalibreSystem<?>> T getSystem(String id) { return (T) systems.get(id); }
+
+    /**
+     * Gets a service system on this component by its type.
+     * @param service The type of service.
+     * @param <T> The service type.
+     * @return The service system.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T getService(Class<T> service) { return (T) systems.get(services.get(service)); }
 
     @Override public String getItemType() { return ITEM_TYPE; }
 
@@ -255,7 +299,7 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
                     : getLocalizedName(player));
 
             List<String> sections = new ArrayList<>();
-            ItemEvents.ItemCreation<?> event = new ItemEvents.ItemCreation<>(
+            ItemEvents.ItemCreation event = new ItemEvents.ItemCreation(
                     player, amount, result, meta, sections
             );
             callEvent(event);
@@ -278,6 +322,9 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
      */
     public ItemStack updateItem(ItemUser user, EquipmentSlot slot, boolean hidden) {
         ItemStack item = createItem(user instanceof PlayerItemUser ? ((PlayerItemUser) user).getEntity() : null, user.getItem(slot));
+        ItemEvents.ItemUpdate event = new ItemEvents.ItemUpdate(item, slot, user, hidden);
+        callEvent(event);
+        hidden = event.isHidden();
         if (hidden) CalibreItem.setHidden(plugin, item);
         user.setItem(slot, item);
         return item;
@@ -354,6 +401,7 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
      * @param consumer The action to run for each {@link SystemSearchResult}. If returns true, will stop searching.
      * @param <T> The type of system to search for.
      */
+    @SuppressWarnings("unchecked")
     public <T> void searchSystems(SystemSearchOptions<T> options, Predicate<SystemSearchResult<T>> consumer) {
         boolean[] exit = {false};
         walk(data -> {
@@ -364,11 +412,14 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
 
             CalibreComponent component = slot.get();
             if (component == null) return;
-            component.getSystems().values().forEach(system -> {
-                T result = options.systemOf(system);
+            if (options.getSystemType() == null)
+                component.getSystems().values().forEach(system ->
+                        exit[0] = consumer.test(new SystemSearchResult<>((T) system, data)));
+            else {
+                T result = component.getService(options.getSystemType());
                 if (result != null)
                     exit[0] = consumer.test(new SystemSearchResult<>(result, data));
-            });
+            }
         });
     }
 
@@ -449,6 +500,7 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
         CalibreComponent copy = clone();
         copy.slots = copySlots();
         copy.systems = CalibreSystem.copyMap(systems);
+        copy.services = new HashMap<>(services);
         copy.stats = stats.copy();
         return copy;
     }

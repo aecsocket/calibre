@@ -45,11 +45,11 @@ public class CalibreComponentAdapter implements TypeAdapterFactory, JsonAdapter,
         TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
         return new TypeAdapter<>() {
             @Override
-            public void write(JsonWriter json, T t) throws IOException { delegate.write(json, t); }
+            public void write(JsonWriter out, T t) throws IOException { delegate.write(out, t); }
 
             @Override
-            public T read(JsonReader json) throws IOException {
-                JsonObject root = assertObject(Streams.parse(json));
+            public T read(JsonReader in) throws IOException {
+                JsonObject root = assertObject(Streams.parse(in));
                 T result = delegate.fromJsonTree(root);
                 try {
                     CalibreComponent component = (CalibreComponent) result;

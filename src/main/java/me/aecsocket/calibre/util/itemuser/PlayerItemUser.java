@@ -9,7 +9,7 @@ import org.bukkit.inventory.EquipmentSlot;
 /**
  * A {@link Player} item user.
  */
-public class PlayerItemUser extends LivingEntityItemUser implements GunItemUser {
+public class PlayerItemUser extends LivingEntityItemUser implements AnimatedItemUser, GunItemUser {
     private final CalibrePlugin plugin;
 
     public PlayerItemUser(CalibrePlugin plugin, Player player) {
@@ -24,6 +24,11 @@ public class PlayerItemUser extends LivingEntityItemUser implements GunItemUser 
     @Override
     public void startAnimation(Animation animation, EquipmentSlot slot) {
         plugin.getPlayerData(getEntity()).startAnimation(animation, slot);
+    }
+
+    @Override
+    public Animation.Instance getAnimation() {
+        return plugin.getPlayerData(getEntity()).getAnimation();
     }
 
     @Override

@@ -2,6 +2,6 @@ name: "Calibre"
 description: "Advanced, scalable and modular gun plugin for Paper"
 author: "aecsocket"
 version: "1.0"
-api-version: "1.13"
+api-version: "1.16"
 main: "me.aecsocket.calibre.CalibrePlugin"
 depend: [ "ProtocolLib" ]

@@ -33,34 +33,17 @@ public final class ItemEvents {
 
     /**
      * The base class for all item events.
-     * @param <T> The listener type.
      */
-    public static abstract class Event<T> implements me.aecsocket.unifiedframework.event.Event<T> {
-        private final ItemStack itemStack;
-        private final EquipmentSlot slot;
-
-        public Event(ItemStack itemStack, EquipmentSlot slot) {
-            this.itemStack = itemStack;
-            this.slot = slot;
-        }
-
-        public ItemStack getItemStack() { return itemStack; }
-        public EquipmentSlot getSlot() { return slot; }
+    public interface Event {
+        ItemStack getItemStack();
+        EquipmentSlot getSlot();
     }
 
     /**
      * The base class for all item events involving an item user.
-     * @param <T> The listener type.
      */
-    public static abstract class UserEvent<T> extends Event<T> {
-        private final ItemUser user;
-
-        public UserEvent(ItemStack itemStack, EquipmentSlot slot, ItemUser user) {
-            super(itemStack, slot);
-            this.user = user;
-        }
-
-        public ItemUser getUser() { return user; }
+    public interface UserEvent extends Event {
+        ItemUser getUser();
     }
 
     /**
@@ -71,16 +54,32 @@ public final class ItemEvents {
         S getSystem();
     }
 
+    /**
+     * Simple implementation of {@link UserEvent}.
+     */
+    public static class BaseEvent implements UserEvent {
+        private final ItemStack itemStack;
+        private final EquipmentSlot slot;
+        private final ItemUser user;
+
+        public BaseEvent(ItemStack itemStack, EquipmentSlot slot, ItemUser user) {
+            this.itemStack = itemStack;
+            this.slot = slot;
+            this.user = user;
+        }
+
+        @Override public ItemStack getItemStack() { return itemStack; }
+        @Override public EquipmentSlot getSlot() { return slot; }
+        @Override public ItemUser getUser() { return user; }
+    }
+
 
     // --- EVENTS ---
 
     /**
      * Runs when an item is being created with {@link me.aecsocket.calibre.item.component.CalibreComponent#createItem(Player, int)}.
-     * @param <L> The listener type.
      */
-    public static class ItemCreation<L extends ItemCreation.Listener> implements me.aecsocket.unifiedframework.event.Event<L> {
-        public interface Listener { void onEvent(ItemCreation<?> event); }
-        
+    public static class ItemCreation {
         private final @Nullable Player player;
         private final int amount;
         private final ItemStack item;
@@ -100,8 +99,21 @@ public final class ItemEvents {
         public ItemStack getItem() { return item; }
         public ItemMeta getMeta() { return meta; }
         public List<String> getSections() { return sections; }
+    }
 
-        @Override public void call(Listener listener) { listener.onEvent(this); }
+    /**
+     * Runs when an item is being updated to a user with {@link me.aecsocket.calibre.item.component.CalibreComponent#updateItem(ItemUser, EquipmentSlot, boolean)}.
+     */
+    public static class ItemUpdate extends BaseEvent {
+        private boolean hidden;
+
+        public ItemUpdate(ItemStack itemStack, EquipmentSlot slot, ItemUser user, boolean hidden) {
+            super(itemStack, slot, user);
+            this.hidden = hidden;
+        }
+
+        public boolean isHidden() { return hidden; }
+        public void setHidden(boolean hidden) { this.hidden = hidden; }
     }
 
 
@@ -109,11 +121,8 @@ public final class ItemEvents {
      * Runs when an item is equipped by a player in any {@link EquipmentSlot}.
      * Note that this event may not be run on the main thread, so if you need to access the Bukkit API, check:
      * <code>event.getTickContext().getLoop() instanceof SchedulerLoop</code>
-     * @param <L> The listener type.
      */
-    public static class Equip<L extends Equip.Listener> extends UserEvent<L> {
-        public interface Listener { void onEvent(Equip<?> event); }
-
+    public static class Equip extends BaseEvent {
         private final TickContext tickContext;
 
         public Equip(ItemStack itemStack, EquipmentSlot slot, ItemUser user, TickContext tickContext) {
@@ -122,17 +131,12 @@ public final class ItemEvents {
         }
 
         public TickContext getTickContext() { return tickContext; }
-
-        @Override public void call(Listener listener) { listener.onEvent(this); }
     }
 
     /**
      * Runs when an item is left or right clicked.
-     * @param <L> The listener type.
      */
-    public static class Interact<L extends Interact.Listener> extends UserEvent<L> {
-        public interface Listener { void onEvent(Interact<?> event); }
-
+    public static class Interact extends BaseEvent {
         private final BlockFace clickedFace;
         private final Block clickedBlock;
         private final boolean rightClick;
@@ -147,17 +151,12 @@ public final class ItemEvents {
         public BlockFace getClickedFace() { return clickedFace; }
         public Block getClickedBlock() { return clickedBlock; }
         public boolean isRightClick() { return rightClick; }
-
-        @Override public void call(Listener listener) { listener.onEvent(this); }
     }
 
     /**
      * Bukkit event-based version of {@link Interact}.
-     * @param <L> The listener type.
      */
-    public static class BukkitInteract<L extends BukkitInteract.Listener> extends Interact<L> {
-        public interface Listener extends Interact.Listener { void onEvent(BukkitInteract<?> event); }
-
+    public static class BukkitInteract extends Interact {
         private final PlayerInteractEvent bukkitEvent;
 
         public BukkitInteract(CalibrePlugin plugin, PlayerInteractEvent bukkitEvent) {
@@ -168,10 +167,8 @@ public final class ItemEvents {
 
         public PlayerInteractEvent getBukkitEvent() { return bukkitEvent; }
 
-        @Override public void call(Listener listener) { listener.onEvent(this); }
-
-        public Interact<?> toRaw() {
-            return new Interact<>(
+        public Interact toRaw() {
+            return new Interact(
                     getItemStack(),
                     getSlot(),
                     getUser(),
@@ -183,25 +180,17 @@ public final class ItemEvents {
 
     /**
      * Runs when an item is swapped from the main to offhand and vice versa.
-     * @param <L> The listener type.
      */
-    public static class SwapHands<L extends SwapHands.Listener> extends UserEvent<L> {
-        public interface Listener { void onEvent(SwapHands<?> event); }
-
+    public static class SwapHands extends BaseEvent {
         public SwapHands(ItemStack itemStack, EquipmentSlot fromSlot, ItemUser user) {
             super(itemStack, fromSlot, user);
         }
-
-        @Override public void call(Listener listener) { listener.onEvent(this); }
     }
 
     /**
      * Bukkit event-based version of {@link SwapHands}.
-     * @param <L> The listener type.
      */
-    public static class BukkitSwapHands<L extends BukkitSwapHands.Listener> extends SwapHands<L> {
-        public interface Listener extends SwapHands.Listener { void onEvent(BukkitSwapHands<?> event); }
-
+    public static class BukkitSwapHands extends SwapHands {
         private final PlayerSwapHandItemsEvent bukkitEvent;
 
         public BukkitSwapHands(CalibrePlugin plugin, PlayerSwapHandItemsEvent bukkitEvent, boolean fromMainHand) {
@@ -214,10 +203,8 @@ public final class ItemEvents {
 
         public PlayerSwapHandItemsEvent getBukkitEvent() { return bukkitEvent; }
 
-        @Override public void call(Listener listener) { listener.onEvent(this); }
-
-        public SwapHands<?> toRaw() {
-            return new SwapHands<>(
+        public SwapHands toRaw() {
+            return new SwapHands(
                     getItemStack(),
                     getSlot(),
                     getUser());
@@ -226,42 +213,31 @@ public final class ItemEvents {
 
     /**
      * Runs when an entity is damaged by another entity with an item.
-     * @param <L> The listener type.
      */
-    public static class Damage<L extends Damage.Listener> extends Event<L> {
-        public interface Listener { void onEvent(Damage<?> event); }
-
-        private final ItemUser damager;
+    public static class Damage extends BaseEvent {
         private final Entity victim;
         private final double damage;
         private final double finalDamage;
         private final EntityDamageEvent.DamageCause cause;
 
-        public Damage(ItemStack itemStack, EquipmentSlot slot, ItemUser damager, Entity victim, double damage, double finalDamage, EntityDamageEvent.DamageCause cause) {
-            super(itemStack, slot);
-            this.damager = damager;
+        public Damage(ItemStack itemStack, EquipmentSlot slot, ItemUser user, Entity victim, double damage, double finalDamage, EntityDamageEvent.DamageCause cause) {
+            super(itemStack, slot, user);
             this.victim = victim;
             this.damage = damage;
             this.finalDamage = finalDamage;
             this.cause = cause;
         }
 
-        public ItemUser getDamager() { return damager; }
         public Entity getVictim() { return victim; }
         public double getDamage() { return damage; }
         public double getFinalDamage() { return finalDamage; }
         public EntityDamageEvent.DamageCause getCause() { return cause; }
-
-        @Override public void call(Listener listener) { listener.onEvent(this); }
     }
 
     /**
      * Bukkit event-based version of {@link Damage}.
-     * @param <L> The listener type.
      */
-    public static class BukkitDamage<L extends BukkitDamage.Listener> extends Damage<L> {
-        public interface Listener extends Damage.Listener { void onEvent(BukkitDamage<?> event); }
-
+    public static class BukkitDamage extends Damage {
         private final EntityDamageByEntityEvent bukkitEvent;
 
         public BukkitDamage(CalibrePlugin plugin, EntityDamageByEntityEvent bukkitEvent, boolean mainHand) {
@@ -277,13 +253,11 @@ public final class ItemEvents {
 
         public EntityDamageByEntityEvent getBukkitEvent() { return bukkitEvent; }
 
-        @Override public void call(Listener listener) { listener.onEvent(this); }
-
-        public Damage<?> toRaw() {
-            return new Damage<>(
+        public Damage toRaw() {
+            return new Damage(
                     getItemStack(),
                     getSlot(),
-                    getDamager(),
+                    getUser(),
                     getVictim(),
                     getDamage(),
                     getFinalDamage(),
@@ -293,11 +267,8 @@ public final class ItemEvents {
 
     /**
      * Runs when an item is equipped and held.
-     * @param <L> The listener type.
      */
-    public static class Draw<L extends Draw.Listener> extends UserEvent<L> {
-        public interface Listener { void onEvent(Draw<?> event); }
-
+    public static class Draw extends BaseEvent {
         private final int itemSlot;
 
         public Draw(ItemStack itemStack, EquipmentSlot slot, ItemUser user, int itemSlot) {
@@ -306,17 +277,12 @@ public final class ItemEvents {
         }
 
         public int getItemSlot() { return itemSlot; }
-
-        @Override public void call(L listener) { listener.onEvent(this); }
     }
 
     /**
      * Bukkit event-based version of {@link Draw}.
-     * @param <L> The listener type.
      */
-    public static class BukkitDraw<L extends BukkitDraw.Listener> extends Draw<L> {
-        public interface Listener extends Draw.Listener { void onEvent(BukkitDraw<?> event); }
-
+    public static class BukkitDraw extends Draw {
         private final PlayerItemHeldEvent bukkitEvent;
 
         public BukkitDraw(CalibrePlugin plugin, PlayerItemHeldEvent bukkitEvent) {
@@ -330,10 +296,8 @@ public final class ItemEvents {
 
         public PlayerItemHeldEvent getBukkitEvent() { return bukkitEvent; }
 
-        @Override public void call(L listener) { listener.onEvent(this); }
-
-        public Draw<?> toRaw() {
-            return new Draw<>(
+        public Draw toRaw() {
+            return new Draw(
                     getItemStack(),
                     getSlot(),
                     getUser(),
@@ -343,11 +307,8 @@ public final class ItemEvents {
 
     /**
      * Runs when an item is unequipped from a hand.
-     * @param <L> The listener type.
      */
-    public static class Holster<L extends Holster.Listener> extends UserEvent<L> {
-        public interface Listener { void onEvent(Holster<?> event); }
-
+    public static class Holster extends BaseEvent {
         private final int itemSlot;
 
         public Holster(ItemStack itemStack, EquipmentSlot slot, ItemUser user, int itemSlot) {
@@ -356,7 +317,5 @@ public final class ItemEvents {
         }
 
         public int getItemSlot() { return itemSlot; }
-
-        @Override public void call(L listener) { listener.onEvent(this); }
     }
 }

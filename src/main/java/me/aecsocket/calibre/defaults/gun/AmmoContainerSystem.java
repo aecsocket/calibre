@@ -4,6 +4,7 @@ import com.google.gson.reflect.TypeToken;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.ItemEvents;
 import me.aecsocket.calibre.item.component.CalibreComponent;
+import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptor;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.calibre.util.componentlist.CalibreComponentList;
@@ -12,15 +13,15 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.StringJoiner;
 
 /**
  * Simple implementation of {@link AmmoProviderSystem}.
  */
-public class AmmoContainerSystem implements CalibreSystem<AmmoContainerSystem>,
-        AmmoProviderSystem,
-        ItemEvents.ItemCreation.Listener {
+public class AmmoContainerSystem implements CalibreSystem<AmmoContainerSystem>, AmmoProviderSystem {
     private transient CalibrePlugin plugin;
     private transient CalibreComponent parent;
     private CalibreComponentList ammo;
@@ -41,8 +42,14 @@ public class AmmoContainerSystem implements CalibreSystem<AmmoContainerSystem>,
     @Override public void acceptParent(CalibreComponent parent) { this.parent = parent; }
 
     @Override
-    public void registerListeners(EventDispatcher dispatcher) {
-        dispatcher.registerListener(ItemEvents.ItemCreation.class, this, 0);
+    public @Nullable Collection<Class<?>> getServiceTypes() {
+        return Arrays.asList(AmmoProviderSystem.class);
+    }
+
+    @Override
+    public void acceptTree(ComponentTree tree) {
+        EventDispatcher dispatcher = tree.getEventDispatcher();
+        dispatcher.registerListener(ItemEvents.ItemCreation.class, this::onEvent, 0);
     }
 
     private void addEntry(StringJoiner lore, Player player, CalibreComponent component, int amount) {
@@ -52,8 +59,7 @@ public class AmmoContainerSystem implements CalibreSystem<AmmoContainerSystem>,
                 "amount", amount));
     }
 
-    @Override
-    public void onEvent(ItemEvents.ItemCreation<?> event) {
+    public void onEvent(ItemEvents.ItemCreation event) {
         /*
         TODO: this groups components improperly.
         to check if component A should be grouped with B, 2 component descriptors are made
@@ -61,7 +67,7 @@ public class AmmoContainerSystem implements CalibreSystem<AmmoContainerSystem>,
         the issue is, the descriptors contain a Map<String, Object>, and that Object does not necessarily
         have a sane #equals method. so, we have to find another way of grouping -_-
          */
-        if (!parent.isRoot()) return;
+        if (!isRoot()) return;
         Player player = event.getPlayer();
         StringJoiner lore = new StringJoiner(plugin.gen(player, "ammo_container.lore.separator"));
         CalibreComponent component = null;

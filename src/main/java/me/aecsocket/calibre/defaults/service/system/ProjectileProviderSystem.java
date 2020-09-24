@@ -5,15 +5,11 @@ import me.aecsocket.calibre.defaults.service.bukkit.damage.CalibreDamageService;
 import me.aecsocket.calibre.defaults.service.bukkit.raytrace.CalibreRaytraceService;
 import me.aecsocket.calibre.util.itemuser.ItemUser;
 import me.aecsocket.unifiedframework.loop.TickContext;
-import me.aecsocket.unifiedframework.util.Projectile;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.data.ParticleData;
-import org.bukkit.Color;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
@@ -33,18 +29,18 @@ public interface ProjectileProviderSystem {
      * Represents projectile creation data.
      */
     class Data {
-        private final Location location;
-        private final Vector velocity;
-        private final double bounce;
-        private final double drag;
-        private final double gravity;
-        private final double expansion;
+        public final Location location;
+        public final Vector velocity;
+        public final double bounce;
+        public final double drag;
+        public final double gravity;
+        public final double expansion;
 
-        private final ParticleData[] trail;
-        private final double trailStepSize;
-        private final ItemUser shooter;
-        private final double damage;
-        private final ItemStack item;
+        public final ParticleData[] trail;
+        public final double trailStepSize;
+        public final ItemUser shooter;
+        public final double damage;
+        public final ItemStack item;
 
         public Data(Location location, Vector velocity, double bounce, double drag, double gravity, double expansion, ParticleData[] trail, double trailStepSize, ItemUser shooter, double damage, ItemStack item) {
             this.location = location;
@@ -59,19 +55,6 @@ public interface ProjectileProviderSystem {
             this.damage = damage;
             this.item = item;
         }
-
-        public Location getLocation() { return location; }
-        public Vector getVelocity() { return velocity; }
-        public double getBounce() { return bounce; }
-        public double getDrag() { return drag; }
-        public double getGravity() { return gravity; }
-        public double getExpansion() { return expansion; }
-
-        public ParticleData[] getTrail() { return trail; }
-        public double getTrailStepSize() { return trailStepSize; }
-        public ItemUser getShooter() { return shooter; }
-        public double getDamage() { return damage; }
-        public ItemStack getItem() { return item; }
 
     }
 
@@ -107,7 +90,7 @@ public interface ProjectileProviderSystem {
 
         @Override
         protected void step(TickContext tickContext, Vector from, Vector delta) {
-            ParticleData[] trail = data.getTrail();
+            ParticleData[] trail = data.trail;
             if (trail == null) return;
 
             double stepSize = data.trailStepSize;

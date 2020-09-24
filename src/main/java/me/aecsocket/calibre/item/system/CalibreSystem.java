@@ -4,25 +4,17 @@ import com.google.gson.reflect.TypeToken;
 import me.aecsocket.calibre.item.CalibreIdentifiable;
 import me.aecsocket.calibre.item.animation.Animation;
 import me.aecsocket.calibre.item.component.CalibreComponent;
-import me.aecsocket.calibre.item.component.CalibreComponentSlot;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.util.itemuser.ItemUser;
-import me.aecsocket.unifiedframework.component.Component;
-import me.aecsocket.unifiedframework.event.Event;
-import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.stat.Stat;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
@@ -67,10 +59,11 @@ public interface CalibreSystem<D> extends CalibreIdentifiable, Cloneable {
     void acceptParent(CalibreComponent parent);
 
     /**
-     * Registers all of the listeners that this system uses into an {@link EventDispatcher}.
-     * @param dispatcher The EventDispatcher.
+     * Accepts the component tree which this system is part of. This should be used for
+     * registering listeners and modifying stats.
+     * @param tree The component tree.
      */
-    default void registerListeners(EventDispatcher dispatcher) {}
+    default void acceptTree(ComponentTree tree) {}
 
     /**
      * Gets the types of services that this system provides, or null if it does not provide services.
@@ -138,7 +131,13 @@ public interface CalibreSystem<D> extends CalibreIdentifiable, Cloneable {
      * @param <T> The called event type.
      * @return The event called.
      */
-    default <T extends Event<?>> T callEvent(T event) { return getParent().callEvent(event); }
+    default <T> T callEvent(T event) { return getParent().callEvent(event); }
+
+    /**
+     * Gets if the parent is {@link CalibreComponent#isRoot()}.
+     * @return The result.
+     */
+    default boolean isRoot() { return getParent().isRoot(); }
 
     /**
      * Gets if the parent is {@link CalibreComponent#isCompleteRoot()}.
@@ -153,7 +152,7 @@ public interface CalibreSystem<D> extends CalibreIdentifiable, Cloneable {
      * @return The system.
      */
     default <T> T getSystem(Class<T> type) {
-        T system = getParent().getSystem(type);
+        T system = getParent().getService(type);
         if (system == null || !type.isAssignableFrom(system.getClass())) return null;
         return type.cast(system);
     }
@@ -190,9 +189,9 @@ public interface CalibreSystem<D> extends CalibreIdentifiable, Cloneable {
      * @param original The original map.
      * @return The copied map, with copied elements.
      */
-    static Map<Class<?>, CalibreSystem<?>> copyMap(Map<Class<?>, CalibreSystem<?>> original) {
-        Map<Class<?>, CalibreSystem<?>> copy = new HashMap<>();
-        for (Map.Entry<Class<?>, CalibreSystem<?>> entry : original.entrySet()) {
+    static Map<String, CalibreSystem<?>> copyMap(Map<String, CalibreSystem<?>> original) {
+        Map<String, CalibreSystem<?>> copy = new HashMap<>();
+        for (Map.Entry<String, CalibreSystem<?>> entry : original.entrySet()) {
             copy.put(entry.getKey(), entry.getValue().copy());
         }
         return copy;

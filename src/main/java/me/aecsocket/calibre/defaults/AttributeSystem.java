@@ -4,9 +4,11 @@ import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.defaults.service.system.ActionSystem;
 import me.aecsocket.calibre.item.ItemEvents;
 import me.aecsocket.calibre.item.component.CalibreComponent;
+import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.calibre.stat.AnimationStat;
 import me.aecsocket.calibre.stat.DataStat;
+import me.aecsocket.calibre.util.itemuser.EntityItemUser;
 import me.aecsocket.calibre.util.itemuser.PlayerItemUser;
 import me.aecsocket.calibre.util.protocol.CalibreProtocol;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
@@ -16,6 +18,7 @@ import me.aecsocket.unifiedframework.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -25,10 +28,7 @@ import java.util.*;
 /**
  * Allows modification of some item attributes and basic item actions.
  */
-public class AttributeSystem implements CalibreSystem<Void>,
-        ItemEvents.ItemCreation.Listener,
-        ItemEvents.Draw.Listener,
-        ItemEvents.Holster.Listener {
+public class AttributeSystem implements CalibreSystem<Void> {
     public static final UUID MOVE_SPEED_UUID = new UUID(5318008, 69420);
     public static final UUID ARMOR_UUID = new UUID(69420, 5318008);
     public static final Map<String, Stat<?>> STATS = new Utils.MapInitializer<String, Stat<?>, LinkedHashMap<String, Stat<?>>>(new LinkedHashMap<>())
@@ -71,14 +71,20 @@ public class AttributeSystem implements CalibreSystem<Void>,
     }
 
     @Override
-    public void registerListeners(EventDispatcher dispatcher) {
-        dispatcher.registerListener(ItemEvents.ItemCreation.class, this, 0);
-        dispatcher.registerListener(ItemEvents.Draw.class, this, 0);
-        dispatcher.registerListener(ItemEvents.Holster.class, this, 0);
+    public void acceptTree(ComponentTree tree) {
+        EventDispatcher dispatcher = tree.getEventDispatcher();
+        dispatcher.registerListener(ItemEvents.ItemCreation.class, this::onEvent, 0);
+        dispatcher.registerListener(ItemEvents.ItemUpdate.class, this::onEvent, 0);
+        dispatcher.registerListener(ItemEvents.Draw.class, this::onEvent, 0);
+        dispatcher.registerListener(ItemEvents.Holster.class, this::onEvent, 0);
     }
 
-    @Override
-    public void onEvent(ItemEvents.ItemCreation<?> event) {
+    public void updateFOV(Player player) {
+        CalibreProtocol.fovMultiplier(player, stat("fov_multiplier"));
+    }
+
+    public void onEvent(ItemEvents.ItemCreation event) {
+        if (!isRoot()) return;
         ItemMeta meta = event.getMeta();
         meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(
                 MOVE_SPEED_UUID,
@@ -95,8 +101,13 @@ public class AttributeSystem implements CalibreSystem<Void>,
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
     }
 
-    @Override
-    public void onEvent(ItemEvents.Draw<?> event) {
+    public void onEvent(ItemEvents.ItemUpdate event) {
+        if (!isRoot()) return;
+        if (event.getUser() instanceof PlayerItemUser)
+            updateFOV(((PlayerItemUser) event.getUser()).getEntity());
+    }
+
+    public void onEvent(ItemEvents.Draw event) {
         if (!(event.getUser() instanceof PlayerItemUser)) return;
         PlayerItemUser user = (PlayerItemUser) event.getUser();
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
@@ -106,11 +117,10 @@ public class AttributeSystem implements CalibreSystem<Void>,
                         event.getUser().getLocation(), stat("draw_sound"), null,
                         event.getUser(), event.getSlot(), stat("draw_animation"));
         }, 1);
-        CalibreProtocol.fovMultiplier(user.getEntity(), stat("fov_multiplier"));
+        updateFOV(user.getEntity());
     }
 
-    @Override
-    public void onEvent(ItemEvents.Holster<?> event) {
+    public void onEvent(ItemEvents.Holster event) {
         if (!(event.getUser() instanceof PlayerItemUser)) return;
         PlayerItemUser user = (PlayerItemUser) event.getUser();
         CalibreProtocol.resetFov(user.getEntity());

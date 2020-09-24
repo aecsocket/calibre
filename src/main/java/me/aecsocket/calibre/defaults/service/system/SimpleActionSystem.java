@@ -5,12 +5,11 @@ import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.animation.Animation;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.system.CalibreSystem;
+import me.aecsocket.calibre.util.itemuser.AnimatedItemUser;
 import me.aecsocket.calibre.util.itemuser.ItemUser;
 import me.aecsocket.unifiedframework.util.data.ParticleData;
 import me.aecsocket.unifiedframework.util.data.SoundData;
 import org.bukkit.Location;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,20 +57,19 @@ public class SimpleActionSystem implements CalibreSystem<SimpleActionSystem>, Ac
             ParticleData.spawn(location, particles);
         else
             ParticleData.spawn(location, particleData, particles);
-        if (animation != null)
-            user.startAnimation(animation, slot);
+        if (animation != null && user instanceof AnimatedItemUser)
+            ((AnimatedItemUser) user).startAnimation(animation, slot);
         if (delay != null) availableIn(delay);
         updateItem(user, slot, animation);
     }
 
     @Override public TypeToken<SimpleActionSystem> getDescriptorType() { return new TypeToken<>(){}; }
-
+    @Override public SimpleActionSystem createDescriptor() { return this; }
     @Override
     public void acceptDescriptor(SimpleActionSystem descriptor) {
         nextAvailable = descriptor.nextAvailable;
     }
 
-    @Override public SimpleActionSystem createDescriptor() { return this; }
 
     @Override public SimpleActionSystem clone() { try { return (SimpleActionSystem) super.clone(); } catch (CloneNotSupportedException e) { return null; } }
     @Override public SimpleActionSystem copy() { return clone(); }

@@ -1,7 +1,6 @@
 package me.aecsocket.calibre.item;
 
 import me.aecsocket.calibre.CalibrePlugin;
-import me.aecsocket.unifiedframework.event.Event;
 import me.aecsocket.unifiedframework.util.Utils;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
@@ -9,7 +8,7 @@ import org.bukkit.persistence.PersistentDataType;
 /**
  * A class for a generic {@link CalibreItemSupplier} which:
  * <ul>
- *     <li>provides a way to call {@link Event}s to this item</li>
+ *     <li>provides a way to call events to this item</li>
  * </ul>
  */
 public interface CalibreItem extends CalibreItemSupplier {
@@ -19,7 +18,7 @@ public interface CalibreItem extends CalibreItemSupplier {
      * @param <T> The called event type.
      * @return The event called.
      */
-    <T extends Event<?>> T callEvent(T event);
+    <T> T callEvent(T event);
 
     /**
      * Modifies a flag of an item which makes it hidden to the player who holds it. Items with this flag do not appear

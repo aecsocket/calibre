@@ -2,6 +2,7 @@ package me.aecsocket.calibre.item.component;
 
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
+import me.aecsocket.unifiedframework.stat.StatInstance;
 import me.aecsocket.unifiedframework.stat.StatMap;
 
 /**
@@ -62,18 +63,17 @@ public class ComponentTree {
     public void rebuild() {
         eventDispatcher.unregisterAll();
         stats = new StatMap();
+        complete = true;
         rebuild(root);
     }
 
     private void rebuild(CalibreComponent parent) {
-        complete = true;
-
         parent.setTree(this);
         parent.modifyTree(this);
 
         for (CalibreSystem<?> system : parent.getSystems().values()) {
             system.acceptParent(parent);
-            system.registerListeners(eventDispatcher);
+            system.acceptTree(this);
         }
 
         parent.getSlots().forEach((name, slot) -> {

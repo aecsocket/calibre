@@ -133,7 +133,8 @@ public class CalibreComponentSlot implements ComponentSlot, AcceptsCalibrePlugin
         return plugin.gen(sender, "chat.info.slot",
                 "required", required,
                 "categories", String.join(", ", compatibleCategories),
-                "ids", String.join(", ", compatibleIds));
+                "ids", String.join(", ", compatibleIds),
+                "tags", String.join(", ", tags));
     }
 
     @Override public CalibreComponentSlot clone() { try { return (CalibreComponentSlot) super.clone(); } catch (CloneNotSupportedException e) { return null; } }

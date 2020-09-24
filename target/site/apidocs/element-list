@@ -2,6 +2,7 @@ me.aecsocket.calibre
 me.aecsocket.calibre.defaults
 me.aecsocket.calibre.defaults.gui
 me.aecsocket.calibre.defaults.gun
+me.aecsocket.calibre.defaults.gun.sight
 me.aecsocket.calibre.defaults.melee
 me.aecsocket.calibre.defaults.service.bukkit.damage
 me.aecsocket.calibre.defaults.service.bukkit.raytrace

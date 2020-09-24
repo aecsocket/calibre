@@ -1,5 +1,6 @@
 package me.aecsocket.calibre.defaults.gun;
 
+import com.google.gson.reflect.TypeToken;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.defaults.service.bukkit.spread.CalibreSpreadService;
 import me.aecsocket.calibre.defaults.service.system.ActionSystem;
@@ -8,16 +9,16 @@ import me.aecsocket.calibre.defaults.service.system.ProjectileProviderSystem;
 import me.aecsocket.calibre.item.ItemEvents;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.CalibreComponentSlot;
+import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.calibre.item.system.SystemSearchOptions;
 import me.aecsocket.calibre.item.system.SystemSearchResult;
 import me.aecsocket.calibre.stat.AnimationStat;
 import me.aecsocket.calibre.stat.DataStat;
-import me.aecsocket.calibre.util.itemuser.EntityItemUser;
-import me.aecsocket.calibre.util.itemuser.GunItemUser;
-import me.aecsocket.calibre.util.itemuser.ItemUser;
+import me.aecsocket.calibre.util.itemuser.*;
 import me.aecsocket.unifiedframework.event.Cancellable;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
+import me.aecsocket.unifiedframework.loop.SchedulerLoop;
 import me.aecsocket.unifiedframework.stat.*;
 import me.aecsocket.unifiedframework.util.Projectile;
 import me.aecsocket.unifiedframework.util.Utils;
@@ -28,12 +29,11 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class FireableSystem implements CalibreSystem<Void>,
-        MainSystem,
-        ItemEvents.Interact.Listener {
+public class FireableSystem implements CalibreSystem<FireableSystem>, MainSystem {
     public static final Map<String, Stat<?>> STATS = new Utils.MapInitializer<String, Stat<?>, LinkedHashMap<String, Stat<?>>>(new LinkedHashMap<>())
             .init("damage", new NumberStat.Double(0d))
 
@@ -42,6 +42,8 @@ public class FireableSystem implements CalibreSystem<Void>,
             .init("ammo_priority", new NumberStat.Int(0))
             .init("auto_chamber", new BooleanStat(true))
             .init("damage", new NumberStat.Double(0d))
+            .init("shots", new NumberStat.Int(1))
+            .init("shot_delay", new NumberStat.Long(1L))
 
             .init("base_spread", new NumberStat.Double(0d))
             .init("shot_spread", new NumberStat.Double(0d))
@@ -60,6 +62,10 @@ public class FireableSystem implements CalibreSystem<Void>,
             .init("projectile_expansion", new NumberStat.Double(0d))
             .init("projectile_trail", new DataStat.Particle())
             .init("projectile_trail_step_size", new NumberStat.Double(0.5))
+
+            .init("prefire_delay", new NumberStat.Long(0L))
+            .init("prefire_sound", new DataStat.Sound())
+            .init("prefire_animation", new AnimationStat())
 
             .init("fire_delay", new NumberStat.Long(1L))
             .init("fire_sound", new DataStat.Sound())
@@ -80,6 +86,7 @@ public class FireableSystem implements CalibreSystem<Void>,
     private transient CalibrePlugin plugin;
     private transient CalibreComponent parent;
     private transient ActionSystem actionSystem;
+    private int[] shootAt = new int[0];
 
     public FireableSystem(CalibrePlugin plugin) {
         this.plugin = plugin;
@@ -100,15 +107,21 @@ public class FireableSystem implements CalibreSystem<Void>,
     }
 
     @Override
+    public @Nullable Collection<Class<?>> getServiceTypes() {
+        return Arrays.asList(MainSystem.class);
+    }
+
+    @Override
     public @NotNull Collection<Class<?>> getDependencies() {
         return Arrays.asList(
                 ActionSystem.class
         );
     }
 
-    @Override
-    public void registerListeners(EventDispatcher dispatcher) {
-        dispatcher.registerListener(ItemEvents.Interact.class, this, 0);
+    public void acceptTree(ComponentTree tree) {
+        EventDispatcher dispatcher = tree.getEventDispatcher();
+        dispatcher.registerListener(ItemEvents.Equip.class, this::onEvent, 0);
+        dispatcher.registerListener(ItemEvents.Interact.class, this::onEvent, 0);
     }
 
     public Location getBarrelLocation(ItemUser user) {
@@ -119,8 +132,8 @@ public class FireableSystem implements CalibreSystem<Void>,
             return location;
     }
 
-    public void fire(Events.PreFire<?> event) {
-        if (callEvent(event).cancelled) return;
+    public boolean fire(Events.PreFire event) {
+        if (callEvent(event).cancelled) return false;
 
         ItemUser shooter = event.getUser();
         GunItemUser gShooter = null;
@@ -128,7 +141,7 @@ public class FireableSystem implements CalibreSystem<Void>,
             gShooter = (GunItemUser) shooter;
         Location barrelLocation = getBarrelLocation(shooter);
 
-        if (barrelLocation == null) return;
+        if (barrelLocation == null) return false;
 
         // Find chamber
         List<SystemSearchResult<ProjectileProviderSystem>> chambers = new ArrayList<>();
@@ -137,11 +150,11 @@ public class FireableSystem implements CalibreSystem<Void>,
                 chambers::add
         );
         if (chambers.size() == 0) {
-            chamber(new Events.PreChamber<>(
+            chamber(new Events.PreChamber(
                     event.getItemStack(), event.getSlot(), event.getUser(), this,
                     barrelLocation
             ));
-            return;
+            return false;
         }
 
         // Uses 1 chamber at a time
@@ -156,11 +169,11 @@ public class FireableSystem implements CalibreSystem<Void>,
             shotSpread = gShooter.getSpread();
         spread += shotSpread;
 
-        Events.Fire<?> event2 = new Events.Fire<>(
+        Events.Fire event2 = new Events.Fire(
                 event.getItemStack(), event.getSlot(), event.getUser(), this,
                 barrelLocation.clone(), chamberSystem, chamberSlot, spread
         );
-        if (callEvent(event2).isCancelled()) return;
+        if (callEvent(event2).isCancelled()) return false;
 
         barrelLocation = event2.barrelLocation;
         chamberSystem = event2.chamber;
@@ -190,7 +203,7 @@ public class FireableSystem implements CalibreSystem<Void>,
                             shooter, stat("damage"), event.getItemStack(), this
                     )
             ).inEntity(shooter instanceof EntityItemUser ? ((EntityItemUser) shooter).getEntity() : null);
-            plugin.getSchedulerLoop().registerTickable(projectile);
+            Bukkit.getScheduler().runTask(plugin, () -> plugin.getSchedulerLoop().registerTickable(projectile));
         }
 
         // Spread, recoil
@@ -222,6 +235,8 @@ public class FireableSystem implements CalibreSystem<Void>,
                 stat("fire_delay"),
                 barrelLocation, stat("fire_sound"), stat("fire_particles"),
                 shooter, event.getSlot(), stat("fire_animation"));
+
+        return true;
 
         /*Projectile projectile = new Projectile(barrelLocation, barrelLocation.getDirection().multiply(200), 1, 0.2) {
             private double stepSize = 0.5;
@@ -274,7 +289,7 @@ public class FireableSystem implements CalibreSystem<Void>,
         plugin.getSchedulerLoop().registerTickable(projectile);*/
     }
 
-    public void chamber(Events.PreChamber<?> event) {
+    public void chamber(Events.PreChamber event) {
         if (callEvent(event).isCancelled()) return;
 
         ItemUser shooter = event.getUser();
@@ -323,18 +338,52 @@ public class FireableSystem implements CalibreSystem<Void>,
         return ammo[0];
     }
 
-    @Override
-    public void onEvent(ItemEvents.Interact<?> event) {
+    public void onEvent(ItemEvents.Equip event) {
+        if (!isCompleteRoot()) return;
+        if (!(event.getTickContext().getLoop() instanceof SchedulerLoop)) return;
+        while (shootAt != null && shootAt.length > 0 && Bukkit.getCurrentTick() >= shootAt[0]) {
+            if (!fire(new Events.PreFire(
+                    event.getItemStack(),
+                    event.getSlot(),
+                    event.getUser(),
+                    this
+            )))
+                shootAt = null;
+            else {
+                int[] newShootAt = new int[shootAt.length - 1];
+                System.arraycopy(shootAt, 1, newShootAt, 0, newShootAt.length);
+                shootAt = newShootAt;
+            }
+            if (event.getUser() instanceof AnimatedItemUser) {
+                AnimatedItemUser user = (AnimatedItemUser) event.getUser();
+                updateItem(event.getUser(), event.getSlot(), user.getAnimation() == null ? null : user.getAnimation().getAnimation());
+            }
+        }
+    }
+
+    public void onEvent(ItemEvents.Interact event) {
         if (!isCompleteRoot()) return;
         if (event.isRightClick()) return;
         if (!actionSystem.isAvailable()) return;
 
-        fire(new Events.PreFire<>(
-                event.getItemStack(),
-                event.getSlot(),
-                event.getUser(),
-                this
-        ));
+        int shots = stat("shots");
+        long delay = stat("shot_delay");
+        long prefireDelay = stat("prefire_delay");
+        shootAt = new int[shots];
+        for (int i = 0; i < shots; i++)
+            shootAt[i] = (int)(Bukkit.getCurrentTick() + (((i * delay) + prefireDelay) / SchedulerLoop.MS_PER_TICK));
+        actionSystem.startAction(
+                prefireDelay,
+                event.getUser().getLocation(), stat("prefire_sound"), null,
+                event.getUser(), event.getSlot(), stat("prefire_animation")
+        );
+    }
+
+    @Override public TypeToken<FireableSystem> getDescriptorType() { return new TypeToken<>(){}; }
+    @Override public FireableSystem createDescriptor() { return this; }
+    @Override
+    public void acceptDescriptor(FireableSystem descriptor) {
+        shootAt = descriptor.shootAt;
     }
 
     @Override public FireableSystem clone() { try { return (FireableSystem) super.clone(); } catch (CloneNotSupportedException e) { return null; } }
@@ -354,28 +403,38 @@ public class FireableSystem implements CalibreSystem<Void>,
     public static final class Events {
         private Events() {}
 
-        public static class PreFire<L extends PreFire.Listener> extends ItemEvents.UserEvent<L> implements ItemEvents.SystemEvent<FireableSystem>, Cancellable {
-            public interface Listener { void onEvent(PreFire<?> event); }
-
+        /**
+         * Base class for FireableSystem-related events.
+         */
+        public static class FireableEvent extends ItemEvents.BaseEvent implements ItemEvents.SystemEvent<FireableSystem> {
             private final FireableSystem system;
-            private boolean cancelled;
 
-            public PreFire(ItemStack itemStack, EquipmentSlot slot, ItemUser user, FireableSystem system) {
+            public FireableEvent(ItemStack itemStack, EquipmentSlot slot, ItemUser user, FireableSystem system) {
                 super(itemStack, slot, user);
                 this.system = system;
             }
 
             @Override public FireableSystem getSystem() { return system; }
+        }
+
+        /**
+         * Runs before firing.
+         */
+        public static class PreFire extends FireableEvent implements Cancellable {
+            private boolean cancelled;
+
+            public PreFire(ItemStack itemStack, EquipmentSlot slot, ItemUser user, FireableSystem system) {
+                super(itemStack, slot, user, system);
+            }
 
             @Override public boolean isCancelled() { return cancelled; }
             @Override public void setCancelled(boolean cancelled) { this.cancelled = cancelled; }
-
-            @Override public void call(Listener listener) { listener.onEvent(this); }
         }
 
-        public static class PreChamber<L extends PreChamber.Listener> extends PreFire<L> {
-            public interface Listener extends PreFire.Listener { void onEvent(PreChamber<?> event); }
-
+        /**
+         * Runs before chambering once.
+         */
+        public static class PreChamber extends PreFire {
             private Location barrelLocation;
 
             public PreChamber(ItemStack itemStack, EquipmentSlot slot, ItemUser user, FireableSystem system, Location barrelLocation) {
@@ -385,13 +444,12 @@ public class FireableSystem implements CalibreSystem<Void>,
 
             public Location getBarrelLocation() { return barrelLocation; }
             public void setBarrelLocation(Location barrelLocation) { this.barrelLocation = barrelLocation; }
-
-            @Override public void call(Listener listener) { listener.onEvent(this); }
         }
 
-        public static class Fire<L extends Fire.Listener> extends PreFire<L> {
-            public interface Listener extends PreFire.Listener { void onEvent(Fire<?> event); }
-
+        /**
+         * Runs right before firing one shot.
+         */
+        public static class Fire extends PreFire {
             private Location barrelLocation;
             private ProjectileProviderSystem chamber;
             private CalibreComponentSlot chamberSlot;
@@ -416,8 +474,6 @@ public class FireableSystem implements CalibreSystem<Void>,
 
             public double getSpread() { return spread; }
             public void setSpread(double spread) { this.spread = spread; }
-
-            @Override public void call(Listener listener) { listener.onEvent(this); }
         }
     }
 }

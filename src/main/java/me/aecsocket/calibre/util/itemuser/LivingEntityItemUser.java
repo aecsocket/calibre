@@ -1,6 +1,5 @@
 package me.aecsocket.calibre.util.itemuser;
 
-import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.animation.Animation;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -20,7 +19,6 @@ public class LivingEntityItemUser implements EntityItemUser {
     public LivingEntity getEntity() { return entity; }
 
     @Override public Location getLocation() { return entity.getEyeLocation(); }
-    @Override public void startAnimation(Animation animation, EquipmentSlot slot) {}
 
     @Override public ItemStack getItem(EquipmentSlot slot) { return entity.getEquipment().getItem(slot); }
     @Override public void setItem(EquipmentSlot slot, ItemStack item) { entity.getEquipment().setItem(slot, item); }

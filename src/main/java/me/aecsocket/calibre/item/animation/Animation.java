@@ -71,6 +71,8 @@ public class Animation implements Cloneable {
             if (frame == null) return;
             frame.apply(player, slot);
         }
+
+        public Animation getAnimation() { return Animation.this; }
     }
 
     public static class Frame implements Cloneable {

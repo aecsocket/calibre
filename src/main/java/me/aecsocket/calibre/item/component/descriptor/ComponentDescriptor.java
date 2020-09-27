@@ -16,16 +16,16 @@ import java.util.Objects;
  * Can create a {@link CalibreComponent} if provided with a {@link Registry}.
  * <p>
  * These are used in tandem with system descriptors so that a user can write, for example:
- * <p>
- * <code>
+ * <pre>
+ * {@code
  * {                                                      # the component descriptor
  *   "id": "magazine_component",
  *   "ammo_storage": {                                    # a system descriptor that describes the "ammo_storage" system
  *      "ammo": [ "bullet_type1", "bullet_type2", ... ]
  *   }
  * }
- * </code>
- * <p>
+ * }
+ * </pre>
  * rather than just writing out the component's (and the systems') definition again.
  * <p>
  * It is also not viable to store just a string reference to the ID of the component,

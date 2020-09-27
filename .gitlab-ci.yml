@@ -1,0 +1,13 @@
+pages:
+  stage: deploy
+  script:
+    - mkdir .public
+    - cp -r site/* .public
+    - mkdir .public/apidocs
+    - cp -r target/site/apidocs .public
+    - mv .public public
+  artifacts:
+    paths:
+      - public
+  only:
+    - master

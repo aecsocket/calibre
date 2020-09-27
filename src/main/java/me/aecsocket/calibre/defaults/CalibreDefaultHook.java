@@ -88,8 +88,13 @@ public class CalibreDefaultHook implements CalibreHook {
         registry.register(new AmmoContainerSystem(plugin));
     }
 
+    @Override
+    public void disable() {
+        guiManager.closeAll();
+    }
+
     public void updateSlotView(Player player, CalibreComponent newComponent) {
-        GUIView view = guiManager.getView(player.getOpenInventory());
+        GUIView view = guiManager.getView(player);
         if (view != null && view.getGUI() instanceof SlotViewGUI) {
             SlotViewGUI gui = (SlotViewGUI) view.getGUI();
             gui.setComponent(newComponent);

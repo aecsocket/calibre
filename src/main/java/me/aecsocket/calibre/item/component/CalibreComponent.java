@@ -299,10 +299,10 @@ public class CalibreComponent implements CalibreItem, Component, ComponentHolder
                     : getLocalizedName(player));
 
             List<String> sections = new ArrayList<>();
-            ItemEvents.ItemCreation event = new ItemEvents.ItemCreation(
+            /*ItemEvents.ItemCreation event = new ItemEvents.ItemCreation(
                     player, amount, result, meta, sections
             );
-            callEvent(event);
+            callEvent(event);*/
 
             StringJoiner lore = new StringJoiner(plugin.gen(player, "lore.separator"));
             sections.forEach(lore::add);

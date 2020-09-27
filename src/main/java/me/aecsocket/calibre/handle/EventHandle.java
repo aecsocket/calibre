@@ -93,7 +93,8 @@ public class EventHandle implements Listener {
     public void onClick(InventoryClickEvent event) {
         plugin.getPlayerData((Player) event.getWhoClicked()).setLastClicked(Bukkit.getCurrentTick());
 
-        if (event.isCancelled()) return;
+        if (event.isCancelled())
+            return;
         Player player = (Player) event.getWhoClicked();
         PlayerInventory inv = player.getInventory();
         int slot = event.getSlot();

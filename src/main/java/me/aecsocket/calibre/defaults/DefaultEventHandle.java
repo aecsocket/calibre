@@ -32,10 +32,10 @@ public class DefaultEventHandle implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
-        GUIView view = hook.getGUIManager().getView(event.getView());
+        GUIView view = hook.getGUIManager().getView(event.getWhoClicked());
         if (view != null && view.getGUI() instanceof SlotViewGUI) {
             SlotViewGUI gui = (SlotViewGUI) view.getGUI();
-            if (gui.getItemSlot() == event.getSlot() || gui.getItemSlot() == event.getHotbarButton()) {
+            if (event.getClickedInventory() == event.getView().getTopInventory() || gui.getItemSlot() == event.getSlot() || gui.getItemSlot() == event.getHotbarButton()) {
                 event.setCancelled(true);
                 return;
             }

@@ -110,7 +110,6 @@ public class CalibrePlayer implements Tickable {
             EntityEquipment equipment = player.getEquipment();
             for (EquipmentSlot slot : EquipmentSlot.values())
                 cachedItems.get(slot).set(equipment.getItem(slot), plugin);
-            player.sendActionBar(plugin.getDefaultHook().getGUIManager().getViewMap()+""); // todo
         }
 
         cachedItems.forEach((slot, rep) -> {

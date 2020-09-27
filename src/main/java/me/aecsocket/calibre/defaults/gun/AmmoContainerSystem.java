@@ -46,6 +46,7 @@ public class AmmoContainerSystem implements CalibreSystem<AmmoContainerSystem>, 
         return Arrays.asList(AmmoProviderSystem.class);
     }
 
+    // TODO way to add and remove bullets from here
     @Override
     public void acceptTree(ComponentTree tree) {
         EventDispatcher dispatcher = tree.getEventDispatcher();

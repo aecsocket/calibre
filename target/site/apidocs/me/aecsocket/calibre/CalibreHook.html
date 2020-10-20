@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":18,"i2":18,"i3":18,"i4":18,"i5":18};
+var data = {"i0":6,"i1":18,"i2":18,"i3":18,"i4":18};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -125,11 +125,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="defaults/CalibreDefaultHook.html" title="class in me.aecsocket.calibre.defaults">CalibreDefaultHook</a></code></dd>
+<dd><code><a href="defaults/DefaultCalibreHook.html" title="class in me.aecsocket.calibre.defaults">DefaultCalibreHook</a></code></dd>
 </dl>
 <hr>
 <pre>public interface <span class="typeNameLabel">CalibreHook</span></pre>
-<div class="block">A hook onto <a href="CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a> which can modify things at enable-time.</div>
+<div class="block">Allows hooking into <a href="CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a> events.</div>
 </li>
 </ul>
 </div>
@@ -154,46 +154,35 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#acceptPlugin(me.aecsocket.calibre.CalibrePlugin)">acceptPlugin</a></span>&#8203;(<a href="CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin)</code></th>
 <td class="colLast">
-<div class="block">Provides this hook instance with an instance of the CalibrePlugin.</div>
+<div class="block">Accepts a provided <a href="CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a>.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#disable()">disable</a></span>()</code></th>
+<td class="colFirst"><code>default <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Collection.html?is-external=true" title="class or interface in java.util" class="externalLink">Collection</a>&lt;<a href="util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPreRegisters()">getPreRegisters</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Runs right before plugin disabling.</div>
+<div class="block">Called when pre register <a href="util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util"><code>CalibreIdentifiable</code></a>s (such as systems) can be registered.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initialize()">initialize</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDisable()">onDisable</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Runs right after registering hooks.</div>
+<div class="block">Called when the plugin is disabled.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initializeGson(com.google.gson.GsonBuilder)">initializeGson</a></span>&#8203;(com.google.gson.GsonBuilder&nbsp;builder)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onEnable()">onEnable</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Register custom type adapters to the plugin's <code>Gson</code> instance.</div>
+<div class="block">Called when the plugin is enabled.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#postLoadRegister(me.aecsocket.unifiedframework.registry.Registry,me.aecsocket.unifiedframework.locale.LocaleManager,me.aecsocket.unifiedframework.resource.Settings)">postLoadRegister</a></span>&#8203;(me.aecsocket.unifiedframework.registry.Registry&nbsp;registry,
-                me.aecsocket.unifiedframework.locale.LocaleManager&nbsp;localeManager,
-                me.aecsocket.unifiedframework.resource.Settings&nbsp;settings)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerTypeAdapters(com.google.gson.GsonBuilder)">registerTypeAdapters</a></span>&#8203;(com.google.gson.GsonBuilder&nbsp;builder)</code></th>
 <td class="colLast">
-<div class="block">Register custom items to the plugin's <code>Registry</code> instance, after all configuration items have been registered.</div>
-</td>
-</tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preLoadRegister(me.aecsocket.unifiedframework.registry.Registry,me.aecsocket.unifiedframework.locale.LocaleManager,me.aecsocket.unifiedframework.resource.Settings)">preLoadRegister</a></span>&#8203;(me.aecsocket.unifiedframework.registry.Registry&nbsp;registry,
-               me.aecsocket.unifiedframework.locale.LocaleManager&nbsp;localeManager,
-               me.aecsocket.unifiedframework.resource.Settings&nbsp;settings)</code></th>
-<td class="colLast">
-<div class="block">Register custom items to the plugin's <code>Registry</code> instance, before the configuration items have been registered.</div>
+<div class="block">Called when extra type adapters can be registered on a <code>GsonBuilder</code>.</div>
 </td>
 </tr>
 </table>
@@ -220,82 +209,58 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>acceptPlugin</h4>
 <pre class="methodSignature">void&nbsp;acceptPlugin&#8203;(<a href="CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin)</pre>
-<div class="block">Provides this hook instance with an instance of the CalibrePlugin.</div>
+<div class="block">Accepts a provided <a href="CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>plugin</code> - The CalibrePlugin.</dd>
+<dd><code>plugin</code> - The plugin.</dd>
 </dl>
 </li>
 </ul>
-<a id="initialize()">
+<a id="onEnable()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>initialize</h4>
-<pre class="methodSignature">default&nbsp;void&nbsp;initialize()</pre>
-<div class="block">Runs right after registering hooks.</div>
+<h4>onEnable</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onEnable()</pre>
+<div class="block">Called when the plugin is enabled.</div>
 </li>
 </ul>
-<a id="disable()">
+<a id="onDisable()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>disable</h4>
-<pre class="methodSignature">default&nbsp;void&nbsp;disable()</pre>
-<div class="block">Runs right before plugin disabling.</div>
+<h4>onDisable</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onDisable()</pre>
+<div class="block">Called when the plugin is disabled.</div>
 </li>
 </ul>
-<a id="initializeGson(com.google.gson.GsonBuilder)">
+<a id="getPreRegisters()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>initializeGson</h4>
-<pre class="methodSignature">default&nbsp;void&nbsp;initializeGson&#8203;(com.google.gson.GsonBuilder&nbsp;builder)</pre>
-<div class="block">Register custom type adapters to the plugin's <code>Gson</code> instance.</div>
+<h4>getPreRegisters</h4>
+<pre class="methodSignature">default&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Collection.html?is-external=true" title="class or interface in java.util" class="externalLink">Collection</a>&lt;<a href="util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a>&gt;&nbsp;getPreRegisters()</pre>
+<div class="block">Called when pre register <a href="util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util"><code>CalibreIdentifiable</code></a>s (such as systems) can be registered.</div>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>builder</code> - The <code>GsonBuilder</code> to modify.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A collection of pre register objects.</dd>
 </dl>
 </li>
 </ul>
-<a id="preLoadRegister(me.aecsocket.unifiedframework.registry.Registry,me.aecsocket.unifiedframework.locale.LocaleManager,me.aecsocket.unifiedframework.resource.Settings)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>preLoadRegister</h4>
-<pre class="methodSignature">default&nbsp;void&nbsp;preLoadRegister&#8203;(me.aecsocket.unifiedframework.registry.Registry&nbsp;registry,
-                             me.aecsocket.unifiedframework.locale.LocaleManager&nbsp;localeManager,
-                             me.aecsocket.unifiedframework.resource.Settings&nbsp;settings)</pre>
-<div class="block">Register custom items to the plugin's <code>Registry</code> instance, before the configuration items have been registered.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>registry</code> - The <code>Registry</code> to modify.</dd>
-<dd><code>localeManager</code> - The <code>LocaleManager</code> to modify.</dd>
-<dd><code>settings</code> - The <code>Settings</code> to modify.</dd>
-</dl>
-</li>
-</ul>
-<a id="postLoadRegister(me.aecsocket.unifiedframework.registry.Registry,me.aecsocket.unifiedframework.locale.LocaleManager,me.aecsocket.unifiedframework.resource.Settings)">
+<a id="registerTypeAdapters(com.google.gson.GsonBuilder)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>postLoadRegister</h4>
-<pre class="methodSignature">default&nbsp;void&nbsp;postLoadRegister&#8203;(me.aecsocket.unifiedframework.registry.Registry&nbsp;registry,
-                              me.aecsocket.unifiedframework.locale.LocaleManager&nbsp;localeManager,
-                              me.aecsocket.unifiedframework.resource.Settings&nbsp;settings)</pre>
-<div class="block">Register custom items to the plugin's <code>Registry</code> instance, after all configuration items have been registered.
- <p>
- This can be done after the plugin has loaded, but it's neater to put it here.</div>
+<h4>registerTypeAdapters</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;registerTypeAdapters&#8203;(com.google.gson.GsonBuilder&nbsp;builder)</pre>
+<div class="block">Called when extra type adapters can be registered on a <code>GsonBuilder</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>registry</code> - The <code>Registry</code> to modify.</dd>
-<dd><code>localeManager</code> - The <code>LocaleManager</code> to modify.</dd>
-<dd><code>settings</code> - The <code>Settings</code> to modify.</dd>
+<dd><code>builder</code> - The builder.</dd>
 </dl>
 </li>
 </ul>

@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -139,7 +139,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public class <span class="typeNameLabel">CalibreCommand</span>
 extends co.aikar.commands.BaseCommand</pre>
-<div class="block">The plugin's command handler. Uses ACF.</div>
+<div class="block">The plugin's main command class.</div>
 </li>
 </ul>
 </div>
@@ -213,34 +213,36 @@ extends co.aikar.commands.BaseCommand</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#descriptor(org.bukkit.command.CommandSender)">descriptor</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPlugin()">getPlugin</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>&lt;T extends <a href="../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a> &amp; me.aecsocket.unifiedframework.item.ItemStackFactory&gt;<br>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#give(org.bukkit.command.CommandSender,org.bukkit.entity.Player,me.aecsocket.unifiedframework.registry.Ref,java.lang.Integer)">give</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender,
+    org.bukkit.entity.Player&nbsp;target,
+    me.aecsocket.unifiedframework.registry.Ref&lt;T&gt;&nbsp;item,
+    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>&nbsp;amount)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#give(org.bukkit.command.CommandSender,org.bukkit.entity.Player,me.aecsocket.calibre.item.CalibreItemSupplier,java.lang.Integer)">give</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender,
-    org.bukkit.entity.Player&nbsp;target,
-    <a href="../item/CalibreItemSupplier.html" title="interface in me.aecsocket.calibre.item">CalibreItemSupplier</a>&nbsp;item,
-    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>&nbsp;amount)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#help(org.bukkit.command.CommandSender,co.aikar.commands.CommandHelp)">help</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender,
+    co.aikar.commands.CommandHelp&nbsp;help)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#info(org.bukkit.command.CommandSender,me.aecsocket.calibre.item.CalibreIdentifiable)">info</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender,
-    <a href="../item/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.item">CalibreIdentifiable</a>&nbsp;object)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#info(org.bukkit.command.CommandSender,me.aecsocket.unifiedframework.registry.Ref)">info</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender,
+    me.aecsocket.unifiedframework.registry.Ref&lt;<a href="../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a>&gt;&nbsp;item)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#list(org.bukkit.command.CommandSender,java.lang.String,java.lang.String)">list</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender,
-    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;nameFilter,
-    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;typeFilter)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#list(org.bukkit.command.CommandSender,java.lang.String,java.lang.String,java.lang.String)">list</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender,
+    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;idFilter,
+    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;classFilter,
+    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;infoFilter)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
@@ -249,6 +251,21 @@ extends co.aikar.commands.BaseCommand</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resolutionOrder(org.bukkit.command.CommandSender)">resolutionOrder</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tree(org.bukkit.command.CommandSender)">tree</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#unknown(org.bukkit.command.CommandSender)">unknown</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#version(org.bukkit.command.CommandSender)">version</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -335,6 +352,25 @@ extends co.aikar.commands.BaseCommand</pre>
 <pre class="methodSignature">public&nbsp;<a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;getPlugin()</pre>
 </li>
 </ul>
+<a id="unknown(org.bukkit.command.CommandSender)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>unknown</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;unknown&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</pre>
+</li>
+</ul>
+<a id="help(org.bukkit.command.CommandSender,co.aikar.commands.CommandHelp)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>help</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;help&#8203;(org.bukkit.command.CommandSender&nbsp;sender,
+                 co.aikar.commands.CommandHelp&nbsp;help)</pre>
+</li>
+</ul>
 <a id="version(org.bukkit.command.CommandSender)">
 <!--   -->
 </a>
@@ -353,46 +389,56 @@ extends co.aikar.commands.BaseCommand</pre>
 <pre class="methodSignature">public&nbsp;void&nbsp;reload&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</pre>
 </li>
 </ul>
-<a id="list(org.bukkit.command.CommandSender,java.lang.String,java.lang.String)">
+<a id="list(org.bukkit.command.CommandSender,java.lang.String,java.lang.String,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>list</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;list&#8203;(org.bukkit.command.CommandSender&nbsp;sender,
-                 <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;nameFilter,
-                 <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;typeFilter)</pre>
+                 <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;idFilter,
+                 <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;classFilter,
+                 <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;infoFilter)</pre>
 </li>
 </ul>
-<a id="info(org.bukkit.command.CommandSender,me.aecsocket.calibre.item.CalibreIdentifiable)">
+<a id="info(org.bukkit.command.CommandSender,me.aecsocket.unifiedframework.registry.Ref)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>info</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;info&#8203;(org.bukkit.command.CommandSender&nbsp;sender,
-                 <a href="../item/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.item">CalibreIdentifiable</a>&nbsp;object)</pre>
+                 me.aecsocket.unifiedframework.registry.Ref&lt;<a href="../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a>&gt;&nbsp;item)</pre>
 </li>
 </ul>
-<a id="descriptor(org.bukkit.command.CommandSender)">
+<a id="resolutionOrder(org.bukkit.command.CommandSender)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>descriptor</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;descriptor&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</pre>
+<h4>resolutionOrder</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;resolutionOrder&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</pre>
 </li>
 </ul>
-<a id="give(org.bukkit.command.CommandSender,org.bukkit.entity.Player,me.aecsocket.calibre.item.CalibreItemSupplier,java.lang.Integer)">
+<a id="tree(org.bukkit.command.CommandSender)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>tree</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;tree&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</pre>
+</li>
+</ul>
+<a id="give(org.bukkit.command.CommandSender,org.bukkit.entity.Player,me.aecsocket.unifiedframework.registry.Ref,java.lang.Integer)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>give</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;give&#8203;(org.bukkit.command.CommandSender&nbsp;sender,
-                 org.bukkit.entity.Player&nbsp;target,
-                 <a href="../item/CalibreItemSupplier.html" title="interface in me.aecsocket.calibre.item">CalibreItemSupplier</a>&nbsp;item,
-                 <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>&nbsp;amount)</pre>
+<pre class="methodSignature">public&nbsp;&lt;T extends <a href="../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a> &amp; me.aecsocket.unifiedframework.item.ItemStackFactory&gt;&nbsp;void&nbsp;give&#8203;(org.bukkit.command.CommandSender&nbsp;sender,
+                                                                                                       org.bukkit.entity.Player&nbsp;target,
+                                                                                                       me.aecsocket.unifiedframework.registry.Ref&lt;T&gt;&nbsp;item,
+                                                                                                       <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>&nbsp;amount)</pre>
 </li>
 </ul>
 <a id="create(org.bukkit.command.CommandSender,org.bukkit.entity.Player,java.lang.String,java.lang.Integer)">

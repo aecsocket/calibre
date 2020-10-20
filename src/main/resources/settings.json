@@ -1,0 +1,44 @@
+{
+  "log_level": "VERBOSE",
+  "print_stack_traces": true,
+  "locale": "en_us",
+
+  "preserve_invalid_data": true,
+  "repeat_error_delay": 60000,
+
+  "slot_view": {
+    "center": [ 4, 3 ],
+    "slot": {
+      "normal": { "material": "WHITE_STAINED_GLASS_PANE", "model_data": 1 },
+      "required": { "material": "WHITE_STAINED_GLASS_PANE", "model_data": 2 },
+      "compatible": { "material": "WHITE_STAINED_GLASS_PANE", "model_data": 3 },
+      "incompatible": { "material": "WHITE_STAINED_GLASS_PANE", "model_data": 4 }
+    },
+
+    "place_sound": [ { "sound": "slot.place" } ],
+    "remove_sound": [ { "sound": "slot.remove" } ]
+  },
+
+  "field_modify": {
+    "enable": true,
+    "enable_modification": true,
+    "enable_for_simple": false,
+    "limited_modification": false
+  },
+
+  "quick_modify": {
+    "enable": true,
+    "limited_modification": false,
+    "sound": [ { "sound": "slot.combine" } ]
+  },
+
+  "projectile": {
+    "max_distance": 2048
+  },
+
+  "gun": {
+    "recoil_threshold": 0.01,
+    "spread_threshold": 0.01,
+    "spread_reduction": 0.98
+  }
+}

@@ -1,321 +1,186 @@
 package me.aecsocket.calibre.item;
 
 import me.aecsocket.calibre.CalibrePlugin;
-import me.aecsocket.calibre.item.system.CalibreSystem;
-import me.aecsocket.calibre.util.itemuser.ItemUser;
-import me.aecsocket.calibre.util.itemuser.PlayerItemUser;
+import me.aecsocket.calibre.item.util.damagecause.BukkitDamageCause;
+import me.aecsocket.calibre.item.util.damagecause.DamageCause;
+import me.aecsocket.calibre.item.util.slot.EntityItemSlot;
+import me.aecsocket.calibre.item.util.slot.ItemSlot;
+import me.aecsocket.calibre.item.util.slot.PlayerItemSlot;
+import me.aecsocket.calibre.item.util.user.ItemUser;
 import me.aecsocket.unifiedframework.loop.TickContext;
-import me.aecsocket.unifiedframework.util.Utils;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
-/**
- * Contains all generic item events that a {@link me.aecsocket.calibre.item.system.CalibreSystem} can listen to.
- */
+// todo docs
 public final class ItemEvents {
     private ItemEvents() {}
 
-    // --- BASE ---
+    //region Base
 
-    /**
-     * The base class for all item events.
-     */
-    public interface Event {
-        ItemStack getItemStack();
-        EquipmentSlot getSlot();
-    }
-
-    /**
-     * The base class for all item events involving an item user.
-     */
-    public interface UserEvent extends Event {
-        ItemUser getUser();
-    }
-
-    /**
-     * An event which was called by a system.
-     * @param <S> The system type.
-     */
-    public interface SystemEvent<S extends CalibreSystem<?>> {
-        S getSystem();
-    }
-
-    /**
-     * Simple implementation of {@link UserEvent}.
-     */
-    public static class BaseEvent implements UserEvent {
-        private final ItemStack itemStack;
-        private final EquipmentSlot slot;
+    public static class Event {
+        private final ItemStack stack;
+        private final ItemSlot slot;
         private final ItemUser user;
 
-        public BaseEvent(ItemStack itemStack, EquipmentSlot slot, ItemUser user) {
-            this.itemStack = itemStack;
+        public Event(ItemStack stack, ItemSlot slot, ItemUser user) {
+            this.stack = stack;
             this.slot = slot;
             this.user = user;
         }
 
-        @Override public ItemStack getItemStack() { return itemStack; }
-        @Override public EquipmentSlot getSlot() { return slot; }
-        @Override public ItemUser getUser() { return user; }
+        public ItemStack getStack() { return stack; }
+        public ItemSlot getSlot() { return slot; }
+        public ItemUser getUser() { return user; }
     }
 
+    //endregion
 
-    // --- EVENTS ---
-
-    /**
-     * Runs when an item is being created with {@link me.aecsocket.calibre.item.component.CalibreComponent#createItem(Player, int)}.
-     */
-    public static class ItemCreation {
+    public static class Create {
         private final @Nullable Player player;
         private final int amount;
         private final ItemStack item;
         private final ItemMeta meta;
-        private final List<String> sections;
 
-        public ItemCreation(@Nullable Player player, int amount, ItemStack item, ItemMeta meta, List<String> sections) {
+        public Create(@Nullable Player player, int amount, ItemStack item, ItemMeta meta) {
             this.player = player;
             this.amount = amount;
             this.item = item;
             this.meta = meta;
-            this.sections = sections;
         }
 
         public Player getPlayer() { return player; }
         public int getAmount() { return amount; }
         public ItemStack getItem() { return item; }
         public ItemMeta getMeta() { return meta; }
-        public List<String> getSections() { return sections; }
     }
 
-    /**
-     * Runs when an item is being updated to a user with {@link me.aecsocket.calibre.item.component.CalibreComponent#updateItem(ItemUser, EquipmentSlot, boolean)}.
-     */
-    public static class ItemUpdate extends BaseEvent {
-        private boolean hidden;
-
-        public ItemUpdate(ItemStack itemStack, EquipmentSlot slot, ItemUser user, boolean hidden) {
-            super(itemStack, slot, user);
-            this.hidden = hidden;
-        }
-
-        public boolean isHidden() { return hidden; }
-        public void setHidden(boolean hidden) { this.hidden = hidden; }
-    }
-
-
-    /**
-     * Runs when an item is equipped by a player in any {@link EquipmentSlot}.
-     * Note that this event may not be run on the main thread, so if you need to access the Bukkit API, check:
-     * <code>event.getTickContext().getLoop() instanceof SchedulerLoop</code>
-     */
-    public static class Equip extends BaseEvent {
+    public static class Equip extends Event {
         private final TickContext tickContext;
 
-        public Equip(ItemStack itemStack, EquipmentSlot slot, ItemUser user, TickContext tickContext) {
-            super(itemStack, slot, user);
+        public Equip(ItemStack stack, ItemSlot slot, ItemUser user, TickContext tickContext) {
+            super(stack, slot, user);
             this.tickContext = tickContext;
         }
 
         public TickContext getTickContext() { return tickContext; }
     }
 
-    /**
-     * Runs when an item is left or right clicked.
-     */
-    public static class Interact extends BaseEvent {
-        private final BlockFace clickedFace;
-        private final Block clickedBlock;
-        private final boolean rightClick;
-
-        public Interact(ItemStack itemStack, EquipmentSlot slot, ItemUser user, BlockFace clickedFace, Block clickedBlock, boolean rightClick) {
-            super(itemStack, slot, user);
-            this.clickedFace = clickedFace;
-            this.clickedBlock = clickedBlock;
-            this.rightClick = rightClick;
-        }
-
-        public BlockFace getClickedFace() { return clickedFace; }
-        public Block getClickedBlock() { return clickedBlock; }
-        public boolean isRightClick() { return rightClick; }
-    }
-
-    /**
-     * Bukkit event-based version of {@link Interact}.
-     */
-    public static class BukkitInteract extends Interact {
-        private final PlayerInteractEvent bukkitEvent;
-
-        public BukkitInteract(CalibrePlugin plugin, PlayerInteractEvent bukkitEvent) {
-            super(bukkitEvent.getItem(), bukkitEvent.getHand(), new PlayerItemUser(plugin, bukkitEvent.getPlayer()),
-                    bukkitEvent.getBlockFace(), bukkitEvent.getClickedBlock(), Utils.isRightClick(bukkitEvent));
-            this.bukkitEvent = bukkitEvent;
-        }
-
-        public PlayerInteractEvent getBukkitEvent() { return bukkitEvent; }
-
-        public Interact toRaw() {
-            return new Interact(
-                    getItemStack(),
-                    getSlot(),
-                    getUser(),
-                    getClickedFace(),
-                    getClickedBlock(),
-                    isRightClick());
+    public static class Holster extends Event {
+        public Holster(ItemStack stack, ItemSlot slot, ItemUser user) {
+            super(stack, slot, user);
         }
     }
 
-    /**
-     * Runs when an item is swapped from the main to offhand and vice versa.
-     */
-    public static class SwapHands extends BaseEvent {
-        public SwapHands(ItemStack itemStack, EquipmentSlot fromSlot, ItemUser user) {
-            super(itemStack, fromSlot, user);
+    public static class BukkitHolster extends Holster {
+        private final PlayerItemHeldEvent event;
+
+        public BukkitHolster(ItemStack stack, ItemSlot slot, ItemUser user, PlayerItemHeldEvent event) {
+            super(stack, slot, user);
+            this.event = event;
+        }
+
+        public static BukkitHolster of(CalibrePlugin plugin, PlayerItemHeldEvent event) {
+            Player player = event.getPlayer();
+            ItemStack item = player.getInventory().getItem(event.getPreviousSlot());
+            return new BukkitHolster(item, new PlayerItemSlot(player, event.getPreviousSlot()), plugin.userOf(player), event);
         }
     }
 
-    /**
-     * Bukkit event-based version of {@link SwapHands}.
-     */
-    public static class BukkitSwapHands extends SwapHands {
-        private final PlayerSwapHandItemsEvent bukkitEvent;
-
-        public BukkitSwapHands(CalibrePlugin plugin, PlayerSwapHandItemsEvent bukkitEvent, boolean fromMainHand) {
-            super(
-                    fromMainHand ? bukkitEvent.getOffHandItem() : bukkitEvent.getMainHandItem(),
-                    fromMainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND,
-                    new PlayerItemUser(plugin, bukkitEvent.getPlayer()));
-            this.bukkitEvent = bukkitEvent;
-        }
-
-        public PlayerSwapHandItemsEvent getBukkitEvent() { return bukkitEvent; }
-
-        public SwapHands toRaw() {
-            return new SwapHands(
-                    getItemStack(),
-                    getSlot(),
-                    getUser());
+    public static class Draw extends Event {
+        public Draw(ItemStack stack, ItemSlot slot, ItemUser user) {
+            super(stack, slot, user);
         }
     }
 
-    /**
-     * Runs when an entity is damaged by another entity with an item.
-     */
-    public static class Damage extends BaseEvent {
+    public static class BukkitDraw extends Draw {
+        private final PlayerItemHeldEvent event;
+
+        public BukkitDraw(ItemStack stack, ItemSlot slot, ItemUser user, PlayerItemHeldEvent event) {
+            super(stack, slot, user);
+            this.event = event;
+        }
+
+        public PlayerItemHeldEvent getEvent() { return event; }
+
+        public static BukkitDraw of(CalibrePlugin plugin, PlayerItemHeldEvent event) {
+            Player player = event.getPlayer();
+            ItemStack item = player.getInventory().getItem(event.getNewSlot());
+            return new BukkitDraw(item, new PlayerItemSlot(player, event.getNewSlot()), plugin.userOf(player), event);
+        }
+    }
+
+    public static class Damage extends Event {
+        private final double damage;
+        private final DamageCause cause;
+
+        public Damage(ItemStack stack, ItemSlot slot, ItemUser user, double damage, DamageCause cause) {
+            super(stack, slot, user);
+            this.damage = damage;
+            this.cause = cause;
+        }
+
+        public double getDamage() { return damage; }
+        public DamageCause getCause() { return cause; }
+    }
+
+    public static class BukkitDamage extends Damage {
+        private final EntityDamageEvent event;
+
+        public BukkitDamage(ItemStack stack, ItemSlot slot, ItemUser user, double damage, DamageCause cause, EntityDamageEvent event) {
+            super(stack, slot, user, damage, cause);
+            this.event = event;
+        }
+
+        public EntityDamageEvent getEvent() { return event; }
+
+        public static BukkitDamage of(CalibrePlugin plugin, EntityDamageEvent event, EquipmentSlot slot) {
+            LivingEntity entity = (LivingEntity) event.getEntity();
+            ItemStack item = entity.getEquipment().getItem(slot);
+            return new BukkitDamage(item, new EntityItemSlot(entity, slot), plugin.userOf(entity),
+                    event.getFinalDamage(), BukkitDamageCause.of(event.getCause()), event);
+        }
+    }
+
+    public static class Attack extends Event {
         private final Entity victim;
         private final double damage;
-        private final double finalDamage;
-        private final EntityDamageEvent.DamageCause cause;
+        private final DamageCause cause;
 
-        public Damage(ItemStack itemStack, EquipmentSlot slot, ItemUser user, Entity victim, double damage, double finalDamage, EntityDamageEvent.DamageCause cause) {
-            super(itemStack, slot, user);
+        public Attack(ItemStack stack, ItemSlot slot, ItemUser user, Entity victim, double damage, DamageCause cause) {
+            super(stack, slot, user);
             this.victim = victim;
             this.damage = damage;
-            this.finalDamage = finalDamage;
             this.cause = cause;
         }
 
         public Entity getVictim() { return victim; }
         public double getDamage() { return damage; }
-        public double getFinalDamage() { return finalDamage; }
-        public EntityDamageEvent.DamageCause getCause() { return cause; }
+        public DamageCause getCause() { return cause; }
     }
 
-    /**
-     * Bukkit event-based version of {@link Damage}.
-     */
-    public static class BukkitDamage extends Damage {
-        private final EntityDamageByEntityEvent bukkitEvent;
+    public static class BukkitAttack extends Attack {
+        private final EntityDamageByEntityEvent event;
 
-        public BukkitDamage(CalibrePlugin plugin, EntityDamageByEntityEvent bukkitEvent, boolean mainHand) {
-            super(
-                    mainHand
-                        ? ((LivingEntity) bukkitEvent.getDamager()).getEquipment().getItemInMainHand()
-                        :  ((LivingEntity) bukkitEvent.getDamager()).getEquipment().getItemInOffHand(),
-                    mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND,
-                    ItemUser.ofDefault(plugin, bukkitEvent.getDamager()), bukkitEvent.getEntity(),
-                    bukkitEvent.getDamage(), bukkitEvent.getFinalDamage(), bukkitEvent.getCause());
-            this.bukkitEvent = bukkitEvent;
+        public BukkitAttack(ItemStack stack, ItemSlot slot, ItemUser user, Entity victim, double damage, DamageCause cause, EntityDamageByEntityEvent event) {
+            super(stack, slot, user, victim, damage, cause);
+            this.event = event;
         }
 
-        public EntityDamageByEntityEvent getBukkitEvent() { return bukkitEvent; }
+        public EntityDamageByEntityEvent getEvent() { return event; }
 
-        public Damage toRaw() {
-            return new Damage(
-                    getItemStack(),
-                    getSlot(),
-                    getUser(),
-                    getVictim(),
-                    getDamage(),
-                    getFinalDamage(),
-                    getCause());
+        public static BukkitAttack of(CalibrePlugin plugin, EntityDamageByEntityEvent event, EquipmentSlot slot) {
+            LivingEntity damager = (LivingEntity) event.getDamager();
+            ItemStack item = damager.getEquipment().getItem(slot);
+            return new BukkitAttack(item, new EntityItemSlot(damager, slot), plugin.userOf(damager),
+                    event.getEntity(), event.getFinalDamage(), BukkitDamageCause.of(event.getCause()), event);
         }
-    }
-
-    /**
-     * Runs when an item is equipped and held.
-     */
-    public static class Draw extends BaseEvent {
-        private final int itemSlot;
-
-        public Draw(ItemStack itemStack, EquipmentSlot slot, ItemUser user, int itemSlot) {
-            super(itemStack, slot, user);
-            this.itemSlot = itemSlot;
-        }
-
-        public int getItemSlot() { return itemSlot; }
-    }
-
-    /**
-     * Bukkit event-based version of {@link Draw}.
-     */
-    public static class BukkitDraw extends Draw {
-        private final PlayerItemHeldEvent bukkitEvent;
-
-        public BukkitDraw(CalibrePlugin plugin, PlayerItemHeldEvent bukkitEvent) {
-            super(
-                    bukkitEvent.getPlayer().getInventory().getItem(bukkitEvent.getNewSlot()),
-                    EquipmentSlot.HAND,
-                    new PlayerItemUser(plugin, bukkitEvent.getPlayer()),
-                    bukkitEvent.getNewSlot());
-            this.bukkitEvent = bukkitEvent;
-        }
-
-        public PlayerItemHeldEvent getBukkitEvent() { return bukkitEvent; }
-
-        public Draw toRaw() {
-            return new Draw(
-                    getItemStack(),
-                    getSlot(),
-                    getUser(),
-                    getItemSlot());
-        }
-    }
-
-    /**
-     * Runs when an item is unequipped from a hand.
-     */
-    public static class Holster extends BaseEvent {
-        private final int itemSlot;
-
-        public Holster(ItemStack itemStack, EquipmentSlot slot, ItemUser user, int itemSlot) {
-            super(itemStack, slot, user);
-            this.itemSlot = itemSlot;
-        }
-
-        public int getItemSlot() { return itemSlot; }
     }
 }

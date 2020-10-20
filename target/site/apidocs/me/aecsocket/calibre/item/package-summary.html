@@ -100,70 +100,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <table class="typeSummary">
-<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Interface</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tbody>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.item">CalibreIdentifiable</a></th>
-<td class="colLast">
-<div class="block">A tag interface for a generic Calibre object which:
- 
-     has an ID
-     must be validated on load
-     accepts a <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a>
- </div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="CalibreItem.html" title="interface in me.aecsocket.calibre.item">CalibreItem</a></th>
-<td class="colLast">
-<div class="block">A class for a generic <a href="CalibreItemSupplier.html" title="interface in me.aecsocket.calibre.item"><code>CalibreItemSupplier</code></a> which:
- 
-     provides a way to call events to this item
- </div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="CalibreItemSupplier.html" title="interface in me.aecsocket.calibre.item">CalibreItemSupplier</a></th>
-<td class="colLast">
-<div class="block">A class for a generic <a href="CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.item"><code>CalibreIdentifiable</code></a> which:
- 
-     can be converted to an <code>ItemStack</code>
- </div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="CalibreLocalized.html" title="interface in me.aecsocket.calibre.item">CalibreLocalized</a></th>
-<td class="colLast">
-<div class="block">A generic Calibre object which has a localizable name.</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="ItemEvents.Event.html" title="interface in me.aecsocket.calibre.item">ItemEvents.Event</a></th>
-<td class="colLast">
-<div class="block">The base class for all item events.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="ItemEvents.SystemEvent.html" title="interface in me.aecsocket.calibre.item">ItemEvents.SystemEvent</a>&lt;S extends <a href="system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&lt;?&gt;&gt;</th>
-<td class="colLast">
-<div class="block">An event which was called by a system.</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="ItemEvents.UserEvent.html" title="interface in me.aecsocket.calibre.item">ItemEvents.UserEvent</a></th>
-<td class="colLast">
-<div class="block">The base class for all item events involving an item user.</div>
-</td>
-</tr>
-</tbody>
-</table>
-</li>
-<li class="blockList">
-<table class="typeSummary">
 <caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Class</th>
@@ -171,88 +107,64 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="ItemEvents.html" title="class in me.aecsocket.calibre.item">ItemEvents</a></th>
-<td class="colLast">
-<div class="block">Contains all generic item events that a <a href="system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system"><code>CalibreSystem</code></a> can listen to.</div>
-</td>
+<th class="colFirst" scope="row"><a href="ItemAnimation.html" title="class in me.aecsocket.calibre.item">ItemAnimation</a></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="ItemEvents.BaseEvent.html" title="class in me.aecsocket.calibre.item">ItemEvents.BaseEvent</a></th>
-<td class="colLast">
-<div class="block">Simple implementation of <a href="ItemEvents.UserEvent.html" title="interface in me.aecsocket.calibre.item"><code>ItemEvents.UserEvent</code></a>.</div>
-</td>
+<th class="colFirst" scope="row"><a href="ItemAnimation.AnimationAdapter.html" title="class in me.aecsocket.calibre.item">ItemAnimation.AnimationAdapter</a></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="ItemAnimation.Frame.html" title="class in me.aecsocket.calibre.item">ItemAnimation.Frame</a></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ItemEvents.html" title="class in me.aecsocket.calibre.item">ItemEvents</a></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="ItemEvents.Attack.html" title="class in me.aecsocket.calibre.item">ItemEvents.Attack</a></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ItemEvents.BukkitAttack.html" title="class in me.aecsocket.calibre.item">ItemEvents.BukkitAttack</a></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <th class="colFirst" scope="row"><a href="ItemEvents.BukkitDamage.html" title="class in me.aecsocket.calibre.item">ItemEvents.BukkitDamage</a></th>
-<td class="colLast">
-<div class="block">Bukkit event-based version of <a href="ItemEvents.Damage.html" title="class in me.aecsocket.calibre.item"><code>ItemEvents.Damage</code></a>.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colFirst" scope="row"><a href="ItemEvents.BukkitDraw.html" title="class in me.aecsocket.calibre.item">ItemEvents.BukkitDraw</a></th>
-<td class="colLast">
-<div class="block">Bukkit event-based version of <a href="ItemEvents.Draw.html" title="class in me.aecsocket.calibre.item"><code>ItemEvents.Draw</code></a>.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="ItemEvents.BukkitInteract.html" title="class in me.aecsocket.calibre.item">ItemEvents.BukkitInteract</a></th>
-<td class="colLast">
-<div class="block">Bukkit event-based version of <a href="ItemEvents.Interact.html" title="class in me.aecsocket.calibre.item"><code>ItemEvents.Interact</code></a>.</div>
-</td>
+<th class="colFirst" scope="row"><a href="ItemEvents.BukkitHolster.html" title="class in me.aecsocket.calibre.item">ItemEvents.BukkitHolster</a></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="ItemEvents.BukkitSwapHands.html" title="class in me.aecsocket.calibre.item">ItemEvents.BukkitSwapHands</a></th>
-<td class="colLast">
-<div class="block">Bukkit event-based version of <a href="ItemEvents.SwapHands.html" title="class in me.aecsocket.calibre.item"><code>ItemEvents.SwapHands</code></a>.</div>
-</td>
+<th class="colFirst" scope="row"><a href="ItemEvents.Create.html" title="class in me.aecsocket.calibre.item">ItemEvents.Create</a></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <th class="colFirst" scope="row"><a href="ItemEvents.Damage.html" title="class in me.aecsocket.calibre.item">ItemEvents.Damage</a></th>
-<td class="colLast">
-<div class="block">Runs when an entity is damaged by another entity with an item.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colFirst" scope="row"><a href="ItemEvents.Draw.html" title="class in me.aecsocket.calibre.item">ItemEvents.Draw</a></th>
-<td class="colLast">
-<div class="block">Runs when an item is equipped and held.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <th class="colFirst" scope="row"><a href="ItemEvents.Equip.html" title="class in me.aecsocket.calibre.item">ItemEvents.Equip</a></th>
-<td class="colLast">
-<div class="block">Runs when an item is equipped by a player in any <code>EquipmentSlot</code>.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ItemEvents.Event.html" title="class in me.aecsocket.calibre.item">ItemEvents.Event</a></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="ItemEvents.Holster.html" title="class in me.aecsocket.calibre.item">ItemEvents.Holster</a></th>
-<td class="colLast">
-<div class="block">Runs when an item is unequipped from a hand.</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="ItemEvents.Interact.html" title="class in me.aecsocket.calibre.item">ItemEvents.Interact</a></th>
-<td class="colLast">
-<div class="block">Runs when an item is left or right clicked.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="ItemEvents.ItemCreation.html" title="class in me.aecsocket.calibre.item">ItemEvents.ItemCreation</a></th>
-<td class="colLast">
-<div class="block">Runs when an item is being created with <a href="component/CalibreComponent.html#createItem(org.bukkit.entity.Player,int)"><code>CalibreComponent.createItem(Player, int)</code></a>.</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="ItemEvents.ItemUpdate.html" title="class in me.aecsocket.calibre.item">ItemEvents.ItemUpdate</a></th>
-<td class="colLast">
-<div class="block">Runs when an item is being updated to a user with <a href="component/CalibreComponent.html#updateItem(me.aecsocket.calibre.util.itemuser.ItemUser,org.bukkit.inventory.EquipmentSlot,boolean)"><code>CalibreComponent.updateItem(ItemUser, EquipmentSlot, boolean)</code></a>.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="ItemEvents.SwapHands.html" title="class in me.aecsocket.calibre.item">ItemEvents.SwapHands</a></th>
-<td class="colLast">
-<div class="block">Runs when an item is swapped from the main to offhand and vice versa.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
 </tbody>
 </table>

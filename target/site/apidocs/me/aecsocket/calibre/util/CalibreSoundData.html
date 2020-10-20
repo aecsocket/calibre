@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10};
+var data = {"i0":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -148,12 +148,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a></code>, <code><a href="AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a></code></dd>
 </dl>
 <hr>
 <pre>public class <span class="typeNameLabel">CalibreSoundData</span>
-extends me.aecsocket.unifiedframework.util.data.RealSoundData
-implements <a href="AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></pre>
+extends me.aecsocket.unifiedframework.util.data.RealSoundData</pre>
 </li>
 </ul>
 </div>
@@ -174,60 +173,56 @@ implements <a href="AcceptsCalibrePlugin.html" title="interface in me.aecsocket.
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">CalibreSoundData</a></span>()</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(double,double,me.aecsocket.calibre.CalibrePlugin,double)">CalibreSoundData</a></span>&#8203;(double&nbsp;dropoff,
+                double&nbsp;range,
+                <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin,
+                double&nbsp;speed)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(double,double,org.bukkit.plugin.Plugin,double)">CalibreSoundData</a></span>&#8203;(double&nbsp;dropoff,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,double,double,me.aecsocket.calibre.CalibrePlugin,double)">CalibreSoundData</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;sound,
+                double&nbsp;dropoff,
                 double&nbsp;range,
-                org.bukkit.plugin.Plugin&nbsp;plugin,
+                <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin,
                 double&nbsp;speed)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,double,double,org.bukkit.plugin.Plugin,double)">CalibreSoundData</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;sound,
-                double&nbsp;dropoff,
-                double&nbsp;range,
-                org.bukkit.plugin.Plugin&nbsp;plugin,
-                double&nbsp;speed)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,float,float,double,double,org.bukkit.plugin.Plugin,double)">CalibreSoundData</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;sound,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,float,float,double,double,me.aecsocket.calibre.CalibrePlugin,double)">CalibreSoundData</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;sound,
                 float&nbsp;volume,
                 float&nbsp;pitch,
                 double&nbsp;dropoff,
                 double&nbsp;range,
-                org.bukkit.plugin.Plugin&nbsp;plugin,
-                double&nbsp;speed)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,org.bukkit.SoundCategory,double,double,org.bukkit.plugin.Plugin,double)">CalibreSoundData</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;sound,
-                org.bukkit.SoundCategory&nbsp;category,
-                double&nbsp;dropoff,
-                double&nbsp;range,
-                org.bukkit.plugin.Plugin&nbsp;plugin,
+                <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin,
                 double&nbsp;speed)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,org.bukkit.SoundCategory,float,float,double,double,org.bukkit.plugin.Plugin,double)">CalibreSoundData</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;sound,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,org.bukkit.SoundCategory,double,double,me.aecsocket.calibre.CalibrePlugin,double)">CalibreSoundData</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;sound,
+                org.bukkit.SoundCategory&nbsp;category,
+                double&nbsp;dropoff,
+                double&nbsp;range,
+                <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin,
+                double&nbsp;speed)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,org.bukkit.SoundCategory,float,float,double,double,me.aecsocket.calibre.CalibrePlugin,double)">CalibreSoundData</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;sound,
                 org.bukkit.SoundCategory&nbsp;category,
                 float&nbsp;volume,
                 float&nbsp;pitch,
                 double&nbsp;dropoff,
                 double&nbsp;range,
-                org.bukkit.plugin.Plugin&nbsp;plugin,
+                <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin,
                 double&nbsp;speed)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.bukkit.plugin.Plugin)">CalibreSoundData</a></span>&#8203;(org.bukkit.plugin.Plugin&nbsp;plugin)</code></th>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(me.aecsocket.calibre.CalibrePlugin)">CalibreSoundData</a></span>&#8203;(<a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.bukkit.plugin.Plugin,double)">CalibreSoundData</a></span>&#8203;(org.bukkit.plugin.Plugin&nbsp;plugin,
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(me.aecsocket.calibre.CalibrePlugin,double)">CalibreSoundData</a></span>&#8203;(<a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin,
                 double&nbsp;speed)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -252,16 +247,7 @@ implements <a href="AcceptsCalibrePlugin.html" title="interface in me.aecsocket.
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPlugin()">getPlugin</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Gets the <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a> instance.</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlugin(me.aecsocket.calibre.CalibrePlugin)">setPlugin</a></span>&#8203;(<a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin)</code></th>
-<td class="colLast">
-<div class="block">Sets the <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a> instance.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -308,7 +294,7 @@ implements <a href="AcceptsCalibrePlugin.html" title="interface in me.aecsocket.
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(java.lang.String,org.bukkit.SoundCategory,float,float,double,double,org.bukkit.plugin.Plugin,double)">
+<a id="&lt;init&gt;(java.lang.String,org.bukkit.SoundCategory,float,float,double,double,me.aecsocket.calibre.CalibrePlugin,double)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -320,11 +306,11 @@ implements <a href="AcceptsCalibrePlugin.html" title="interface in me.aecsocket.
                         float&nbsp;pitch,
                         double&nbsp;dropoff,
                         double&nbsp;range,
-                        org.bukkit.plugin.Plugin&nbsp;plugin,
+                        <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin,
                         double&nbsp;speed)</pre>
 </li>
 </ul>
-<a id="&lt;init&gt;(java.lang.String,float,float,double,double,org.bukkit.plugin.Plugin,double)">
+<a id="&lt;init&gt;(java.lang.String,float,float,double,double,me.aecsocket.calibre.CalibrePlugin,double)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -335,11 +321,11 @@ implements <a href="AcceptsCalibrePlugin.html" title="interface in me.aecsocket.
                         float&nbsp;pitch,
                         double&nbsp;dropoff,
                         double&nbsp;range,
-                        org.bukkit.plugin.Plugin&nbsp;plugin,
+                        <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin,
                         double&nbsp;speed)</pre>
 </li>
 </ul>
-<a id="&lt;init&gt;(java.lang.String,org.bukkit.SoundCategory,double,double,org.bukkit.plugin.Plugin,double)">
+<a id="&lt;init&gt;(java.lang.String,org.bukkit.SoundCategory,double,double,me.aecsocket.calibre.CalibrePlugin,double)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -349,11 +335,11 @@ implements <a href="AcceptsCalibrePlugin.html" title="interface in me.aecsocket.
                         org.bukkit.SoundCategory&nbsp;category,
                         double&nbsp;dropoff,
                         double&nbsp;range,
-                        org.bukkit.plugin.Plugin&nbsp;plugin,
+                        <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin,
                         double&nbsp;speed)</pre>
 </li>
 </ul>
-<a id="&lt;init&gt;(java.lang.String,double,double,org.bukkit.plugin.Plugin,double)">
+<a id="&lt;init&gt;(java.lang.String,double,double,me.aecsocket.calibre.CalibrePlugin,double)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -362,11 +348,11 @@ implements <a href="AcceptsCalibrePlugin.html" title="interface in me.aecsocket.
 <pre>public&nbsp;CalibreSoundData&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;sound,
                         double&nbsp;dropoff,
                         double&nbsp;range,
-                        org.bukkit.plugin.Plugin&nbsp;plugin,
+                        <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin,
                         double&nbsp;speed)</pre>
 </li>
 </ul>
-<a id="&lt;init&gt;(double,double,org.bukkit.plugin.Plugin,double)">
+<a id="&lt;init&gt;(double,double,me.aecsocket.calibre.CalibrePlugin,double)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -374,36 +360,27 @@ implements <a href="AcceptsCalibrePlugin.html" title="interface in me.aecsocket.
 <h4>CalibreSoundData</h4>
 <pre>public&nbsp;CalibreSoundData&#8203;(double&nbsp;dropoff,
                         double&nbsp;range,
-                        org.bukkit.plugin.Plugin&nbsp;plugin,
+                        <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin,
                         double&nbsp;speed)</pre>
 </li>
 </ul>
-<a id="&lt;init&gt;(org.bukkit.plugin.Plugin,double)">
+<a id="&lt;init&gt;(me.aecsocket.calibre.CalibrePlugin,double)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>CalibreSoundData</h4>
-<pre>public&nbsp;CalibreSoundData&#8203;(org.bukkit.plugin.Plugin&nbsp;plugin,
+<pre>public&nbsp;CalibreSoundData&#8203;(<a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin,
                         double&nbsp;speed)</pre>
 </li>
 </ul>
-<a id="&lt;init&gt;(org.bukkit.plugin.Plugin)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>CalibreSoundData</h4>
-<pre>public&nbsp;CalibreSoundData&#8203;(org.bukkit.plugin.Plugin&nbsp;plugin)</pre>
-</li>
-</ul>
-<a id="&lt;init&gt;()">
+<a id="&lt;init&gt;(me.aecsocket.calibre.CalibrePlugin)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>CalibreSoundData</h4>
-<pre>public&nbsp;CalibreSoundData()</pre>
+<pre>public&nbsp;CalibreSoundData&#8203;(<a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin)</pre>
 </li>
 </ul>
 </li>
@@ -419,36 +396,13 @@ implements <a href="AcceptsCalibrePlugin.html" title="interface in me.aecsocket.
 <a id="getPlugin()">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>getPlugin</h4>
 <pre class="methodSignature">public&nbsp;<a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;getPlugin()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AcceptsCalibrePlugin.html#getPlugin()">AcceptsCalibrePlugin</a></code></span></div>
-<div class="block">Gets the <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a> instance.</div>
 <dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="AcceptsCalibrePlugin.html#getPlugin()">getPlugin</a></code>&nbsp;in interface&nbsp;<code><a href="AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code>getPlugin</code>&nbsp;in class&nbsp;<code>me.aecsocket.unifiedframework.util.data.RealSoundData</code></dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The plugin.</dd>
-</dl>
-</li>
-</ul>
-<a id="setPlugin(me.aecsocket.calibre.CalibrePlugin)">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>setPlugin</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setPlugin&#8203;(<a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AcceptsCalibrePlugin.html#setPlugin(me.aecsocket.calibre.CalibrePlugin)">AcceptsCalibrePlugin</a></code></span></div>
-<div class="block">Sets the <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a> instance.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="AcceptsCalibrePlugin.html#setPlugin(me.aecsocket.calibre.CalibrePlugin)">setPlugin</a></code>&nbsp;in interface&nbsp;<code><a href="AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>plugin</code> - The plugin.</dd>
 </dl>
 </li>
 </ul>

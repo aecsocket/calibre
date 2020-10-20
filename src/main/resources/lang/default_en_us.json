@@ -1,0 +1,71 @@
+{
+  "locale": "en_us",
+  "translations": {
+    "chat": "&6<&ecal&6>&r",
+    "chat.command.not_player": "#{chat} &cYou must be a player to use this command",
+    "chat.command.unknown": "#{chat} &cUnknown command. Use &7/calibre help&c to see a list of commands",
+    "chat.command.not_found": "#{chat} &cCould not find {id} in the registry",
+    "chat.command.wrong_type": "#{chat} &cObject {id} is of the wrong type",
+    "chat.command.help": "#{chat} &eHelp for Calibre",
+    "chat.command.help.entry": "#{chat}   {cmd}&7 &8[ &7{params}&8 ]&e {desc}",
+    "chat.command.version": "#{chat} &e{name}&r v&6{version}&r by &9{authors}",
+    "chat.command.reload.progress": "#{chat} Reloading files",
+    "chat.command.reload.warning": "#{chat} &e{msg}",
+    "chat.command.reload.complete": "#{chat} Reloaded files",
+    "chat.command.reload.complete.warnings": "#{chat} Reloaded files with {warnings} warning(s)",
+    "chat.command.list.line": "#{chat} &8- &8({class}) &3{id}&7&o {info}",
+    "chat.command.list.results": "#{chat} Found {results} result(s)",
+    "chat.command.list.no_results": "#{chat} &cNo results found",
+    "chat.command.info": "#{chat} &3{id}:",
+    "chat.command.info.line": "#{chat}   {line}",
+    "chat.command.tree.not_item": "#{chat} &cHeld item is an invalid component",
+    "chat.command.tree": "#{chat} &3{id}&7&o {info}",
+    "chat.command.tree.line": "#{chat}   &7{line}",
+    "chat.command.give": "#{chat} Gave &7{amount}x&r {item}&r to {target}&r",
+    "chat.command.give.error": "#{chat} &cCould not create item {id}: {msg}",
+    "chat.command.create.error.json": "#{chat} &cCould not parse tree: {msg}",
+
+    "chat.info.item": [
+      "&r{material}",
+      "&7Model data: &r{model_data}",
+      "&7Damage: &r{damage}"
+    ],
+    "chat.info.slot": [
+      "&7Required: &r{required}",
+      "&7Compatible Categories: &8[ &r{categories}&8 ]",
+      "&7Compatible IDs: &8[ &r{ids}&8 ]",
+      "&7Tags: &8[ &r{tags}&8 ]"
+    ],
+
+    "chat.info.prefix": "  ",
+    "chat.info.empty": "&cEmpty",
+    "chat.component.info": [
+      "&7Localized name: &r{localized_name}",
+      "&7Categories: &8[ &r{categories}&8 ]",
+      "&7Slots:",
+      "{slots}",
+      "&7Systems:",
+      "{systems}",
+      "&7Stats:",
+      "{stats}"
+    ],
+    "chat.component.info.slots.entry": [
+      "&r{name}&7:",
+      "{slot}"
+    ],
+    "chat.component.info.stats.entry": "&r{key}&7: {type}&r {value}&3 ({default})",
+    "chat.component.info.systems.entry.info": [
+      "&r{id} &7({type}):",
+      "{info}"
+    ],
+    "chat.component.info.systems.entry.no_info": "&r{id} &7({type})",
+
+    "gui.slot_view": "Slot View: &o{name}",
+    "gui.slot_view.can_field_modify": "&9Can field modify",
+
+    "no_info": "&cNone",
+
+    "system.attribute": "Attribute System",
+    "system.attribute.section_separator": "\n"
+  }
+}

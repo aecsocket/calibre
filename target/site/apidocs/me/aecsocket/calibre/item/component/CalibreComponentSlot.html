@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -133,13 +133,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a></code>, <code><a href="../../util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></code>, <code>me.aecsocket.unifiedframework.component.ComponentSlot</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a></code>, <code>me.aecsocket.unifiedframework.component.ComponentSlot&lt;<a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&gt;</code></dd>
 </dl>
 <hr>
 <pre>public class <span class="typeNameLabel">CalibreComponentSlot</span>
 extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>
-implements me.aecsocket.unifiedframework.component.ComponentSlot, <a href="../../util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></pre>
-<div class="block">A slot which can hold a <a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component"><code>CalibreComponent</code></a>.</div>
+implements me.aecsocket.unifiedframework.component.ComponentSlot&lt;<a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&gt;, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a></pre>
+<div class="block">Calibre's implementation of <code>ComponentSlot</code>.</div>
 </li>
 </ul>
 </div>
@@ -163,6 +163,15 @@ implements me.aecsocket.unifiedframework.component.ComponentSlot, <a href="../..
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">CalibreComponentSlot</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(me.aecsocket.calibre.item.component.CalibreComponent)">CalibreComponentSlot</a></span>&#8203;(<a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;component)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(me.aecsocket.calibre.item.component.CalibreComponent,boolean)">CalibreComponentSlot</a></span>&#8203;(<a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;component,
+                    boolean&nbsp;required)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
 </table>
 </li>
 </ul>
@@ -182,137 +191,38 @@ implements me.aecsocket.unifiedframework.component.ComponentSlot, <a href="../..
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#canFieldModify()">canFieldModify</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Gets if this slot can be field modified in a slot view GUI.</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="CalibreComponentSlot.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentSlot</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clone()">clone</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="CalibreComponentSlot.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentSlot</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copy()">copy</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>org.bukkit.inventory.ItemStack</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createIcon(org.bukkit.entity.Player,java.lang.String,me.aecsocket.calibre.item.component.CalibreComponent)">createIcon</a></span>&#8203;(org.bukkit.entity.Player&nbsp;player,
-          <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;name,
-          @Nullable <a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;pickedComponent)</code></th>
-<td class="colLast">
-<div class="block">Creates an icon used in a <a href="../../defaults/gui/SlotViewGUI.html" title="class in me.aecsocket.calibre.defaults.gui"><code>SlotViewGUI</code></a>.</div>
-</td>
-</tr>
-<tr id="i4" class="altColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get()">get</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCompatibleCategories()">getCompatibleCategories</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Gets all of the compatible categories of component that this slot accepts.</div>
-</td>
-</tr>
-<tr id="i6" class="altColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCompatibleIds()">getCompatibleIds</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Gets all of the compatible IDs of component that this slot accepts.</div>
-</td>
-</tr>
-<tr id="i7" class="rowColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLongInfo(me.aecsocket.calibre.CalibrePlugin,org.bukkit.command.CommandSender)">getLongInfo</a></span>&#8203;(<a href="../../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin,
-           org.bukkit.command.CommandSender&nbsp;sender)</code></th>
-<td class="colLast">
-<div class="block">Gets lines of info used by other objects in <code>/calibre info</code>.</div>
-</td>
-</tr>
-<tr id="i8" class="altColor">
-<td class="colFirst"><code>me.aecsocket.unifiedframework.gui.GUIVector</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOffset()">getOffset</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Gets the offset that this is displayed at in a <a href="../../defaults/gui/SlotViewGUI.html" title="class in me.aecsocket.calibre.defaults.gui"><code>SlotViewGUI</code></a>.</div>
-</td>
-</tr>
-<tr id="i9" class="rowColor">
-<td class="colFirst"><code><a href="../../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPlugin()">getPlugin</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Gets the <a href="../../CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a> instance.</div>
-</td>
-</tr>
-<tr id="i10" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPriority()">getPriority</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i11" class="rowColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTags()">getTags</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i12" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isCompatible(me.aecsocket.unifiedframework.component.Component)">isCompatible</a></span>&#8203;(me.aecsocket.unifiedframework.component.Component&nbsp;raw)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isCompatible(me.aecsocket.calibre.item.component.CalibreComponent)">isCompatible</a></span>&#8203;(@Nullable <a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;component)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isRequired()">isRequired</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#set(me.aecsocket.unifiedframework.component.Component)">set</a></span>&#8203;(me.aecsocket.unifiedframework.component.Component&nbsp;component)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#set(me.aecsocket.calibre.item.component.CalibreComponent)">set</a></span>&#8203;(<a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;component)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i15" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCanFieldModify(boolean)">setCanFieldModify</a></span>&#8203;(boolean&nbsp;canFieldModify)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i16" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCompatibleCategories(java.util.List)">setCompatibleCategories</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;compatibleCategories)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i17" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCompatibleIds(java.util.List)">setCompatibleIds</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;compatibleIds)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i18" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOffset(me.aecsocket.unifiedframework.gui.GUIVector)">setOffset</a></span>&#8203;(me.aecsocket.unifiedframework.gui.GUIVector&nbsp;offset)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i19" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlugin(me.aecsocket.calibre.CalibrePlugin)">setPlugin</a></span>&#8203;(<a href="../../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin)</code></th>
-<td class="colLast">
-<div class="block">Sets the <a href="../../CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a> instance.</div>
-</td>
-</tr>
-<tr id="i20" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPriority(int)">setPriority</a></span>&#8203;(int&nbsp;priority)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i21" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRequired(boolean)">setRequired</a></span>&#8203;(boolean&nbsp;required)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i22" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTags(java.util.List)">setTags</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;tags)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -339,6 +249,25 @@ implements me.aecsocket.unifiedframework.component.ComponentSlot, <a href="../..
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(me.aecsocket.calibre.item.component.CalibreComponent,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>CalibreComponentSlot</h4>
+<pre>public&nbsp;CalibreComponentSlot&#8203;(<a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;component,
+                            boolean&nbsp;required)</pre>
+</li>
+</ul>
+<a id="&lt;init&gt;(me.aecsocket.calibre.item.component.CalibreComponent)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>CalibreComponentSlot</h4>
+<pre>public&nbsp;CalibreComponentSlot&#8203;(<a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;component)</pre>
+</li>
+</ul>
 <a id="&lt;init&gt;()">
 <!--   -->
 </a>
@@ -358,82 +287,6 @@ implements me.aecsocket.unifiedframework.component.ComponentSlot, <a href="../..
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getPlugin()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getPlugin</h4>
-<pre class="methodSignature">public&nbsp;<a href="../../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;getPlugin()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../util/AcceptsCalibrePlugin.html#getPlugin()">AcceptsCalibrePlugin</a></code></span></div>
-<div class="block">Gets the <a href="../../CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a> instance.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../util/AcceptsCalibrePlugin.html#getPlugin()">getPlugin</a></code>&nbsp;in interface&nbsp;<code><a href="../../util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></code></dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The plugin.</dd>
-</dl>
-</li>
-</ul>
-<a id="setPlugin(me.aecsocket.calibre.CalibrePlugin)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setPlugin</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setPlugin&#8203;(<a href="../../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../util/AcceptsCalibrePlugin.html#setPlugin(me.aecsocket.calibre.CalibrePlugin)">AcceptsCalibrePlugin</a></code></span></div>
-<div class="block">Sets the <a href="../../CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a> instance.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../util/AcceptsCalibrePlugin.html#setPlugin(me.aecsocket.calibre.CalibrePlugin)">setPlugin</a></code>&nbsp;in interface&nbsp;<code><a href="../../util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>plugin</code> - The plugin.</dd>
-</dl>
-</li>
-</ul>
-<a id="get()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>get</h4>
-<pre class="methodSignature">public&nbsp;<a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;get()</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code>get</code>&nbsp;in interface&nbsp;<code>me.aecsocket.unifiedframework.component.ComponentSlot</code></dd>
-</dl>
-</li>
-</ul>
-<a id="set(me.aecsocket.unifiedframework.component.Component)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>set</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;set&#8203;(me.aecsocket.unifiedframework.component.Component&nbsp;component)
-         throws me.aecsocket.unifiedframework.component.IncompatibleComponentException</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code>set</code>&nbsp;in interface&nbsp;<code>me.aecsocket.unifiedframework.component.ComponentSlot</code></dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code>me.aecsocket.unifiedframework.component.IncompatibleComponentException</code></dd>
-</dl>
-</li>
-</ul>
-<a id="isCompatible(me.aecsocket.unifiedframework.component.Component)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>isCompatible</h4>
-<pre class="methodSignature">public&nbsp;boolean&nbsp;isCompatible&#8203;(me.aecsocket.unifiedframework.component.Component&nbsp;raw)</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code>isCompatible</code>&nbsp;in interface&nbsp;<code>me.aecsocket.unifiedframework.component.ComponentSlot</code></dd>
-</dl>
-</li>
-</ul>
 <a id="isRequired()">
 <!--   -->
 </a>
@@ -443,7 +296,7 @@ implements me.aecsocket.unifiedframework.component.ComponentSlot, <a href="../..
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isRequired()</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code>isRequired</code>&nbsp;in interface&nbsp;<code>me.aecsocket.unifiedframework.component.ComponentSlot</code></dd>
+<dd><code>isRequired</code>&nbsp;in interface&nbsp;<code>me.aecsocket.unifiedframework.component.ComponentSlot&lt;<a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
@@ -456,177 +309,46 @@ implements me.aecsocket.unifiedframework.component.ComponentSlot, <a href="../..
 <pre class="methodSignature">public&nbsp;void&nbsp;setRequired&#8203;(boolean&nbsp;required)</pre>
 </li>
 </ul>
-<a id="getCompatibleCategories()">
+<a id="get()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getCompatibleCategories</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;getCompatibleCategories()</pre>
-<div class="block">Gets all of the compatible categories of component that this slot accepts.
- <p>
- To pass compatibility, a component must have at least one of the categories defined here (or it is
- passed automatically if the list is empty).</div>
+<h4>get</h4>
+<pre class="methodSignature">public&nbsp;<a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;get()</pre>
 <dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The compatible categories.</dd>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code>get</code>&nbsp;in interface&nbsp;<code>me.aecsocket.unifiedframework.component.ComponentSlot&lt;<a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
-<a id="setCompatibleCategories(java.util.List)">
+<a id="set(me.aecsocket.calibre.item.component.CalibreComponent)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setCompatibleCategories</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setCompatibleCategories&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;compatibleCategories)</pre>
-</li>
-</ul>
-<a id="getCompatibleIds()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getCompatibleIds</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;getCompatibleIds()</pre>
-<div class="block">Gets all of the compatible IDs of component that this slot accepts.
- <p>
- To pass compatibility, a component must match at least one of the IDs defined here (or it is
- passed automatically if the list is empty).</div>
+<h4>set</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;set&#8203;(<a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;component)
+         throws me.aecsocket.unifiedframework.component.IncompatibleComponentException</pre>
 <dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The compatible IDs.</dd>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code>set</code>&nbsp;in interface&nbsp;<code>me.aecsocket.unifiedframework.component.ComponentSlot&lt;<a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&gt;</code></dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>me.aecsocket.unifiedframework.component.IncompatibleComponentException</code></dd>
 </dl>
 </li>
 </ul>
-<a id="setCompatibleIds(java.util.List)">
+<a id="isCompatible(me.aecsocket.calibre.item.component.CalibreComponent)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setCompatibleIds</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setCompatibleIds&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;compatibleIds)</pre>
-</li>
-</ul>
-<a id="getTags()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getTags</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;getTags()</pre>
-</li>
-</ul>
-<a id="setTags(java.util.List)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setTags</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setTags&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;tags)</pre>
-</li>
-</ul>
-<a id="getOffset()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getOffset</h4>
-<pre class="methodSignature">public&nbsp;me.aecsocket.unifiedframework.gui.GUIVector&nbsp;getOffset()</pre>
-<div class="block">Gets the offset that this is displayed at in a <a href="../../defaults/gui/SlotViewGUI.html" title="class in me.aecsocket.calibre.defaults.gui"><code>SlotViewGUI</code></a>.</div>
+<h4>isCompatible</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isCompatible&#8203;(@Nullable
+                            @Nullable <a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;component)</pre>
 <dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The offset.</dd>
-</dl>
-</li>
-</ul>
-<a id="setOffset(me.aecsocket.unifiedframework.gui.GUIVector)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setOffset</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setOffset&#8203;(me.aecsocket.unifiedframework.gui.GUIVector&nbsp;offset)</pre>
-</li>
-</ul>
-<a id="canFieldModify()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>canFieldModify</h4>
-<pre class="methodSignature">public&nbsp;boolean&nbsp;canFieldModify()</pre>
-<div class="block">Gets if this slot can be field modified in a slot view GUI.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The result.</dd>
-</dl>
-</li>
-</ul>
-<a id="setCanFieldModify(boolean)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setCanFieldModify</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setCanFieldModify&#8203;(boolean&nbsp;canFieldModify)</pre>
-</li>
-</ul>
-<a id="getPriority()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getPriority</h4>
-<pre class="methodSignature">public&nbsp;int&nbsp;getPriority()</pre>
-</li>
-</ul>
-<a id="setPriority(int)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setPriority</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setPriority&#8203;(int&nbsp;priority)</pre>
-</li>
-</ul>
-<a id="createIcon(org.bukkit.entity.Player,java.lang.String,me.aecsocket.calibre.item.component.CalibreComponent)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>createIcon</h4>
-<pre class="methodSignature">public&nbsp;org.bukkit.inventory.ItemStack&nbsp;createIcon&#8203;(org.bukkit.entity.Player&nbsp;player,
-                                                 <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;name,
-                                                 @Nullable
-                                                 @Nullable <a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;pickedComponent)</pre>
-<div class="block">Creates an icon used in a <a href="../../defaults/gui/SlotViewGUI.html" title="class in me.aecsocket.calibre.defaults.gui"><code>SlotViewGUI</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The player to create the icon for.</dd>
-<dd><code>name</code> - The slot name.</dd>
-<dd><code>pickedComponent</code> - The component to check for compatibility, and to change the icon accordingly.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The icon.</dd>
-</dl>
-</li>
-</ul>
-<a id="getLongInfo(me.aecsocket.calibre.CalibrePlugin,org.bukkit.command.CommandSender)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getLongInfo</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getLongInfo&#8203;(<a href="../../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin,
-                          org.bukkit.command.CommandSender&nbsp;sender)</pre>
-<div class="block">Gets lines of info used by other objects in <code>/calibre info</code>. The string is split
- by <code>\n</code> to create the line separations. Can be null.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>plugin</code> - The CalibrePlugin used for text generation.</dd>
-<dd><code>sender</code> - The command's sender.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The info.</dd>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code>isCompatible</code>&nbsp;in interface&nbsp;<code>me.aecsocket.unifiedframework.component.ComponentSlot&lt;<a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
@@ -650,10 +372,6 @@ implements me.aecsocket.unifiedframework.component.ComponentSlot, <a href="../..
 <li class="blockList">
 <h4>copy</h4>
 <pre class="methodSignature">public&nbsp;<a href="CalibreComponentSlot.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentSlot</a>&nbsp;copy()</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code>copy</code>&nbsp;in interface&nbsp;<code>me.aecsocket.unifiedframework.component.ComponentSlot</code></dd>
-</dl>
 </li>
 </ul>
 </li>

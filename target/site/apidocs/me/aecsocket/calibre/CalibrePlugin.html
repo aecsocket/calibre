@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -90,13 +90,13 @@ loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -149,17 +149,38 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre>public class <span class="typeNameLabel">CalibrePlugin</span>
 extends org.bukkit.plugin.java.JavaPlugin
 implements me.aecsocket.unifiedframework.loop.Tickable</pre>
-<div class="block">The main plugin class. Other plugins can hook into this by:
- <ul>
-     <li>Adding this plugin as a <code>loadbefore</code> in the <code>plugin.yml</code></li>
-     <li>Extending <a href="CalibreHook.html" title="interface in me.aecsocket.calibre"><code>CalibreHook</code></a></li>
- </ul></div>
+<div class="block">The main plugin class.</div>
 </li>
 </ul>
 </div>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_RESOURCES">DEFAULT_RESOURCES</a></span></code></th>
+<td class="colLast">
+<div class="block">A list of all resources in this JAR that will be automatically placed in if no data folder is found.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <section role="region">
 <ul class="blockList">
@@ -196,79 +217,61 @@ implements me.aecsocket.unifiedframework.loop.Tickable</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>me.aecsocket.unifiedframework.resource.DataResult&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#cleanLoad()">cleanLoad</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Checks if the <code>Plugin.getDataFolder()</code> exists, and runs:
- 
-     <a href="#loadSettings()"><code>loadSettings()</code></a>
-     <a href="#loadLocales()"><code>loadLocales()</code></a>
-     <a href="#loadRegistry()"><code>loadRegistry()</code></a>
- </div>
-</td>
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDefaults()">createDefaults</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#elog(me.aecsocket.unifiedframework.util.log.LogLevel,java.lang.Throwable,java.lang.String,java.lang.Object...)">elog</a></span>&#8203;(me.aecsocket.unifiedframework.util.log.LogLevel&nbsp;level,
-    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Throwable</a>&nbsp;throwable,
+    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Throwable</a>&nbsp;e,
     <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;text,
     <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>...&nbsp;args)</code></th>
-<td class="colLast">
-<div class="block">Logs a Throwable to the plugin's <code>LabelledLogger</code>, and its stack trace if the proper setting is set.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromItem(org.bukkit.inventory.ItemStack)">fromItem</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;item)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>&lt;E extends <a href="util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a>&gt;<br>E</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromRegistry(java.lang.String,java.lang.Class)">fromRegistry</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;id,
+            <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;E&gt;&nbsp;type)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#gen(java.lang.String,java.lang.Object...)">gen</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key,
    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>...&nbsp;args)</code></th>
-<td class="colLast">
-<div class="block">Generates some localized text using the default locale.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#gen(java.lang.String,java.lang.String,java.lang.Object...)">gen</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;locale,
    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key,
    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>...&nbsp;args)</code></th>
-<td class="colLast">
-<div class="block">Generates some localized text.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#gen(org.bukkit.command.CommandSender,java.lang.String,java.lang.Object...)">gen</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender,
    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key,
    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>...&nbsp;args)</code></th>
-<td class="colLast">
-<div class="block">Generates some localized text for a <code>CommandSender</code>.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#gen(org.bukkit.entity.Player,java.lang.String,java.lang.Object...)">gen</a></span>&#8203;(org.bukkit.entity.Player&nbsp;player,
-   <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key,
-   <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>...&nbsp;args)</code></th>
-<td class="colLast">
-<div class="block">Generates some localized text for a <code>Player</code>'s locale.</div>
-</td>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="handle/CalibreCommand.html" title="class in me.aecsocket.calibre.handle">CalibreCommand</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCommand()">getCommand</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>co.aikar.commands.PaperCommandManager</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCommandManager()">getCommandManager</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i7" class="rowColor">
-<td class="colFirst"><code><a href="item/component/CalibreComponentAdapter.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentAdapter</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getComponentAdapter()">getComponentAdapter</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i8" class="altColor">
-<td class="colFirst"><code>me.aecsocket.unifiedframework.util.json.DefaultedRuntimeTypeAdapterFactory&lt;<a href="item/component/descriptor/ComponentDescriptor.html" title="class in me.aecsocket.calibre.item.component.descriptor">ComponentDescriptor</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getComponentDescriptorAdapter()">getComponentDescriptorAdapter</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
 <tr id="i9" class="rowColor">
-<td class="colFirst"><code><a href="defaults/CalibreDefaultHook.html" title="class in me.aecsocket.calibre.defaults">CalibreDefaultHook</a></code></td>
+<td class="colFirst"><code><a href="defaults/DefaultCalibreHook.html" title="class in me.aecsocket.calibre.defaults">DefaultCalibreHook</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDefaultHook()">getDefaultHook</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -278,173 +281,223 @@ implements me.aecsocket.unifiedframework.loop.Tickable</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i11" class="rowColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Set.html?is-external=true" title="class or interface in java.util" class="externalLink">Set</a>&lt;<a href="CalibreHook.html" title="interface in me.aecsocket.calibre">CalibreHook</a>&gt;</code></td>
+<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="CalibreHook.html" title="interface in me.aecsocket.calibre">CalibreHook</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getHooks()">getHooks</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i12" class="altColor">
-<td class="colFirst"><code><a href="item/CalibreItem.html" title="interface in me.aecsocket.calibre.item">CalibreItem</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getItem(org.bukkit.inventory.ItemStack)">getItem</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack)</code></th>
-<td class="colLast">
-<div class="block">Gets the <a href="item/CalibreItem.html" title="interface in me.aecsocket.calibre.item"><code>CalibreItem</code></a> representation of an <code>ItemStack</code>.</div>
-</td>
-</tr>
-<tr id="i13" class="rowColor">
-<td class="colFirst"><code>&lt;T extends <a href="item/CalibreItem.html" title="interface in me.aecsocket.calibre.item">CalibreItem</a>&gt;<br>T</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getItem(org.bukkit.inventory.ItemStack,java.lang.Class)">getItem</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
-       <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;T&gt;&nbsp;type)</code></th>
-<td class="colLast">
-<div class="block">Gets the <a href="CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a> representation of an <code>ItemStack</code>.</div>
-</td>
-</tr>
-<tr id="i14" class="altColor">
 <td class="colFirst"><code>me.aecsocket.unifiedframework.item.ItemManager</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getItemManager()">getItemManager</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i15" class="rowColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;org.bukkit.NamespacedKey&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getKeys()">getKeys</a></span>()</code></th>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>me.aecsocket.unifiedframework.util.log.LabelledLogger</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLabelledLogger()">getLabelledLogger</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>me.aecsocket.unifiedframework.locale.LocaleManager</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLocaleManager()">getLocaleManager</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code><a href="util/CalibrePlayer.html" title="class in me.aecsocket.calibre.util">CalibrePlayer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPlayerData(org.bukkit.entity.Player)">getPlayerData</a></span>&#8203;(org.bukkit.entity.Player&nbsp;player)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;org.bukkit.entity.Player,&#8203;<a href="util/CalibrePlayer.html" title="class in me.aecsocket.calibre.util">CalibrePlayer</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPlayers()">getPlayers</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i19" class="rowColor">
-<td class="colFirst"><code>me.aecsocket.unifiedframework.util.log.LabelledLogger</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPluginLogger()">getPluginLogger</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i20" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>me.aecsocket.unifiedframework.loop.PreciseLoop</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPreciseLoop()">getPreciseLoop</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>com.comphenix.protocol.ProtocolManager</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getProtocolManager()">getProtocolManager</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i22" class="altColor">
-<td class="colFirst"><code>me.aecsocket.unifiedframework.registry.Registry</code></td>
+<tr id="i19" class="rowColor">
+<td class="colFirst"><code><a href="util/CalibreRegistry.html" title="class in me.aecsocket.calibre.util">CalibreRegistry</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRegistry()">getRegistry</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>me.aecsocket.unifiedframework.loop.SchedulerLoop</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSchedulerLoop()">getSchedulerLoop</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>me.aecsocket.unifiedframework.resource.Settings</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSettings()">getSettings</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>me.aecsocket.unifiedframework.stat.StatMapAdapter</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getStatMapAdapter()">getStatMapAdapter</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i23" class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrace(java.lang.Throwable)">getTrace</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Throwable</a>&nbsp;e)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>org.bukkit.NamespacedKey</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#key(java.lang.String)">key</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i25" class="rowColor">
+<td class="colFirst"><code><a href="util/LogMessageResult.html" title="class in me.aecsocket.calibre.util">LogMessageResult</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#load()">load</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Gets a <code>NamespacedKey</code> registered to this plugin, or create one if it does not exist.</div>
+<div class="block">Loads all data to load.</div>
+</td>
+</tr>
+<tr id="i26" class="altColor">
+<td class="colFirst"><code><a href="util/LogMessageResult.html" title="class in me.aecsocket.calibre.util">LogMessageResult</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadLocales()">loadLocales</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Loads the locales.</div>
 </td>
 </tr>
 <tr id="i27" class="rowColor">
-<td class="colFirst"><code>me.aecsocket.unifiedframework.resource.DataResult&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#load()">load</a></span>()</code></th>
+<td class="colFirst"><code><a href="util/LogMessageResult.html" title="class in me.aecsocket.calibre.util">LogMessageResult</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadRegistry()">loadRegistry</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Clears the registry and locale manager, initializes hooks, then calls <a href="#cleanLoad()"><code>cleanLoad()</code></a>.</div>
+<div class="block">Loads the registry.</div>
 </td>
 </tr>
 <tr id="i28" class="altColor">
-<td class="colFirst"><code>me.aecsocket.unifiedframework.resource.DataResult&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadLocales()">loadLocales</a></span>()</code></th>
+<td class="colFirst"><code><a href="util/LogMessageResult.html" title="class in me.aecsocket.calibre.util">LogMessageResult</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadSettings()">loadSettings</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Reloads languages and locales using <code>LocaleManager.loadFrom(Gson, Plugin)</code>.</div>
+<div class="block">Loads the settings, and initializes values based on them.</div>
 </td>
 </tr>
 <tr id="i29" class="rowColor">
-<td class="colFirst"><code>me.aecsocket.unifiedframework.resource.DataResult&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadRegistry()">loadRegistry</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Reloads all the items in the plugin's <code>Registry</code> using <code>Registry.loadFrom(Gson, Plugin)</code>.</div>
-</td>
+<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#locale(org.bukkit.command.CommandSender)">locale</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i30" class="altColor">
-<td class="colFirst"><code>me.aecsocket.unifiedframework.resource.DataResult&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadSettings()">loadSettings</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Reloads settings from the settings file and applies some initial settings.</div>
-</td>
-</tr>
-<tr id="i31" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#log(me.aecsocket.unifiedframework.util.log.LogLevel,java.lang.String,java.lang.Object...)">log</a></span>&#8203;(me.aecsocket.unifiedframework.util.log.LogLevel&nbsp;level,
    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;text,
    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>...&nbsp;args)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i31" class="rowColor">
+<td class="colFirst"><code><a href="util/LogMessageResult.html" title="class in me.aecsocket.calibre.util">LogMessageResult</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#logLoad()">logLoad</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Logs something to the plugin's <code>LabelledLogger</code>.</div>
+<div class="block">Loads all data to load, and logs messages to the console.</div>
 </td>
 </tr>
 <tr id="i32" class="altColor">
+<td class="colFirst"><code><a href="util/LogMessageResult.html" title="class in me.aecsocket.calibre.util">LogMessageResult</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#logReload()">logReload</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Unloads then loads all data to load, and logs messages to the console.</div>
+</td>
+</tr>
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDisable()">onDisable</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onEnable()">onEnable</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i34" class="altColor">
-<td class="colFirst"><code><a href="util/CalibrePlayer.html" title="class in me.aecsocket.calibre.util">CalibrePlayer</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removePlayerData(org.bukkit.entity.Player)">removePlayerData</a></span>&#8203;(org.bukkit.entity.Player&nbsp;player)</code></th>
+<tr id="i35" class="rowColor">
+<td class="colFirst"><code>com.google.gson.Gson</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#prettyPrinter()">prettyPrinter</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i35" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendPacket(org.bukkit.entity.Player,com.comphenix.protocol.events.PacketContainer)">sendPacket</a></span>&#8203;(org.bukkit.entity.Player&nbsp;player,
-          com.comphenix.protocol.events.PacketContainer&nbsp;packet)</code></th>
+<tr id="i36" class="altColor">
+<td class="colFirst"><code><a href="util/LogMessageResult.html" title="class in me.aecsocket.calibre.util">LogMessageResult</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reload()">reload</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Send a packet with error handling.</div>
+<div class="block">Unloads then loads all data to load.</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i37" class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html?is-external=true" title="class or interface in java.util" class="externalLink">Optional</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#rgen(java.lang.String,java.lang.Object...)">rgen</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key,
+    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>...&nbsp;args)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i38" class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html?is-external=true" title="class or interface in java.util" class="externalLink">Optional</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#rgen(java.lang.String,java.lang.String,java.lang.Object...)">rgen</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;locale,
+    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key,
+    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>...&nbsp;args)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i39" class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html?is-external=true" title="class or interface in java.util" class="externalLink">Optional</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#rgen(org.bukkit.command.CommandSender,java.lang.String,java.lang.Object...)">rgen</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender,
+    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key,
+    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>...&nbsp;args)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i40" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendPacket(org.bukkit.entity.Player,com.comphenix.protocol.events.PacketContainer)">sendPacket</a></span>&#8203;(org.bukkit.entity.Player&nbsp;player,
+          com.comphenix.protocol.events.PacketContainer&nbsp;packer)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i41" class="rowColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html?is-external=true" title="class or interface in java.util" class="externalLink">Optional</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setting(java.lang.String,java.lang.Class)">setting</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;path,
+       <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;T&gt;&nbsp;type)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i42" class="altColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setting(java.lang.String,java.lang.Class,T)">setting</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;path,
        <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;T&gt;&nbsp;type,
        T&nbsp;defaultValue)</code></th>
-<td class="colLast">
-<div class="block">Gets a setting from the plugin's <code>Settings</code> instance.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i43" class="rowColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html?is-external=true" title="class or interface in java.util" class="externalLink">Optional</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setting(java.lang.String,java.lang.reflect.Type)">setting</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;path,
+       <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect" class="externalLink">Type</a>&nbsp;type)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i44" class="altColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setting(java.lang.String,java.lang.reflect.Type,T)">setting</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;path,
        <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect" class="externalLink">Type</a>&nbsp;type,
        T&nbsp;defaultValue)</code></th>
-<td class="colLast">
-<div class="block">Gets a setting from the plugin's <code>Settings</code> instance.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i45" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tick(me.aecsocket.unifiedframework.loop.TickContext)">tick</a></span>&#8203;(me.aecsocket.unifiedframework.loop.TickContext&nbsp;tickContext)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i46" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#unload()">unload</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Unloads all loaded data.</div>
+</td>
+</tr>
+<tr id="i47" class="rowColor">
+<td class="colFirst"><code><a href="item/util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#userOf(org.bukkit.entity.Entity)">userOf</a></span>&#8203;(org.bukkit.entity.Entity&nbsp;entity)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i48" class="altColor">
+<td class="colFirst"><code><a href="item/util/user/PlayerItemUser.html" title="class in me.aecsocket.calibre.item.util.user">PlayerItemUser</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#userOf(org.bukkit.entity.Player)">userOf</a></span>&#8203;(org.bukkit.entity.Player&nbsp;player)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -485,6 +538,26 @@ implements me.aecsocket.unifiedframework.loop.Tickable</pre>
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="DEFAULT_RESOURCES">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DEFAULT_RESOURCES</h4>
+<pre>public static final&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt; DEFAULT_RESOURCES</pre>
+<div class="block">A list of all resources in this JAR that will be automatically placed in if no data folder is found.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <section role="region">
 <ul class="blockList">
@@ -541,13 +614,40 @@ implements me.aecsocket.unifiedframework.loop.Tickable</pre>
 </dl>
 </li>
 </ul>
-<a id="getPluginLogger()">
+<a id="getHooks()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getPluginLogger</h4>
-<pre class="methodSignature">public&nbsp;me.aecsocket.unifiedframework.util.log.LabelledLogger&nbsp;getPluginLogger()</pre>
+<h4>getHooks</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="CalibreHook.html" title="interface in me.aecsocket.calibre">CalibreHook</a>&gt;&nbsp;getHooks()</pre>
+</li>
+</ul>
+<a id="getLabelledLogger()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getLabelledLogger</h4>
+<pre class="methodSignature">public&nbsp;me.aecsocket.unifiedframework.util.log.LabelledLogger&nbsp;getLabelledLogger()</pre>
+</li>
+</ul>
+<a id="getSettings()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSettings</h4>
+<pre class="methodSignature">public&nbsp;me.aecsocket.unifiedframework.resource.Settings&nbsp;getSettings()</pre>
+</li>
+</ul>
+<a id="getRegistry()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getRegistry</h4>
+<pre class="methodSignature">public&nbsp;<a href="util/CalibreRegistry.html" title="class in me.aecsocket.calibre.util">CalibreRegistry</a>&nbsp;getRegistry()</pre>
 </li>
 </ul>
 <a id="getLocaleManager()">
@@ -557,42 +657,6 @@ implements me.aecsocket.unifiedframework.loop.Tickable</pre>
 <li class="blockList">
 <h4>getLocaleManager</h4>
 <pre class="methodSignature">public&nbsp;me.aecsocket.unifiedframework.locale.LocaleManager&nbsp;getLocaleManager()</pre>
-</li>
-</ul>
-<a id="getRegistry()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getRegistry</h4>
-<pre class="methodSignature">public&nbsp;me.aecsocket.unifiedframework.registry.Registry&nbsp;getRegistry()</pre>
-</li>
-</ul>
-<a id="getHooks()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getHooks</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Set.html?is-external=true" title="class or interface in java.util" class="externalLink">Set</a>&lt;<a href="CalibreHook.html" title="interface in me.aecsocket.calibre">CalibreHook</a>&gt;&nbsp;getHooks()</pre>
-</li>
-</ul>
-<a id="getDefaultHook()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getDefaultHook</h4>
-<pre class="methodSignature">public&nbsp;<a href="defaults/CalibreDefaultHook.html" title="class in me.aecsocket.calibre.defaults">CalibreDefaultHook</a>&nbsp;getDefaultHook()</pre>
-</li>
-</ul>
-<a id="getPlayers()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getPlayers</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;org.bukkit.entity.Player,&#8203;<a href="util/CalibrePlayer.html" title="class in me.aecsocket.calibre.util">CalibrePlayer</a>&gt;&nbsp;getPlayers()</pre>
 </li>
 </ul>
 <a id="getSchedulerLoop()">
@@ -613,31 +677,13 @@ implements me.aecsocket.unifiedframework.loop.Tickable</pre>
 <pre class="methodSignature">public&nbsp;me.aecsocket.unifiedframework.loop.PreciseLoop&nbsp;getPreciseLoop()</pre>
 </li>
 </ul>
-<a id="getItemManager()">
+<a id="getDefaultHook()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getItemManager</h4>
-<pre class="methodSignature">public&nbsp;me.aecsocket.unifiedframework.item.ItemManager&nbsp;getItemManager()</pre>
-</li>
-</ul>
-<a id="getKeys()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getKeys</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;org.bukkit.NamespacedKey&gt;&nbsp;getKeys()</pre>
-</li>
-</ul>
-<a id="getComponentDescriptorAdapter()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getComponentDescriptorAdapter</h4>
-<pre class="methodSignature">public&nbsp;me.aecsocket.unifiedframework.util.json.DefaultedRuntimeTypeAdapterFactory&lt;<a href="item/component/descriptor/ComponentDescriptor.html" title="class in me.aecsocket.calibre.item.component.descriptor">ComponentDescriptor</a>&gt;&nbsp;getComponentDescriptorAdapter()</pre>
+<h4>getDefaultHook</h4>
+<pre class="methodSignature">public&nbsp;<a href="defaults/DefaultCalibreHook.html" title="class in me.aecsocket.calibre.defaults">DefaultCalibreHook</a>&nbsp;getDefaultHook()</pre>
 </li>
 </ul>
 <a id="getStatMapAdapter()">
@@ -649,40 +695,22 @@ implements me.aecsocket.unifiedframework.loop.Tickable</pre>
 <pre class="methodSignature">public&nbsp;me.aecsocket.unifiedframework.stat.StatMapAdapter&nbsp;getStatMapAdapter()</pre>
 </li>
 </ul>
-<a id="getComponentAdapter()">
+<a id="getItemManager()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getComponentAdapter</h4>
-<pre class="methodSignature">public&nbsp;<a href="item/component/CalibreComponentAdapter.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentAdapter</a>&nbsp;getComponentAdapter()</pre>
+<h4>getItemManager</h4>
+<pre class="methodSignature">public&nbsp;me.aecsocket.unifiedframework.item.ItemManager&nbsp;getItemManager()</pre>
 </li>
 </ul>
-<a id="getSettings()">
+<a id="getPlayers()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getSettings</h4>
-<pre class="methodSignature">public&nbsp;me.aecsocket.unifiedframework.resource.Settings&nbsp;getSettings()</pre>
-</li>
-</ul>
-<a id="getCommandManager()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getCommandManager</h4>
-<pre class="methodSignature">public&nbsp;co.aikar.commands.PaperCommandManager&nbsp;getCommandManager()</pre>
-</li>
-</ul>
-<a id="getProtocolManager()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getProtocolManager</h4>
-<pre class="methodSignature">public&nbsp;com.comphenix.protocol.ProtocolManager&nbsp;getProtocolManager()</pre>
+<h4>getPlayers</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;org.bukkit.entity.Player,&#8203;<a href="util/CalibrePlayer.html" title="class in me.aecsocket.calibre.util">CalibrePlayer</a>&gt;&nbsp;getPlayers()</pre>
 </li>
 </ul>
 <a id="getGson()">
@@ -694,22 +722,106 @@ implements me.aecsocket.unifiedframework.loop.Tickable</pre>
 <pre class="methodSignature">public&nbsp;com.google.gson.Gson&nbsp;getGson()</pre>
 </li>
 </ul>
-<a id="getPlayerData(org.bukkit.entity.Player)">
+<a id="getProtocolManager()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getPlayerData</h4>
-<pre class="methodSignature">public&nbsp;<a href="util/CalibrePlayer.html" title="class in me.aecsocket.calibre.util">CalibrePlayer</a>&nbsp;getPlayerData&#8203;(org.bukkit.entity.Player&nbsp;player)</pre>
+<h4>getProtocolManager</h4>
+<pre class="methodSignature">public&nbsp;com.comphenix.protocol.ProtocolManager&nbsp;getProtocolManager()</pre>
 </li>
 </ul>
-<a id="removePlayerData(org.bukkit.entity.Player)">
+<a id="getCommandManager()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>removePlayerData</h4>
-<pre class="methodSignature">public&nbsp;<a href="util/CalibrePlayer.html" title="class in me.aecsocket.calibre.util">CalibrePlayer</a>&nbsp;removePlayerData&#8203;(org.bukkit.entity.Player&nbsp;player)</pre>
+<h4>getCommandManager</h4>
+<pre class="methodSignature">public&nbsp;co.aikar.commands.PaperCommandManager&nbsp;getCommandManager()</pre>
+</li>
+</ul>
+<a id="getCommand()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getCommand</h4>
+<pre class="methodSignature">public&nbsp;<a href="handle/CalibreCommand.html" title="class in me.aecsocket.calibre.handle">CalibreCommand</a>&nbsp;getCommand()</pre>
+</li>
+</ul>
+<a id="unload()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>unload</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;unload()</pre>
+<div class="block">Unloads all loaded data.</div>
+</li>
+</ul>
+<a id="createDefaults()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createDefaults</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;createDefaults()</pre>
+</li>
+</ul>
+<a id="load()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>load</h4>
+<pre class="methodSignature">public&nbsp;<a href="util/LogMessageResult.html" title="class in me.aecsocket.calibre.util">LogMessageResult</a>&nbsp;load()</pre>
+<div class="block">Loads all data to load.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The messages produced.</dd>
+</dl>
+</li>
+</ul>
+<a id="logLoad()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>logLoad</h4>
+<pre class="methodSignature">public&nbsp;<a href="util/LogMessageResult.html" title="class in me.aecsocket.calibre.util">LogMessageResult</a>&nbsp;logLoad()</pre>
+<div class="block">Loads all data to load, and logs messages to the console.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The messages produced.</dd>
+</dl>
+</li>
+</ul>
+<a id="reload()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>reload</h4>
+<pre class="methodSignature">public&nbsp;<a href="util/LogMessageResult.html" title="class in me.aecsocket.calibre.util">LogMessageResult</a>&nbsp;reload()</pre>
+<div class="block">Unloads then loads all data to load.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The messages produced.</dd>
+</dl>
+</li>
+</ul>
+<a id="logReload()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>logReload</h4>
+<pre class="methodSignature">public&nbsp;<a href="util/LogMessageResult.html" title="class in me.aecsocket.calibre.util">LogMessageResult</a>&nbsp;logReload()</pre>
+<div class="block">Unloads then loads all data to load, and logs messages to the console.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The messages produced.</dd>
+</dl>
 </li>
 </ul>
 <a id="loadSettings()">
@@ -718,25 +830,11 @@ implements me.aecsocket.unifiedframework.loop.Tickable</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>loadSettings</h4>
-<pre class="methodSignature">public&nbsp;me.aecsocket.unifiedframework.resource.DataResult&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;loadSettings()</pre>
-<div class="block">Reloads settings from the settings file and applies some initial settings.</div>
+<pre class="methodSignature">public&nbsp;<a href="util/LogMessageResult.html" title="class in me.aecsocket.calibre.util">LogMessageResult</a>&nbsp;loadSettings()</pre>
+<div class="block">Loads the settings, and initializes values based on them.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>A <code>LoadResult</code> of messages during loading.</dd>
-</dl>
-</li>
-</ul>
-<a id="loadLocales()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>loadLocales</h4>
-<pre class="methodSignature">public&nbsp;me.aecsocket.unifiedframework.resource.DataResult&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;loadLocales()</pre>
-<div class="block">Reloads languages and locales using <code>LocaleManager.loadFrom(Gson, Plugin)</code>.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>A <code>LoadResult</code> of messages during loading.</dd>
+<dd>The messages produced.</dd>
 </dl>
 </li>
 </ul>
@@ -746,53 +844,53 @@ implements me.aecsocket.unifiedframework.loop.Tickable</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>loadRegistry</h4>
-<pre class="methodSignature">public&nbsp;me.aecsocket.unifiedframework.resource.DataResult&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;loadRegistry()</pre>
-<div class="block">Reloads all the items in the plugin's <code>Registry</code> using <code>Registry.loadFrom(Gson, Plugin)</code>.
- <p>
- Configured subdirectories:
- <ul>
-     <li><code>component</code>: <a href="item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component"><code>CalibreComponent</code></a></li>
-     <li><code>blueprint</code>: <a href="item/blueprint/Blueprint.html" title="class in me.aecsocket.calibre.item.blueprint"><code>Blueprint</code></a></li>
- </ul></div>
+<pre class="methodSignature">public&nbsp;<a href="util/LogMessageResult.html" title="class in me.aecsocket.calibre.util">LogMessageResult</a>&nbsp;loadRegistry()</pre>
+<div class="block">Loads the registry.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>A <code>LoadResult</code> of messages during loading.</dd>
+<dd>The messages produced.</dd>
 </dl>
 </li>
 </ul>
-<a id="cleanLoad()">
+<a id="loadLocales()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>cleanLoad</h4>
-<pre class="methodSignature">public&nbsp;me.aecsocket.unifiedframework.resource.DataResult&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;cleanLoad()</pre>
-<div class="block">Checks if the <code>Plugin.getDataFolder()</code> exists, and runs:
- <ol>
-     <li><a href="#loadSettings()"><code>loadSettings()</code></a></li>
-     <li><a href="#loadLocales()"><code>loadLocales()</code></a></li>
-     <li><a href="#loadRegistry()"><code>loadRegistry()</code></a></li>
- </ol>
- <p>
- This version does not take into account hooks. Use <a href="#load()"><code>load()</code></a> to incorporate hooks.</div>
+<h4>loadLocales</h4>
+<pre class="methodSignature">public&nbsp;<a href="util/LogMessageResult.html" title="class in me.aecsocket.calibre.util">LogMessageResult</a>&nbsp;loadLocales()</pre>
+<div class="block">Loads the locales.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>A <code>LoadResult</code> of messages during loading.</dd>
+<dd>The messages produced.</dd>
 </dl>
 </li>
 </ul>
-<a id="load()">
+<a id="getPlayerData(org.bukkit.entity.Player)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>load</h4>
-<pre class="methodSignature">public&nbsp;me.aecsocket.unifiedframework.resource.DataResult&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;load()</pre>
-<div class="block">Clears the registry and locale manager, initializes hooks, then calls <a href="#cleanLoad()"><code>cleanLoad()</code></a>.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>A <code>LoadResult</code> of messages during loading.</dd>
-</dl>
+<h4>getPlayerData</h4>
+<pre class="methodSignature">public&nbsp;<a href="util/CalibrePlayer.html" title="class in me.aecsocket.calibre.util">CalibrePlayer</a>&nbsp;getPlayerData&#8203;(org.bukkit.entity.Player&nbsp;player)</pre>
+</li>
+</ul>
+<a id="userOf(org.bukkit.entity.Player)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>userOf</h4>
+<pre class="methodSignature">public&nbsp;<a href="item/util/user/PlayerItemUser.html" title="class in me.aecsocket.calibre.item.util.user">PlayerItemUser</a>&nbsp;userOf&#8203;(org.bukkit.entity.Player&nbsp;player)</pre>
+</li>
+</ul>
+<a id="userOf(org.bukkit.entity.Entity)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>userOf</h4>
+<pre class="methodSignature">public&nbsp;<a href="item/util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;userOf&#8203;(org.bukkit.entity.Entity&nbsp;entity)</pre>
 </li>
 </ul>
 <a id="tick(me.aecsocket.unifiedframework.loop.TickContext)">
@@ -808,6 +906,47 @@ implements me.aecsocket.unifiedframework.loop.Tickable</pre>
 </dl>
 </li>
 </ul>
+<a id="getTrace(java.lang.Throwable)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTrace</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getTrace&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Throwable</a>&nbsp;e)</pre>
+</li>
+</ul>
+<a id="log(me.aecsocket.unifiedframework.util.log.LogLevel,java.lang.String,java.lang.Object...)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>log</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;log&#8203;(me.aecsocket.unifiedframework.util.log.LogLevel&nbsp;level,
+                <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;text,
+                <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>...&nbsp;args)</pre>
+</li>
+</ul>
+<a id="elog(me.aecsocket.unifiedframework.util.log.LogLevel,java.lang.Throwable,java.lang.String,java.lang.Object...)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>elog</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;elog&#8203;(me.aecsocket.unifiedframework.util.log.LogLevel&nbsp;level,
+                 <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Throwable</a>&nbsp;e,
+                 <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;text,
+                 <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>...&nbsp;args)</pre>
+</li>
+</ul>
+<a id="key(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>key</h4>
+<pre class="methodSignature">public&nbsp;org.bukkit.NamespacedKey&nbsp;key&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key)</pre>
+</li>
+</ul>
 <a id="setting(java.lang.String,java.lang.reflect.Type,java.lang.Object)">
 <!--   -->
 </a><a id="setting(java.lang.String,java.lang.reflect.Type,T)">
@@ -819,17 +958,6 @@ implements me.aecsocket.unifiedframework.loop.Tickable</pre>
 <pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;T&nbsp;setting&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;path,
                      <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect" class="externalLink">Type</a>&nbsp;type,
                      T&nbsp;defaultValue)</pre>
-<div class="block">Gets a setting from the plugin's <code>Settings</code> instance.</div>
-<dl>
-<dt><span class="paramLabel">Type Parameters:</span></dt>
-<dd><code>T</code> - The type of result.</dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>path</code> - The path to the setting.</dd>
-<dd><code>type</code> - The type of result.</dd>
-<dd><code>defaultValue</code> - The default value if none were found in the settings file.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The result.</dd>
-</dl>
 </li>
 </ul>
 <a id="setting(java.lang.String,java.lang.Class,java.lang.Object)">
@@ -843,55 +971,35 @@ implements me.aecsocket.unifiedframework.loop.Tickable</pre>
 <pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;T&nbsp;setting&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;path,
                      <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;T&gt;&nbsp;type,
                      T&nbsp;defaultValue)</pre>
-<div class="block">Gets a setting from the plugin's <code>Settings</code> instance.</div>
-<dl>
-<dt><span class="paramLabel">Type Parameters:</span></dt>
-<dd><code>T</code> - The type of result.</dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>path</code> - The path to the setting.</dd>
-<dd><code>type</code> - The type of result.</dd>
-<dd><code>defaultValue</code> - The default value if none were found in the settings file.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The result.</dd>
-</dl>
 </li>
 </ul>
-<a id="log(me.aecsocket.unifiedframework.util.log.LogLevel,java.lang.String,java.lang.Object...)">
+<a id="setting(java.lang.String,java.lang.reflect.Type)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>log</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;log&#8203;(me.aecsocket.unifiedframework.util.log.LogLevel&nbsp;level,
-                <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;text,
-                <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>...&nbsp;args)</pre>
-<div class="block">Logs something to the plugin's <code>LabelledLogger</code>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>level</code> - The <code>LogLevel</code>.</dd>
-<dd><code>text</code> - The text to log.</dd>
-<dd><code>args</code> - The arguments used in <code>TextUtils.format(String, Object...)</code>.</dd>
-</dl>
+<h4>setting</h4>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html?is-external=true" title="class or interface in java.util" class="externalLink">Optional</a>&lt;T&gt;&nbsp;setting&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;path,
+                               <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect" class="externalLink">Type</a>&nbsp;type)</pre>
 </li>
 </ul>
-<a id="elog(me.aecsocket.unifiedframework.util.log.LogLevel,java.lang.Throwable,java.lang.String,java.lang.Object...)">
+<a id="setting(java.lang.String,java.lang.Class)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>elog</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;elog&#8203;(me.aecsocket.unifiedframework.util.log.LogLevel&nbsp;level,
-                 <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Throwable</a>&nbsp;throwable,
-                 <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;text,
-                 <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>...&nbsp;args)</pre>
-<div class="block">Logs a Throwable to the plugin's <code>LabelledLogger</code>, and its stack trace if the proper setting is set.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>level</code> - The <code>LogLevel</code>.</dd>
-<dd><code>throwable</code> - The throwable to get the stack trace of.</dd>
-<dd><code>text</code> - The text to log.</dd>
-<dd><code>args</code> - The arguments used in <code>TextUtils.format(String, Object...)</code>.</dd>
-</dl>
+<h4>setting</h4>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html?is-external=true" title="class or interface in java.util" class="externalLink">Optional</a>&lt;T&gt;&nbsp;setting&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;path,
+                               <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;T&gt;&nbsp;type)</pre>
+</li>
+</ul>
+<a id="locale(org.bukkit.command.CommandSender)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>locale</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;locale&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</pre>
 </li>
 </ul>
 <a id="gen(java.lang.String,java.lang.String,java.lang.Object...)">
@@ -903,15 +1011,6 @@ implements me.aecsocket.unifiedframework.loop.Tickable</pre>
 <pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;gen&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;locale,
                   <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key,
                   <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>...&nbsp;args)</pre>
-<div class="block">Generates some localized text.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>locale</code> - The locale to generate for.</dd>
-<dd><code>key</code> - The key of the string.</dd>
-<dd><code>args</code> - The arguments used in <code>TextUtils.format(String, Object...)</code>.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The localized text.</dd>
-</dl>
 </li>
 </ul>
 <a id="gen(java.lang.String,java.lang.Object...)">
@@ -922,34 +1021,6 @@ implements me.aecsocket.unifiedframework.loop.Tickable</pre>
 <h4>gen</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;gen&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key,
                   <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>...&nbsp;args)</pre>
-<div class="block">Generates some localized text using the default locale.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>key</code> - The key of the string.</dd>
-<dd><code>args</code> - The arguments used in <code>TextUtils.format(String, Object...)</code>.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The localized text.</dd>
-</dl>
-</li>
-</ul>
-<a id="gen(org.bukkit.entity.Player,java.lang.String,java.lang.Object...)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>gen</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;gen&#8203;(org.bukkit.entity.Player&nbsp;player,
-                  <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key,
-                  <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>...&nbsp;args)</pre>
-<div class="block">Generates some localized text for a <code>Player</code>'s locale.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The player to get the locale from.</dd>
-<dd><code>key</code> - The key of the string.</dd>
-<dd><code>args</code> - The arguments used in <code>TextUtils.format(String, Object...)</code>.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The localized text.</dd>
-</dl>
 </li>
 </ul>
 <a id="gen(org.bukkit.command.CommandSender,java.lang.String,java.lang.Object...)">
@@ -961,69 +1032,66 @@ implements me.aecsocket.unifiedframework.loop.Tickable</pre>
 <pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;gen&#8203;(org.bukkit.command.CommandSender&nbsp;sender,
                   <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key,
                   <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>...&nbsp;args)</pre>
-<div class="block">Generates some localized text for a <code>CommandSender</code>.
- <p>
- If this is a <code>Player</code>, <a href="#gen(org.bukkit.entity.Player,java.lang.String,java.lang.Object...)"><code>gen(Player, String, Object...)</code></a> will be run. Otherwise, <a href="#gen(java.lang.String,java.lang.Object...)"><code>gen(String, Object...)</code></a> will be run.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>sender</code> - The sender to generate for.</dd>
-<dd><code>key</code> - The key of the string.</dd>
-<dd><code>args</code> - The arguments used in <code>TextUtils.format(String, Object...)</code>.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The localized text.</dd>
-</dl>
 </li>
 </ul>
-<a id="getItem(org.bukkit.inventory.ItemStack)">
+<a id="rgen(java.lang.String,java.lang.String,java.lang.Object...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getItem</h4>
-<pre class="methodSignature">public&nbsp;<a href="item/CalibreItem.html" title="interface in me.aecsocket.calibre.item">CalibreItem</a>&nbsp;getItem&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack)</pre>
-<div class="block">Gets the <a href="item/CalibreItem.html" title="interface in me.aecsocket.calibre.item"><code>CalibreItem</code></a> representation of an <code>ItemStack</code>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>stack</code> - The ItemStack.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The CalibreItem.</dd>
-</dl>
+<h4>rgen</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html?is-external=true" title="class or interface in java.util" class="externalLink">Optional</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;rgen&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;locale,
+                             <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key,
+                             <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>...&nbsp;args)</pre>
 </li>
 </ul>
-<a id="getItem(org.bukkit.inventory.ItemStack,java.lang.Class)">
+<a id="rgen(java.lang.String,java.lang.Object...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getItem</h4>
-<pre class="methodSignature">public&nbsp;&lt;T extends <a href="item/CalibreItem.html" title="interface in me.aecsocket.calibre.item">CalibreItem</a>&gt;&nbsp;T&nbsp;getItem&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
-                                         <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;T&gt;&nbsp;type)</pre>
-<div class="block">Gets the <a href="CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a> representation of an <code>ItemStack</code>.</div>
-<dl>
-<dt><span class="paramLabel">Type Parameters:</span></dt>
-<dd><code>T</code> - The type to deserialize the item as.</dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>stack</code> - The ItemStack.</dd>
-<dd><code>type</code> - The type to deserialize the item as.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The <a href="CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a>.</dd>
-</dl>
+<h4>rgen</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html?is-external=true" title="class or interface in java.util" class="externalLink">Optional</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;rgen&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key,
+                             <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>...&nbsp;args)</pre>
 </li>
 </ul>
-<a id="key(java.lang.String)">
+<a id="rgen(org.bukkit.command.CommandSender,java.lang.String,java.lang.Object...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>key</h4>
-<pre class="methodSignature">public&nbsp;org.bukkit.NamespacedKey&nbsp;key&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key)</pre>
-<div class="block">Gets a <code>NamespacedKey</code> registered to this plugin, or create one if it does not exist.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>key</code> - The key name.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The key.</dd>
-</dl>
+<h4>rgen</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html?is-external=true" title="class or interface in java.util" class="externalLink">Optional</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;rgen&#8203;(org.bukkit.command.CommandSender&nbsp;sender,
+                             <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key,
+                             <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>...&nbsp;args)</pre>
+</li>
+</ul>
+<a id="fromRegistry(java.lang.String,java.lang.Class)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>fromRegistry</h4>
+<pre class="methodSignature">public&nbsp;&lt;E extends <a href="util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a>&gt;&nbsp;E&nbsp;fromRegistry&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;id,
+                                                      <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;E&gt;&nbsp;type)</pre>
+</li>
+</ul>
+<a id="fromItem(org.bukkit.inventory.ItemStack)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>fromItem</h4>
+<pre class="methodSignature">public&nbsp;<a href="item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;fromItem&#8203;(org.bukkit.inventory.ItemStack&nbsp;item)</pre>
+</li>
+</ul>
+<a id="prettyPrinter()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>prettyPrinter</h4>
+<pre class="methodSignature">public&nbsp;com.google.gson.Gson&nbsp;prettyPrinter()</pre>
 </li>
 </ul>
 <a id="sendPacket(org.bukkit.entity.Player,com.comphenix.protocol.events.PacketContainer)">
@@ -1033,13 +1101,7 @@ implements me.aecsocket.unifiedframework.loop.Tickable</pre>
 <li class="blockList">
 <h4>sendPacket</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;sendPacket&#8203;(org.bukkit.entity.Player&nbsp;player,
-                       com.comphenix.protocol.events.PacketContainer&nbsp;packet)</pre>
-<div class="block">Send a packet with error handling.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The player to send to.</dd>
-<dd><code>packet</code> - The packet to send.</dd>
-</dl>
+                       com.comphenix.protocol.events.PacketContainer&nbsp;packer)</pre>
 </li>
 </ul>
 </li>
@@ -1095,13 +1157,13 @@ implements me.aecsocket.unifiedframework.loop.Tickable</pre>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

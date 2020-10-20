@@ -27,8 +27,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":18,"i1":6,"i2":18,"i3":18,"i4":6,"i5":1,"i6":18,"i7":18,"i8":18,"i9":18,"i10":18,"i11":18,"i12":18,"i13":6,"i14":18,"i15":18,"i16":18,"i17":18,"i18":18,"i19":18,"i20":18,"i21":18,"i22":18};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
+var data = {"i0":6,"i1":18,"i2":18,"i3":6,"i4":6,"i5":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -89,7 +89,7 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -117,39 +117,47 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">me.aecsocket.calibre.item.system</a></div>
-<h2 title="Interface CalibreSystem" class="title">Interface CalibreSystem&lt;D&gt;</h2>
+<h2 title="Interface CalibreSystem" class="title">Interface CalibreSystem</h2>
 </div>
 <div class="contentContainer">
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
 <dl>
-<dt><span class="paramLabel">Type Parameters:</span></dt>
-<dd><code>D</code> - The descriptor type.</dd>
-</dl>
-<dl>
 <dt>All Superinterfaces:</dt>
-<dd><code><a href="../../util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></code>, <code><a href="../CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.item">CalibreIdentifiable</a></code>, <code><a href="../CalibreLocalized.html" title="interface in me.aecsocket.calibre.item">CalibreLocalized</a></code>, <code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a></code>, <code>me.aecsocket.unifiedframework.registry.Identifiable</code></dd>
+<dd><code><a href="../../util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></code>, <code><a href="../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></code>, <code>me.aecsocket.unifiedframework.registry.Identifiable</code></dd>
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="../../defaults/gun/AmmoContainerSystem.html" title="class in me.aecsocket.calibre.defaults.gun">AmmoContainerSystem</a></code>, <code><a href="../../defaults/AttributeSystem.html" title="class in me.aecsocket.calibre.defaults">AttributeSystem</a></code>, <code><a href="../../defaults/gun/BulletSystem.html" title="class in me.aecsocket.calibre.defaults.gun">BulletSystem</a></code>, <code><a href="../../defaults/gun/FireableSystem.html" title="class in me.aecsocket.calibre.defaults.gun">FireableSystem</a></code>, <code><a href="../../defaults/melee/MeleeSystem.html" title="class in me.aecsocket.calibre.defaults.melee">MeleeSystem</a></code>, <code><a href="../../defaults/gun/sight/SightableSystem.html" title="class in me.aecsocket.calibre.defaults.gun.sight">SightableSystem</a></code>, <code><a href="../../defaults/service/system/SimpleActionSystem.html" title="class in me.aecsocket.calibre.defaults.service.system">SimpleActionSystem</a></code>, <code><a href="../../defaults/gun/sight/SimpleSightSystem.html" title="class in me.aecsocket.calibre.defaults.gun.sight">SimpleSightSystem</a></code></dd>
+<dd><code><a href="BaseSystem.html" title="class in me.aecsocket.calibre.item.system">BaseSystem</a></code>, <code><a href="../../defaults/system/ItemSystem.html" title="class in me.aecsocket.calibre.defaults.system">ItemSystem</a></code>, <code><a href="../../defaults/system/melee/MeleeSystem.html" title="class in me.aecsocket.calibre.defaults.system.melee">MeleeSystem</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">CalibreSystem&lt;D&gt;</span>
-extends <a href="../CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.item">CalibreIdentifiable</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a></pre>
-<div class="block">A system that can interact with a <a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component"><code>CalibreComponent</code></a> through:
- <ul>
-     <li>Running code on event calls (right click, hold, etc.)</li>
-     <li>Accepting custom data on deserialization</li>
-     <li>Providing stat definitions</li>
- </ul></div>
+<pre>public interface <span class="typeNameLabel">CalibreSystem</span>
+extends <a href="../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></pre>
+<div class="block">A system which interacts with a <a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component"><code>CalibreComponent</code></a>, such as listening for item events.</div>
 </li>
 </ul>
 </div>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.me.aecsocket.calibre.util.AcceptsCalibrePlugin">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;me.aecsocket.calibre.util.<a href="../../util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></h3>
+<code><a href="../../util/AcceptsCalibrePlugin.Adapter.html" title="class in me.aecsocket.calibre.util">AcceptsCalibrePlugin.Adapter</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
 <!-- =========== FIELD SUMMARY =========== -->
 <section role="region">
 <ul class="blockList">
@@ -158,11 +166,11 @@ extends <a href="../CalibreIdentifiable.html" title="interface in me.aecsocket.c
 </a>
 <h3>Field Summary</h3>
 <ul class="blockList">
-<li class="blockList"><a id="fields.inherited.from.class.me.aecsocket.calibre.item.CalibreIdentifiable">
+<li class="blockList"><a id="fields.inherited.from.class.me.aecsocket.calibre.util.CalibreIdentifiable">
 <!--   -->
 </a>
-<h3>Fields inherited from interface&nbsp;me.aecsocket.calibre.item.<a href="../CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.item">CalibreIdentifiable</a></h3>
-<code><a href="../CalibreIdentifiable.html#ID_CHARACTERS">ID_CHARACTERS</a></code></li>
+<h3>Fields inherited from interface&nbsp;me.aecsocket.calibre.util.<a href="../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></h3>
+<code><a href="../../util/CalibreIdentifiable.html#ID_CHARS">ID_CHARS</a></code></li>
 </ul>
 </li>
 </ul>
@@ -175,177 +183,44 @@ extends <a href="../CalibreIdentifiable.html" title="interface in me.aecsocket.c
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#acceptDescriptor(D)">acceptDescriptor</a></span>&#8203;(<a href="CalibreSystem.html" title="type parameter in CalibreSystem">D</a>&nbsp;descriptor)</code></th>
-<td class="colLast">
-<div class="block">Accepts a descriptor of type <a href="CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system"><code>CalibreSystem</code></a>, describing instance data about this system.</div>
-</td>
+<td class="colFirst"><code><a href="CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copy()">copy</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#acceptParent(me.aecsocket.calibre.item.component.CalibreComponent)">acceptParent</a></span>&#8203;(<a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent)</code></th>
-<td class="colLast">
-<div class="block">Accepts the parent <a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component"><code>CalibreComponent</code></a> that this System is a system of.</div>
-</td>
+<td class="colFirst"><code>default <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;me.aecsocket.unifiedframework.stat.Stat&lt;?&gt;&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDefaultStats()">getDefaultStats</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#acceptTree(me.aecsocket.calibre.item.component.ComponentTree)">acceptTree</a></span>&#8203;(<a href="../component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;tree)</code></th>
+<td class="colFirst"><code>default <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNameKey()">getNameKey</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Accepts the component tree which this system is part of.</div>
+<div class="block">Gets the translation key for the name of this object.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>default &lt;T&gt;&nbsp;T</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#callEvent(T)">callEvent</a></span>&#8203;(T&nbsp;event)</code></th>
-<td class="colLast">
-<div class="block">Calls an event to the tree.</div>
-</td>
-</tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&lt;<a href="CalibreSystem.html" title="type parameter in CalibreSystem">D</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copy()">copy</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Creates an exact copy of this system, but with references in fields copied.</div>
-</td>
-</tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code>static <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&lt;?&gt;&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyMap(java.util.Map)">copyMap</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&lt;?&gt;&gt;&nbsp;original)</code></th>
-<td class="colLast">
-<div class="block">Copies a map of class-systems, copying both the map and the systems.</div>
-</td>
-</tr>
-<tr id="i6" class="altColor">
-<td class="colFirst"><code>default <a href="CalibreSystem.html" title="type parameter in CalibreSystem">D</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDescriptor()">createDescriptor</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Creates a descriptor of type <a href="CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system"><code>CalibreSystem</code></a> from the data of this instance.</div>
-</td>
-</tr>
-<tr id="i7" class="rowColor">
-<td class="colFirst"><code>default <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCalibreType()">getCalibreType</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Gets the practical Calibre type of this item, used in <a href="../CalibreLocalized.html#getLocalizedName(java.lang.String)"><code>CalibreLocalized.getLocalizedName(String)</code></a>.</div>
-</td>
-</tr>
-<tr id="i8" class="altColor">
-<td class="colFirst"><code>default @NotNull <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Collection.html?is-external=true" title="class or interface in java.util" class="externalLink">Collection</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;?&gt;&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getConflicts()">getConflicts</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Gets all systems that must not be present for this to be able to load.</div>
-</td>
-</tr>
-<tr id="i9" class="rowColor">
-<td class="colFirst"><code>default <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;me.aecsocket.unifiedframework.stat.Stat&lt;?&gt;&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDefaultStats()">getDefaultStats</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Gets all stats that this system provides.</div>
-</td>
-</tr>
-<tr id="i10" class="altColor">
-<td class="colFirst"><code>default @NotNull <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Collection.html?is-external=true" title="class or interface in java.util" class="externalLink">Collection</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;?&gt;&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDependencies()">getDependencies</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Gets all systems that must be present for this to be able to load.</div>
-</td>
-</tr>
-<tr id="i11" class="rowColor">
-<td class="colFirst"><code>default com.google.gson.reflect.TypeToken&lt;<a href="CalibreSystem.html" title="type parameter in CalibreSystem">D</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDescriptorType()">getDescriptorType</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Gets the type of this system's descriptor of type <a href="CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system"><code>CalibreSystem</code></a>, or null if this system does not accept descriptors.</div>
-</td>
-</tr>
-<tr id="i12" class="altColor">
-<td class="colFirst"><code>default @Nullable <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLongInfo(org.bukkit.command.CommandSender)">getLongInfo</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</code></th>
-<td class="colLast">
-<div class="block">Gets lines of info used in <code>/calibre info</code>.</div>
-</td>
-</tr>
-<tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getParent()">getParent</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Gets the parent <a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component"><code>CalibreComponent</code></a> that this System is a system of.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i14" class="altColor">
-<td class="colFirst"><code>default @Nullable <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Collection.html?is-external=true" title="class or interface in java.util" class="externalLink">Collection</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;?&gt;&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getServiceTypes()">getServiceTypes</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Gets the types of services that this system provides, or null if it does not provide services.</div>
-</td>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initialize(me.aecsocket.calibre.item.component.CalibreComponent)">initialize</a></span>&#8203;(<a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i15" class="rowColor">
-<td class="colFirst"><code>default &lt;T&gt;&nbsp;T</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSystem(java.lang.Class)">getSystem</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;T&gt;&nbsp;type)</code></th>
-<td class="colLast">
-<div class="block">Gets another system on the parent component by its type.</div>
-</td>
-</tr>
-<tr id="i16" class="altColor">
-<td class="colFirst"><code>default <a href="../component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTree()">getTree</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Gets the <a href="../component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component"><code>ComponentTree</code></a> that this instance's parent is a part of.</div>
-</td>
-</tr>
-<tr id="i17" class="rowColor">
-<td class="colFirst"><code>default boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isCompleteRoot()">isCompleteRoot</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Gets if the parent is <a href="../component/CalibreComponent.html#isCompleteRoot()"><code>CalibreComponent.isCompleteRoot()</code></a>.</div>
-</td>
-</tr>
-<tr id="i18" class="altColor">
-<td class="colFirst"><code>default boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isRoot()">isRoot</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Gets if the parent is <a href="../component/CalibreComponent.html#isRoot()"><code>CalibreComponent.isRoot()</code></a>.</div>
-</td>
-</tr>
-<tr id="i19" class="rowColor">
-<td class="colFirst"><code>default &lt;T&gt;&nbsp;void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#searchSystems(me.aecsocket.calibre.item.system.SystemSearchOptions,java.util.function.Predicate)">searchSystems</a></span>&#8203;(<a href="SystemSearchOptions.html" title="class in me.aecsocket.calibre.item.system">SystemSearchOptions</a>&lt;T&gt;&nbsp;options,
-             <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Predicate.html?is-external=true" title="class or interface in java.util.function" class="externalLink">Predicate</a>&lt;<a href="SystemSearchResult.html" title="class in me.aecsocket.calibre.item.system">SystemSearchResult</a>&lt;T&gt;&gt;&nbsp;consumer)</code></th>
-<td class="colLast">
-<div class="block">Iterates through all slots, components and systems which match the <a href="SystemSearchOptions.html" title="class in me.aecsocket.calibre.item.system"><code>SystemSearchOptions</code></a> and runs the
- consumer on them.</div>
-</td>
-</tr>
-<tr id="i20" class="altColor">
-<td class="colFirst"><code>default &lt;T&gt;&nbsp;T</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stat(java.lang.String)">stat</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key)</code></th>
-<td class="colLast">
-<div class="block">Gets a stat value from the <a href="#getTree()"><code>getTree()</code></a>'s StatMap.</div>
-</td>
-</tr>
-<tr id="i21" class="rowColor">
-<td class="colFirst"><code>default org.bukkit.inventory.ItemStack</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateItem(me.aecsocket.calibre.util.itemuser.ItemUser,org.bukkit.inventory.EquipmentSlot)">updateItem</a></span>&#8203;(<a href="../../util/itemuser/ItemUser.html" title="interface in me.aecsocket.calibre.util.itemuser">ItemUser</a>&nbsp;user,
-          org.bukkit.inventory.EquipmentSlot&nbsp;slot)</code></th>
-<td class="colLast">
-<div class="block">Sets the item in the equipment slot of the specified entity's inventory to this parent's tree's root's <code>Item.createItem(Player, ItemStack)</code>.</div>
-</td>
-</tr>
-<tr id="i22" class="altColor">
-<td class="colFirst"><code>default org.bukkit.inventory.ItemStack</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateItem(me.aecsocket.calibre.util.itemuser.ItemUser,org.bukkit.inventory.EquipmentSlot,me.aecsocket.calibre.item.animation.Animation)">updateItem</a></span>&#8203;(<a href="../../util/itemuser/ItemUser.html" title="interface in me.aecsocket.calibre.util.itemuser">ItemUser</a>&nbsp;user,
-          org.bukkit.inventory.EquipmentSlot&nbsp;slot,
-          <a href="../animation/Animation.html" title="class in me.aecsocket.calibre.item.animation">Animation</a>&nbsp;animationUsed)</code></th>
-<td class="colLast">
-<div class="block">Sets the item in the equipment slot of the specified entity's inventory to this parent's tree's root's <code>Item.createItem(Player, ItemStack)</code>.</div>
-</td>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#treeInitialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">treeInitialize</a></span>&#8203;(<a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent,
+              <a href="../component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;tree)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -356,25 +231,18 @@ extends <a href="../CalibreIdentifiable.html" title="interface in me.aecsocket.c
 <code><a href="../../util/AcceptsCalibrePlugin.html#getPlugin()">getPlugin</a>, <a href="../../util/AcceptsCalibrePlugin.html#setPlugin(me.aecsocket.calibre.CalibrePlugin)">setPlugin</a></code></li>
 </ul>
 <ul class="blockList">
-<li class="blockList"><a id="methods.inherited.from.class.me.aecsocket.calibre.item.CalibreIdentifiable">
+<li class="blockList"><a id="methods.inherited.from.class.me.aecsocket.calibre.util.CalibreIdentifiable">
 <!--   -->
 </a>
-<h3>Methods inherited from interface&nbsp;me.aecsocket.calibre.item.<a href="../CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.item">CalibreIdentifiable</a></h3>
-<code><a href="../CalibreIdentifiable.html#getShortInfo(org.bukkit.command.CommandSender)">getShortInfo</a>, <a href="../CalibreIdentifiable.html#validate()">validate</a></code></li>
-</ul>
-<ul class="blockList">
-<li class="blockList"><a id="methods.inherited.from.class.me.aecsocket.calibre.item.CalibreLocalized">
-<!--   -->
-</a>
-<h3>Methods inherited from interface&nbsp;me.aecsocket.calibre.item.<a href="../CalibreLocalized.html" title="interface in me.aecsocket.calibre.item">CalibreLocalized</a></h3>
-<code><a href="../CalibreLocalized.html#getId()">getId</a>, <a href="../CalibreLocalized.html#getLocalizedName(java.lang.String)">getLocalizedName</a>, <a href="../CalibreLocalized.html#getLocalizedName(org.bukkit.command.CommandSender)">getLocalizedName</a></code></li>
+<h3>Methods inherited from interface&nbsp;me.aecsocket.calibre.util.<a href="../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></h3>
+<code><a href="../../util/CalibreIdentifiable.html#getLocalizedName(java.lang.String)">getLocalizedName</a>, <a href="../../util/CalibreIdentifiable.html#getLocalizedName(org.bukkit.command.CommandSender)">getLocalizedName</a>, <a href="../../util/CalibreIdentifiable.html#getLongInfo(java.lang.String)">getLongInfo</a>, <a href="../../util/CalibreIdentifiable.html#getShortInfo(java.lang.String)">getShortInfo</a>, <a href="../../util/CalibreIdentifiable.html#validate()">validate</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.me.aecsocket.unifiedframework.registry.Identifiable">
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;me.aecsocket.unifiedframework.registry.Identifiable</h3>
-<code>getId, resolve</code></li>
+<code>getDependencies, getId, resolve</code></li>
 </ul>
 </li>
 </ul>
@@ -392,50 +260,6 @@ extends <a href="../CalibreIdentifiable.html" title="interface in me.aecsocket.c
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getDefaultStats()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getDefaultStats</h4>
-<pre class="methodSignature">default&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;me.aecsocket.unifiedframework.stat.Stat&lt;?&gt;&gt;&nbsp;getDefaultStats()</pre>
-<div class="block">Gets all stats that this system provides.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>A map of stats.</dd>
-</dl>
-</li>
-</ul>
-<a id="getDependencies()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getDependencies</h4>
-<pre class="methodSignature">@NotNull
-default&nbsp;@NotNull <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Collection.html?is-external=true" title="class or interface in java.util" class="externalLink">Collection</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;?&gt;&gt;&nbsp;getDependencies()</pre>
-<div class="block">Gets all systems that must be present for this to be able to load.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The list of system types.</dd>
-</dl>
-</li>
-</ul>
-<a id="getConflicts()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getConflicts</h4>
-<pre class="methodSignature">@NotNull
-default&nbsp;@NotNull <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Collection.html?is-external=true" title="class or interface in java.util" class="externalLink">Collection</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;?&gt;&gt;&nbsp;getConflicts()</pre>
-<div class="block">Gets all systems that must not be present for this to be able to load.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The list of system types.</dd>
-</dl>
-</li>
-</ul>
 <a id="getParent()">
 <!--   -->
 </a>
@@ -443,273 +267,39 @@ default&nbsp;@NotNull <a href="https://docs.oracle.com/en/java/javase/11/docs/ap
 <li class="blockList">
 <h4>getParent</h4>
 <pre class="methodSignature"><a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;getParent()</pre>
-<div class="block">Gets the parent <a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component"><code>CalibreComponent</code></a> that this System is a system of.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The parent component.</dd>
-</dl>
 </li>
 </ul>
-<a id="acceptParent(me.aecsocket.calibre.item.component.CalibreComponent)">
+<a id="initialize(me.aecsocket.calibre.item.component.CalibreComponent)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>acceptParent</h4>
-<pre class="methodSignature">void&nbsp;acceptParent&#8203;(<a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent)</pre>
-<div class="block">Accepts the parent <a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component"><code>CalibreComponent</code></a> that this System is a system of.</div>
+<h4>initialize</h4>
+<pre class="methodSignature">void&nbsp;initialize&#8203;(<a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent)
+         throws <a href="SystemInitializationException.html" title="class in me.aecsocket.calibre.item.system">SystemInitializationException</a></pre>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>parent</code> - The parent component.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="SystemInitializationException.html" title="class in me.aecsocket.calibre.item.system">SystemInitializationException</a></code></dd>
 </dl>
 </li>
 </ul>
-<a id="acceptTree(me.aecsocket.calibre.item.component.ComponentTree)">
+<a id="treeInitialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>acceptTree</h4>
-<pre class="methodSignature">default&nbsp;void&nbsp;acceptTree&#8203;(<a href="../component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;tree)</pre>
-<div class="block">Accepts the component tree which this system is part of. This should be used for
- registering listeners and modifying stats.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tree</code> - The component tree.</dd>
-</dl>
+<h4>treeInitialize</h4>
+<pre class="methodSignature">void&nbsp;treeInitialize&#8203;(<a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent,
+                    <a href="../component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;tree)</pre>
 </li>
 </ul>
-<a id="getServiceTypes()">
+<a id="getDefaultStats()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getServiceTypes</h4>
-<pre class="methodSignature">@Nullable
-default&nbsp;@Nullable <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Collection.html?is-external=true" title="class or interface in java.util" class="externalLink">Collection</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;?&gt;&gt;&nbsp;getServiceTypes()</pre>
-<div class="block">Gets the types of services that this system provides, or null if it does not provide services.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The types of services that this system provides.</dd>
-</dl>
-</li>
-</ul>
-<a id="getDescriptorType()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getDescriptorType</h4>
-<pre class="methodSignature">default&nbsp;com.google.gson.reflect.TypeToken&lt;<a href="CalibreSystem.html" title="type parameter in CalibreSystem">D</a>&gt;&nbsp;getDescriptorType()</pre>
-<div class="block">Gets the type of this system's descriptor of type <a href="CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system"><code>CalibreSystem</code></a>, or null if this system does not accept descriptors.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The type.</dd>
-</dl>
-</li>
-</ul>
-<a id="acceptDescriptor(java.lang.Object)">
-<!--   -->
-</a><a id="acceptDescriptor(D)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>acceptDescriptor</h4>
-<pre class="methodSignature">default&nbsp;void&nbsp;acceptDescriptor&#8203;(<a href="CalibreSystem.html" title="type parameter in CalibreSystem">D</a>&nbsp;descriptor)</pre>
-<div class="block">Accepts a descriptor of type <a href="CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system"><code>CalibreSystem</code></a>, describing instance data about this system.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>descriptor</code> - The descriptor.</dd>
-</dl>
-</li>
-</ul>
-<a id="createDescriptor()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>createDescriptor</h4>
-<pre class="methodSignature">default&nbsp;<a href="CalibreSystem.html" title="type parameter in CalibreSystem">D</a>&nbsp;createDescriptor()</pre>
-<div class="block">Creates a descriptor of type <a href="CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system"><code>CalibreSystem</code></a> from the data of this instance.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The descriptor.</dd>
-</dl>
-</li>
-</ul>
-<a id="getTree()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getTree</h4>
-<pre class="methodSignature">default&nbsp;<a href="../component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;getTree()</pre>
-<div class="block">Gets the <a href="../component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component"><code>ComponentTree</code></a> that this instance's parent is a part of.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The tree.</dd>
-</dl>
-</li>
-</ul>
-<a id="stat(java.lang.String)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>stat</h4>
-<pre class="methodSignature">default&nbsp;&lt;T&gt;&nbsp;T&nbsp;stat&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key)</pre>
-<div class="block">Gets a stat value from the <a href="#getTree()"><code>getTree()</code></a>'s StatMap.</div>
-<dl>
-<dt><span class="paramLabel">Type Parameters:</span></dt>
-<dd><code>T</code> - The stat's value's type.</dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>key</code> - The key of the stat.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The stat value.</dd>
-</dl>
-</li>
-</ul>
-<a id="updateItem(me.aecsocket.calibre.util.itemuser.ItemUser,org.bukkit.inventory.EquipmentSlot)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>updateItem</h4>
-<pre class="methodSignature">default&nbsp;org.bukkit.inventory.ItemStack&nbsp;updateItem&#8203;(<a href="../../util/itemuser/ItemUser.html" title="interface in me.aecsocket.calibre.util.itemuser">ItemUser</a>&nbsp;user,
-                                                  org.bukkit.inventory.EquipmentSlot&nbsp;slot)</pre>
-<div class="block">Sets the item in the equipment slot of the specified entity's inventory to this parent's tree's root's <code>Item.createItem(Player, ItemStack)</code>.
- This retains the stack amount of the old slot.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>user</code> - The user to get items from, and if a <a href="../../util/itemuser/PlayerItemUser.html" title="class in me.aecsocket.calibre.util.itemuser"><code>PlayerItemUser</code></a>, to be passed to <code>Item.createItem(Player, ItemStack)</code>.</dd>
-<dd><code>slot</code> - The equipment slot.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The new item.</dd>
-</dl>
-</li>
-</ul>
-<a id="updateItem(me.aecsocket.calibre.util.itemuser.ItemUser,org.bukkit.inventory.EquipmentSlot,me.aecsocket.calibre.item.animation.Animation)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>updateItem</h4>
-<pre class="methodSignature">default&nbsp;org.bukkit.inventory.ItemStack&nbsp;updateItem&#8203;(<a href="../../util/itemuser/ItemUser.html" title="interface in me.aecsocket.calibre.util.itemuser">ItemUser</a>&nbsp;user,
-                                                  org.bukkit.inventory.EquipmentSlot&nbsp;slot,
-                                                  <a href="../animation/Animation.html" title="class in me.aecsocket.calibre.item.animation">Animation</a>&nbsp;animationUsed)</pre>
-<div class="block">Sets the item in the equipment slot of the specified entity's inventory to this parent's tree's root's <code>Item.createItem(Player, ItemStack)</code>.
- This retains the stack amount of the old slot.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>user</code> - The user to get items from, and if a <a href="../../util/itemuser/PlayerItemUser.html" title="class in me.aecsocket.calibre.util.itemuser"><code>PlayerItemUser</code></a>, to be passed to <code>Item.createItem(Player, ItemStack)</code>.</dd>
-<dd><code>slot</code> - The equipment slot.</dd>
-<dd><code>animationUsed</code> - The animation applied to this item before updating.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The new item.</dd>
-</dl>
-</li>
-</ul>
-<a id="callEvent(java.lang.Object)">
-<!--   -->
-</a><a id="callEvent(T)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>callEvent</h4>
-<pre class="methodSignature">default&nbsp;&lt;T&gt;&nbsp;T&nbsp;callEvent&#8203;(T&nbsp;event)</pre>
-<div class="block">Calls an event to the tree.</div>
-<dl>
-<dt><span class="paramLabel">Type Parameters:</span></dt>
-<dd><code>T</code> - The called event type.</dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>event</code> - The event to call.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The event called.</dd>
-</dl>
-</li>
-</ul>
-<a id="isRoot()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>isRoot</h4>
-<pre class="methodSignature">default&nbsp;boolean&nbsp;isRoot()</pre>
-<div class="block">Gets if the parent is <a href="../component/CalibreComponent.html#isRoot()"><code>CalibreComponent.isRoot()</code></a>.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The result.</dd>
-</dl>
-</li>
-</ul>
-<a id="isCompleteRoot()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>isCompleteRoot</h4>
-<pre class="methodSignature">default&nbsp;boolean&nbsp;isCompleteRoot()</pre>
-<div class="block">Gets if the parent is <a href="../component/CalibreComponent.html#isCompleteRoot()"><code>CalibreComponent.isCompleteRoot()</code></a>.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The result.</dd>
-</dl>
-</li>
-</ul>
-<a id="getSystem(java.lang.Class)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getSystem</h4>
-<pre class="methodSignature">default&nbsp;&lt;T&gt;&nbsp;T&nbsp;getSystem&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;T&gt;&nbsp;type)</pre>
-<div class="block">Gets another system on the parent component by its type.</div>
-<dl>
-<dt><span class="paramLabel">Type Parameters:</span></dt>
-<dd><code>T</code> - The type of the system.</dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>type</code> - The type of the system.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The system.</dd>
-</dl>
-</li>
-</ul>
-<a id="searchSystems(me.aecsocket.calibre.item.system.SystemSearchOptions,java.util.function.Predicate)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>searchSystems</h4>
-<pre class="methodSignature">default&nbsp;&lt;T&gt;&nbsp;void&nbsp;searchSystems&#8203;(<a href="SystemSearchOptions.html" title="class in me.aecsocket.calibre.item.system">SystemSearchOptions</a>&lt;T&gt;&nbsp;options,
-                               <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Predicate.html?is-external=true" title="class or interface in java.util.function" class="externalLink">Predicate</a>&lt;<a href="SystemSearchResult.html" title="class in me.aecsocket.calibre.item.system">SystemSearchResult</a>&lt;T&gt;&gt;&nbsp;consumer)</pre>
-<div class="block">Iterates through all slots, components and systems which match the <a href="SystemSearchOptions.html" title="class in me.aecsocket.calibre.item.system"><code>SystemSearchOptions</code></a> and runs the
- consumer on them.</div>
-<dl>
-<dt><span class="paramLabel">Type Parameters:</span></dt>
-<dd><code>T</code> - The type of system to search for.</dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>options</code> - The <a href="SystemSearchOptions.html" title="class in me.aecsocket.calibre.item.system"><code>SystemSearchOptions</code></a>.</dd>
-<dd><code>consumer</code> - The action to run for each <a href="SystemSearchResult.html" title="class in me.aecsocket.calibre.item.system"><code>SystemSearchResult</code></a>. If returns true, will stop searching.</dd>
-</dl>
-</li>
-</ul>
-<a id="getCalibreType()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getCalibreType</h4>
-<pre class="methodSignature">default&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getCalibreType()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../CalibreLocalized.html#getCalibreType()">CalibreLocalized</a></code></span></div>
-<div class="block">Gets the practical Calibre type of this item, used in <a href="../CalibreLocalized.html#getLocalizedName(java.lang.String)"><code>CalibreLocalized.getLocalizedName(String)</code></a>.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../CalibreLocalized.html#getCalibreType()">getCalibreType</a></code>&nbsp;in interface&nbsp;<code><a href="../CalibreLocalized.html" title="interface in me.aecsocket.calibre.item">CalibreLocalized</a></code></dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The type.</dd>
-</dl>
+<h4>getDefaultStats</h4>
+<pre class="methodSignature">default&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;me.aecsocket.unifiedframework.stat.Stat&lt;?&gt;&gt;&nbsp;getDefaultStats()</pre>
 </li>
 </ul>
 <a id="copy()">
@@ -718,48 +308,23 @@ default&nbsp;@Nullable <a href="https://docs.oracle.com/en/java/javase/11/docs/a
 <ul class="blockList">
 <li class="blockList">
 <h4>copy</h4>
-<pre class="methodSignature"><a href="CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&lt;<a href="CalibreSystem.html" title="type parameter in CalibreSystem">D</a>&gt;&nbsp;copy()</pre>
-<div class="block">Creates an exact copy of this system, but with references in fields copied.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The copy.</dd>
-</dl>
+<pre class="methodSignature"><a href="CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&nbsp;copy()</pre>
 </li>
 </ul>
-<a id="getLongInfo(org.bukkit.command.CommandSender)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getLongInfo</h4>
-<pre class="methodSignature">@Nullable
-default&nbsp;@Nullable <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getLongInfo&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../CalibreIdentifiable.html#getLongInfo(org.bukkit.command.CommandSender)">CalibreIdentifiable</a></code></span></div>
-<div class="block">Gets lines of info used in <code>/calibre info</code>. The string is split
- by <code>\n</code> to create the line separations. Can be null.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../CalibreIdentifiable.html#getLongInfo(org.bukkit.command.CommandSender)">getLongInfo</a></code>&nbsp;in interface&nbsp;<code><a href="../CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.item">CalibreIdentifiable</a></code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>sender</code> - The command's sender.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The info.</dd>
-</dl>
-</li>
-</ul>
-<a id="copyMap(java.util.Map)">
+<a id="getNameKey()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>copyMap</h4>
-<pre class="methodSignature">static&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&lt;?&gt;&gt;&nbsp;copyMap&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&lt;?&gt;&gt;&nbsp;original)</pre>
-<div class="block">Copies a map of class-systems, copying both the map and the systems. Used in <a href="../component/CalibreComponent.html#copy()"><code>CalibreComponent.copy()</code></a>.</div>
+<h4>getNameKey</h4>
+<pre class="methodSignature">default&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getNameKey()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../util/CalibreIdentifiable.html#getNameKey()">CalibreIdentifiable</a></code></span></div>
+<div class="block">Gets the translation key for the name of this object.</div>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>original</code> - The original map.</dd>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../util/CalibreIdentifiable.html#getNameKey()">getNameKey</a></code>&nbsp;in interface&nbsp;<code><a href="../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The copied map, with copied elements.</dd>
+<dd>The translation key.</dd>
 </dl>
 </li>
 </ul>
@@ -815,7 +380,7 @@ default&nbsp;@Nullable <a href="https://docs.oracle.com/en/java/javase/11/docs/a
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

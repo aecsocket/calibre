@@ -1,108 +1,206 @@
 package me.aecsocket.calibre.item.component;
 
+import com.google.gson.*;
+import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
-import me.aecsocket.unifiedframework.stat.StatInstance;
 import me.aecsocket.unifiedframework.stat.StatMap;
+import me.aecsocket.unifiedframework.util.TextUtils;
+import me.aecsocket.unifiedframework.util.json.JsonAdapter;
 
-/**
- * Represents the context of a component in a tree with other components. One instance should be shared
- * across all components in the tree.
- */
+import java.lang.reflect.Type;
+import java.util.*;
+import java.util.function.Function;
+
 public class ComponentTree {
-    private EventDispatcher eventDispatcher;
-    private CalibreComponent root;
+    /**
+     * A GSON type adapter for this class.
+     */
+    public static class Adapter implements JsonSerializer<ComponentTree>, JsonDeserializer<ComponentTree>, JsonAdapter {
+        private final CalibrePlugin plugin;
+
+        public Adapter(CalibrePlugin plugin) {
+            this.plugin = plugin;
+        }
+
+        public CalibrePlugin getPlugin() { return plugin; }
+
+        @Override
+        public JsonElement serialize(ComponentTree tree, Type type, JsonSerializationContext context) {
+            JsonObject object = new JsonObject();
+            CalibreComponent root = tree.root;
+
+            object.add("id", new JsonPrimitive(root.getId()));
+
+            root.getSystems().forEach((id, sys) -> {
+                if (!object.has("systems"))
+                    object.add("systems", new JsonObject());
+                JsonElement serialized = context.serialize(sys);
+                if (serialized != null && (!serialized.isJsonObject() || serialized.getAsJsonObject().size() > 0))
+                    object.get("systems").getAsJsonObject().add(sys.getId(), serialized);
+            });
+
+            root.getSlots().forEach((name, slot) -> {
+                if (slot.get() == null) return;
+                if (!object.has("slots"))
+                    object.add("slots", new JsonObject());
+                object.get("slots").getAsJsonObject().add(name, context.serialize(slot.get().withSimpleTree().getTree()));
+            });
+
+            return object.size() == 1 ? new JsonPrimitive(root.getId()) : object;
+        }
+
+        @Override
+        public ComponentTree deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
+            String id;
+            JsonObject object = null;
+
+            if (json.isJsonPrimitive())
+                id = json.getAsString();
+            else {
+                object = assertObject(json);
+                id = get(object, "id").getAsString();
+            }
+
+            CalibreComponent root = plugin.fromRegistry(id, CalibreComponent.class);
+            if (root == null)
+                throw new JsonParseException("Could not find component with ID " + id);
+            root = root.copy();
+            ComponentTree tree = new ComponentTree(root);
+            root.setTree(tree);
+
+            if (json.isJsonPrimitive())
+                return tree;
+
+            boolean preserveInvalidData = plugin.setting("preserve_invalid_data", boolean.class, true);
+
+            // Systems
+            if (object.has("systems")) {
+                for (Map.Entry<String, JsonElement> entry : assertObject(get(object, "systems")).entrySet()) {
+                    String sId = entry.getKey();
+                    CalibreSystem sys = plugin.fromRegistry(sId, CalibreSystem.class);
+                    if (sys == null) {
+                        if (preserveInvalidData)
+                            throw new JsonParseException(TextUtils.format("Could not find system on {root} with ID {sys}",
+                                    "root", root.getId(), "sys", sId));
+                        else
+                            continue;
+                    }
+                    root.getSystems().put(sId, plugin.getGson().fromJson(entry.getValue(), sys.getClass()));
+                }
+            }
+            // Slots
+            if (object.has("slots")) {
+                for (Map.Entry<String, JsonElement> entry : assertObject(get(object, "slots")).entrySet()) {
+                    String name = entry.getKey();
+                    CalibreComponentSlot slot = root.getSlots().get(name);
+                    if (slot == null) {
+                        if (preserveInvalidData)
+                            throw new JsonParseException(TextUtils.format("Could not find slot on {root} with name {slot}",
+                                    "root", root.getId(), "slot", name));
+                        else
+                            continue;
+                    }
+                    ComponentTree subtree = context.deserialize(entry.getValue(), ComponentTree.class);
+                    if (subtree == null) {
+                        if (preserveInvalidData)
+                            throw new JsonParseException(TextUtils.format("Could not create component on {root} for slot {slot}",
+                                    "root", root.getId(), "slot", name));
+                        else
+                            continue;
+                    }
+                    slot.set(subtree.root);
+                }
+            }
+
+            return tree;
+        }
+    }
+
+    private final CalibreComponent root;
+    private final EventDispatcher eventDispatcher;
     private StatMap stats;
     private boolean complete;
 
-    public ComponentTree(EventDispatcher eventDispatcher, CalibreComponent root, StatMap stats) {
-        this.eventDispatcher = eventDispatcher;
+    public ComponentTree(CalibreComponent root, EventDispatcher eventDispatcher) {
         this.root = root;
-        this.stats = stats;
+        this.eventDispatcher = eventDispatcher;
+        build();
     }
 
     public ComponentTree(CalibreComponent root) {
-        this.eventDispatcher = new EventDispatcher();
-        this.root = root;
-        this.stats = new StatMap();
+        this(root, new EventDispatcher());
     }
-
-    public ComponentTree() {
-        this.eventDispatcher = new EventDispatcher();
-        this.stats = new StatMap();
-    }
-
-    public EventDispatcher getEventDispatcher() { return eventDispatcher; }
-    public void setEventDispatcher(EventDispatcher eventDispatcher) { this.eventDispatcher = eventDispatcher; }
 
     public CalibreComponent getRoot() { return root; }
-    public void setRoot(CalibreComponent root) { this.root = root; }
+    public EventDispatcher getEventDispatcher() { return eventDispatcher; }
 
-    public StatMap getStats() { return stats; }
+    /**
+     * Gets the combined stats of this tree, or creates them if they do not exist yet.
+     * @return The stats of this tree.
+     */
+    public StatMap getStats() {
+        if (stats != null)
+            return stats;
+        return buildStats();
+    }
     public void setStats(StatMap stats) { this.stats = stats; }
+    public boolean hasStats() { return stats != null; }
 
-    /**
-     * Gets a stat value from this instance's StatMap.
-     * @param key The key of the stat.
-     * @param <T> The stat's value's type.
-     * @return The stat value.
-     */
-    public <T> T stat(String key) { return stats.getValue(key); }
-
-    /**
-     * Gets if all required component slots have a component in them,
-     * or if there are no required slots, returns true.
-     * @return The result.
-     */
     public boolean isComplete() { return complete; }
+    public void setComplete(boolean complete) { this.complete = complete; }
 
-    /**
-     * Recursively initializes components and systems in the tree.
-     * Also updates {@link ComponentTree#complete}.
-     */
-    public void rebuild() {
-        eventDispatcher.unregisterAll();
-        stats = new StatMap();
+    public void build() {
         complete = true;
-        rebuild(root);
+        build(root);
     }
 
-    private void rebuild(CalibreComponent parent) {
+    private void build(CalibreComponent parent) {
         parent.setTree(this);
-        parent.modifyTree(this);
-
-        for (CalibreSystem<?> system : parent.getSystems().values()) {
-            system.acceptParent(parent);
-            system.acceptTree(this);
-        }
-
-        parent.getSlots().forEach((name, slot) -> {
+        for (CalibreComponentSlot slot : parent.getSlots().values()) {
             CalibreComponent child = slot.get();
-            if (child == null) {
-                if (slot.isRequired()) complete = false;
-                return;
-            };
-            child.setParent(parent);
-            rebuild(child);
-        });
+            if (child != null) {
+                child.setParent(parent);
+                build(child);
+            } else if (slot.isRequired())
+                complete = false;
+        }
+        parent.getSystems().forEach((id, sys) -> sys.treeInitialize(parent, this));
     }
 
-    @Override
-    public String toString() {
-        return "ComponentTree{" +
-                "root=" + root +
-                ", complete=" + complete +
-                '}';
+    private void addStat(Function<CalibreComponent, Map<Integer, StatMap>> statGetter, Map<Integer, Collection<StatMap>> perOrder, CalibreComponent component) {
+        statGetter.apply(component).forEach((order, map) -> perOrder.computeIfAbsent(order, __ -> new HashSet<>()).add(map));
     }
 
-    /**
-     * Creates a simple component tree for a premade component. Is automatically built.
-     * @param root The premade root component.
-     * @return The tree.
-     */
-    public static ComponentTree of(CalibreComponent root) {
-        ComponentTree tree = new ComponentTree(root);
-        tree.rebuild();
-        return tree;
+    private StatMap buildStats(Function<CalibreComponent, Map<Integer, StatMap>> statGetter) {
+        StatMap stats = new StatMap();
+
+        Map<Integer, Collection<StatMap>> perOrder = new HashMap<>();
+        addStat(statGetter, perOrder, root);
+        root.walk(data -> data.getComponent().ifPresent(o -> {
+            if (o instanceof CalibreComponent)
+                addStat(statGetter, perOrder, (CalibreComponent) o);
+        }));
+
+        perOrder.entrySet().stream()
+                .sorted(Comparator.comparingInt(Map.Entry::getKey))
+                .forEach(entry -> entry.getValue().forEach(stats::modifyAll));
+
+        return stats;
     }
+
+    public StatMap buildStats() {
+        stats = buildStats(CalibreComponent::getStats);
+        if (complete)
+            stats.modifyAll(buildStats(CalibreComponent::getCompleteStats));
+
+        return stats;
+    }
+
+    //region Utils
+
+    public <T> T stat(String key) { return getStats().getValue(key); }
+    public <T> T callEvent(T event) { eventDispatcher.call(event); return event; }
+
+    //endregion
 }

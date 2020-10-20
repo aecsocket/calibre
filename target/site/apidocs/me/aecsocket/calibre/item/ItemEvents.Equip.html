@@ -124,7 +124,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li><a href="ItemEvents.BaseEvent.html" title="class in me.aecsocket.calibre.item">me.aecsocket.calibre.item.ItemEvents.BaseEvent</a></li>
+<li><a href="ItemEvents.Event.html" title="class in me.aecsocket.calibre.item">me.aecsocket.calibre.item.ItemEvents.Event</a></li>
 <li>
 <ul class="inheritance">
 <li>me.aecsocket.calibre.item.ItemEvents.Equip</li>
@@ -137,19 +137,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <dl>
-<dt>All Implemented Interfaces:</dt>
-<dd><code><a href="ItemEvents.Event.html" title="interface in me.aecsocket.calibre.item">ItemEvents.Event</a></code>, <code><a href="ItemEvents.UserEvent.html" title="interface in me.aecsocket.calibre.item">ItemEvents.UserEvent</a></code></dd>
-</dl>
-<dl>
 <dt>Enclosing class:</dt>
 <dd><a href="ItemEvents.html" title="class in me.aecsocket.calibre.item">ItemEvents</a></dd>
 </dl>
 <hr>
 <pre>public static class <span class="typeNameLabel">ItemEvents.Equip</span>
-extends <a href="ItemEvents.BaseEvent.html" title="class in me.aecsocket.calibre.item">ItemEvents.BaseEvent</a></pre>
-<div class="block">Runs when an item is equipped by a player in any <code>EquipmentSlot</code>.
- Note that this event may not be run on the main thread, so if you need to access the Bukkit API, check:
- <code>event.getTickContext().getLoop() instanceof SchedulerLoop</code></div>
+extends <a href="ItemEvents.Event.html" title="class in me.aecsocket.calibre.item">ItemEvents.Event</a></pre>
 </li>
 </ul>
 </div>
@@ -170,9 +163,9 @@ extends <a href="ItemEvents.BaseEvent.html" title="class in me.aecsocket.calibre
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.bukkit.inventory.ItemStack,org.bukkit.inventory.EquipmentSlot,me.aecsocket.calibre.util.itemuser.ItemUser,me.aecsocket.unifiedframework.loop.TickContext)">Equip</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;itemStack,
-     org.bukkit.inventory.EquipmentSlot&nbsp;slot,
-     <a href="../util/itemuser/ItemUser.html" title="interface in me.aecsocket.calibre.util.itemuser">ItemUser</a>&nbsp;user,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,me.aecsocket.unifiedframework.loop.TickContext)">Equip</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
+     <a href="util/slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
+     <a href="util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
      me.aecsocket.unifiedframework.loop.TickContext&nbsp;tickContext)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -201,11 +194,11 @@ extends <a href="ItemEvents.BaseEvent.html" title="class in me.aecsocket.calibre
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a id="methods.inherited.from.class.me.aecsocket.calibre.item.ItemEvents.BaseEvent">
+<li class="blockList"><a id="methods.inherited.from.class.me.aecsocket.calibre.item.ItemEvents.Event">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;me.aecsocket.calibre.item.<a href="ItemEvents.BaseEvent.html" title="class in me.aecsocket.calibre.item">ItemEvents.BaseEvent</a></h3>
-<code><a href="ItemEvents.BaseEvent.html#getItemStack()">getItemStack</a>, <a href="ItemEvents.BaseEvent.html#getSlot()">getSlot</a>, <a href="ItemEvents.BaseEvent.html#getUser()">getUser</a></code></li>
+<h3>Methods inherited from class&nbsp;me.aecsocket.calibre.item.<a href="ItemEvents.Event.html" title="class in me.aecsocket.calibre.item">ItemEvents.Event</a></h3>
+<code><a href="ItemEvents.Event.html#getSlot()">getSlot</a>, <a href="ItemEvents.Event.html#getStack()">getStack</a>, <a href="ItemEvents.Event.html#getUser()">getUser</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -230,15 +223,15 @@ extends <a href="ItemEvents.BaseEvent.html" title="class in me.aecsocket.calibre
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(org.bukkit.inventory.ItemStack,org.bukkit.inventory.EquipmentSlot,me.aecsocket.calibre.util.itemuser.ItemUser,me.aecsocket.unifiedframework.loop.TickContext)">
+<a id="&lt;init&gt;(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,me.aecsocket.unifiedframework.loop.TickContext)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Equip</h4>
-<pre>public&nbsp;Equip&#8203;(org.bukkit.inventory.ItemStack&nbsp;itemStack,
-             org.bukkit.inventory.EquipmentSlot&nbsp;slot,
-             <a href="../util/itemuser/ItemUser.html" title="interface in me.aecsocket.calibre.util.itemuser">ItemUser</a>&nbsp;user,
+<pre>public&nbsp;Equip&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
+             <a href="util/slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
+             <a href="util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
              me.aecsocket.unifiedframework.loop.TickContext&nbsp;tickContext)</pre>
 </li>
 </ul>

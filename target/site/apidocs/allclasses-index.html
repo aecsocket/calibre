@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":1,"i1":2,"i2":1,"i3":2,"i4":1,"i5":1,"i6":2,"i7":2,"i8":2,"i9":2,"i10":2,"i11":2,"i12":8,"i13":2,"i14":2,"i15":2,"i16":2,"i17":2,"i18":2,"i19":2,"i20":2,"i21":2,"i22":1,"i23":2,"i24":1,"i25":1,"i26":1,"i27":1,"i28":1,"i29":2,"i30":2,"i31":2,"i32":4,"i33":2,"i34":1,"i35":2,"i36":2,"i37":1,"i38":1,"i39":8,"i40":2,"i41":2,"i42":2,"i43":2,"i44":2,"i45":2,"i46":2,"i47":2,"i48":1,"i49":2,"i50":2,"i51":2,"i52":2,"i53":2,"i54":2,"i55":2,"i56":2,"i57":1,"i58":2,"i59":2,"i60":2,"i61":2,"i62":2,"i63":2,"i64":2,"i65":2,"i66":2,"i67":2,"i68":1,"i69":2,"i70":2,"i71":2,"i72":2,"i73":2,"i74":1,"i75":1,"i76":2,"i77":1,"i78":2,"i79":1,"i80":2,"i81":2,"i82":2,"i83":2,"i84":2,"i85":1,"i86":2,"i87":2,"i88":2,"i89":2,"i90":2,"i91":2,"i92":2,"i93":2,"i94":2,"i95":2,"i96":2,"i97":2,"i98":1,"i99":2,"i100":2,"i101":2,"i102":2,"i103":2,"i104":2,"i105":2};
+var data = {"i0":1,"i1":2,"i2":1,"i3":2,"i4":2,"i5":2,"i6":2,"i7":2,"i8":2,"i9":2,"i10":2,"i11":2,"i12":1,"i13":1,"i14":2,"i15":2,"i16":2,"i17":4,"i18":2,"i19":2,"i20":1,"i21":2,"i22":2,"i23":1,"i24":2,"i25":1,"i26":2,"i27":2,"i28":1,"i29":2,"i30":1,"i31":2,"i32":2,"i33":2,"i34":2,"i35":2,"i36":2,"i37":2,"i38":2,"i39":2,"i40":2,"i41":2,"i42":2,"i43":2,"i44":2,"i45":2,"i46":2,"i47":2,"i48":1,"i49":2,"i50":2,"i51":2,"i52":1,"i53":2,"i54":2,"i55":2,"i56":2,"i57":2,"i58":2,"i59":2,"i60":2,"i61":2,"i62":8};
 var tabs = {65535:["t0","All Classes"],1:["t1","Interface Summary"],2:["t2","Class Summary"],4:["t3","Enum Summary"],8:["t4","Exception Summary"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -114,594 +114,282 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tr id="i0" class="altColor">
 <td class="colFirst"><a href="me/aecsocket/calibre/util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></td>
 <th class="colLast" scope="row">
-<div class="block">Represents an object which accepts a plugin field of type <a href="me/aecsocket/calibre/CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a>.</div>
+<div class="block">An object which can take a <a href="me/aecsocket/calibre/CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a> as a field.</div>
 </th>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/util/AcceptsCalibrePluginAdapter.html" title="class in me.aecsocket.calibre.util">AcceptsCalibrePluginAdapter</a></td>
+<td class="colFirst"><a href="me/aecsocket/calibre/util/AcceptsCalibrePlugin.Adapter.html" title="class in me.aecsocket.calibre.util">AcceptsCalibrePlugin.Adapter</a></td>
 <th class="colLast" scope="row">
-<div class="block">Type adapter for providing <a href="me/aecsocket/calibre/util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util"><code>AcceptsCalibrePlugin</code></a> with plugin fields during deserialization.</div>
+<div class="block">A GSON type adapter for this class.</div>
 </th>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/service/system/ActionSystem.html" title="interface in me.aecsocket.calibre.defaults.service.system">ActionSystem</a></td>
-<th class="colLast" scope="row">
-<div class="block">A service system which allows adding a cooldown to an item's actions.</div>
-</th>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/AmmoContainerSystem.html" title="class in me.aecsocket.calibre.defaults.gun">AmmoContainerSystem</a></td>
-<th class="colLast" scope="row">
-<div class="block">Simple implementation of <a href="me/aecsocket/calibre/defaults/gun/AmmoProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.gun"><code>AmmoProviderSystem</code></a>.</div>
-</th>
-</tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/AmmoProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.gun">AmmoProviderSystem</a></td>
-<th class="colLast" scope="row">
-<div class="block">A system which stores and manipulates chamber components (components with a <a href="me/aecsocket/calibre/defaults/service/system/ProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.service.system"><code>ProjectileProviderSystem</code></a>).</div>
-</th>
-</tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/util/itemuser/AnimatedItemUser.html" title="interface in me.aecsocket.calibre.util.itemuser">AnimatedItemUser</a></td>
-<th class="colLast" scope="row">
-<div class="block">Represents an <a href="me/aecsocket/calibre/util/itemuser/ItemUser.html" title="interface in me.aecsocket.calibre.util.itemuser"><code>ItemUser</code></a> which can have animations applied.</div>
-</th>
-</tr>
-<tr id="i6" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/animation/Animation.html" title="class in me.aecsocket.calibre.item.animation">Animation</a></td>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/util/user/AnimatableItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">AnimatableItemUser</a></td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/util/stat/AnimationStat.html" title="class in me.aecsocket.calibre.util.stat">AnimationStat</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/item/system/BaseSystem.html" title="class in me.aecsocket.calibre.item.system">BaseSystem</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/item/blueprint/Blueprint.html" title="class in me.aecsocket.calibre.item.blueprint">Blueprint</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/item/blueprint/Blueprint.Adapter.html" title="class in me.aecsocket.calibre.item.blueprint">Blueprint.Adapter</a></td>
+<th class="colLast" scope="row">
+<div class="block">A GSON type adapter for this class.</div>
+</th>
+</tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/animation/Animation.Frame.html" title="class in me.aecsocket.calibre.item.animation">Animation.Frame</a></td>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/util/damagecause/BukkitDamageCause.html" title="class in me.aecsocket.calibre.item.util.damagecause">BukkitDamageCause</a></td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i8" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/animation/AnimationAdapter.html" title="class in me.aecsocket.calibre.item.animation">AnimationAdapter</a></td>
-<th class="colLast" scope="row">&nbsp;</th>
+<td class="colFirst"><a href="me/aecsocket/calibre/handle/CalibreCommand.html" title="class in me.aecsocket.calibre.handle">CalibreCommand</a></td>
+<th class="colLast" scope="row">
+<div class="block">The plugin's main command class.</div>
+</th>
 </tr>
 <tr id="i9" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/stat/AnimationStat.html" title="class in me.aecsocket.calibre.stat">AnimationStat</a></td>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a></td>
 <th class="colLast" scope="row">
-<div class="block">A stat which holds an animation.</div>
+<div class="block">Calibre's implementation of a component.</div>
 </th>
 </tr>
 <tr id="i10" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/AttributeSystem.html" title="class in me.aecsocket.calibre.defaults">AttributeSystem</a></td>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/component/CalibreComponent.Adapter.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent.Adapter</a></td>
 <th class="colLast" scope="row">
-<div class="block">Allows modification of some item attributes and basic item actions.</div>
+<div class="block">A GSON type adapter for this class.</div>
 </th>
 </tr>
 <tr id="i11" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/blueprint/Blueprint.html" title="class in me.aecsocket.calibre.item.blueprint">Blueprint</a></td>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/component/CalibreComponentSlot.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentSlot</a></td>
 <th class="colLast" scope="row">
-<div class="block">Represents a premade structure of components.</div>
+<div class="block">Calibre's implementation of <code>ComponentSlot</code>.</div>
 </th>
 </tr>
 <tr id="i12" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/blueprint/BlueprintCreationException.html" title="class in me.aecsocket.calibre.item.blueprint">BlueprintCreationException</a></td>
-<th class="colLast" scope="row">&nbsp;</th>
+<td class="colFirst"><a href="me/aecsocket/calibre/CalibreHook.html" title="interface in me.aecsocket.calibre">CalibreHook</a></td>
+<th class="colLast" scope="row">
+<div class="block">Allows hooking into <a href="me/aecsocket/calibre/CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a> events.</div>
+</th>
 </tr>
 <tr id="i13" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/BulletSystem.html" title="class in me.aecsocket.calibre.defaults.gun">BulletSystem</a></td>
+<td class="colFirst"><a href="me/aecsocket/calibre/util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></td>
 <th class="colLast" scope="row">
-<div class="block">Implementation of <a href="me/aecsocket/calibre/defaults/service/system/ProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.service.system"><code>ProjectileProviderSystem</code></a> for <a href="me/aecsocket/calibre/defaults/gun/FireableSystem.html" title="class in me.aecsocket.calibre.defaults.gun"><code>FireableSystem</code></a>s.</div>
+<div class="block">Calibre's implementation of <code>Identifiable</code>.</div>
 </th>
 </tr>
 <tr id="i14" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/BulletSystem.Projectile.html" title="class in me.aecsocket.calibre.defaults.gun">BulletSystem.Projectile</a></td>
+<td class="colFirst"><a href="me/aecsocket/calibre/util/CalibrePlayer.html" title="class in me.aecsocket.calibre.util">CalibrePlayer</a></td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i15" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/handle/CalibreCommand.html" title="class in me.aecsocket.calibre.handle">CalibreCommand</a></td>
-<th class="colLast" scope="row">
-<div class="block">The plugin's command handler.</div>
-</th>
-</tr>
-<tr id="i16" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a></td>
-<th class="colLast" scope="row">
-<div class="block">A component, which can be nested to create component trees.</div>
-</th>
-</tr>
-<tr id="i17" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/component/CalibreComponentAdapter.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentAdapter</a></td>
-<th class="colLast" scope="row">
-<div class="block">Type and item adapter for <a href="me/aecsocket/calibre/item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component"><code>CalibreComponent</code></a>s.</div>
-</th>
-</tr>
-<tr id="i18" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/util/componentlist/CalibreComponentList.html" title="class in me.aecsocket.calibre.util.componentlist">CalibreComponentList</a></td>
-<th class="colLast" scope="row">&nbsp;</th>
-</tr>
-<tr id="i19" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/util/componentlist/CalibreComponentListAdapter.html" title="class in me.aecsocket.calibre.util.componentlist">CalibreComponentListAdapter</a></td>
-<th class="colLast" scope="row">&nbsp;</th>
-</tr>
-<tr id="i20" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/component/CalibreComponentSlot.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentSlot</a></td>
-<th class="colLast" scope="row">
-<div class="block">A slot which can hold a <a href="me/aecsocket/calibre/item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component"><code>CalibreComponent</code></a>.</div>
-</th>
-</tr>
-<tr id="i21" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/service/bukkit/damage/CalibreDamageProvider.html" title="class in me.aecsocket.calibre.defaults.service.bukkit.damage">CalibreDamageProvider</a></td>
-<th class="colLast" scope="row">
-<div class="block">Default implementation of <a href="me/aecsocket/calibre/defaults/service/bukkit/damage/CalibreDamageService.html" title="interface in me.aecsocket.calibre.defaults.service.bukkit.damage"><code>CalibreDamageService</code></a>.</div>
-</th>
-</tr>
-<tr id="i22" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/service/bukkit/damage/CalibreDamageService.html" title="interface in me.aecsocket.calibre.defaults.service.bukkit.damage">CalibreDamageService</a></td>
-<th class="colLast" scope="row">
-<div class="block">Provides a method to damage entities.</div>
-</th>
-</tr>
-<tr id="i23" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/CalibreDefaultHook.html" title="class in me.aecsocket.calibre.defaults">CalibreDefaultHook</a></td>
-<th class="colLast" scope="row">
-<div class="block">The default <a href="me/aecsocket/calibre/CalibreHook.html" title="interface in me.aecsocket.calibre"><code>CalibreHook</code></a>.</div>
-</th>
-</tr>
-<tr id="i24" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/CalibreHook.html" title="interface in me.aecsocket.calibre">CalibreHook</a></td>
-<th class="colLast" scope="row">
-<div class="block">A hook onto <a href="me/aecsocket/calibre/CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a> which can modify things at enable-time.</div>
-</th>
-</tr>
-<tr id="i25" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.item">CalibreIdentifiable</a></td>
-<th class="colLast" scope="row">
-<div class="block">A tag interface for a generic Calibre object which:
- 
-     has an ID
-     must be validated on load
-     accepts a <a href="me/aecsocket/calibre/CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a>
- </div>
-</th>
-</tr>
-<tr id="i26" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/CalibreItem.html" title="interface in me.aecsocket.calibre.item">CalibreItem</a></td>
-<th class="colLast" scope="row">
-<div class="block">A class for a generic <a href="me/aecsocket/calibre/item/CalibreItemSupplier.html" title="interface in me.aecsocket.calibre.item"><code>CalibreItemSupplier</code></a> which:
- 
-     provides a way to call events to this item
- </div>
-</th>
-</tr>
-<tr id="i27" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/CalibreItemSupplier.html" title="interface in me.aecsocket.calibre.item">CalibreItemSupplier</a></td>
-<th class="colLast" scope="row">
-<div class="block">A class for a generic <a href="me/aecsocket/calibre/item/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.item"><code>CalibreIdentifiable</code></a> which:
- 
-     can be converted to an <code>ItemStack</code>
- </div>
-</th>
-</tr>
-<tr id="i28" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/CalibreLocalized.html" title="interface in me.aecsocket.calibre.item">CalibreLocalized</a></td>
-<th class="colLast" scope="row">
-<div class="block">A generic Calibre object which has a localizable name.</div>
-</th>
-</tr>
-<tr id="i29" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/util/CalibrePlayer.html" title="class in me.aecsocket.calibre.util">CalibrePlayer</a></td>
-<th class="colLast" scope="row">
-<div class="block">Wrapper around <code>Player</code> for storing Calibre's data.</div>
-</th>
-</tr>
-<tr id="i30" class="altColor">
 <td class="colFirst"><a href="me/aecsocket/calibre/CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a></td>
 <th class="colLast" scope="row">
 <div class="block">The main plugin class.</div>
 </th>
 </tr>
-<tr id="i31" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/util/protocol/CalibreProtocol.html" title="class in me.aecsocket.calibre.util.protocol">CalibreProtocol</a></td>
+<tr id="i16" class="altColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/util/CalibreProtocol.html" title="class in me.aecsocket.calibre.util">CalibreProtocol</a></td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i32" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/util/protocol/CalibreProtocol.PlayerTeleportFlag.html" title="enum in me.aecsocket.calibre.util.protocol">CalibreProtocol.PlayerTeleportFlag</a></td>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/util/CalibreProtocol.PlayerTeleportFlag.html" title="enum in me.aecsocket.calibre.util">CalibreProtocol.PlayerTeleportFlag</a></td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i33" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/service/bukkit/raytrace/CalibreRaytraceProvider.html" title="class in me.aecsocket.calibre.defaults.service.bukkit.raytrace">CalibreRaytraceProvider</a></td>
+<tr id="i18" class="altColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/util/CalibreRegistry.html" title="class in me.aecsocket.calibre.util">CalibreRegistry</a></td>
 <th class="colLast" scope="row">
-<div class="block">Default implementation of <a href="me/aecsocket/calibre/defaults/service/bukkit/raytrace/CalibreRaytraceService.html" title="interface in me.aecsocket.calibre.defaults.service.bukkit.raytrace"><code>CalibreRaytraceService</code></a>.</div>
+<div class="block">Implementation of <code>Registry</code> for Calibre.</div>
 </th>
 </tr>
-<tr id="i34" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/service/bukkit/raytrace/CalibreRaytraceService.html" title="interface in me.aecsocket.calibre.defaults.service.bukkit.raytrace">CalibreRaytraceService</a></td>
-<th class="colLast" scope="row">
-<div class="block">Provides ray tracing capabilities.</div>
-</th>
-</tr>
-<tr id="i35" class="rowColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><a href="me/aecsocket/calibre/util/CalibreSoundData.html" title="class in me.aecsocket.calibre.util">CalibreSoundData</a></td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i36" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/service/bukkit/spread/CalibreSpreadProvider.html" title="class in me.aecsocket.calibre.defaults.service.bukkit.spread">CalibreSpreadProvider</a></td>
+<tr id="i20" class="altColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></td>
 <th class="colLast" scope="row">
-<div class="block">Default implementation of <a href="me/aecsocket/calibre/defaults/service/bukkit/spread/CalibreSpreadService.html" title="interface in me.aecsocket.calibre.defaults.service.bukkit.spread"><code>CalibreSpreadService</code></a>.</div>
+<div class="block">A system which interacts with a <a href="me/aecsocket/calibre/item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component"><code>CalibreComponent</code></a>, such as listening for item events.</div>
 </th>
+</tr>
+<tr id="i21" class="rowColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/item/component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
+</tr>
+<tr id="i22" class="altColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/item/component/ComponentTree.Adapter.html" title="class in me.aecsocket.calibre.item.component">ComponentTree.Adapter</a></td>
+<th class="colLast" scope="row">
+<div class="block">A GSON type adapter for this class.</div>
+</th>
+</tr>
+<tr id="i23" class="rowColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/item/util/damagecause/DamageCause.html" title="interface in me.aecsocket.calibre.item.util.damagecause">DamageCause</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
+</tr>
+<tr id="i24" class="altColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/defaults/DefaultCalibreHook.html" title="class in me.aecsocket.calibre.defaults">DefaultCalibreHook</a></td>
+<th class="colLast" scope="row">
+<div class="block">A default hook loaded into the <a href="me/aecsocket/calibre/CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a>.</div>
+</th>
+</tr>
+<tr id="i25" class="rowColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/item/util/user/DelayableItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">DelayableItemUser</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
+</tr>
+<tr id="i26" class="altColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/item/util/slot/EntityItemSlot.html" title="class in me.aecsocket.calibre.item.util.slot">EntityItemSlot</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
+</tr>
+<tr id="i27" class="rowColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/item/util/user/EntityItemUser.html" title="class in me.aecsocket.calibre.item.util.user">EntityItemUser</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
+</tr>
+<tr id="i28" class="altColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/item/util/slot/EquipmentItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">EquipmentItemSlot</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
+</tr>
+<tr id="i29" class="rowColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/handle/EventHandle.html" title="class in me.aecsocket.calibre.handle">EventHandle</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
+</tr>
+<tr id="i30" class="altColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/item/util/slot/InventoryItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">InventoryItemSlot</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
+</tr>
+<tr id="i31" class="rowColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemAnimation.html" title="class in me.aecsocket.calibre.item">ItemAnimation</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
+</tr>
+<tr id="i32" class="altColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemAnimation.AnimationAdapter.html" title="class in me.aecsocket.calibre.item">ItemAnimation.AnimationAdapter</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
+</tr>
+<tr id="i33" class="rowColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemAnimation.Frame.html" title="class in me.aecsocket.calibre.item">ItemAnimation.Frame</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
+</tr>
+<tr id="i34" class="altColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/util/ItemDescriptor.html" title="class in me.aecsocket.calibre.util">ItemDescriptor</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
+</tr>
+<tr id="i35" class="rowColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/util/ItemDescriptor.Stat.html" title="class in me.aecsocket.calibre.util">ItemDescriptor.Stat</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
+</tr>
+<tr id="i36" class="altColor">
+<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.html" title="class in me.aecsocket.calibre.item">ItemEvents</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i37" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/service/bukkit/spread/CalibreSpreadService.html" title="interface in me.aecsocket.calibre.defaults.service.bukkit.spread">CalibreSpreadService</a></td>
-<th class="colLast" scope="row">
-<div class="block">Provides a method to apply randomness to projectile launch directions.</div>
-</th>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.Attack.html" title="class in me.aecsocket.calibre.item">ItemEvents.Attack</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i38" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&lt;<a href="me/aecsocket/calibre/item/system/CalibreSystem.html" title="type parameter in CalibreSystem">D</a>&gt;</td>
-<th class="colLast" scope="row">
-<div class="block">A system that can interact with a <a href="me/aecsocket/calibre/item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component"><code>CalibreComponent</code></a> through:
- 
-     Running code on event calls (right click, hold, etc.)
-     Accepting custom data on deserialization
-     Providing stat definitions
- </div>
-</th>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.BukkitAttack.html" title="class in me.aecsocket.calibre.item">ItemEvents.BukkitAttack</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i39" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/component/descriptor/ComponentCreationException.html" title="class in me.aecsocket.calibre.item.component.descriptor">ComponentCreationException</a></td>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.BukkitDamage.html" title="class in me.aecsocket.calibre.item">ItemEvents.BukkitDamage</a></td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i40" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/component/descriptor/ComponentDescriptor.html" title="class in me.aecsocket.calibre.item.component.descriptor">ComponentDescriptor</a></td>
-<th class="colLast" scope="row">
-<div class="block">Can create a <a href="me/aecsocket/calibre/item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component"><code>CalibreComponent</code></a> if provided with a <code>Registry</code>.</div>
-</th>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.BukkitDraw.html" title="class in me.aecsocket.calibre.item">ItemEvents.BukkitDraw</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i41" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/component/descriptor/ComponentDescriptorAdapter.html" title="class in me.aecsocket.calibre.item.component.descriptor">ComponentDescriptorAdapter</a></td>
-<th class="colLast" scope="row">
-<div class="block">Type adapter for <a href="me/aecsocket/calibre/item/component/descriptor/ComponentDescriptor.html" title="class in me.aecsocket.calibre.item.component.descriptor"><code>ComponentDescriptor</code></a>s.</div>
-</th>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.BukkitHolster.html" title="class in me.aecsocket.calibre.item">ItemEvents.BukkitHolster</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i42" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a></td>
-<th class="colLast" scope="row">
-<div class="block">Represents the context of a component in a tree with other components.</div>
-</th>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.Create.html" title="class in me.aecsocket.calibre.item">ItemEvents.Create</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i43" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/stat/DataStat.html" title="class in me.aecsocket.calibre.stat">DataStat</a>&lt;<a href="me/aecsocket/calibre/stat/DataStat.html" title="type parameter in DataStat">E</a>&gt;</td>
-<th class="colLast" scope="row">
-<div class="block">A stat which holds arrays of Calibre data classes.</div>
-</th>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.Damage.html" title="class in me.aecsocket.calibre.item">ItemEvents.Damage</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i44" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/stat/DataStat.Particle.html" title="class in me.aecsocket.calibre.stat">DataStat.Particle</a></td>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.Draw.html" title="class in me.aecsocket.calibre.item">ItemEvents.Draw</a></td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i45" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/stat/DataStat.Sound.html" title="class in me.aecsocket.calibre.stat">DataStat.Sound</a></td>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.Equip.html" title="class in me.aecsocket.calibre.item">ItemEvents.Equip</a></td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i46" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/DefaultEventHandle.html" title="class in me.aecsocket.calibre.defaults">DefaultEventHandle</a></td>
-<th class="colLast" scope="row">
-<div class="block">The <a href="me/aecsocket/calibre/defaults/CalibreDefaultHook.html" title="class in me.aecsocket.calibre.defaults"><code>CalibreDefaultHook</code></a>'s event handler.</div>
-</th>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.Event.html" title="class in me.aecsocket.calibre.item">ItemEvents.Event</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i47" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/DefaultPacketAdapter.html" title="class in me.aecsocket.calibre.defaults">DefaultPacketAdapter</a></td>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.Holster.html" title="class in me.aecsocket.calibre.item">ItemEvents.Holster</a></td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i48" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/util/itemuser/EntityItemUser.html" title="interface in me.aecsocket.calibre.util.itemuser">EntityItemUser</a></td>
-<th class="colLast" scope="row">
-<div class="block">Represents an <a href="me/aecsocket/calibre/util/itemuser/ItemUser.html" title="interface in me.aecsocket.calibre.util.itemuser"><code>ItemUser</code></a> which is attached to a Bukkit <code>Entity</code>.</div>
-</th>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/util/slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i49" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/handle/EventHandle.html" title="class in me.aecsocket.calibre.handle">EventHandle</a></td>
-<th class="colLast" scope="row">
-<div class="block">The plugin's event handler.</div>
-</th>
+<td class="colFirst"><a href="me/aecsocket/calibre/defaults/system/ItemSystem.html" title="class in me.aecsocket.calibre.defaults.system">ItemSystem</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i50" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/FireableSystem.html" title="class in me.aecsocket.calibre.defaults.gun">FireableSystem</a></td>
+<td class="colFirst"><a href="me/aecsocket/calibre/defaults/system/ItemSystem.Events.html" title="class in me.aecsocket.calibre.defaults.system">ItemSystem.Events</a></td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i51" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/FireableSystem.Events.html" title="class in me.aecsocket.calibre.defaults.gun">FireableSystem.Events</a></td>
+<td class="colFirst"><a href="me/aecsocket/calibre/defaults/system/ItemSystem.Events.SectionCreate.html" title="class in me.aecsocket.calibre.defaults.system">ItemSystem.Events.SectionCreate</a></td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i52" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/FireableSystem.Events.Fire.html" title="class in me.aecsocket.calibre.defaults.gun">FireableSystem.Events.Fire</a></td>
-<th class="colLast" scope="row">
-<div class="block">Runs right before firing one shot.</div>
-</th>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i53" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/FireableSystem.Events.FireableEvent.html" title="class in me.aecsocket.calibre.defaults.gun">FireableSystem.Events.FireableEvent</a></td>
-<th class="colLast" scope="row">
-<div class="block">Base class for FireableSystem-related events.</div>
-</th>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/util/user/LivingEntityItemUser.html" title="class in me.aecsocket.calibre.item.util.user">LivingEntityItemUser</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i54" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/FireableSystem.Events.PreChamber.html" title="class in me.aecsocket.calibre.defaults.gun">FireableSystem.Events.PreChamber</a></td>
-<th class="colLast" scope="row">
-<div class="block">Runs before chambering once.</div>
-</th>
+<td class="colFirst"><a href="me/aecsocket/calibre/util/LogMessageResult.html" title="class in me.aecsocket.calibre.util">LogMessageResult</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i55" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/FireableSystem.Events.PreFire.html" title="class in me.aecsocket.calibre.defaults.gun">FireableSystem.Events.PreFire</a></td>
-<th class="colLast" scope="row">
-<div class="block">Runs before firing.</div>
-</th>
+<td class="colFirst"><a href="me/aecsocket/calibre/util/LogMessageResult.Message.html" title="class in me.aecsocket.calibre.util">LogMessageResult.Message</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i56" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/FireableSystem.ProjectileData.html" title="class in me.aecsocket.calibre.defaults.gun">FireableSystem.ProjectileData</a></td>
+<td class="colFirst"><a href="me/aecsocket/calibre/defaults/system/melee/MeleeSystem.html" title="class in me.aecsocket.calibre.defaults.system.melee">MeleeSystem</a></td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i57" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/util/itemuser/GunItemUser.html" title="interface in me.aecsocket.calibre.util.itemuser">GunItemUser</a></td>
-<th class="colLast" scope="row">
-<div class="block">Represents an <a href="me/aecsocket/calibre/util/itemuser/ItemUser.html" title="interface in me.aecsocket.calibre.util.itemuser"><code>ItemUser</code></a> which can use a gun.</div>
-</th>
+<td class="colFirst"><a href="me/aecsocket/calibre/defaults/system/melee/MeleeSystem.Events.html" title="class in me.aecsocket.calibre.defaults.system.melee">MeleeSystem.Events</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i58" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/util/ItemDescriptor.html" title="class in me.aecsocket.calibre.util">ItemDescriptor</a></td>
-<th class="colLast" scope="row">
-<div class="block">A description of an <code>ItemStack</code>.</div>
-</th>
+<td class="colFirst"><a href="me/aecsocket/calibre/util/stat/ParticleStat.html" title="class in me.aecsocket.calibre.util.stat">ParticleStat</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i59" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.html" title="class in me.aecsocket.calibre.item">ItemEvents</a></td>
-<th class="colLast" scope="row">
-<div class="block">Contains all generic item events that a <a href="me/aecsocket/calibre/item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system"><code>CalibreSystem</code></a> can listen to.</div>
-</th>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/util/slot/PlayerItemSlot.html" title="class in me.aecsocket.calibre.item.util.slot">PlayerItemSlot</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i60" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.BaseEvent.html" title="class in me.aecsocket.calibre.item">ItemEvents.BaseEvent</a></td>
-<th class="colLast" scope="row">
-<div class="block">Simple implementation of <a href="me/aecsocket/calibre/item/ItemEvents.UserEvent.html" title="interface in me.aecsocket.calibre.item"><code>ItemEvents.UserEvent</code></a>.</div>
-</th>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/util/user/PlayerItemUser.html" title="class in me.aecsocket.calibre.item.util.user">PlayerItemUser</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i61" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.BukkitDamage.html" title="class in me.aecsocket.calibre.item">ItemEvents.BukkitDamage</a></td>
-<th class="colLast" scope="row">
-<div class="block">Bukkit event-based version of <a href="me/aecsocket/calibre/item/ItemEvents.Damage.html" title="class in me.aecsocket.calibre.item"><code>ItemEvents.Damage</code></a>.</div>
-</th>
+<td class="colFirst"><a href="me/aecsocket/calibre/util/stat/SoundStat.html" title="class in me.aecsocket.calibre.util.stat">SoundStat</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
 </tr>
 <tr id="i62" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.BukkitDraw.html" title="class in me.aecsocket.calibre.item">ItemEvents.BukkitDraw</a></td>
-<th class="colLast" scope="row">
-<div class="block">Bukkit event-based version of <a href="me/aecsocket/calibre/item/ItemEvents.Draw.html" title="class in me.aecsocket.calibre.item"><code>ItemEvents.Draw</code></a>.</div>
-</th>
-</tr>
-<tr id="i63" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.BukkitInteract.html" title="class in me.aecsocket.calibre.item">ItemEvents.BukkitInteract</a></td>
-<th class="colLast" scope="row">
-<div class="block">Bukkit event-based version of <a href="me/aecsocket/calibre/item/ItemEvents.Interact.html" title="class in me.aecsocket.calibre.item"><code>ItemEvents.Interact</code></a>.</div>
-</th>
-</tr>
-<tr id="i64" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.BukkitSwapHands.html" title="class in me.aecsocket.calibre.item">ItemEvents.BukkitSwapHands</a></td>
-<th class="colLast" scope="row">
-<div class="block">Bukkit event-based version of <a href="me/aecsocket/calibre/item/ItemEvents.SwapHands.html" title="class in me.aecsocket.calibre.item"><code>ItemEvents.SwapHands</code></a>.</div>
-</th>
-</tr>
-<tr id="i65" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.Damage.html" title="class in me.aecsocket.calibre.item">ItemEvents.Damage</a></td>
-<th class="colLast" scope="row">
-<div class="block">Runs when an entity is damaged by another entity with an item.</div>
-</th>
-</tr>
-<tr id="i66" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.Draw.html" title="class in me.aecsocket.calibre.item">ItemEvents.Draw</a></td>
-<th class="colLast" scope="row">
-<div class="block">Runs when an item is equipped and held.</div>
-</th>
-</tr>
-<tr id="i67" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.Equip.html" title="class in me.aecsocket.calibre.item">ItemEvents.Equip</a></td>
-<th class="colLast" scope="row">
-<div class="block">Runs when an item is equipped by a player in any <code>EquipmentSlot</code>.</div>
-</th>
-</tr>
-<tr id="i68" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.Event.html" title="interface in me.aecsocket.calibre.item">ItemEvents.Event</a></td>
-<th class="colLast" scope="row">
-<div class="block">The base class for all item events.</div>
-</th>
-</tr>
-<tr id="i69" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.Holster.html" title="class in me.aecsocket.calibre.item">ItemEvents.Holster</a></td>
-<th class="colLast" scope="row">
-<div class="block">Runs when an item is unequipped from a hand.</div>
-</th>
-</tr>
-<tr id="i70" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.Interact.html" title="class in me.aecsocket.calibre.item">ItemEvents.Interact</a></td>
-<th class="colLast" scope="row">
-<div class="block">Runs when an item is left or right clicked.</div>
-</th>
-</tr>
-<tr id="i71" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.ItemCreation.html" title="class in me.aecsocket.calibre.item">ItemEvents.ItemCreation</a></td>
-<th class="colLast" scope="row">
-<div class="block">Runs when an item is being created with <a href="me/aecsocket/calibre/item/component/CalibreComponent.html#createItem(org.bukkit.entity.Player,int)"><code>CalibreComponent.createItem(Player, int)</code></a>.</div>
-</th>
-</tr>
-<tr id="i72" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.ItemUpdate.html" title="class in me.aecsocket.calibre.item">ItemEvents.ItemUpdate</a></td>
-<th class="colLast" scope="row">
-<div class="block">Runs when an item is being updated to a user with <a href="me/aecsocket/calibre/item/component/CalibreComponent.html#updateItem(me.aecsocket.calibre.util.itemuser.ItemUser,org.bukkit.inventory.EquipmentSlot,boolean)"><code>CalibreComponent.updateItem(ItemUser, EquipmentSlot, boolean)</code></a>.</div>
-</th>
-</tr>
-<tr id="i73" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.SwapHands.html" title="class in me.aecsocket.calibre.item">ItemEvents.SwapHands</a></td>
-<th class="colLast" scope="row">
-<div class="block">Runs when an item is swapped from the main to offhand and vice versa.</div>
-</th>
-</tr>
-<tr id="i74" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.SystemEvent.html" title="interface in me.aecsocket.calibre.item">ItemEvents.SystemEvent</a>&lt;<a href="me/aecsocket/calibre/item/ItemEvents.SystemEvent.html" title="type parameter in ItemEvents.SystemEvent">S</a> extends <a href="me/aecsocket/calibre/item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&lt;?&gt;&gt;</td>
-<th class="colLast" scope="row">
-<div class="block">An event which was called by a system.</div>
-</th>
-</tr>
-<tr id="i75" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/ItemEvents.UserEvent.html" title="interface in me.aecsocket.calibre.item">ItemEvents.UserEvent</a></td>
-<th class="colLast" scope="row">
-<div class="block">The base class for all item events involving an item user.</div>
-</th>
-</tr>
-<tr id="i76" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/util/ItemRepresentation.html" title="class in me.aecsocket.calibre.util">ItemRepresentation</a></td>
-<th class="colLast" scope="row">
-<div class="block">Represents a linked pair of <code>ItemStack</code> and <a href="me/aecsocket/calibre/item/CalibreItem.html" title="interface in me.aecsocket.calibre.item"><code>CalibreItem</code></a>, which map to each other.</div>
-</th>
-</tr>
-<tr id="i77" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/util/itemuser/ItemUser.html" title="interface in me.aecsocket.calibre.util.itemuser">ItemUser</a></td>
-<th class="colLast" scope="row">
-<div class="block">Represents an object which can use an <code>ItemStack</code> in some capacity.</div>
-</th>
-</tr>
-<tr id="i78" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/util/itemuser/LivingEntityItemUser.html" title="class in me.aecsocket.calibre.util.itemuser">LivingEntityItemUser</a></td>
-<th class="colLast" scope="row">
-<div class="block">A <code>LivingEntity</code> item user.</div>
-</th>
-</tr>
-<tr id="i79" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/service/system/MainSystem.html" title="interface in me.aecsocket.calibre.defaults.service.system">MainSystem</a></td>
-<th class="colLast" scope="row">
-<div class="block">A system which completely overrides an item's function, and should not conflict with other main systems.</div>
-</th>
-</tr>
-<tr id="i80" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/melee/MeleeSystem.html" title="class in me.aecsocket.calibre.defaults.melee">MeleeSystem</a></td>
+<td class="colFirst"><a href="me/aecsocket/calibre/item/system/SystemInitializationException.html" title="class in me.aecsocket.calibre.item.system">SystemInitializationException</a></td>
 <th class="colLast" scope="row">&nbsp;</th>
-</tr>
-<tr id="i81" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/melee/MeleeSystem.Events.html" title="class in me.aecsocket.calibre.defaults.melee">MeleeSystem.Events</a></td>
-<th class="colLast" scope="row">&nbsp;</th>
-</tr>
-<tr id="i82" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/melee/MeleeSystem.Events.MeleeEvent.html" title="class in me.aecsocket.calibre.defaults.melee">MeleeSystem.Events.MeleeEvent</a></td>
-<th class="colLast" scope="row">
-<div class="block">Base class for MeleeSystem-related events.</div>
-</th>
-</tr>
-<tr id="i83" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/melee/MeleeSystem.Events.Swing.html" title="class in me.aecsocket.calibre.defaults.melee">MeleeSystem.Events.Swing</a></td>
-<th class="colLast" scope="row">
-<div class="block">Runs when a component with a MeleeSystem is left-clicked or damages an entity.</div>
-</th>
-</tr>
-<tr id="i84" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/util/itemuser/PlayerItemUser.html" title="class in me.aecsocket.calibre.util.itemuser">PlayerItemUser</a></td>
-<th class="colLast" scope="row">
-<div class="block">A <code>Player</code> item user.</div>
-</th>
-</tr>
-<tr id="i85" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/service/system/ProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.service.system">ProjectileProviderSystem</a></td>
-<th class="colLast" scope="row">
-<div class="block">A system which can create a projectile with specific conditions.</div>
-</th>
-</tr>
-<tr id="i86" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/service/system/ProjectileProviderSystem.Data.html" title="class in me.aecsocket.calibre.defaults.service.system">ProjectileProviderSystem.Data</a></td>
-<th class="colLast" scope="row">
-<div class="block">Represents projectile creation data.</div>
-</th>
-</tr>
-<tr id="i87" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/service/system/ProjectileProviderSystem.Projectile.html" title="class in me.aecsocket.calibre.defaults.service.system">ProjectileProviderSystem.Projectile</a></td>
-<th class="colLast" scope="row">&nbsp;</th>
-</tr>
-<tr id="i88" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/util/RegistryCommandContext.html" title="class in me.aecsocket.calibre.util">RegistryCommandContext</a>&lt;<a href="me/aecsocket/calibre/util/RegistryCommandContext.html" title="type parameter in RegistryCommandContext">T</a> extends me.aecsocket.unifiedframework.registry.Identifiable&gt;</td>
-<th class="colLast" scope="row">&nbsp;</th>
-</tr>
-<tr id="i89" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/sight/Sight.html" title="class in me.aecsocket.calibre.defaults.gun.sight">Sight</a></td>
-<th class="colLast" scope="row">&nbsp;</th>
-</tr>
-<tr id="i90" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/sight/SightableSystem.html" title="class in me.aecsocket.calibre.defaults.gun.sight">SightableSystem</a></td>
-<th class="colLast" scope="row">&nbsp;</th>
-</tr>
-<tr id="i91" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/sight/SightableSystem.Events.html" title="class in me.aecsocket.calibre.defaults.gun.sight">SightableSystem.Events</a></td>
-<th class="colLast" scope="row">&nbsp;</th>
-</tr>
-<tr id="i92" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/sight/SightableSystem.Events.ChangeSight.html" title="class in me.aecsocket.calibre.defaults.gun.sight">SightableSystem.Events.ChangeSight</a></td>
-<th class="colLast" scope="row">
-<div class="block">Runs when changing the selected sight.</div>
-</th>
-</tr>
-<tr id="i93" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/sight/SightableSystem.Events.NextSightEvent.html" title="class in me.aecsocket.calibre.defaults.gun.sight">SightableSystem.Events.NextSightEvent</a></td>
-<th class="colLast" scope="row">
-<div class="block">Runs when changing the sight to the next available one.</div>
-</th>
-</tr>
-<tr id="i94" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/sight/SightableSystem.Events.SightableEvent.html" title="class in me.aecsocket.calibre.defaults.gun.sight">SightableSystem.Events.SightableEvent</a></td>
-<th class="colLast" scope="row">
-<div class="block">Base class for SightableSystem-related events.</div>
-</th>
-</tr>
-<tr id="i95" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/sight/SightableSystem.Events.ToggleAim.html" title="class in me.aecsocket.calibre.defaults.gun.sight">SightableSystem.Events.ToggleAim</a></td>
-<th class="colLast" scope="row">
-<div class="block">Runs when toggling aiming in or out.</div>
-</th>
-</tr>
-<tr id="i96" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/sight/SightableSystem.SightInstance.html" title="class in me.aecsocket.calibre.defaults.gun.sight">SightableSystem.SightInstance</a></td>
-<th class="colLast" scope="row">&nbsp;</th>
-</tr>
-<tr id="i97" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/sight/SightableSystem.SightPath.html" title="class in me.aecsocket.calibre.defaults.gun.sight">SightableSystem.SightPath</a></td>
-<th class="colLast" scope="row">&nbsp;</th>
-</tr>
-<tr id="i98" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/sight/SightSystem.html" title="interface in me.aecsocket.calibre.defaults.gun.sight">SightSystem</a></td>
-<th class="colLast" scope="row">&nbsp;</th>
-</tr>
-<tr id="i99" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/service/system/SimpleActionSystem.html" title="class in me.aecsocket.calibre.defaults.service.system">SimpleActionSystem</a></td>
-<th class="colLast" scope="row">
-<div class="block">A simple implementation of an <a href="me/aecsocket/calibre/defaults/service/system/ActionSystem.html" title="interface in me.aecsocket.calibre.defaults.service.system"><code>ActionSystem</code></a>.</div>
-</th>
-</tr>
-<tr id="i100" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/sight/SimpleSightSystem.html" title="class in me.aecsocket.calibre.defaults.gun.sight">SimpleSightSystem</a></td>
-<th class="colLast" scope="row">&nbsp;</th>
-</tr>
-<tr id="i101" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gun/sight/SimpleSightSystemAdapter.html" title="class in me.aecsocket.calibre.defaults.gun.sight">SimpleSightSystemAdapter</a></td>
-<th class="colLast" scope="row">&nbsp;</th>
-</tr>
-<tr id="i102" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gui/SlotViewGUI.html" title="class in me.aecsocket.calibre.defaults.gui">SlotViewGUI</a></td>
-<th class="colLast" scope="row">
-<div class="block">A GUI representing the slots of a <a href="me/aecsocket/calibre/item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component"><code>CalibreComponent</code></a>.</div>
-</th>
-</tr>
-<tr id="i103" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/defaults/gui/SlotViewGUIItem.html" title="class in me.aecsocket.calibre.defaults.gui">SlotViewGUIItem</a></td>
-<th class="colLast" scope="row">&nbsp;</th>
-</tr>
-<tr id="i104" class="altColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/system/SystemSearchOptions.html" title="class in me.aecsocket.calibre.item.system">SystemSearchOptions</a>&lt;<a href="me/aecsocket/calibre/item/system/SystemSearchOptions.html" title="type parameter in SystemSearchOptions">T</a>&gt;</td>
-<th class="colLast" scope="row">
-<div class="block">Filters for searching for systems in a component tree.</div>
-</th>
-</tr>
-<tr id="i105" class="rowColor">
-<td class="colFirst"><a href="me/aecsocket/calibre/item/system/SystemSearchResult.html" title="class in me.aecsocket.calibre.item.system">SystemSearchResult</a>&lt;<a href="me/aecsocket/calibre/item/system/SystemSearchResult.html" title="type parameter in SystemSearchResult">T</a>&gt;</td>
-<th class="colLast" scope="row">
-<div class="block">A result of finding a system from <a href="me/aecsocket/calibre/item/component/CalibreComponent.html#searchSystems(me.aecsocket.calibre.item.system.SystemSearchOptions,java.util.function.Predicate)"><code>CalibreComponent.searchSystems(SystemSearchOptions, Predicate)</code></a>.</div>
-</th>
 </tr>
 </table>
 </li>

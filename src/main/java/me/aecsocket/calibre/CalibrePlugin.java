@@ -5,26 +5,19 @@ import co.aikar.commands.PaperCommandManager;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
+import me.aecsocket.calibre.defaults.DefaultCalibreHook;
 import me.aecsocket.calibre.handle.CalibreCommand;
 import me.aecsocket.calibre.handle.EventHandle;
-import me.aecsocket.calibre.defaults.CalibreDefaultHook;
-import me.aecsocket.calibre.item.CalibreIdentifiable;
-import me.aecsocket.calibre.item.CalibreItem;
-import me.aecsocket.calibre.item.CalibreItemSupplier;
-import me.aecsocket.calibre.item.animation.Animation;
-import me.aecsocket.calibre.item.animation.AnimationAdapter;
 import me.aecsocket.calibre.item.blueprint.Blueprint;
 import me.aecsocket.calibre.item.component.CalibreComponent;
-import me.aecsocket.calibre.item.component.CalibreComponentAdapter;
-import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptor;
-import me.aecsocket.calibre.item.component.descriptor.ComponentDescriptorAdapter;
-import me.aecsocket.calibre.util.AcceptsCalibrePluginAdapter;
-import me.aecsocket.calibre.util.CalibrePlayer;
-import me.aecsocket.calibre.util.RegistryCommandContext;
-import me.aecsocket.calibre.util.protocol.CalibreProtocol;
+import me.aecsocket.calibre.item.component.ComponentTree;
+import me.aecsocket.calibre.item.util.user.EntityItemUser;
+import me.aecsocket.calibre.item.util.user.ItemUser;
+import me.aecsocket.calibre.item.util.user.PlayerItemUser;
+import me.aecsocket.calibre.util.*;
+import me.aecsocket.unifiedframework.gui.GUIVector;
+import me.aecsocket.unifiedframework.item.ItemAdapter;
 import me.aecsocket.unifiedframework.item.ItemManager;
 import me.aecsocket.unifiedframework.locale.LocaleManager;
 import me.aecsocket.unifiedframework.locale.Translation;
@@ -34,417 +27,487 @@ import me.aecsocket.unifiedframework.loop.PreciseLoop;
 import me.aecsocket.unifiedframework.loop.SchedulerLoop;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.loop.Tickable;
-import me.aecsocket.unifiedframework.registry.Identifiable;
-import me.aecsocket.unifiedframework.registry.Registry;
-import me.aecsocket.unifiedframework.resource.DataResult;
-import me.aecsocket.unifiedframework.resource.LoadResult;
+import me.aecsocket.unifiedframework.registry.LinkingException;
+import me.aecsocket.unifiedframework.registry.Ref;
+import me.aecsocket.unifiedframework.registry.ResolutionException;
 import me.aecsocket.unifiedframework.resource.ResourceLoadException;
 import me.aecsocket.unifiedframework.resource.Settings;
 import me.aecsocket.unifiedframework.stat.StatMap;
 import me.aecsocket.unifiedframework.stat.StatMapAdapter;
 import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.Utils;
-import me.aecsocket.unifiedframework.util.json.DefaultedRuntimeTypeAdapterFactory;
+import me.aecsocket.unifiedframework.util.Vector2;
+import me.aecsocket.unifiedframework.util.json.GUIVectorAdapter;
+import me.aecsocket.unifiedframework.util.json.Vector2Adapter;
+import me.aecsocket.unifiedframework.util.json.VectorAdapter;
 import me.aecsocket.unifiedframework.util.log.LabelledLogger;
 import me.aecsocket.unifiedframework.util.log.LogLevel;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.Vector;
 
-import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
-import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 /**
- * The main plugin class. Other plugins can hook into this by:
- * <ul>
- *     <li>Adding this plugin as a <code>loadbefore</code> in the <code>plugin.yml</code></li>
- *     <li>Extending {@link CalibreHook}</li>
- * </ul>
+ * The main plugin class.
  */
 public class CalibrePlugin extends JavaPlugin implements Tickable {
-    private final LabelledLogger logger = new LabelledLogger(getLogger(), LogLevel.VERBOSE);
+    /** A list of all resources in this JAR that will be automatically placed in if no data folder is found. */
+    public static final List<String> DEFAULT_RESOURCES = Arrays.asList(
+            "README.txt",
+            "settings.json",
+            "lang/default_en_us.json"
+    );
+
+    /** The list of hooks active on this plugin. */
+    private final List<CalibreHook> hooks = new ArrayList<>();
+    /** The plugin's custom logger. */
+    private final LabelledLogger logger = new LabelledLogger(getLogger());
+    /** The central settings for the plugin. */
+    private final Settings settings = new Settings();
+    /** The central registry for the plugin. */
+    private final CalibreRegistry registry = new CalibreRegistry();
+    /** The object used for translating messages. */
     private final LocaleManager localeManager = new LocaleManager();
-    private final Registry registry = new Registry();
-    private final Set<CalibreHook> hooks = new HashSet<>();
-    private final CalibreDefaultHook defaultHook = new CalibreDefaultHook();
-    private final Map<Player, CalibrePlayer> players = new HashMap<>();
+    /** The plugin's Bukkit scheduler loop. */
     private final SchedulerLoop schedulerLoop = new SchedulerLoop(this);
+     /** The plugin's thread-based loop. */
     private final PreciseLoop preciseLoop = new PreciseLoop(10);
-    private final ItemManager itemManager = new ItemManager(this);
-    private final Map<String, NamespacedKey> keys = new HashMap<>();
-    private final DefaultedRuntimeTypeAdapterFactory<ComponentDescriptor> componentDescriptorAdapter = DefaultedRuntimeTypeAdapterFactory.of(ComponentDescriptor.class);
+    /** The default hook which is registered as a hook. */
+    private final DefaultCalibreHook defaultHook = new DefaultCalibreHook();
+    /** The configurable StatMapAdapter for this plugin's GSON. */
     private final StatMapAdapter statMapAdapter = new StatMapAdapter();
-    private CalibreComponentAdapter componentAdapter;
-    private Settings settings;
-    private PaperCommandManager commandManager;
-    private ProtocolManager protocolManager;
+    /** The item manager for the plugin. */
+    private final ItemManager itemManager = new ItemManager(this);
+    /** The map of names to plugin keys. */
+    private final Map<String, NamespacedKey> keys = new HashMap<>();
+    /** The map of players to player data. */
+    private final Map<Player, CalibrePlayer> players = new HashMap<>();
+
+    /** The central Gson instance. */
     private Gson gson;
+    /** The plugin's protocol manager instance. */
+    private ProtocolManager protocolManager;
+    /** The plugin's command manager for ACF commands. */
+    private PaperCommandManager commandManager;
+    /** The plugin's main command instance. */
+    private CalibreCommand command;
+
+    //region Plugin
 
     @Override
     public void onEnable() {
-        componentAdapter = new CalibreComponentAdapter(this, statMapAdapter);
-        commandManager = new PaperCommandManager(this);
-        protocolManager = ProtocolLibrary.getProtocolManager();
-
-        hooks.add(defaultHook); // TODO option to disable default hook
-        Stream.of(Bukkit.getPluginManager().getPlugins())
-                .filter(plugin -> plugin instanceof CalibreHook)
-                .map(plugin -> (CalibreHook) plugin)
-                .forEach(hooks::add);
-
+        // Hooks
+        hooks.add(defaultHook); // todo way to disable
+        for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
+            if (plugin instanceof CalibreHook) {
+                CalibreHook hook = (CalibreHook) plugin;
+                hooks.add(hook);
+            }
+        }
         hooks.forEach(hook -> {
             hook.acceptPlugin(this);
-            hook.initialize();
+            hook.onEnable();
+            hook.getPreRegisters().forEach(registry::addPreRegister);
         });
 
+        // GSON
         GsonBuilder gsonBuilder = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-                .registerTypeAdapterFactory(new AcceptsCalibrePluginAdapter(this))
-                .registerTypeAdapterFactory(componentAdapter)
-                .registerTypeAdapterFactory(componentDescriptorAdapter)
-
-                .registerTypeAdapter(Animation.class, new AnimationAdapter(this))
-                .registerTypeAdapter(StatMap.class, statMapAdapter)
                 .registerTypeAdapter(TranslationMap.class, new TranslationMapAdapter())
-                .registerTypeAdapter(ComponentDescriptor.class, new ComponentDescriptorAdapter(this.getRegistry()));
-        hooks.forEach(hook -> hook.initializeGson(gsonBuilder));
+                .registerTypeAdapter(StatMap.class, statMapAdapter)
+                .registerTypeAdapter(GUIVector.class, GUIVectorAdapter.INSTANCE)
+                .registerTypeAdapter(Vector.class, VectorAdapter.INSTANCE)
+                .registerTypeAdapter(Vector2.class, Vector2Adapter.INSTANCE)
+                .registerTypeAdapter(ComponentTree.class, new ComponentTree.Adapter(this))
+                .registerTypeAdapterFactory(new CalibreComponent.Adapter())
+                .registerTypeAdapterFactory(new Blueprint.Adapter())
+                .registerTypeAdapterFactory(new AcceptsCalibrePlugin.Adapter(this));
+        hooks.forEach(hook -> hook.registerTypeAdapters(gsonBuilder));
         gson = gsonBuilder.create();
-        settings = new Settings(gson);
 
-        load().forEach(entry -> log(entry.isSuccessful() ? LogLevel.VERBOSE : LogLevel.WARN, (String) entry.getResult()));
-
-        commandManager.getCommandContexts().registerContext(CalibreItemSupplier.class, new RegistryCommandContext<>(CalibreItemSupplier.class, registry));
-        commandManager.getCommandContexts().registerContext(CalibreIdentifiable.class, new RegistryCommandContext<>(CalibreIdentifiable.class, registry));
-        commandManager.getCommandContexts().registerContext(Player.class, context -> {
-            String id = context.popFirstArg();
-            Player result = Utils.getCommandTarget(id, context.getSender());
-            if (result == null) throw new InvalidCommandArgument("No player with identifier " + id + " found");
-            return result;
-        });
+        // Commands
+        commandManager = new PaperCommandManager(this);
+        commandManager.enableUnstableAPI("help");
         commandManager.getCommandCompletions().registerCompletion("players", context -> Utils.getCommandPlayerEntries(context.getSender()));
         commandManager.getCommandCompletions().registerCompletion("registry", context -> {
-            String extend = context.getConfig("extends");
+            String sType = context.getConfig("type");
             Class<?> type = null;
-            if (extend != null) {
-                try { type = Class.forName(extend); }
-                catch (ClassNotFoundException ignore) {}
+            if (sType != null) {
+                try {
+                    type = Class.forName(sType);
+                } catch (ClassNotFoundException ignore) {}
             }
-            List<String> result = new ArrayList<>();
+
             final Class<?> fType = type;
-            registry.getRegistry().forEach((id, ref) -> {
-                Identifiable raw = ref.get();
-                if (fType == null || fType.isAssignableFrom(raw.getClass())) result.add(id);
-            });
+            return registry.getRegistry().entrySet().stream()
+                    .filter(entry -> fType == null || fType.isInstance(entry.getValue().get()))
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+        });
+        commandManager.getCommandContexts().registerContext(Player.class, context -> Utils.getCommandTarget(context.popFirstArg(), context.getSender()));
+        commandManager.getCommandContexts().registerContext(Ref.class, context -> {
+            String sType = context.getFlagValue("type", (String) null);
+            Class<?> type = null;
+            if (sType != null) {
+                try {
+                    type = Class.forName(sType);
+                } catch (ClassNotFoundException ignore) {}
+            }
+
+            CommandSender sender = context.getSender();
+            String id = context.popFirstArg();
+            Ref<?> result = registry.getRef(id);
+            if (result == null) throw new InvalidCommandArgument(gen(sender, "chat.command.not_found", "id", id));
+            if (type != null && !type.isInstance(result.get())) throw new InvalidCommandArgument(gen(sender, "chat.command.wrong_type", "id", id));
             return result;
         });
-        commandManager.registerCommand(new CalibreCommand(this));
+        command = new CalibreCommand(this);
+        commandManager.registerCommand(command);
 
-        itemManager.registerAdapter(componentAdapter);
+        // Other
+        itemManager.registerAdapter(new ItemAdapter<CalibreComponent>() {
+            private long nextError = 0;
 
-        Bukkit.getPluginManager().registerEvents(new EventHandle(this), this);
+            @Override public String getItemType() { return CalibreComponent.ITEM_TYPE; }
+
+            @Override
+            public CalibreComponent deserialize(ItemStack stack, ItemMeta meta, PersistentDataContainer data) {
+                if (!data.has(key("tree"), PersistentDataType.STRING)) return null;
+                String json = data.get(key("tree"), PersistentDataType.STRING);
+                try {
+                    ComponentTree tree = gson.fromJson(json, ComponentTree.class);
+                    return tree == null ? null : tree.getRoot();
+                } catch (JsonParseException e) {
+                    if (System.currentTimeMillis() >= nextError) {
+                        elog(LogLevel.WARN, e, "Failed to parse item JSON: {msg}\n{json}",
+                                "msg", e.getMessage(), "json", prettyPrinter().toJson(gson.fromJson(json, JsonElement.class)));
+                        nextError = System.currentTimeMillis() + setting("repeat_error_delay", long.class, 60000);
+                    }
+                    return null;
+                }
+            }
+        });
+
+        protocolManager = ProtocolLibrary.getProtocolManager();
         CalibreProtocol.initialize(this);
 
-        schedulerLoop.registerTickable(this);
-        schedulerLoop.start();
+        Bukkit.getPluginManager().registerEvents(new EventHandle(this), this);
 
+        // Loading
+        registry.preRegister();
+        logLoad();
+
+        // Loops
+        schedulerLoop.registerTickable(this);
         preciseLoop.registerTickable(this);
+        schedulerLoop.start();
         preciseLoop.start();
     }
 
     @Override
     public void onDisable() {
-        hooks.forEach(CalibreHook::disable);
-
-        if (schedulerLoop.isRunning())
-            schedulerLoop.stop();
-        if (preciseLoop.isRunning())
-            preciseLoop.stop();
+        hooks.forEach(CalibreHook::onDisable);
+        schedulerLoop.stop();
+        preciseLoop.stop();
     }
 
-    public LabelledLogger getPluginLogger() { return logger; }
+    //endregion
+
+    //region Getters
+
+    public List<CalibreHook> getHooks() { return hooks; }
+    public LabelledLogger getLabelledLogger() { return logger; }
+    public Settings getSettings() { return settings; }
+    public CalibreRegistry getRegistry() { return registry; }
     public LocaleManager getLocaleManager() { return localeManager; }
-    public Registry getRegistry() { return registry; }
-    public Set<CalibreHook> getHooks() { return hooks; }
-    public CalibreDefaultHook getDefaultHook() { return defaultHook; }
-    public Map<Player, CalibrePlayer> getPlayers() { return players; }
     public SchedulerLoop getSchedulerLoop() { return schedulerLoop; }
     public PreciseLoop getPreciseLoop() { return preciseLoop; }
-    public ItemManager getItemManager() { return itemManager; }
-    public Map<String, NamespacedKey> getKeys() { return keys; }
-    public DefaultedRuntimeTypeAdapterFactory<ComponentDescriptor> getComponentDescriptorAdapter() { return componentDescriptorAdapter; }
+    public DefaultCalibreHook getDefaultHook() { return defaultHook; }
     public StatMapAdapter getStatMapAdapter() { return statMapAdapter; }
-    public CalibreComponentAdapter getComponentAdapter() { return componentAdapter; }
-    public Settings getSettings() { return settings; }
-    public PaperCommandManager getCommandManager() { return commandManager; }
-    public ProtocolManager getProtocolManager() { return protocolManager; }
+    public ItemManager getItemManager() { return itemManager; }
+    public Map<Player, CalibrePlayer> getPlayers() { return players; }
+
     public Gson getGson() { return gson; }
+    public ProtocolManager getProtocolManager() { return protocolManager; }
+    public PaperCommandManager getCommandManager() { return commandManager; }
+    public CalibreCommand getCommand() { return command; }
 
-    public CalibrePlayer getPlayerData(Player player) { return players.computeIfAbsent(player, p -> new CalibrePlayer(this, p)); }
-    public CalibrePlayer removePlayerData(Player player) { return players.remove(player); }
+    //endregion
 
-    private DataResult<String, String> addFailure(DataResult<String, String> result, Throwable throwable, String msg) {
-        if (setting("print_stack_traces", boolean.class, false))
-            result.addFailureData(msg + "\n" + TextUtils.joinLines(TextUtils.prefixLines(Utils.getStackTrace(throwable), "  ")));
-        else
-            result.addFailureData(msg);
+    //region Loading
+
+    /**
+     * Unloads all loaded data.
+     */
+    public void unload() {
+        settings.clear();
+        registry.unregisterAll();
+        localeManager.unregisterAll();
+    }
+
+    public void createDefaults() {
+        getDataFolder().mkdir();
+        for (String resource : DEFAULT_RESOURCES)
+            saveResource(resource, true);
+    }
+
+    /**
+     * Loads all data to load.
+     * @return The messages produced.
+     */
+    public LogMessageResult load() {
+        LogMessageResult result = new LogMessageResult();
+        if (!getDataFolder().exists()) {
+            result.addFailureData(LogLevel.WARN, "No data directory found, creating");
+            createDefaults();
+        }
+
+        return result.combine(loadSettings())
+                .combine(loadRegistry())
+                .combine(loadLocales());
+    }
+
+    /**
+     * Loads all data to load, and logs messages to the console.
+     * @return The messages produced.
+     */
+    public LogMessageResult logLoad() {
+        LogMessageResult result = load();
+        result.forEach(entry -> {
+            LogMessageResult.Message msg = (LogMessageResult.Message) entry.getResult();
+            logger.rlog(msg.getLevel(), msg.getMessage() + (msg.getDetail() != null && setting("print_detailed", boolean.class, true) ? "\n" + msg.getDetail() : ""));
+        });
         return result;
     }
 
     /**
-     * Reloads settings from the settings file and applies some initial settings.
-     * @return A {@link LoadResult} of messages during loading.
+     * Unloads then loads all data to load.
+     * @return The messages produced.
      */
-    public DataResult<String, String> loadSettings() {
+    public LogMessageResult reload() {
+        unload();
+        return load();
+    }
+
+    /**
+     * Unloads then loads all data to load, and logs messages to the console.
+     * @return The messages produced.
+     */
+    public LogMessageResult logReload() {
+        unload();
+        return logLoad();
+    }
+
+    /**
+     * Loads the settings, and initializes values based on them.
+     * @return The messages produced.
+     */
+    public LogMessageResult loadSettings() {
+        LogMessageResult result = new LogMessageResult();
         try {
             settings.loadFrom(this);
         } catch (ResourceLoadException e) {
-            DataResult<String, String> result = new DataResult<>();
-            return addFailure(result, e, TextUtils.format("Failed to load settings file: {msg}", "msg", e.getCause().getMessage()));
+            result.addFailureData(
+                    LogLevel.ERROR,
+                    "Could not load settings: " + e.getMessage(),
+                    getTrace(e)
+            );
         }
-        log(LogLevel.VERBOSE, "Loaded settings file");
 
-        LogLevel level = LogLevel.valueOfDefault(setting("log_level", String.class, "verbose").toUpperCase());
-        if (level != null) logger.setLevel(level);
+        setting("log_level", String.class).ifPresent(level -> {
+            LogLevel level2 = LogLevel.valueOfDefault(level);
+            if (level2 != null) logger.setLevel(level2);
+        });
+        setting("default_locale", String.class).ifPresent(localeManager::setDefaultLocale);
 
-        String defaultLocale = setting("locale", String.class, localeManager.getDefaultLocale());
-        if (defaultLocale != null) localeManager.setDefaultLocale(defaultLocale);
-
-        return new DataResult<>();
-    }
-
-    /**
-     * Reloads languages and locales using {@link LocaleManager#loadFrom(Gson, Plugin)}.
-     * @return A {@link LoadResult} of messages during loading.
-     */
-    public DataResult<String, String> loadLocales() {
-        DataResult<String, String> result = new DataResult<>();
-        try {
-            localeManager.loadFrom(gson, this).forEach(entry -> {
-                Path path = entry.getKey();
-                if (entry.isSuccessful())
-                    result.addSuccessData(TextUtils.format("Loaded translation {path} ({locale})", "path", path, "locale", ((Translation) entry.getResult()).getLocale()));
-                else {
-                    Exception exception = (Exception) entry.getResult();
-                    addFailure(result, exception, TextUtils.format("Failed to load translation {path}: {msg}", "path", path, "msg", exception.getMessage()));
-                }
-            });
-        } catch (ResourceLoadException e) {
-            addFailure(result, e, TextUtils.format("Failed to load locale files: {msg}", "msg", e.getMessage()));
-        }
         return result;
     }
 
     /**
-     * Reloads all the items in the plugin's {@link Registry} using {@link Registry#loadFrom(Gson, Plugin)}.
-     * <p>
-     * Configured subdirectories:
-     * <ul>
-     *     <li><code>component</code>: {@link CalibreComponent}</li>
-     *     <li><code>blueprint</code>: {@link Blueprint}</li>
-     * </ul>
-     * @return A {@link LoadResult} of messages during loading.
+     * Loads the registry.
+     * @return The messages produced.
      */
-    public DataResult<String, String> loadRegistry() {
-        DataResult<String, String> result = new DataResult<>();
+    public LogMessageResult loadRegistry() {
+        LogMessageResult result = new LogMessageResult();
+        CalibreRegistry.LoadContext load;
         try {
-            Registry.LoadContext load = registry.loadFrom(gson, this)
+            load = registry.loadFrom(gson, this)
                     .with("component", CalibreComponent.class)
                     .with("blueprint", Blueprint.class)
-                    .load()
-                    .resolve();
-            load.loadResult().forEach(entry -> {
-                Path path = entry.getKey();
-                if (entry.isSuccessful()) {
-                    Identifiable id = (Identifiable) entry.getResult();
-                    result.addSuccessData(TextUtils.format("Loaded {class} {id}", "class", id.getClass().getSimpleName(), "id", id.getId()));
-                } else {
-                    Exception exception = (Exception) entry.getResult();
-                    addFailure(result, exception, TextUtils.format("Failed to load {path}: {msg}", "path", path, "msg", exception.getMessage()));
-                }
-            });
-            load.resolveResult().forEach(entry -> {
-                Identifiable id = entry.getKey().get();
-                String type = id.getClass().getSimpleName();
-                if (entry.isSuccessful()) {
-                    result.addSuccessData(TextUtils.format("Resolved {class} {id}", "class", type, "id", id.getId()));
-                } else {
-                    Exception exception = (Exception) entry.getResult();
-                    addFailure(result, exception, TextUtils.format("Failed to resolve {class} {id}: {msg}", "class", type, "id", id.getId(), "msg", exception.getMessage()));
-                }
-            });
+                    .load();
         } catch (ResourceLoadException e) {
-            addFailure(result, e, TextUtils.format("Failed to load object files: {msg}", "msg", e.getMessage()));
-        }
-        return result;
-    }
-
-    /**
-     * Checks if the {@link Plugin#getDataFolder()} exists, and runs:
-     * <ol>
-     *     <li>{@link CalibrePlugin#loadSettings()}</li>
-     *     <li>{@link CalibrePlugin#loadLocales()}</li>
-     *     <li>{@link CalibrePlugin#loadRegistry()}</li>
-     * </ol>
-     * <p>
-     * This version does not take into account hooks. Use {@link CalibrePlugin#load()} to incorporate hooks.
-     * @return A {@link LoadResult} of messages during loading.
-     */
-    public DataResult<String, String> cleanLoad() {
-        DataResult<String, String> result = new DataResult<>();
-        File root = getDataFolder();
-        if (!root.exists()) {
-            result.addFailureData("Failed to load data directory");
+            result.addFailureData(
+                    LogLevel.ERROR,
+                    "Could not load registry: " + e.getMessage(),
+                    getTrace(e)
+            );
             return result;
         }
 
-        return result
-                .combine(loadSettings())
-                .combine(loadLocales())
-                .combine(loadRegistry());
-    }
+        load.getLoadResult().forEach(entry -> {
+            if (entry.isSuccessful()) {
+                @SuppressWarnings("unchecked")
+                CalibreIdentifiable object = ((Ref<CalibreIdentifiable>) entry.getResult()).get();
+                result.addSuccessData(
+                        LogLevel.VERBOSE,
+                        TextUtils.format("Loaded {type} {id}",
+                        "type", object.getClass().getSimpleName(), "id", object.getId())
+                );
+            } else {
+                Exception e = (Exception) entry.getResult();
+                result.addFailureData(
+                        LogLevel.WARN,
+                        TextUtils.format("Could not load {path}: {msg}",
+                        "path", entry.getKey(), "msg", e.getMessage()),
+                        getTrace(e)
+                );
+            }
+        });
 
-    /**
-     * Clears the registry and locale manager, initializes hooks, then calls {@link CalibrePlugin#cleanLoad()}.
-     * @return A {@link LoadResult} of messages during loading.
-     */
-    public DataResult<String, String> load() {
-        settings.clear();
-        localeManager.unregisterAll();
-        registry.unregisterAll();
+        registry.link().forEach(entry -> {
+            CalibreIdentifiable object = entry.getKey().get();
+            if (entry.isSuccessful()) {
+                @SuppressWarnings("unchecked")
+                CalibreIdentifiable dep = ((Ref<CalibreIdentifiable>) entry.getResult()).get();
+                result.addSuccessData(
+                        LogLevel.VERBOSE,
+                        TextUtils.format("Linked {type} {id} with {dtype} {did}",
+                        "type", object.getClass().getSimpleName(), "id", object.getId(),
+                        "dtype", dep.getClass().getSimpleName(), "did", dep.getId())
+                );
+            } else {
+                LinkingException e = (LinkingException) entry.getResult();
+                result.addFailureData(
+                        LogLevel.WARN,
+                        TextUtils.format("Could not link {type} {id}: {msg}",
+                        "type", object.getClass().getSimpleName(), "id", object.getId(), "msg", e.getMessage()),
+                        getTrace(e)
+                );
+            }
+        });
 
-        hooks.forEach(hook -> hook.preLoadRegister(registry, localeManager, settings));
-        DataResult<String, String> result = cleanLoad();
-        hooks.forEach(hook -> hook.postLoadRegister(registry, localeManager, settings));
+        registry.resolve().forEach(entry -> {
+            CalibreIdentifiable object = entry.getKey().get();
+            if (entry.isSuccessful()) {
+                result.addSuccessData(
+                        LogLevel.VERBOSE,
+                        TextUtils.format("Resolved {type} {id}",
+                        "type", object.getClass().getSimpleName(), "id", object.getId())
+                );
+            } else {
+                ResolutionException e = (ResolutionException) entry.getResult();
+                result.addFailureData(
+                        LogLevel.WARN,
+                        TextUtils.format("Could not resolve {type} {id}: {msg}",
+                        "type", object.getClass().getSimpleName(), "id", object.getId(), "msg", e.getMessage()),
+                        getTrace(e)
+                );
+            }
+        });
+
         return result;
     }
 
-    @Override
-    public void tick(TickContext tickContext) {
-        Bukkit.getOnlinePlayers().forEach(player -> tickContext.tick(getPlayerData(player)));
+    /**
+     * Loads the locales.
+     * @return The messages produced.
+     */
+    public LogMessageResult loadLocales() {
+        LogMessageResult result = new LogMessageResult();
+        try {
+            localeManager.loadFrom(gson, this).forEach(entry -> {
+                if (entry.isSuccessful()) {
+                    result.addSuccessData(
+                            LogLevel.VERBOSE,
+                            TextUtils.format("Loaded locale {locale} from {path}",
+                            "locale", ((Translation) entry.getResult()).getLocale(), "path", entry.getKey())
+                    );
+                } else {
+                    Exception e = (Exception) entry.getResult();
+                    result.addFailureData(
+                            LogLevel.WARN,
+                            TextUtils.format("Could not load locale from {path}: {msg}",
+                            "path", entry.getKey(), "msg", e.getMessage()),
+                            getTrace(e)
+                    );
+                }
+            });
+        } catch (ResourceLoadException e) {
+            result.addFailureData(
+                    LogLevel.ERROR,
+                    TextUtils.format("trace"),
+                    getTrace(e)
+            );
+        }
+        return result;
     }
 
-    /**
-     * Gets a setting from the plugin's {@link Settings} instance.
-     * @param path The path to the setting.
-     * @param type The type of result.
-     * @param defaultValue The default value if none were found in the settings file.
-     * @param <T> The type of result.
-     * @return The result.
-     */
-    public <T> T setting(String path, Type type, T defaultValue) { return settings.get(path, type, defaultValue); }
+    //endregion
 
-    /**
-     * Gets a setting from the plugin's {@link Settings} instance.
-     * @param path The path to the setting.
-     * @param type The type of result.
-     * @param defaultValue The default value if none were found in the settings file.
-     * @param <T> The type of result.
-     * @return The result.
-     */
-    public <T> T setting(String path, Class<T> type, T defaultValue) { return setting(path, (Type) type, defaultValue); }
+    public CalibrePlayer getPlayerData(Player player) { return players.computeIfAbsent(player, __ -> new CalibrePlayer(this, player)); }
+    public PlayerItemUser userOf(Player player) { return getPlayerData(player).getUser(); }
+    public ItemUser userOf(Entity entity) { return entity instanceof Player ? userOf((Player) entity) : EntityItemUser.of(entity); }
 
-    /**
-     * Logs something to the plugin's {@link LabelledLogger}.
-     * @param level The {@link LogLevel}.
-     * @param text The text to log.
-     * @param args The arguments used in {@link me.aecsocket.unifiedframework.util.TextUtils#format(String, Object...)}.
-     */
+    @Override
+    public void tick(TickContext tickContext) {
+        Bukkit.getOnlinePlayers().forEach(player ->
+                tickContext.tick(getPlayerData(player)));
+    }
+
+
+    //region Utils
+
+    public String getTrace(Throwable e) { return String.join("\n", TextUtils.prefixLines(Utils.getStackTrace(e), "    ")); }
+
     public void log(LogLevel level, String text, Object... args) { logger.log(level, text, args); }
-
-    /**
-     * Logs a Throwable to the plugin's {@link LabelledLogger}, and its stack trace if the proper setting is set.
-     * @param level The {@link LogLevel}.
-     * @param throwable The throwable to get the stack trace of.
-     * @param text The text to log.
-     * @param args The arguments used in {@link me.aecsocket.unifiedframework.util.TextUtils#format(String, Object...)}.
-     */
-    public void elog(LogLevel level, Throwable throwable, String text, Object... args) {
+    public void elog(LogLevel level, Throwable e, String text, Object... args) {
         log(level, text, args);
-
-        if (setting("print_stack_traces", boolean.class, false)) {
-            for (String line : Utils.getStackTrace(throwable))
+        if (setting("print_detailed", boolean.class, true)) {
+            for (String line : getTrace(e).split("\n"))
                 log(level, line);
         }
     }
 
-    /**
-     * Generates some localized text.
-     * @param locale The locale to generate for.
-     * @param key The key of the string.
-     * @param args The arguments used in {@link me.aecsocket.unifiedframework.util.TextUtils#format(String, Object...)}.
-     * @return The localized text.
-     */
+    public NamespacedKey key(String key) { return keys.computeIfAbsent(key, __ -> new NamespacedKey(this, key)); }
+
+    public <T> T setting(String path, Type type, T defaultValue) { return settings.get(path, type, defaultValue); }
+    public <T> T setting(String path, Class<T> type, T defaultValue) { return settings.get(path, type, defaultValue); }
+    public <T> Optional<T> setting(String path, Type type) { return settings.get(path, type); }
+    public <T> Optional<T> setting(String path, Class<T> type) { return settings.get(path, type); }
+
+    public String locale(CommandSender sender) { return sender instanceof Player ? ((Player) sender).getLocale() : localeManager.getDefaultLocale(); }
+
     public String gen(String locale, String key, Object... args) { return localeManager.gen(locale, key, args); }
-
-    /**
-     * Generates some localized text using the default locale.
-     * @param key The key of the string.
-     * @param args The arguments used in {@link me.aecsocket.unifiedframework.util.TextUtils#format(String, Object...)}.
-     * @return The localized text.
-     */
     public String gen(String key, Object... args) { return gen(localeManager.getDefaultLocale(), key, args); }
+    public String gen(CommandSender sender, String key, Object... args) { return gen(locale(sender), key, args); }
 
-    /**
-     * Generates some localized text for a {@link Player}'s locale.
-     * @param player The player to get the locale from.
-     * @param key The key of the string.
-     * @param args The arguments used in {@link me.aecsocket.unifiedframework.util.TextUtils#format(String, Object...)}.
-     * @return The localized text.
-     */
-    public String gen(Player player, String key, Object... args) { return player == null ? gen(key, args) : gen(player.getLocale(), key, args); }
+    public Optional<String> rgen(String locale, String key, Object... args) { return localeManager.rgen(locale, key, args); }
+    public Optional<String> rgen(String key, Object... args) { return rgen(localeManager.getDefaultLocale(), key, args); }
+    public Optional<String> rgen(CommandSender sender, String key, Object... args) { return rgen(locale(sender), key, args); }
 
-    /**
-     * Generates some localized text for a {@link CommandSender}.
-     * <p>
-     * If this is a {@link Player}, {@link CalibrePlugin#gen(Player, String, Object...)} will be run. Otherwise, {@link CalibrePlugin#gen(String, Object...)} will be run.
-     * @param sender The sender to generate for.
-     * @param key The key of the string.
-     * @param args The arguments used in {@link me.aecsocket.unifiedframework.util.TextUtils#format(String, Object...)}.
-     * @return The localized text.
-     */
-    public String gen(CommandSender sender, String key, Object... args) { return sender instanceof Player ? gen((Player) sender, key, args) : gen(key, args); }
+    public <E extends CalibreIdentifiable> E fromRegistry(String id, Class<E> type) { return registry.get(id, type); }
+    public CalibreComponent fromItem(ItemStack item) { return item == null ? null : itemManager.getItem(item, CalibreComponent.class); }
 
-    /**
-     * Gets the {@link CalibreItem} representation of an {@link ItemStack}.
-     * @param stack The ItemStack.
-     * @return The CalibreItem.
-     */
-    public CalibreItem getItem(ItemStack stack) { return itemManager.getItem(stack, CalibreItem.class); }
+    public Gson prettyPrinter() { return gson.newBuilder().setPrettyPrinting().create(); }
 
-    /**
-     * Gets the {@link T} representation of an {@link ItemStack}.
-     * @param stack The ItemStack.
-     * @param type The type to deserialize the item as.
-     * @param <T> The type to deserialize the item as.
-     * @return The {@link T}.
-     */
-    public <T extends CalibreItem> T getItem(ItemStack stack, Class<T> type) { return itemManager.getItem(stack, type); }
-
-    /**
-     * Gets a {@link NamespacedKey} registered to this plugin, or create one if it does not exist.
-     * @param key The key name.
-     * @return The key.
-     */
-    public NamespacedKey key(String key) { return keys.computeIfAbsent(key, k -> new NamespacedKey(this, k)); }
-
-    /**
-     * Send a packet with error handling.
-     * @param player The player to send to.
-     * @param packet The packet to send.
-     */
-    public void sendPacket(Player player, PacketContainer packet) {
+    public void sendPacket(Player player, PacketContainer packer) {
         try {
-            protocolManager.sendServerPacket(player, packet);
-        } catch (InvocationTargetException | IllegalArgumentException e) {
-            elog(LogLevel.WARN, e, "Failed to send packet: {msg}", "msg", e.getMessage());
-        }
+            protocolManager.sendServerPacket(player, packer);
+        } catch (InvocationTargetException ignore) {}
     }
+
+    //endregion
 }

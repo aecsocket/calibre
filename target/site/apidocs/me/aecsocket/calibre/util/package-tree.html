@@ -106,18 +106,37 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink"><span class="typeNameLink">Object</span></a>
 <ul>
-<li class="circle">me.aecsocket.calibre.util.<a href="AcceptsCalibrePluginAdapter.html" title="class in me.aecsocket.calibre.util"><span class="typeNameLink">AcceptsCalibrePluginAdapter</span></a> (implements com.google.gson.TypeAdapterFactory)</li>
+<li class="circle">me.aecsocket.calibre.util.<a href="AcceptsCalibrePlugin.Adapter.html" title="class in me.aecsocket.calibre.util"><span class="typeNameLink">AcceptsCalibrePlugin.Adapter</span></a> (implements com.google.gson.TypeAdapterFactory)</li>
 <li class="circle">me.aecsocket.calibre.util.<a href="CalibrePlayer.html" title="class in me.aecsocket.calibre.util"><span class="typeNameLink">CalibrePlayer</span></a> (implements me.aecsocket.unifiedframework.loop.Tickable)</li>
-<li class="circle">me.aecsocket.calibre.util.<a href="ItemDescriptor.html" title="class in me.aecsocket.calibre.util"><span class="typeNameLink">ItemDescriptor</span></a></li>
-<li class="circle">me.aecsocket.calibre.util.<a href="ItemRepresentation.html" title="class in me.aecsocket.calibre.util"><span class="typeNameLink">ItemRepresentation</span></a></li>
-<li class="circle">me.aecsocket.calibre.util.<a href="RegistryCommandContext.html" title="class in me.aecsocket.calibre.util"><span class="typeNameLink">RegistryCommandContext</span></a>&lt;T&gt; (implements co.aikar.commands.contexts.ContextResolver&lt;T,&#8203;C&gt;)</li>
+<li class="circle">me.aecsocket.calibre.util.<a href="CalibreProtocol.html" title="class in me.aecsocket.calibre.util"><span class="typeNameLink">CalibreProtocol</span></a></li>
+<li class="circle">me.aecsocket.calibre.util.<a href="ItemDescriptor.html" title="class in me.aecsocket.calibre.util"><span class="typeNameLink">ItemDescriptor</span></a> (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a>)</li>
+<li class="circle">me.aecsocket.calibre.util.<a href="LogMessageResult.Message.html" title="class in me.aecsocket.calibre.util"><span class="typeNameLink">LogMessageResult.Message</span></a></li>
+<li class="circle">me.aecsocket.unifiedframework.registry.Registry&lt;T&gt;
+<ul>
+<li class="circle">me.aecsocket.calibre.util.<a href="CalibreRegistry.html" title="class in me.aecsocket.calibre.util"><span class="typeNameLink">CalibreRegistry</span></a></li>
+</ul>
+</li>
+<li class="circle">me.aecsocket.unifiedframework.resource.result.Result&lt;T,&#8203;S,&#8203;F&gt;
+<ul>
+<li class="circle">me.aecsocket.unifiedframework.resource.result.DataResult&lt;S,&#8203;F&gt;
+<ul>
+<li class="circle">me.aecsocket.calibre.util.<a href="LogMessageResult.html" title="class in me.aecsocket.calibre.util"><span class="typeNameLink">LogMessageResult</span></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="circle">me.aecsocket.unifiedframework.stat.impl.SimpleStat&lt;T&gt; (implements me.aecsocket.unifiedframework.stat.Stat&lt;T&gt;)
+<ul>
+<li class="circle">me.aecsocket.calibre.util.<a href="ItemDescriptor.Stat.html" title="class in me.aecsocket.calibre.util"><span class="typeNameLink">ItemDescriptor.Stat</span></a></li>
+</ul>
+</li>
 <li class="circle">me.aecsocket.unifiedframework.util.data.SoundData (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a>)
 <ul>
 <li class="circle">me.aecsocket.unifiedframework.util.data.DistanceSoundData
 <ul>
 <li class="circle">me.aecsocket.unifiedframework.util.data.RealSoundData
 <ul>
-<li class="circle">me.aecsocket.calibre.util.<a href="CalibreSoundData.html" title="class in me.aecsocket.calibre.util"><span class="typeNameLink">CalibreSoundData</span></a> (implements me.aecsocket.calibre.util.<a href="AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a>)</li>
+<li class="circle">me.aecsocket.calibre.util.<a href="CalibreSoundData.html" title="class in me.aecsocket.calibre.util"><span class="typeNameLink">CalibreSoundData</span></a></li>
 </ul>
 </li>
 </ul>
@@ -131,7 +150,30 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <section role="region">
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
-<li class="circle">me.aecsocket.calibre.util.<a href="AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util"><span class="typeNameLink">AcceptsCalibrePlugin</span></a></li>
+<li class="circle">me.aecsocket.calibre.util.<a href="AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util"><span class="typeNameLink">AcceptsCalibrePlugin</span></a>
+<ul>
+<li class="circle">me.aecsocket.calibre.util.<a href="CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util"><span class="typeNameLink">CalibreIdentifiable</span></a> (also extends me.aecsocket.unifiedframework.registry.Identifiable)</li>
+</ul>
+</li>
+<li class="circle">me.aecsocket.unifiedframework.registry.Identifiable
+<ul>
+<li class="circle">me.aecsocket.calibre.util.<a href="CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util"><span class="typeNameLink">CalibreIdentifiable</span></a> (also extends me.aecsocket.calibre.util.<a href="AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a>)</li>
+</ul>
+</li>
+</ul>
+</section>
+<section role="region">
+<h2 title="Enum Hierarchy">Enum Hierarchy</h2>
+<ul>
+<li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink"><span class="typeNameLink">Object</span></a>
+<ul>
+<li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Enum.html?is-external=true" title="class or interface in java.lang" class="externalLink"><span class="typeNameLink">Enum</span></a>&lt;E&gt; (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Comparable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Comparable</a>&lt;T&gt;, java.io.<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/Serializable.html?is-external=true" title="class or interface in java.io" class="externalLink">Serializable</a>)
+<ul>
+<li class="circle">me.aecsocket.calibre.util.<a href="CalibreProtocol.PlayerTeleportFlag.html" title="enum in me.aecsocket.calibre.util"><span class="typeNameLink">CalibreProtocol.PlayerTeleportFlag</span></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </section>
 </div>

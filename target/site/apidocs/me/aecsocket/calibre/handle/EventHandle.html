@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -139,7 +139,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre>public class <span class="typeNameLabel">EventHandle</span>
 extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>
 implements org.bukkit.event.Listener</pre>
-<div class="block">The plugin's event handler.</div>
 </li>
 </ul>
 </div>
@@ -188,27 +187,22 @@ implements org.bukkit.event.Listener</pre>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onClick(org.bukkit.event.inventory.InventoryClickEvent)">onClick</a></span>&#8203;(org.bukkit.event.inventory.InventoryClickEvent&nbsp;event)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAttack(org.bukkit.event.entity.EntityDamageByEntityEvent)">onAttack</a></span>&#8203;(org.bukkit.event.entity.EntityDamageByEntityEvent&nbsp;event)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDamage(org.bukkit.event.entity.EntityDamageByEntityEvent)">onDamage</a></span>&#8203;(org.bukkit.event.entity.EntityDamageByEntityEvent&nbsp;event)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onClick(org.bukkit.event.inventory.InventoryClickEvent)">onClick</a></span>&#8203;(org.bukkit.event.inventory.InventoryClickEvent&nbsp;event)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onInteract(org.bukkit.event.player.PlayerInteractEvent)">onInteract</a></span>&#8203;(org.bukkit.event.player.PlayerInteractEvent&nbsp;event)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDamage(org.bukkit.event.entity.EntityDamageEvent)">onDamage</a></span>&#8203;(org.bukkit.event.entity.EntityDamageEvent&nbsp;event)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSwapHand(org.bukkit.event.player.PlayerSwapHandItemsEvent)">onSwapHand</a></span>&#8203;(org.bukkit.event.player.PlayerSwapHandItemsEvent&nbsp;event)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSwapItem(org.bukkit.event.player.PlayerItemHeldEvent)">onSwapItem</a></span>&#8203;(org.bukkit.event.player.PlayerItemHeldEvent&nbsp;event)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSwitchItem(org.bukkit.event.player.PlayerItemHeldEvent)">onSwitchItem</a></span>&#8203;(org.bukkit.event.player.PlayerItemHeldEvent&nbsp;event)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -263,49 +257,40 @@ implements org.bukkit.event.Listener</pre>
 <pre class="methodSignature">public&nbsp;<a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;getPlugin()</pre>
 </li>
 </ul>
-<a id="onInteract(org.bukkit.event.player.PlayerInteractEvent)">
+<a id="onSwitchItem(org.bukkit.event.player.PlayerItemHeldEvent)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>onInteract</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;onInteract&#8203;(org.bukkit.event.player.PlayerInteractEvent&nbsp;event)</pre>
-</li>
-</ul>
-<a id="onSwapHand(org.bukkit.event.player.PlayerSwapHandItemsEvent)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>onSwapHand</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;onSwapHand&#8203;(org.bukkit.event.player.PlayerSwapHandItemsEvent&nbsp;event)</pre>
-</li>
-</ul>
-<a id="onDamage(org.bukkit.event.entity.EntityDamageByEntityEvent)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>onDamage</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;onDamage&#8203;(org.bukkit.event.entity.EntityDamageByEntityEvent&nbsp;event)</pre>
-</li>
-</ul>
-<a id="onSwapItem(org.bukkit.event.player.PlayerItemHeldEvent)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>onSwapItem</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;onSwapItem&#8203;(org.bukkit.event.player.PlayerItemHeldEvent&nbsp;event)</pre>
+<h4>onSwitchItem</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;onSwitchItem&#8203;(org.bukkit.event.player.PlayerItemHeldEvent&nbsp;event)</pre>
 </li>
 </ul>
 <a id="onClick(org.bukkit.event.inventory.InventoryClickEvent)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>onClick</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onClick&#8203;(org.bukkit.event.inventory.InventoryClickEvent&nbsp;event)</pre>
+</li>
+</ul>
+<a id="onDamage(org.bukkit.event.entity.EntityDamageEvent)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onDamage</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;onDamage&#8203;(org.bukkit.event.entity.EntityDamageEvent&nbsp;event)</pre>
+</li>
+</ul>
+<a id="onAttack(org.bukkit.event.entity.EntityDamageByEntityEvent)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onAttack</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;onAttack&#8203;(org.bukkit.event.entity.EntityDamageByEntityEvent&nbsp;event)</pre>
 </li>
 </ul>
 </li>

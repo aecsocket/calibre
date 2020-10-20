@@ -89,7 +89,7 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -125,28 +125,46 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Known Subinterfaces:</dt>
-<dd><code><a href="../item/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.item">CalibreIdentifiable</a></code>, <code><a href="../item/CalibreItem.html" title="interface in me.aecsocket.calibre.item">CalibreItem</a></code>, <code><a href="../item/CalibreItemSupplier.html" title="interface in me.aecsocket.calibre.item">CalibreItemSupplier</a></code>, <code><a href="../item/CalibreLocalized.html" title="interface in me.aecsocket.calibre.item">CalibreLocalized</a></code>, <code><a href="../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&lt;D&gt;</code></dd>
+<dd><code><a href="CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></code>, <code><a href="../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></code></dd>
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="../defaults/gun/AmmoContainerSystem.html" title="class in me.aecsocket.calibre.defaults.gun">AmmoContainerSystem</a></code>, <code><a href="../defaults/AttributeSystem.html" title="class in me.aecsocket.calibre.defaults">AttributeSystem</a></code>, <code><a href="../item/blueprint/Blueprint.html" title="class in me.aecsocket.calibre.item.blueprint">Blueprint</a></code>, <code><a href="../defaults/gun/BulletSystem.html" title="class in me.aecsocket.calibre.defaults.gun">BulletSystem</a></code>, <code><a href="../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a></code>, <code><a href="../item/component/CalibreComponentSlot.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentSlot</a></code>, <code><a href="CalibreSoundData.html" title="class in me.aecsocket.calibre.util">CalibreSoundData</a></code>, <code><a href="../defaults/gun/FireableSystem.html" title="class in me.aecsocket.calibre.defaults.gun">FireableSystem</a></code>, <code><a href="../defaults/melee/MeleeSystem.html" title="class in me.aecsocket.calibre.defaults.melee">MeleeSystem</a></code>, <code><a href="../defaults/gun/sight/SightableSystem.html" title="class in me.aecsocket.calibre.defaults.gun.sight">SightableSystem</a></code>, <code><a href="../defaults/service/system/SimpleActionSystem.html" title="class in me.aecsocket.calibre.defaults.service.system">SimpleActionSystem</a></code>, <code><a href="../defaults/gun/sight/SimpleSightSystem.html" title="class in me.aecsocket.calibre.defaults.gun.sight">SimpleSightSystem</a></code></dd>
+<dd><code><a href="../item/system/BaseSystem.html" title="class in me.aecsocket.calibre.item.system">BaseSystem</a></code>, <code><a href="../item/blueprint/Blueprint.html" title="class in me.aecsocket.calibre.item.blueprint">Blueprint</a></code>, <code><a href="../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a></code>, <code><a href="../item/ItemAnimation.html" title="class in me.aecsocket.calibre.item">ItemAnimation</a></code>, <code><a href="../defaults/system/ItemSystem.html" title="class in me.aecsocket.calibre.defaults.system">ItemSystem</a></code>, <code><a href="../defaults/system/melee/MeleeSystem.html" title="class in me.aecsocket.calibre.defaults.system.melee">MeleeSystem</a></code></dd>
 </dl>
 <hr>
 <pre>public interface <span class="typeNameLabel">AcceptsCalibrePlugin</span></pre>
-<div class="block">Represents an object which accepts a plugin field of type <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a>.
- <p>
- This is mainly used to provide a plugin reference during JSON deserialization.
- Extend this yourself if you are making a deserializable class and want it to take the plugin.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="AcceptsCalibrePluginAdapter.html" title="class in me.aecsocket.calibre.util"><code>AcceptsCalibrePluginAdapter</code></a></dd>
-</dl>
+<div class="block">An object which can take a <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a> as a field.</div>
 </li>
 </ul>
 </div>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AcceptsCalibrePlugin.Adapter.html" title="class in me.aecsocket.calibre.util">AcceptsCalibrePlugin.Adapter</a></span></code></th>
+<td class="colLast">
+<div class="block">A GSON type adapter for this class.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
 <section role="region">
 <ul class="blockList">
@@ -164,16 +182,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPlugin()">getPlugin</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Gets the <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a> instance.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlugin(me.aecsocket.calibre.CalibrePlugin)">setPlugin</a></span>&#8203;(<a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin)</code></th>
-<td class="colLast">
-<div class="block">Sets the <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a> instance.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -199,11 +213,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getPlugin</h4>
 <pre class="methodSignature"><a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;getPlugin()</pre>
-<div class="block">Gets the <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a> instance.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The plugin.</dd>
-</dl>
 </li>
 </ul>
 <a id="setPlugin(me.aecsocket.calibre.CalibrePlugin)">
@@ -213,11 +222,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>setPlugin</h4>
 <pre class="methodSignature">void&nbsp;setPlugin&#8203;(<a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin)</pre>
-<div class="block">Sets the <a href="../CalibrePlugin.html" title="class in me.aecsocket.calibre"><code>CalibrePlugin</code></a> instance.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>plugin</code> - The plugin.</dd>
-</dl>
 </li>
 </ul>
 </li>
@@ -272,7 +276,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

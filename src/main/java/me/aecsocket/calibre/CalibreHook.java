@@ -1,51 +1,40 @@
 package me.aecsocket.calibre;
 
 import com.google.gson.GsonBuilder;
-import me.aecsocket.calibre.CalibrePlugin;
-import me.aecsocket.unifiedframework.locale.LocaleManager;
-import me.aecsocket.unifiedframework.registry.Registry;
-import me.aecsocket.unifiedframework.resource.Settings;
+import me.aecsocket.calibre.util.CalibreIdentifiable;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
- * A hook onto {@link CalibrePlugin} which can modify things at enable-time.
+ * Allows hooking into {@link CalibrePlugin} events.
  */
 public interface CalibreHook {
-    /** Provides this hook instance with an instance of the CalibrePlugin.
-     * @param plugin The CalibrePlugin.
+    /**
+     * Accepts a provided {@link CalibrePlugin}.
+     * @param plugin The plugin.
      */
     void acceptPlugin(CalibrePlugin plugin);
 
     /**
-     * Runs right after registering hooks.
+     * Called when the plugin is enabled.
      */
-    default void initialize() {}
+    default void onEnable() {}
 
     /**
-     * Runs right before plugin disabling.
+     * Called when the plugin is disabled.
      */
-    default void disable() {}
+    default void onDisable() {}
 
     /**
-     * Register custom type adapters to the plugin's {@link com.google.gson.Gson} instance.
-     * @param builder The {@link GsonBuilder} to modify.
+     * Called when pre register {@link CalibreIdentifiable}s (such as systems) can be registered.
+     * @return A collection of pre register objects.
      */
-    default void initializeGson(GsonBuilder builder) {}
+    default Collection<CalibreIdentifiable> getPreRegisters() { return Collections.emptySet(); }
 
     /**
-     * Register custom items to the plugin's {@link Registry} instance, before the configuration items have been registered.
-     * @param registry The {@link Registry} to modify.
-     * @param localeManager The {@link LocaleManager} to modify.
-     * @param settings The {@link Settings} to modify.
+     * Called when extra type adapters can be registered on a {@link GsonBuilder}.
+     * @param builder The builder.
      */
-    default void preLoadRegister(Registry registry, LocaleManager localeManager, Settings settings) {}
-
-    /**
-     * Register custom items to the plugin's {@link Registry} instance, after all configuration items have been registered.
-     * <p>
-     * This can be done after the plugin has loaded, but it's neater to put it here.
-     * @param registry The {@link Registry} to modify.
-     * @param localeManager The {@link LocaleManager} to modify.
-     * @param settings The {@link Settings} to modify.
-     */
-    default void postLoadRegister(Registry registry, LocaleManager localeManager, Settings settings) {}
+    default void registerTypeAdapters(GsonBuilder builder) {}
 }

@@ -5,7 +5,6 @@ import me.aecsocket.calibre.defaults.system.ProjectileProviderSystem;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.BaseSystem;
-import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -66,5 +65,5 @@ public class BulletSystem extends BaseSystem implements ProjectileProviderSystem
 
     @Override public String getId() { return ID; }
     @Override public Collection<String> getDependencies() { return Collections.emptyList(); }
-    @Override public CalibreSystem copy() { return this; }
+    @Override public BulletSystem copy() { return this; }
 }

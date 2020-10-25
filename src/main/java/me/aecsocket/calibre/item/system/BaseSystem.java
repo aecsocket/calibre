@@ -5,7 +5,7 @@ import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.ComponentTree;
 
 // todo docs
-public abstract class BaseSystem implements CalibreSystem {
+public abstract class BaseSystem implements CalibreSystem, Cloneable {
     protected transient CalibreComponent parent;
     protected transient CalibrePlugin plugin;
 
@@ -29,4 +29,6 @@ public abstract class BaseSystem implements CalibreSystem {
     protected ComponentTree getTree() { return parent.getTree(); }
     protected <T> T stat(String key) { return parent.stat(key); }
     protected <T> T callEvent(T event) { return parent.callEvent(event); }
+
+    @Override public BaseSystem clone() { try { return (BaseSystem) super.clone(); } catch (CloneNotSupportedException e) { return null; } }
 }

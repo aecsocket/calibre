@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10};
+var data = {"i0":10,"i1":10,"i2":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -195,6 +195,13 @@ implements <a href="../CalibreHook.html" title="interface in me.aecsocket.calibr
 <div class="block">Called when pre register <a href="../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util"><code>CalibreIdentifiable</code></a>s (such as systems) can be registered.</div>
 </td>
 </tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerTypeAdapters(com.google.gson.GsonBuilder)">registerTypeAdapters</a></span>&#8203;(com.google.gson.GsonBuilder&nbsp;builder)</code></th>
+<td class="colLast">
+<div class="block">Called when extra type adapters can be registered on a <code>GsonBuilder</code>.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -208,7 +215,7 @@ implements <a href="../CalibreHook.html" title="interface in me.aecsocket.calibr
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;me.aecsocket.calibre.<a href="../CalibreHook.html" title="interface in me.aecsocket.calibre">CalibreHook</a></h3>
-<code><a href="../CalibreHook.html#onDisable()">onDisable</a>, <a href="../CalibreHook.html#onEnable()">onEnable</a>, <a href="../CalibreHook.html#registerTypeAdapters(com.google.gson.GsonBuilder)">registerTypeAdapters</a></code></li>
+<code><a href="../CalibreHook.html#onDisable()">onDisable</a>, <a href="../CalibreHook.html#onEnable()">onEnable</a></code></li>
 </ul>
 </li>
 </ul>
@@ -259,6 +266,23 @@ implements <a href="../CalibreHook.html" title="interface in me.aecsocket.calibr
 <dd><code><a href="../CalibreHook.html#acceptPlugin(me.aecsocket.calibre.CalibrePlugin)">acceptPlugin</a></code>&nbsp;in interface&nbsp;<code><a href="../CalibreHook.html" title="interface in me.aecsocket.calibre">CalibreHook</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>plugin</code> - The plugin.</dd>
+</dl>
+</li>
+</ul>
+<a id="registerTypeAdapters(com.google.gson.GsonBuilder)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>registerTypeAdapters</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;registerTypeAdapters&#8203;(com.google.gson.GsonBuilder&nbsp;builder)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../CalibreHook.html#registerTypeAdapters(com.google.gson.GsonBuilder)">CalibreHook</a></code></span></div>
+<div class="block">Called when extra type adapters can be registered on a <code>GsonBuilder</code>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../CalibreHook.html#registerTypeAdapters(com.google.gson.GsonBuilder)">registerTypeAdapters</a></code>&nbsp;in interface&nbsp;<code><a href="../CalibreHook.html" title="interface in me.aecsocket.calibre">CalibreHook</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>builder</code> - The builder.</dd>
 </dl>
 </li>
 </ul>

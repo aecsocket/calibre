@@ -68,6 +68,23 @@ public final class ItemEvents {
         }
     }
 
+    public static class SystemEvent<S extends CalibreSystem> extends Event {
+        private final S system;
+
+        public SystemEvent(ItemStack stack, ItemSlot slot, ItemUser user, S system) {
+            super(stack, slot, user);
+            this.system = system;
+        }
+
+        public S getSystem() { return system; }
+    }
+
+    public interface Cancellable {
+        boolean isCancelled();
+        void setCancelled(boolean cancelled);
+        default void cancel() { setCancelled(true); }
+    }
+
     //endregion
 
     public static class Create {

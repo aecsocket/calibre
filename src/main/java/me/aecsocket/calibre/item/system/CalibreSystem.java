@@ -13,12 +13,7 @@ import java.util.Map;
  */
 public interface CalibreSystem extends CalibreIdentifiable {
     CalibreComponent getParent();
-    // TODO make clear the distinction:
-    // #initialize is for stuff that's run ONCE on load, e.g. system services, stat deserialization
-    // and CAN fail, e.g. if dependency is missing (that's why the exception's there)
-    // #treeInitialize is for stuff that's run on every tree creation, e.g. registering listeners
-    void initialize(CalibreComponent parent) throws SystemInitializationException;
-    void treeInitialize(CalibreComponent parent, ComponentTree tree);
+    void initialize(CalibreComponent parent, ComponentTree tree) throws SystemInitializationException;
 
     default Map<String, Stat<?>> getDefaultStats() { return Collections.emptyMap(); }
 

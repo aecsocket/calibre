@@ -5,4 +5,5 @@ import org.bukkit.inventory.EquipmentSlot;
 
 public interface AnimatableItemUser {
     ItemAnimation.Instance startAnimation(ItemAnimation animation, EquipmentSlot slot);
+    ItemAnimation.Instance getAnimation();
 }

@@ -179,6 +179,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
         org.bukkit.Location&nbsp;location)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">ItemSystem.</span><code><span class="memberNameLink"><a href="../../../../defaults/system/ItemSystem.html#resetFov(me.aecsocket.calibre.item.util.user.ItemUser)">resetFov</a></span>&#8203;(<a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">ItemSystem.</span><code><span class="memberNameLink"><a href="../../../../defaults/system/ItemSystem.html#updateFov(me.aecsocket.calibre.item.util.user.ItemUser)">updateFov</a></span>&#8203;(<a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -211,30 +221,33 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.Attack.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,org.bukkit.entity.Entity,double,me.aecsocket.calibre.item.util.damagecause.DamageCause)">Attack</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.Attack.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,org.bukkit.entity.Entity,double,me.aecsocket.calibre.item.util.damagecause.DamageCause,double)">Attack</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
       <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
       <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
       org.bukkit.entity.Entity&nbsp;victim,
-      double&nbsp;damage,
-      <a href="../../damagecause/DamageCause.html" title="interface in me.aecsocket.calibre.item.util.damagecause">DamageCause</a>&nbsp;cause)</code></th>
+      double&nbsp;finalDamage,
+      <a href="../../damagecause/DamageCause.html" title="interface in me.aecsocket.calibre.item.util.damagecause">DamageCause</a>&nbsp;cause,
+      double&nbsp;damage)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.BukkitAttack.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,org.bukkit.entity.Entity,double,me.aecsocket.calibre.item.util.damagecause.DamageCause,org.bukkit.event.entity.EntityDamageByEntityEvent)">BukkitAttack</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.BukkitAttack.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,org.bukkit.entity.Entity,double,me.aecsocket.calibre.item.util.damagecause.DamageCause,double,org.bukkit.event.entity.EntityDamageByEntityEvent)">BukkitAttack</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
             <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
             <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
             org.bukkit.entity.Entity&nbsp;victim,
-            double&nbsp;damage,
+            double&nbsp;finalDamage,
             <a href="../../damagecause/DamageCause.html" title="interface in me.aecsocket.calibre.item.util.damagecause">DamageCause</a>&nbsp;cause,
+            double&nbsp;damage,
             org.bukkit.event.entity.EntityDamageByEntityEvent&nbsp;event)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.BukkitDamage.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,double,me.aecsocket.calibre.item.util.damagecause.DamageCause,org.bukkit.event.entity.EntityDamageEvent)">BukkitDamage</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.BukkitDamage.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,double,me.aecsocket.calibre.item.util.damagecause.DamageCause,double,org.bukkit.event.entity.EntityDamageEvent)">BukkitDamage</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
             <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
             <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
-            double&nbsp;damage,
+            double&nbsp;finalDamage,
             <a href="../../damagecause/DamageCause.html" title="interface in me.aecsocket.calibre.item.util.damagecause">DamageCause</a>&nbsp;cause,
+            double&nbsp;damage,
             org.bukkit.event.entity.EntityDamageEvent&nbsp;event)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -253,36 +266,66 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.Damage.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,double,me.aecsocket.calibre.item.util.damagecause.DamageCause)">Damage</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
-      <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
-      <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
-      double&nbsp;damage,
-      <a href="../../damagecause/DamageCause.html" title="interface in me.aecsocket.calibre.item.util.damagecause">DamageCause</a>&nbsp;cause)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.BukkitInteract.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,org.bukkit.event.block.Action,org.bukkit.block.Block,org.bukkit.block.BlockFace,org.bukkit.event.Event.Result,org.bukkit.event.Event.Result,org.bukkit.event.player.PlayerInteractEvent)">BukkitInteract</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
+              <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
+              <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
+              org.bukkit.event.block.Action&nbsp;action,
+              org.bukkit.block.Block&nbsp;clickedBlock,
+              org.bukkit.block.BlockFace&nbsp;blockFace,
+              org.bukkit.event.Event.Result&nbsp;handResult,
+              org.bukkit.event.Event.Result&nbsp;blockResult,
+              org.bukkit.event.player.PlayerInteractEvent&nbsp;event)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.Damage.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,double,me.aecsocket.calibre.item.util.damagecause.DamageCause,double)">Damage</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
+      <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
+      <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
+      double&nbsp;finalDamage,
+      <a href="../../damagecause/DamageCause.html" title="interface in me.aecsocket.calibre.item.util.damagecause">DamageCause</a>&nbsp;cause,
+      double&nbsp;damage)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.Draw.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser)">Draw</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
     <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
     <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.Equip.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,me.aecsocket.unifiedframework.loop.TickContext)">Equip</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
      <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
      <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
      me.aecsocket.unifiedframework.loop.TickContext&nbsp;tickContext)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.Event.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser)">Event</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
      <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
      <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.Holster.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser)">Holster</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
        <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
        <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.Interact.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,org.bukkit.event.block.Action,org.bukkit.block.Block,org.bukkit.block.BlockFace,org.bukkit.event.Event.Result,org.bukkit.event.Event.Result)">Interact</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
+        <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
+        <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
+        org.bukkit.event.block.Action&nbsp;action,
+        org.bukkit.block.Block&nbsp;clickedBlock,
+        org.bukkit.block.BlockFace&nbsp;blockFace,
+        org.bukkit.event.Event.Result&nbsp;handResult,
+        org.bukkit.event.Event.Result&nbsp;blockResult)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.Update.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser)">Update</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
+      <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
+      <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </tbody>
@@ -294,21 +337,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Uses of <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a> in <a href="../package-summary.html">me.aecsocket.calibre.item.util.user</a></h3>
-<table class="useSummary">
-<caption><span>Subinterfaces of <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a> in <a href="../package-summary.html">me.aecsocket.calibre.item.util.user</a></span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colSecond" scope="col">Interface</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tbody>
-<tr class="altColor">
-<td class="colFirst"><code>interface&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../DelayableItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">DelayableItemUser</a></span></code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-</tbody>
-</table>
 <table class="useSummary">
 <caption><span>Classes in <a href="../package-summary.html">me.aecsocket.calibre.item.util.user</a> that implement <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a></span><span class="tabEnd">&nbsp;</span></caption>
 <tr>

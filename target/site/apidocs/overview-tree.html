@@ -100,6 +100,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="me/aecsocket/calibre/package-tree.html">me.aecsocket.calibre</a>, </li>
 <li><a href="me/aecsocket/calibre/defaults/package-tree.html">me.aecsocket.calibre.defaults</a>, </li>
 <li><a href="me/aecsocket/calibre/defaults/system/package-tree.html">me.aecsocket.calibre.defaults.system</a>, </li>
+<li><a href="me/aecsocket/calibre/defaults/system/gun/package-tree.html">me.aecsocket.calibre.defaults.system.gun</a>, </li>
 <li><a href="me/aecsocket/calibre/defaults/system/melee/package-tree.html">me.aecsocket.calibre.defaults.system.melee</a>, </li>
 <li><a href="me/aecsocket/calibre/handle/package-tree.html">me.aecsocket.calibre.handle</a>, </li>
 <li><a href="me/aecsocket/calibre/item/package-tree.html">me.aecsocket.calibre.item</a>, </li>
@@ -127,6 +128,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </li>
 <li class="circle">me.aecsocket.calibre.item.system.<a href="me/aecsocket/calibre/item/system/BaseSystem.html" title="class in me.aecsocket.calibre.item.system"><span class="typeNameLink">BaseSystem</span></a> (implements me.aecsocket.calibre.item.system.<a href="me/aecsocket/calibre/item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>)
 <ul>
+<li class="circle">me.aecsocket.calibre.defaults.system.gun.<a href="me/aecsocket/calibre/defaults/system/gun/BulletSystem.html" title="class in me.aecsocket.calibre.defaults.system.gun"><span class="typeNameLink">BulletSystem</span></a> (implements me.aecsocket.calibre.defaults.system.<a href="me/aecsocket/calibre/defaults/system/ProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system">ProjectileProviderSystem</a>)</li>
+<li class="circle">me.aecsocket.calibre.defaults.system.gun.<a href="me/aecsocket/calibre/defaults/system/gun/FireableSystem.html" title="class in me.aecsocket.calibre.defaults.system.gun"><span class="typeNameLink">FireableSystem</span></a></li>
 <li class="circle">me.aecsocket.calibre.defaults.system.<a href="me/aecsocket/calibre/defaults/system/ItemSystem.html" title="class in me.aecsocket.calibre.defaults.system"><span class="typeNameLink">ItemSystem</span></a></li>
 <li class="circle">me.aecsocket.calibre.defaults.system.melee.<a href="me/aecsocket/calibre/defaults/system/melee/MeleeSystem.html" title="class in me.aecsocket.calibre.defaults.system.melee"><span class="typeNameLink">MeleeSystem</span></a></li>
 </ul>
@@ -147,14 +150,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul>
 <li class="circle">me.aecsocket.calibre.item.util.user.<a href="me/aecsocket/calibre/item/util/user/LivingEntityItemUser.html" title="class in me.aecsocket.calibre.item.util.user"><span class="typeNameLink">LivingEntityItemUser</span></a>
 <ul>
-<li class="circle">me.aecsocket.calibre.item.util.user.<a href="me/aecsocket/calibre/item/util/user/PlayerItemUser.html" title="class in me.aecsocket.calibre.item.util.user"><span class="typeNameLink">PlayerItemUser</span></a> (implements me.aecsocket.calibre.item.util.user.<a href="me/aecsocket/calibre/item/util/user/AnimatableItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">AnimatableItemUser</a>, me.aecsocket.calibre.item.util.user.<a href="me/aecsocket/calibre/item/util/user/DelayableItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">DelayableItemUser</a>)</li>
+<li class="circle">me.aecsocket.calibre.item.util.user.<a href="me/aecsocket/calibre/item/util/user/PlayerItemUser.html" title="class in me.aecsocket.calibre.item.util.user"><span class="typeNameLink">PlayerItemUser</span></a> (implements me.aecsocket.calibre.item.util.user.<a href="me/aecsocket/calibre/item/util/user/AnimatableItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">AnimatableItemUser</a>)</li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="circle">me.aecsocket.calibre.handle.<a href="me/aecsocket/calibre/handle/EventHandle.html" title="class in me.aecsocket.calibre.handle"><span class="typeNameLink">EventHandle</span></a> (implements org.bukkit.event.Listener)</li>
+<li class="circle">me.aecsocket.calibre.defaults.system.gun.<a href="me/aecsocket/calibre/defaults/system/gun/FireableSystem.Events.html" title="class in me.aecsocket.calibre.defaults.system.gun"><span class="typeNameLink">FireableSystem.Events</span></a></li>
 <li class="circle">me.aecsocket.calibre.item.<a href="me/aecsocket/calibre/item/ItemAnimation.html" title="class in me.aecsocket.calibre.item"><span class="typeNameLink">ItemAnimation</span></a> (implements me.aecsocket.calibre.util.<a href="me/aecsocket/calibre/util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a>, java.lang.<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a>)</li>
-<li class="circle">me.aecsocket.calibre.item.<a href="me/aecsocket/calibre/item/ItemAnimation.AnimationAdapter.html" title="class in me.aecsocket.calibre.item"><span class="typeNameLink">ItemAnimation.AnimationAdapter</span></a> (implements me.aecsocket.unifiedframework.util.json.JsonAdapter, com.google.gson.JsonDeserializer&lt;T&gt;)</li>
+<li class="circle">me.aecsocket.calibre.item.<a href="me/aecsocket/calibre/item/ItemAnimation.Adapter.html" title="class in me.aecsocket.calibre.item"><span class="typeNameLink">ItemAnimation.Adapter</span></a> (implements me.aecsocket.unifiedframework.util.json.JsonAdapter, com.google.gson.JsonDeserializer&lt;T&gt;)</li>
 <li class="circle">me.aecsocket.calibre.item.<a href="me/aecsocket/calibre/item/ItemAnimation.Frame.html" title="class in me.aecsocket.calibre.item"><span class="typeNameLink">ItemAnimation.Frame</span></a> (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a>)</li>
 <li class="circle">me.aecsocket.calibre.item.<a href="me/aecsocket/calibre/item/ItemAnimation.Instance.html" title="class in me.aecsocket.calibre.item"><span class="typeNameLink">ItemAnimation.Instance</span></a> (implements me.aecsocket.unifiedframework.loop.Tickable)</li>
 <li class="circle">me.aecsocket.calibre.util.<a href="me/aecsocket/calibre/util/ItemDescriptor.html" title="class in me.aecsocket.calibre.util"><span class="typeNameLink">ItemDescriptor</span></a> (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a>)</li>
@@ -183,12 +187,23 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="circle">me.aecsocket.calibre.item.<a href="me/aecsocket/calibre/item/ItemEvents.BukkitHolster.html" title="class in me.aecsocket.calibre.item"><span class="typeNameLink">ItemEvents.BukkitHolster</span></a></li>
 </ul>
 </li>
+<li class="circle">me.aecsocket.calibre.item.<a href="me/aecsocket/calibre/item/ItemEvents.Interact.html" title="class in me.aecsocket.calibre.item"><span class="typeNameLink">ItemEvents.Interact</span></a>
+<ul>
+<li class="circle">me.aecsocket.calibre.item.<a href="me/aecsocket/calibre/item/ItemEvents.BukkitInteract.html" title="class in me.aecsocket.calibre.item"><span class="typeNameLink">ItemEvents.BukkitInteract</span></a></li>
+</ul>
+</li>
+<li class="circle">me.aecsocket.calibre.item.<a href="me/aecsocket/calibre/item/ItemEvents.Update.html" title="class in me.aecsocket.calibre.item"><span class="typeNameLink">ItemEvents.Update</span></a></li>
 </ul>
 </li>
 <li class="circle">me.aecsocket.calibre.defaults.system.<a href="me/aecsocket/calibre/defaults/system/ItemSystem.Events.html" title="class in me.aecsocket.calibre.defaults.system"><span class="typeNameLink">ItemSystem.Events</span></a></li>
 <li class="circle">me.aecsocket.calibre.defaults.system.<a href="me/aecsocket/calibre/defaults/system/ItemSystem.Events.SectionCreate.html" title="class in me.aecsocket.calibre.defaults.system"><span class="typeNameLink">ItemSystem.Events.SectionCreate</span></a></li>
 <li class="circle">me.aecsocket.calibre.util.<a href="me/aecsocket/calibre/util/LogMessageResult.Message.html" title="class in me.aecsocket.calibre.util"><span class="typeNameLink">LogMessageResult.Message</span></a></li>
 <li class="circle">me.aecsocket.calibre.defaults.system.melee.<a href="me/aecsocket/calibre/defaults/system/melee/MeleeSystem.Events.html" title="class in me.aecsocket.calibre.defaults.system.melee"><span class="typeNameLink">MeleeSystem.Events</span></a></li>
+<li class="circle">com.comphenix.protocol.events.PacketAdapter (implements com.comphenix.protocol.events.PacketListener)
+<ul>
+<li class="circle">me.aecsocket.calibre.handle.<a href="me/aecsocket/calibre/handle/CalibrePacketAdapter.html" title="class in me.aecsocket.calibre.handle"><span class="typeNameLink">CalibrePacketAdapter</span></a></li>
+</ul>
+</li>
 <li class="circle">me.aecsocket.calibre.item.util.slot.<a href="me/aecsocket/calibre/item/util/slot/PlayerItemSlot.html" title="class in me.aecsocket.calibre.item.util.slot"><span class="typeNameLink">PlayerItemSlot</span></a> (implements me.aecsocket.calibre.item.util.slot.<a href="me/aecsocket/calibre/item/util/slot/InventoryItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">InventoryItemSlot</a>)</li>
 <li class="circle">org.bukkit.plugin.PluginBase (implements org.bukkit.plugin.Plugin)
 <ul>
@@ -199,6 +214,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </li>
 </ul>
 </li>
+<li class="circle">me.aecsocket.unifiedframework.util.Projectile (implements me.aecsocket.unifiedframework.loop.Tickable)
+<ul>
+<li class="circle">me.aecsocket.calibre.defaults.system.gun.<a href="me/aecsocket/calibre/defaults/system/gun/BulletSystem.Projectile.html" title="class in me.aecsocket.calibre.defaults.system.gun"><span class="typeNameLink">BulletSystem.Projectile</span></a></li>
+</ul>
+</li>
+<li class="circle">me.aecsocket.calibre.defaults.system.<a href="me/aecsocket/calibre/defaults/system/ProjectileProviderSystem.Data.html" title="class in me.aecsocket.calibre.defaults.system"><span class="typeNameLink">ProjectileProviderSystem.Data</span></a></li>
 <li class="circle">me.aecsocket.unifiedframework.registry.Registry&lt;T&gt;
 <ul>
 <li class="circle">me.aecsocket.calibre.util.<a href="me/aecsocket/calibre/util/CalibreRegistry.html" title="class in me.aecsocket.calibre.util"><span class="typeNameLink">CalibreRegistry</span></a></li>
@@ -215,13 +236,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </li>
 <li class="circle">me.aecsocket.unifiedframework.stat.impl.SimpleStat&lt;T&gt; (implements me.aecsocket.unifiedframework.stat.Stat&lt;T&gt;)
 <ul>
-<li class="circle">me.aecsocket.calibre.util.stat.<a href="me/aecsocket/calibre/util/stat/AnimationStat.html" title="class in me.aecsocket.calibre.util.stat"><span class="typeNameLink">AnimationStat</span></a></li>
 <li class="circle">me.aecsocket.unifiedframework.stat.impl.ArrayStat&lt;E&gt;
 <ul>
 <li class="circle">me.aecsocket.calibre.util.stat.<a href="me/aecsocket/calibre/util/stat/ParticleStat.html" title="class in me.aecsocket.calibre.util.stat"><span class="typeNameLink">ParticleStat</span></a></li>
 <li class="circle">me.aecsocket.calibre.util.stat.<a href="me/aecsocket/calibre/util/stat/SoundStat.html" title="class in me.aecsocket.calibre.util.stat"><span class="typeNameLink">SoundStat</span></a></li>
 </ul>
 </li>
+<li class="circle">me.aecsocket.calibre.util.stat.<a href="me/aecsocket/calibre/util/stat/ItemAnimationStat.html" title="class in me.aecsocket.calibre.util.stat"><span class="typeNameLink">ItemAnimationStat</span></a></li>
 <li class="circle">me.aecsocket.calibre.util.<a href="me/aecsocket/calibre/util/ItemDescriptor.Stat.html" title="class in me.aecsocket.calibre.util"><span class="typeNameLink">ItemDescriptor.Stat</span></a></li>
 </ul>
 </li>
@@ -231,13 +252,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul>
 <li class="circle">me.aecsocket.unifiedframework.util.data.RealSoundData
 <ul>
-<li class="circle">me.aecsocket.calibre.util.<a href="me/aecsocket/calibre/util/CalibreSoundData.html" title="class in me.aecsocket.calibre.util"><span class="typeNameLink">CalibreSoundData</span></a></li>
+<li class="circle">me.aecsocket.calibre.util.<a href="me/aecsocket/calibre/util/CalibreSoundData.html" title="class in me.aecsocket.calibre.util"><span class="typeNameLink">CalibreSoundData</span></a> (implements me.aecsocket.calibre.util.<a href="me/aecsocket/calibre/util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a>)</li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 </li>
+<li class="circle">me.aecsocket.calibre.item.component.<a href="me/aecsocket/calibre/item/component/SystemSearchOptions.html" title="class in me.aecsocket.calibre.item.component"><span class="typeNameLink">SystemSearchOptions</span></a>&lt;T&gt;</li>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang" class="externalLink"><span class="typeNameLink">Throwable</span></a> (implements java.io.<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/Serializable.html?is-external=true" title="class or interface in java.io" class="externalLink">Serializable</a>)
 <ul>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Exception.html?is-external=true" title="class or interface in java.lang" class="externalLink"><span class="typeNameLink">Exception</span></a>
@@ -262,7 +284,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul>
 <li class="circle">me.aecsocket.calibre.util.<a href="me/aecsocket/calibre/util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util"><span class="typeNameLink">CalibreIdentifiable</span></a> (also extends me.aecsocket.unifiedframework.registry.Identifiable)
 <ul>
-<li class="circle">me.aecsocket.calibre.item.system.<a href="me/aecsocket/calibre/item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system"><span class="typeNameLink">CalibreSystem</span></a></li>
+<li class="circle">me.aecsocket.calibre.item.system.<a href="me/aecsocket/calibre/item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system"><span class="typeNameLink">CalibreSystem</span></a>
+<ul>
+<li class="circle">me.aecsocket.calibre.defaults.system.<a href="me/aecsocket/calibre/defaults/system/ProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system"><span class="typeNameLink">ProjectileProviderSystem</span></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -274,7 +300,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul>
 <li class="circle">me.aecsocket.calibre.util.<a href="me/aecsocket/calibre/util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util"><span class="typeNameLink">CalibreIdentifiable</span></a> (also extends me.aecsocket.calibre.util.<a href="me/aecsocket/calibre/util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a>)
 <ul>
-<li class="circle">me.aecsocket.calibre.item.system.<a href="me/aecsocket/calibre/item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system"><span class="typeNameLink">CalibreSystem</span></a></li>
+<li class="circle">me.aecsocket.calibre.item.system.<a href="me/aecsocket/calibre/item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system"><span class="typeNameLink">CalibreSystem</span></a>
+<ul>
+<li class="circle">me.aecsocket.calibre.defaults.system.<a href="me/aecsocket/calibre/defaults/system/ProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system"><span class="typeNameLink">ProjectileProviderSystem</span></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -285,11 +315,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="circle">me.aecsocket.calibre.item.util.slot.<a href="me/aecsocket/calibre/item/util/slot/InventoryItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot"><span class="typeNameLink">InventoryItemSlot</span></a></li>
 </ul>
 </li>
-<li class="circle">me.aecsocket.calibre.item.util.user.<a href="me/aecsocket/calibre/item/util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user"><span class="typeNameLink">ItemUser</span></a>
-<ul>
-<li class="circle">me.aecsocket.calibre.item.util.user.<a href="me/aecsocket/calibre/item/util/user/DelayableItemUser.html" title="interface in me.aecsocket.calibre.item.util.user"><span class="typeNameLink">DelayableItemUser</span></a></li>
-</ul>
-</li>
+<li class="circle">me.aecsocket.calibre.item.util.user.<a href="me/aecsocket/calibre/item/util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user"><span class="typeNameLink">ItemUser</span></a></li>
 </ul>
 </section>
 <section role="region">

@@ -6,9 +6,12 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.google.gson.*;
+import com.google.gson.annotations.Expose;
 import me.aecsocket.calibre.defaults.DefaultCalibreHook;
 import me.aecsocket.calibre.handle.CalibreCommand;
+import me.aecsocket.calibre.handle.CalibrePacketAdapter;
 import me.aecsocket.calibre.handle.EventHandle;
+import me.aecsocket.calibre.item.ItemAnimation;
 import me.aecsocket.calibre.item.blueprint.Blueprint;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.ComponentTree;
@@ -126,12 +129,21 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
         // GSON
         GsonBuilder gsonBuilder = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .addSerializationExclusionStrategy(new ExclusionStrategy() {
+                    @Override
+                    public boolean shouldSkipField(FieldAttributes f) {
+                        return f.getAnnotation(Expose.class) != null && !f.getAnnotation(Expose.class).serialize();
+                    }
+
+                    @Override public boolean shouldSkipClass(Class<?> clazz) { return false; }
+                })
                 .registerTypeAdapter(TranslationMap.class, new TranslationMapAdapter())
                 .registerTypeAdapter(StatMap.class, statMapAdapter)
                 .registerTypeAdapter(GUIVector.class, GUIVectorAdapter.INSTANCE)
                 .registerTypeAdapter(Vector.class, VectorAdapter.INSTANCE)
                 .registerTypeAdapter(Vector2.class, Vector2Adapter.INSTANCE)
                 .registerTypeAdapter(ComponentTree.class, new ComponentTree.Adapter(this))
+                .registerTypeAdapter(ItemAnimation.class, new ItemAnimation.Adapter(this))
                 .registerTypeAdapterFactory(new CalibreComponent.Adapter())
                 .registerTypeAdapterFactory(new Blueprint.Adapter())
                 .registerTypeAdapterFactory(new AcceptsCalibrePlugin.Adapter(this));
@@ -194,7 +206,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                     if (System.currentTimeMillis() >= nextError) {
                         elog(LogLevel.WARN, e, "Failed to parse item JSON: {msg}\n{json}",
                                 "msg", e.getMessage(), "json", prettyPrinter().toJson(gson.fromJson(json, JsonElement.class)));
-                        nextError = System.currentTimeMillis() + setting("repeat_error_delay", long.class, 60000);
+                        nextError = System.currentTimeMillis() + setting("repeat_error_delay", long.class, 60000L);
                     }
                     return null;
                 }
@@ -203,6 +215,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
 
         protocolManager = ProtocolLibrary.getProtocolManager();
         CalibreProtocol.initialize(this);
+        protocolManager.addPacketListener(new CalibrePacketAdapter(this));
 
         Bukkit.getPluginManager().registerEvents(new EventHandle(this), this);
 

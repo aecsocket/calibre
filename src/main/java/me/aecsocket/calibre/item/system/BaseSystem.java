@@ -16,7 +16,7 @@ public abstract class BaseSystem implements CalibreSystem {
     @Override public CalibreComponent getParent() { return parent; }
 
     @Override
-    public void initialize(CalibreComponent parent) {
+    public void initialize(CalibreComponent parent, ComponentTree tree) {
         this.parent = parent;
         plugin = parent.getPlugin();
     }

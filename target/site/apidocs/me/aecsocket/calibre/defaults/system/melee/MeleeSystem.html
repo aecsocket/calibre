@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -278,7 +278,8 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initialize(me.aecsocket.calibre.item.component.CalibreComponent)">initialize</a></span>&#8203;(<a href="../../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">initialize</a></span>&#8203;(<a href="../../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent,
+          <a href="../../../item/component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;tree)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
@@ -289,12 +290,6 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUsable(boolean)">setUsable</a></span>&#8203;(boolean&nbsp;usable)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i7" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#treeInitialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">treeInitialize</a></span>&#8203;(<a href="../../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent,
-              <a href="../../../item/component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;tree)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -411,29 +406,20 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <pre class="methodSignature">public&nbsp;void&nbsp;setUsable&#8203;(boolean&nbsp;usable)</pre>
 </li>
 </ul>
-<a id="initialize(me.aecsocket.calibre.item.component.CalibreComponent)">
+<a id="initialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>initialize</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;initialize&#8203;(<a href="../../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;initialize&#8203;(<a href="../../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent,
+                       <a href="../../../item/component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;tree)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../item/system/CalibreSystem.html#initialize(me.aecsocket.calibre.item.component.CalibreComponent)">initialize</a></code>&nbsp;in interface&nbsp;<code><a href="../../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></code></dd>
+<dd><code><a href="../../../item/system/CalibreSystem.html#initialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">initialize</a></code>&nbsp;in interface&nbsp;<code><a href="../../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../../item/system/BaseSystem.html#initialize(me.aecsocket.calibre.item.component.CalibreComponent)">initialize</a></code>&nbsp;in class&nbsp;<code><a href="../../../item/system/BaseSystem.html" title="class in me.aecsocket.calibre.item.system">BaseSystem</a></code></dd>
+<dd><code><a href="../../../item/system/BaseSystem.html#initialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">initialize</a></code>&nbsp;in class&nbsp;<code><a href="../../../item/system/BaseSystem.html" title="class in me.aecsocket.calibre.item.system">BaseSystem</a></code></dd>
 </dl>
-</li>
-</ul>
-<a id="treeInitialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>treeInitialize</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;treeInitialize&#8203;(<a href="../../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent,
-                           <a href="../../../item/component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;tree)</pre>
 </li>
 </ul>
 <a id="getDefaultStats()">

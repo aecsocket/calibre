@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -202,6 +202,11 @@ implements org.bukkit.event.Listener</pre>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onInteract(org.bukkit.event.player.PlayerInteractEvent)">onInteract</a></span>&#8203;(org.bukkit.event.player.PlayerInteractEvent&nbsp;event)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSwitchItem(org.bukkit.event.player.PlayerItemHeldEvent)">onSwitchItem</a></span>&#8203;(org.bukkit.event.player.PlayerItemHeldEvent&nbsp;event)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -266,13 +271,13 @@ implements org.bukkit.event.Listener</pre>
 <pre class="methodSignature">public&nbsp;void&nbsp;onSwitchItem&#8203;(org.bukkit.event.player.PlayerItemHeldEvent&nbsp;event)</pre>
 </li>
 </ul>
-<a id="onClick(org.bukkit.event.inventory.InventoryClickEvent)">
+<a id="onInteract(org.bukkit.event.player.PlayerInteractEvent)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>onClick</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;onClick&#8203;(org.bukkit.event.inventory.InventoryClickEvent&nbsp;event)</pre>
+<h4>onInteract</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;onInteract&#8203;(org.bukkit.event.player.PlayerInteractEvent&nbsp;event)</pre>
 </li>
 </ul>
 <a id="onDamage(org.bukkit.event.entity.EntityDamageEvent)">
@@ -287,10 +292,19 @@ implements org.bukkit.event.Listener</pre>
 <a id="onAttack(org.bukkit.event.entity.EntityDamageByEntityEvent)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>onAttack</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onAttack&#8203;(org.bukkit.event.entity.EntityDamageByEntityEvent&nbsp;event)</pre>
+</li>
+</ul>
+<a id="onClick(org.bukkit.event.inventory.InventoryClickEvent)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onClick</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;onClick&#8203;(org.bukkit.event.inventory.InventoryClickEvent&nbsp;event)</pre>
 </li>
 </ul>
 </li>

@@ -3,6 +3,7 @@ package me.aecsocket.calibre.item.component;
 import com.google.gson.*;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.system.CalibreSystem;
+import me.aecsocket.calibre.item.system.SystemInitializationException;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.stat.StatMap;
 import me.aecsocket.unifiedframework.util.TextUtils;
@@ -33,11 +34,12 @@ public class ComponentTree {
             object.add("id", new JsonPrimitive(root.getId()));
 
             root.getSystems().forEach((id, sys) -> {
-                if (!object.has("systems"))
-                    object.add("systems", new JsonObject());
                 JsonElement serialized = context.serialize(sys);
-                if (serialized != null && (!serialized.isJsonObject() || serialized.getAsJsonObject().size() > 0))
+                if (serialized != null && (!serialized.isJsonObject() || serialized.getAsJsonObject().size() > 0)) {
+                    if (!object.has("systems"))
+                        object.add("systems", new JsonObject());
                     object.get("systems").getAsJsonObject().add(sys.getId(), serialized);
+                }
             });
 
             root.getSlots().forEach((name, slot) -> {
@@ -66,53 +68,58 @@ public class ComponentTree {
             if (root == null)
                 throw new JsonParseException("Could not find component with ID " + id);
             root = root.copy();
+
             ComponentTree tree = new ComponentTree(root);
             root.setTree(tree);
 
-            if (json.isJsonPrimitive())
-                return tree;
+            if (!json.isJsonPrimitive()) {
+                boolean preserveInvalidData = plugin.setting("preserve_invalid_data", boolean.class, true);
 
-            boolean preserveInvalidData = plugin.setting("preserve_invalid_data", boolean.class, true);
-
-            // Systems
-            if (object.has("systems")) {
-                for (Map.Entry<String, JsonElement> entry : assertObject(get(object, "systems")).entrySet()) {
-                    String sId = entry.getKey();
-                    CalibreSystem sys = plugin.fromRegistry(sId, CalibreSystem.class);
-                    if (sys == null) {
-                        if (preserveInvalidData)
-                            throw new JsonParseException(TextUtils.format("Could not find system on {root} with ID {sys}",
-                                    "root", root.getId(), "sys", sId));
-                        else
-                            continue;
+                // Systems
+                if (object.has("systems")) {
+                    for (Map.Entry<String, JsonElement> entry : assertObject(get(object, "systems")).entrySet()) {
+                        String sId = entry.getKey();
+                        CalibreSystem sys = plugin.fromRegistry(sId, CalibreSystem.class);
+                        if (sys == null) {
+                            if (preserveInvalidData)
+                                throw new JsonParseException(TextUtils.format("Could not find system on {root} with ID {sys}",
+                                        "root", root.getId(), "sys", sId));
+                            else
+                                continue;
+                        }
+                        root.getSystems().put(sId, plugin.getGson().fromJson(entry.getValue(), sys.getClass()));
                     }
-                    root.getSystems().put(sId, plugin.getGson().fromJson(entry.getValue(), sys.getClass()));
+                }
+                // Slots
+                if (object.has("slots")) {
+                    for (Map.Entry<String, JsonElement> entry : assertObject(get(object, "slots")).entrySet()) {
+                        String name = entry.getKey();
+                        CalibreComponentSlot slot = root.getSlots().get(name);
+                        if (slot == null) {
+                            if (preserveInvalidData)
+                                throw new JsonParseException(TextUtils.format("Could not find slot on {root} with name {slot}",
+                                        "root", root.getId(), "slot", name));
+                            else
+                                continue;
+                        }
+                        ComponentTree subtree = context.deserialize(entry.getValue(), ComponentTree.class);
+                        if (subtree == null) {
+                            if (preserveInvalidData)
+                                throw new JsonParseException(TextUtils.format("Could not create component on {root} for slot {slot}",
+                                        "root", root.getId(), "slot", name));
+                            else
+                                continue;
+                        }
+                        slot.set(subtree.root);
+                    }
                 }
             }
-            // Slots
-            if (object.has("slots")) {
-                for (Map.Entry<String, JsonElement> entry : assertObject(get(object, "slots")).entrySet()) {
-                    String name = entry.getKey();
-                    CalibreComponentSlot slot = root.getSlots().get(name);
-                    if (slot == null) {
-                        if (preserveInvalidData)
-                            throw new JsonParseException(TextUtils.format("Could not find slot on {root} with name {slot}",
-                                    "root", root.getId(), "slot", name));
-                        else
-                            continue;
-                    }
-                    ComponentTree subtree = context.deserialize(entry.getValue(), ComponentTree.class);
-                    if (subtree == null) {
-                        if (preserveInvalidData)
-                            throw new JsonParseException(TextUtils.format("Could not create component on {root} for slot {slot}",
-                                    "root", root.getId(), "slot", name));
-                        else
-                            continue;
-                    }
-                    slot.set(subtree.root);
-                }
-            }
 
+            try {
+                tree.build();
+            } catch (SystemInitializationException e) {
+                throw new JsonParseException(e);
+            }
             return tree;
         }
     }
@@ -125,7 +132,6 @@ public class ComponentTree {
     public ComponentTree(CalibreComponent root, EventDispatcher eventDispatcher) {
         this.root = root;
         this.eventDispatcher = eventDispatcher;
-        build();
     }
 
     public ComponentTree(CalibreComponent root) {
@@ -150,12 +156,12 @@ public class ComponentTree {
     public boolean isComplete() { return complete; }
     public void setComplete(boolean complete) { this.complete = complete; }
 
-    public void build() {
+    public void build() throws SystemInitializationException {
         complete = true;
         build(root);
     }
 
-    private void build(CalibreComponent parent) {
+    private void build(CalibreComponent parent) throws SystemInitializationException {
         parent.setTree(this);
         for (CalibreComponentSlot slot : parent.getSlots().values()) {
             CalibreComponent child = slot.get();
@@ -165,7 +171,18 @@ public class ComponentTree {
             } else if (slot.isRequired())
                 complete = false;
         }
-        parent.getSystems().forEach((id, sys) -> sys.treeInitialize(parent, this));
+        parent.getSystems().forEach((id, sys) -> {
+            try {
+                sys.initialize(parent, this);
+            } catch (SystemInitializationException e) {
+                throw new SystemInitializationException(TextUtils.format(
+                        "Could not initialize system {system} for {id}: {msg}",
+                        "system", id,
+                        "id", parent.getId(),
+                        "msg", e.getMessage()
+                ), e);
+            }
+        });
     }
 
     private void addStat(Function<CalibreComponent, Map<Integer, StatMap>> statGetter, Map<Integer, Collection<StatMap>> perOrder, CalibreComponent component) {
@@ -203,4 +220,10 @@ public class ComponentTree {
     public <T> T callEvent(T event) { eventDispatcher.call(event); return event; }
 
     //endregion
+
+    public static ComponentTree createAndBuild(CalibreComponent root) throws SystemInitializationException {
+        ComponentTree result = new ComponentTree(root);
+        result.build();
+        return result;
+    }
 }

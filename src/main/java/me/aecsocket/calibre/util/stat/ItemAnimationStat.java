@@ -9,9 +9,9 @@ import me.aecsocket.unifiedframework.stat.impl.SimpleStat;
 import java.lang.reflect.Type;
 import java.util.function.Function;
 
-public class AnimationStat extends SimpleStat<ItemAnimation> {
-    public AnimationStat(ItemAnimation defaultValue) { super(defaultValue); }
-    public AnimationStat() {}
+public class ItemAnimationStat extends SimpleStat<ItemAnimation> {
+    public ItemAnimationStat(ItemAnimation defaultValue) { super(defaultValue); }
+    public ItemAnimationStat() {}
 
     @Override public Type getValueType() { return ItemAnimation.class; }
 

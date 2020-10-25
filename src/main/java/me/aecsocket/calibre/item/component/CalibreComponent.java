@@ -20,10 +20,14 @@ import me.aecsocket.unifiedframework.registry.ResolutionException;
 import me.aecsocket.unifiedframework.registry.ValidationException;
 import me.aecsocket.unifiedframework.stat.Stat;
 import me.aecsocket.unifiedframework.stat.StatMap;
+import me.aecsocket.unifiedframework.stat.impl.BooleanStat;
 import me.aecsocket.unifiedframework.util.MapInit;
 import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.Utils;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -31,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.BiConsumer;
 
 /**
  * Calibre's implementation of a component. Stores systems and stats.
@@ -69,9 +74,9 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
     private static class Dependencies {
         @SerializedName("extends")
         private final String extend;
+        private Map<String, JsonElement> systems = new HashMap<>();
         private Map<Integer, JsonObject> stats = new LinkedHashMap<>();
         private Map<Integer, JsonObject> completeStats = new LinkedHashMap<>();
-        private Map<String, JsonElement> systems = new HashMap<>();
 
         public Dependencies() {
             extend = null;
@@ -80,18 +85,21 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
 
     public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init("item", new ItemDescriptor.Stat())
+            .init("lower", new BooleanStat(false))
             .get();
+    public static final AttributeModifier ATTACK_SPEED_ATTR = new AttributeModifier(new UUID(42069, 69420), "generic.attack_speed", -1, AttributeModifier.Operation.MULTIPLY_SCALAR_1, EquipmentSlot.HAND);
 
     private transient Dependencies dependencies;
     private transient CalibrePlugin plugin;
     private final String id;
+    private List<String> categories;
     private Map<String, CalibreComponentSlot> slots;
     // todo clean these 2 up, combine them and their copy* methods
+    private transient Map<String, CalibreSystem> systems = new HashMap<>();
     private transient Map<Integer, StatMap> stats = new HashMap<>();
     private transient Map<Integer, StatMap> completeStats = new HashMap<>();
-    private transient Map<String, CalibreSystem> systems = new HashMap<>();
 
-    private final transient Map<Class<?>, String> systemServices = new HashMap<>();
+    private final transient Map<Class<? extends CalibreSystem>, String> systemServices = new HashMap<>();
     private transient CalibreComponent parent;
     private transient ComponentTree tree;
 
@@ -109,11 +117,15 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
 
     @Override public String getId() { return id; }
 
+    public List<String> getCategories() { return categories; }
+    public void setCategories(List<String> categories) { this.categories = categories; }
+
     @Override public Map<String, CalibreComponentSlot> getSlots() { return slots; }
+    public Map<String, CalibreSystem> getSystems() { return systems; }
     public Map<Integer, StatMap> getStats() { return stats; }
     public Map<Integer, StatMap> getCompleteStats() { return completeStats; }
-    public Map<String, CalibreSystem> getSystems() { return systems; }
-    public Map<Class<?>, String> getSystemServices() { return systemServices; }
+
+    public Map<Class<? extends CalibreSystem>, String> getSystemServices() { return systemServices; }
 
     public CalibreComponent getParent() { return parent; }
     public void setParent(CalibreComponent parent) { this.parent = parent; }
@@ -132,12 +144,17 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
         return null;
     }
 
-    public <T extends CalibreSystem> void registerSystemService(Class<? super T> type, String system) {
-        systemServices.put(type, system);
+    public <T extends CalibreSystem> void registerSystemService(Class<T> type, String systemId) {
+        systemServices.put(type, systemId);
     }
-    public <T extends CalibreSystem> void registerSystemService(Class<? super T> type, T system) {
+    public <T extends CalibreSystem> void registerSystemService(Class<T> type, T system) {
         if (systems.containsKey(system.getId()))
             registerSystemService(type, system.getId());
+    }
+    public Map<Class<? extends CalibreSystem>, CalibreSystem> getMappedServices() {
+        Map<Class<? extends CalibreSystem>, CalibreSystem> result = new HashMap<>();
+        systemServices.forEach((type, id) -> result.put(type, systems.get(id)));
+        return result;
     }
     public <T extends CalibreSystem> T getSystemService(Class<T> type) {
         return type.cast(systems.get(systemServices.get(type)));
@@ -193,20 +210,14 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
                     "msg", e.getMessage()), e);
         }
 
-        systems.forEach((id, sys) -> {
-            try {
-                sys.initialize(this);
-            } catch (SystemInitializationException e) {
-                throw new ResolutionException(TextUtils.format(
-                        "Could not initialize system {system} for {id}: {msg}",
-                        "system", id,
-                        "id", this.id,
-                        "msg", e.getMessage()
-                ), e);
-            }
-        });
-
-        tree = new ComponentTree(this);
+        try {
+            tree = ComponentTree.createAndBuild(this);
+        } catch (SystemInitializationException e) {
+            throw new ResolutionException(TextUtils.format(
+                    "Could not build component tree for {id}: {msg}",
+                    "id", id,
+                    "msg", e.getMessage()), e);
+        }
 
         // Throw away the dependencies object, let it be GC'd
         dependencies = null;
@@ -224,6 +235,8 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
             PersistentDataContainer data = meta.getPersistentDataContainer();
             plugin.getItemManager().saveTypeKey(meta, this);
             data.set(plugin.key("tree"), PersistentDataType.STRING, plugin.getGson().toJson(tree));
+            if (stat("lower"))
+                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, ATTACK_SPEED_ATTR);
         });
     }
 
@@ -251,17 +264,32 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
 
     //region Utils
 
-    public CalibreComponent withSimpleTree() {
+    public <T extends CalibreSystem> void searchSystems(SystemSearchOptions<T> opt, BiConsumer<CalibreComponentSlot, T> consumer) {
+        walk(data -> {
+            if (data.getSlot() instanceof CalibreComponentSlot) {
+                CalibreComponentSlot slot = (CalibreComponentSlot) data.getSlot();
+                opt.onEachMatching(slot, consumer);
+            }
+        });
+    }
+    public <T extends CalibreSystem> List<Map.Entry<CalibreComponentSlot, T>> collectSystems(SystemSearchOptions<T> opt) {
+        List<Map.Entry<CalibreComponentSlot, T>> result = new ArrayList<>();
+        searchSystems(opt, (slot, sys) -> result.add(new AbstractMap.SimpleEntry<>(slot, sys)));
+        return result;
+    }
+
+    public final CalibreComponent withSimpleTree() {
         CalibreComponent copy = copy();
-        copy.tree = new ComponentTree(copy);
+        copy.tree = ComponentTree.createAndBuild(copy);
         return copy;
     }
 
-    public <T> T stat(String key) { return tree.stat(key); }
-    public <T> T callEvent(T event) { return tree.callEvent(event); }
+    public final <T> T stat(String key) { return tree.stat(key); }
+    public final <T> T callEvent(T event) { return tree.callEvent(event); }
 
     //endregion
 
+    // TODO cleanup
     public Map<String, CalibreComponentSlot> copySlots() {
         Map<String, CalibreComponentSlot> map = new LinkedHashMap<>();
         slots.forEach((name, slot) -> map.put(name, slot.copy()));
@@ -299,8 +327,8 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
      * @param item The item to modify. The reference passed will not be cloned.
      * @param hidden Enables the flag or not.
      * @return The modified item.
+     * @see CalibreComponent#isHidden(CalibrePlugin, ItemStack) 
      */
-
     public static ItemStack setHidden(CalibrePlugin plugin, ItemStack item, boolean hidden) {
         return Utils.modMeta(item, meta -> {
             if (hidden)
@@ -308,5 +336,18 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
             else
                 meta.getPersistentDataContainer().remove(plugin.key("hidden"));
         });
+    }
+
+    /**
+     * Gets if the specified item has a flag which makes it hidden to the player who holds it.
+     * @param plugin The {@link CalibrePlugin}.
+     * @param item The item to check.
+     * @return If the flag is enabled.
+     * @see CalibreComponent#setHidden(CalibrePlugin, ItemStack, boolean) 
+     */
+    public static boolean isHidden(CalibrePlugin plugin, ItemStack item) {
+        return item.hasItemMeta() && item.getItemMeta()
+                .getPersistentDataContainer()
+                .has(plugin.key("hidden"), PersistentDataType.BYTE);
     }
 }

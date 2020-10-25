@@ -21,10 +21,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ItemAnimation implements Cloneable, AcceptsCalibrePlugin {
-    public static class AnimationAdapter implements JsonDeserializer<ItemAnimation>, JsonAdapter {
+    public static class Adapter implements JsonDeserializer<ItemAnimation>, JsonAdapter {
         private final CalibrePlugin plugin;
 
-        public AnimationAdapter(CalibrePlugin plugin) {
+        public Adapter(CalibrePlugin plugin) {
             this.plugin = plugin;
         }
 
@@ -38,22 +38,14 @@ public class ItemAnimation implements Cloneable, AcceptsCalibrePlugin {
                 JsonObject object = assertObject(elem);
                 String frameType = get(object, "type", new JsonPrimitive("simple")).getAsString();
                 switch (frameType) {
-                    case "simple":
-                        frames.add(new Frame(
-                                Utils.toMs(get(object, "duration").getAsDouble()),
-                                context.deserialize(get(object, "slot", JsonNull.INSTANCE), EquipmentSlot.class),
-                                context.deserialize(get(object, "model_data", JsonNull.INSTANCE), Integer.class),
-                                context.deserialize(get(object, "damage", JsonNull.INSTANCE), Integer.class)
-                        ));
-                        break;
                     case "range":
-                        int from = get(object, "from").getAsInt();
-                        long duration = Utils.toMs(get(object, "duration").getAsDouble());
+                        int from = get(object, "from", int.class);
+                        long duration = get(object, "duration", long.class, 0L);
                         EquipmentSlot slot = context.deserialize(get(object, "slot", JsonNull.INSTANCE), EquipmentSlot.class);
-                        int step = get(object, "step", new JsonPrimitive(1)).getAsInt();
-                        boolean useDamage = get(object, "use_damage", new JsonPrimitive(false)).getAsBoolean();
+                        int step = get(object, "step", int.class, 1);
+                        boolean useDamage = get(object, "use_damage", boolean.class, false);
 
-                        for (int i = 0; i < get(object, "range").getAsInt(); i++) {
+                        for (int i = 0; i < get(object, "range", int.class); i++) {
                             frames.add(new Frame(
                                     duration, slot,
                                     useDamage ? null : from + (i * step),
@@ -62,7 +54,14 @@ public class ItemAnimation implements Cloneable, AcceptsCalibrePlugin {
                         }
                         break;
                     default:
-                        throw new JsonParseException("Invalid frame type " + frameType);
+                        frames.add(new Frame(
+                                get(object, "duration", long.class),
+                                get(object, "slot", context, EquipmentSlot.class, null),
+                                get(object, "item", context, ItemDescriptor.class, null),
+                                get(object, "model_data", context, Integer.class, 0),
+                                get(object, "damage", context, Integer.class, 0)
+                        ));
+                        break;
                 }
             }
 
@@ -140,6 +139,14 @@ public class ItemAnimation implements Cloneable, AcceptsCalibrePlugin {
         private Integer modelData;
         private Integer damage;
 
+        public Frame(long duration, EquipmentSlot slot, ItemDescriptor item, Integer modelData, Integer damage) {
+            this.duration = duration;
+            this.slot = slot;
+            this.item = item;
+            this.modelData = modelData;
+            this.damage = damage;
+        }
+
         public Frame(long duration, EquipmentSlot slot, ItemDescriptor item) {
             this.duration = duration;
             this.slot = slot;
@@ -196,7 +203,7 @@ public class ItemAnimation implements Cloneable, AcceptsCalibrePlugin {
         public Frame clone() { try { return (Frame) super.clone(); } catch (CloneNotSupportedException e) { return null; } }
     }
 
-    private CalibrePlugin plugin;
+    private transient CalibrePlugin plugin;
     private List<Frame> frames = new ArrayList<>();
 
     public ItemAnimation(CalibrePlugin plugin, List<Frame> frames) {

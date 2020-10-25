@@ -23,7 +23,6 @@ public class CalibrePlayer implements Tickable {
     private final PlayerItemUser user;
     private final Map<EquipmentSlot, Map.Entry<ItemStack, CalibreComponent>> cachedItems = new EnumMap<>(EquipmentSlot.class);
 
-    private long availableIn;
     private ItemAnimation.Instance animation;
 
     public CalibrePlayer(CalibrePlugin plugin, Player player) {
@@ -36,14 +35,8 @@ public class CalibrePlayer implements Tickable {
     public Player getPlayer() { return player; }
     public PlayerItemUser getUser() { return user; }
 
-    public long getAvailableIn() { return availableIn; }
-    public void setAvailableIn(long availableIn) { this.availableIn = availableIn; }
-
     public ItemAnimation.Instance getAnimation() { return animation; }
     public void setAnimation(ItemAnimation.Instance animation) { this.animation = animation; }
-
-    public void applyDelay(long ms) { availableIn = System.currentTimeMillis() + ms; }
-    public long getDelay() { return availableIn - System.currentTimeMillis(); }
 
     public ItemAnimation.Instance startAnimation(ItemAnimation animation, EquipmentSlot slot) {
         this.animation = animation.start(player, slot);

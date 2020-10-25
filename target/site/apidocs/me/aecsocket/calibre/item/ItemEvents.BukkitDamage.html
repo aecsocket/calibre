@@ -168,11 +168,12 @@ extends <a href="ItemEvents.Damage.html" title="class in me.aecsocket.calibre.it
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,double,me.aecsocket.calibre.item.util.damagecause.DamageCause,org.bukkit.event.entity.EntityDamageEvent)">BukkitDamage</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,double,me.aecsocket.calibre.item.util.damagecause.DamageCause,double,org.bukkit.event.entity.EntityDamageEvent)">BukkitDamage</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
             <a href="util/slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
             <a href="util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
-            double&nbsp;damage,
+            double&nbsp;finalDamage,
             <a href="util/damagecause/DamageCause.html" title="interface in me.aecsocket.calibre.item.util.damagecause">DamageCause</a>&nbsp;cause,
+            double&nbsp;damage,
             org.bukkit.event.entity.EntityDamageEvent&nbsp;event)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -212,14 +213,14 @@ extends <a href="ItemEvents.Damage.html" title="class in me.aecsocket.calibre.it
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;me.aecsocket.calibre.item.<a href="ItemEvents.Damage.html" title="class in me.aecsocket.calibre.item">ItemEvents.Damage</a></h3>
-<code><a href="ItemEvents.Damage.html#getCause()">getCause</a>, <a href="ItemEvents.Damage.html#getDamage()">getDamage</a></code></li>
+<code><a href="ItemEvents.Damage.html#getCause()">getCause</a>, <a href="ItemEvents.Damage.html#getDamage()">getDamage</a>, <a href="ItemEvents.Damage.html#getFinalDamage()">getFinalDamage</a>, <a href="ItemEvents.Damage.html#setDamage(double)">setDamage</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.me.aecsocket.calibre.item.ItemEvents.Event">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;me.aecsocket.calibre.item.<a href="ItemEvents.Event.html" title="class in me.aecsocket.calibre.item">ItemEvents.Event</a></h3>
-<code><a href="ItemEvents.Event.html#getSlot()">getSlot</a>, <a href="ItemEvents.Event.html#getStack()">getStack</a>, <a href="ItemEvents.Event.html#getUser()">getUser</a></code></li>
+<code><a href="ItemEvents.Event.html#getSlot()">getSlot</a>, <a href="ItemEvents.Event.html#getStack()">getStack</a>, <a href="ItemEvents.Event.html#getUser()">getUser</a>, <a href="ItemEvents.Event.html#updateItem(me.aecsocket.calibre.item.system.CalibreSystem)">updateItem</a>, <a href="ItemEvents.Event.html#updateItem(me.aecsocket.calibre.item.system.CalibreSystem,boolean)">updateItem</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -244,7 +245,7 @@ extends <a href="ItemEvents.Damage.html" title="class in me.aecsocket.calibre.it
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,double,me.aecsocket.calibre.item.util.damagecause.DamageCause,org.bukkit.event.entity.EntityDamageEvent)">
+<a id="&lt;init&gt;(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,double,me.aecsocket.calibre.item.util.damagecause.DamageCause,double,org.bukkit.event.entity.EntityDamageEvent)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -253,8 +254,9 @@ extends <a href="ItemEvents.Damage.html" title="class in me.aecsocket.calibre.it
 <pre>public&nbsp;BukkitDamage&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
                     <a href="util/slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
                     <a href="util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
-                    double&nbsp;damage,
+                    double&nbsp;finalDamage,
                     <a href="util/damagecause/DamageCause.html" title="interface in me.aecsocket.calibre.item.util.damagecause">DamageCause</a>&nbsp;cause,
+                    double&nbsp;damage,
                     org.bukkit.event.entity.EntityDamageEvent&nbsp;event)</pre>
 </li>
 </ul>

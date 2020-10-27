@@ -27,8 +27,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":10,"i1":9,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -89,14 +89,14 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -127,7 +127,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li>me.aecsocket.unifiedframework.util.Projectile</li>
 <li>
 <ul class="inheritance">
+<li><a href="../projectile/CalibreProjectile.html" title="class in me.aecsocket.calibre.defaults.system.projectile">me.aecsocket.calibre.defaults.system.projectile.CalibreProjectile</a></li>
+<li>
+<ul class="inheritance">
 <li>me.aecsocket.calibre.defaults.system.gun.BulletSystem.Projectile</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -146,13 +151,30 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <hr>
 <pre>public static class <span class="typeNameLabel">BulletSystem.Projectile</span>
-extends me.aecsocket.unifiedframework.util.Projectile</pre>
+extends <a href="../projectile/CalibreProjectile.html" title="class in me.aecsocket.calibre.defaults.system.projectile">CalibreProjectile</a></pre>
 </li>
 </ul>
 </div>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.me.aecsocket.calibre.defaults.system.projectile.CalibreProjectile">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from class&nbsp;me.aecsocket.calibre.defaults.system.projectile.<a href="../projectile/CalibreProjectile.html" title="class in me.aecsocket.calibre.defaults.system.projectile">CalibreProjectile</a></h3>
+<code><a href="../projectile/CalibreProjectile.Data.html" title="class in me.aecsocket.calibre.defaults.system.projectile">CalibreProjectile.Data</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
 <!-- =========== FIELD SUMMARY =========== -->
 <section role="region">
 <ul class="blockList">
@@ -160,6 +182,26 @@ extends me.aecsocket.unifiedframework.util.Projectile</pre>
 <!--   -->
 </a>
 <h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static double</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DAMAGE_THRESHOLD">DAMAGE_THRESHOLD</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.me.aecsocket.calibre.defaults.system.projectile.CalibreProjectile">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;me.aecsocket.calibre.defaults.system.projectile.<a href="../projectile/CalibreProjectile.html" title="class in me.aecsocket.calibre.defaults.system.projectile">CalibreProjectile</a></h3>
+<code><a href="../projectile/CalibreProjectile.html#MAX_DISTANCE">MAX_DISTANCE</a></code></li>
+</ul>
 <ul class="blockList">
 <li class="blockList"><a id="fields.inherited.from.class.me.aecsocket.unifiedframework.util.Projectile">
 <!--   -->
@@ -184,34 +226,7 @@ extends me.aecsocket.unifiedframework.util.Projectile</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.bukkit.Location)">Projectile</a></span>&#8203;(org.bukkit.Location&nbsp;location)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.bukkit.Location,org.bukkit.util.Vector)">Projectile</a></span>&#8203;(org.bukkit.Location&nbsp;location,
-          org.bukkit.util.Vector&nbsp;velocity)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.bukkit.Location,org.bukkit.util.Vector,double)">Projectile</a></span>&#8203;(org.bukkit.Location&nbsp;location,
-          org.bukkit.util.Vector&nbsp;velocity,
-          double&nbsp;bounce)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.bukkit.Location,org.bukkit.util.Vector,double,double)">Projectile</a></span>&#8203;(org.bukkit.Location&nbsp;location,
-          org.bukkit.util.Vector&nbsp;velocity,
-          double&nbsp;bounce,
-          double&nbsp;drag)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.bukkit.Location,org.bukkit.util.Vector,double,double,double,double)">Projectile</a></span>&#8203;(org.bukkit.Location&nbsp;location,
-          org.bukkit.util.Vector&nbsp;velocity,
-          double&nbsp;bounce,
-          double&nbsp;drag,
-          double&nbsp;gravity,
-          double&nbsp;expansion)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(me.aecsocket.calibre.defaults.system.gun.FireableSystem.ProjectileData)">Projectile</a></span>&#8203;(<a href="FireableSystem.ProjectileData.html" title="class in me.aecsocket.calibre.defaults.system.gun">FireableSystem.ProjectileData</a>&nbsp;data)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -226,26 +241,74 @@ extends me.aecsocket.unifiedframework.util.Projectile</pre>
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>double</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#computeDamage()">computeDamage</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>static double</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#computeDamage(double,double,double,double)">computeDamage</a></span>&#8203;(double&nbsp;damage,
+             double&nbsp;travelled,
+             double&nbsp;dropoff,
+             double&nbsp;range)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>double</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDamage()">getDamage</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="FireableSystem.ProjectileData.html" title="class in me.aecsocket.calibre.defaults.system.gun">FireableSystem.ProjectileData</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getData()">getData</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#step(me.aecsocket.unifiedframework.loop.TickContext,org.bukkit.util.Vector,org.bukkit.util.Vector)">step</a></span>&#8203;(me.aecsocket.unifiedframework.loop.TickContext&nbsp;tickContext,
-    org.bukkit.util.Vector&nbsp;from,
-    org.bukkit.util.Vector&nbsp;delta)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hitBlock(me.aecsocket.unifiedframework.loop.TickContext,org.bukkit.util.RayTraceResult,org.bukkit.block.Block)">hitBlock</a></span>&#8203;(me.aecsocket.unifiedframework.loop.TickContext&nbsp;tickContext,
+        org.bukkit.util.RayTraceResult&nbsp;ray,
+        org.bukkit.block.Block&nbsp;block)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hitEntity(me.aecsocket.unifiedframework.loop.TickContext,org.bukkit.util.RayTraceResult,org.bukkit.entity.Entity)">hitEntity</a></span>&#8203;(me.aecsocket.unifiedframework.loop.TickContext&nbsp;tickContext,
+         org.bukkit.util.RayTraceResult&nbsp;ray,
+         org.bukkit.entity.Entity&nbsp;entity)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDamage(double)">setDamage</a></span>&#8203;(double&nbsp;damage)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#successHit(me.aecsocket.unifiedframework.loop.TickContext,org.bukkit.util.RayTraceResult)">successHit</a></span>&#8203;(me.aecsocket.unifiedframework.loop.TickContext&nbsp;tickContext,
+          org.bukkit.util.RayTraceResult&nbsp;ray)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.me.aecsocket.calibre.defaults.system.projectile.CalibreProjectile">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;me.aecsocket.calibre.defaults.system.projectile.<a href="../projectile/CalibreProjectile.html" title="class in me.aecsocket.calibre.defaults.system.projectile">CalibreProjectile</a></h3>
+<code><a href="../projectile/CalibreProjectile.html#setData(me.aecsocket.calibre.defaults.system.projectile.CalibreProjectile.Data)">setData</a>, <a href="../projectile/CalibreProjectile.html#step(me.aecsocket.unifiedframework.loop.TickContext,org.bukkit.util.Vector,org.bukkit.util.Vector,double)">step</a>, <a href="../projectile/CalibreProjectile.html#tick(me.aecsocket.unifiedframework.loop.TickContext)">tick</a></code></li>
+</ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.me.aecsocket.unifiedframework.util.Projectile">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;me.aecsocket.unifiedframework.util.Projectile</h3>
-<code>getBounce, getDrag, getExpansion, getGravity, getHits, getInBlock, getInEntity, getLocation, getTravelled, getVelocity, hit, hitBlock, hitEntity, inEntity, rayTrace, setBounce, setDrag, setExpansion, setGravity, setLocation, setVelocity, successHit, tick</code></li>
+<code>getBounce, getDrag, getExpansion, getGravity, getHits, getInBlock, getInEntity, getLocation, getTravelled, getVelocity, hit, inEntity, rayTrace, setBounce, setDrag, setExpansion, setGravity, setLocation, setVelocity</code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -263,6 +326,29 @@ extends me.aecsocket.unifiedframework.util.Projectile</pre>
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="DAMAGE_THRESHOLD">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DAMAGE_THRESHOLD</h4>
+<pre>public static final&nbsp;double DAMAGE_THRESHOLD</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#me.aecsocket.calibre.defaults.system.gun.BulletSystem.Projectile.DAMAGE_THRESHOLD">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <section role="region">
 <ul class="blockList">
@@ -270,60 +356,13 @@ extends me.aecsocket.unifiedframework.util.Projectile</pre>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(org.bukkit.Location,org.bukkit.util.Vector,double,double,double,double)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>Projectile</h4>
-<pre>public&nbsp;Projectile&#8203;(org.bukkit.Location&nbsp;location,
-                  org.bukkit.util.Vector&nbsp;velocity,
-                  double&nbsp;bounce,
-                  double&nbsp;drag,
-                  double&nbsp;gravity,
-                  double&nbsp;expansion)</pre>
-</li>
-</ul>
-<a id="&lt;init&gt;(org.bukkit.Location,org.bukkit.util.Vector,double,double)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>Projectile</h4>
-<pre>public&nbsp;Projectile&#8203;(org.bukkit.Location&nbsp;location,
-                  org.bukkit.util.Vector&nbsp;velocity,
-                  double&nbsp;bounce,
-                  double&nbsp;drag)</pre>
-</li>
-</ul>
-<a id="&lt;init&gt;(org.bukkit.Location,org.bukkit.util.Vector,double)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>Projectile</h4>
-<pre>public&nbsp;Projectile&#8203;(org.bukkit.Location&nbsp;location,
-                  org.bukkit.util.Vector&nbsp;velocity,
-                  double&nbsp;bounce)</pre>
-</li>
-</ul>
-<a id="&lt;init&gt;(org.bukkit.Location,org.bukkit.util.Vector)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>Projectile</h4>
-<pre>public&nbsp;Projectile&#8203;(org.bukkit.Location&nbsp;location,
-                  org.bukkit.util.Vector&nbsp;velocity)</pre>
-</li>
-</ul>
-<a id="&lt;init&gt;(org.bukkit.Location)">
+<a id="&lt;init&gt;(me.aecsocket.calibre.defaults.system.gun.FireableSystem.ProjectileData)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Projectile</h4>
-<pre>public&nbsp;Projectile&#8203;(org.bukkit.Location&nbsp;location)</pre>
+<pre>public&nbsp;Projectile&#8203;(<a href="FireableSystem.ProjectileData.html" title="class in me.aecsocket.calibre.defaults.system.gun">FireableSystem.ProjectileData</a>&nbsp;data)</pre>
 </li>
 </ul>
 </li>
@@ -336,19 +375,100 @@ extends me.aecsocket.unifiedframework.util.Projectile</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="step(me.aecsocket.unifiedframework.loop.TickContext,org.bukkit.util.Vector,org.bukkit.util.Vector)">
+<a id="getData()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getData</h4>
+<pre class="methodSignature">public&nbsp;<a href="FireableSystem.ProjectileData.html" title="class in me.aecsocket.calibre.defaults.system.gun">FireableSystem.ProjectileData</a>&nbsp;getData()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../projectile/CalibreProjectile.html#getData()">getData</a></code>&nbsp;in class&nbsp;<code><a href="../projectile/CalibreProjectile.html" title="class in me.aecsocket.calibre.defaults.system.projectile">CalibreProjectile</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="getDamage()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDamage</h4>
+<pre class="methodSignature">public&nbsp;double&nbsp;getDamage()</pre>
+</li>
+</ul>
+<a id="setDamage(double)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDamage</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setDamage&#8203;(double&nbsp;damage)</pre>
+</li>
+</ul>
+<a id="computeDamage()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>computeDamage</h4>
+<pre class="methodSignature">public&nbsp;double&nbsp;computeDamage()</pre>
+</li>
+</ul>
+<a id="hitBlock(me.aecsocket.unifiedframework.loop.TickContext,org.bukkit.util.RayTraceResult,org.bukkit.block.Block)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hitBlock</h4>
+<pre class="methodSignature">protected&nbsp;void&nbsp;hitBlock&#8203;(me.aecsocket.unifiedframework.loop.TickContext&nbsp;tickContext,
+                        org.bukkit.util.RayTraceResult&nbsp;ray,
+                        org.bukkit.block.Block&nbsp;block)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code>hitBlock</code>&nbsp;in class&nbsp;<code>me.aecsocket.unifiedframework.util.Projectile</code></dd>
+</dl>
+</li>
+</ul>
+<a id="hitEntity(me.aecsocket.unifiedframework.loop.TickContext,org.bukkit.util.RayTraceResult,org.bukkit.entity.Entity)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hitEntity</h4>
+<pre class="methodSignature">protected&nbsp;void&nbsp;hitEntity&#8203;(me.aecsocket.unifiedframework.loop.TickContext&nbsp;tickContext,
+                         org.bukkit.util.RayTraceResult&nbsp;ray,
+                         org.bukkit.entity.Entity&nbsp;entity)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../projectile/CalibreProjectile.html#hitEntity(me.aecsocket.unifiedframework.loop.TickContext,org.bukkit.util.RayTraceResult,org.bukkit.entity.Entity)">hitEntity</a></code>&nbsp;in class&nbsp;<code><a href="../projectile/CalibreProjectile.html" title="class in me.aecsocket.calibre.defaults.system.projectile">CalibreProjectile</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="successHit(me.aecsocket.unifiedframework.loop.TickContext,org.bukkit.util.RayTraceResult)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>successHit</h4>
+<pre class="methodSignature">protected&nbsp;void&nbsp;successHit&#8203;(me.aecsocket.unifiedframework.loop.TickContext&nbsp;tickContext,
+                          org.bukkit.util.RayTraceResult&nbsp;ray)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../projectile/CalibreProjectile.html#successHit(me.aecsocket.unifiedframework.loop.TickContext,org.bukkit.util.RayTraceResult)">successHit</a></code>&nbsp;in class&nbsp;<code><a href="../projectile/CalibreProjectile.html" title="class in me.aecsocket.calibre.defaults.system.projectile">CalibreProjectile</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="computeDamage(double,double,double,double)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>step</h4>
-<pre class="methodSignature">protected&nbsp;void&nbsp;step&#8203;(me.aecsocket.unifiedframework.loop.TickContext&nbsp;tickContext,
-                    org.bukkit.util.Vector&nbsp;from,
-                    org.bukkit.util.Vector&nbsp;delta)</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code>step</code>&nbsp;in class&nbsp;<code>me.aecsocket.unifiedframework.util.Projectile</code></dd>
-</dl>
+<h4>computeDamage</h4>
+<pre class="methodSignature">public static&nbsp;double&nbsp;computeDamage&#8203;(double&nbsp;damage,
+                                   double&nbsp;travelled,
+                                   double&nbsp;dropoff,
+                                   double&nbsp;range)</pre>
 </li>
 </ul>
 </li>
@@ -403,14 +523,14 @@ extends me.aecsocket.unifiedframework.util.Projectile</pre>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

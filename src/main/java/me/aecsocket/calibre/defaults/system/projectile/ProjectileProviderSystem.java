@@ -1,4 +1,4 @@
-package me.aecsocket.calibre.defaults.system;
+package me.aecsocket.calibre.defaults.system.projectile;
 
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.ComponentTree;
@@ -12,7 +12,16 @@ public interface ProjectileProviderSystem extends CalibreSystem {
         parent.registerSystemService(ProjectileProviderSystem.class, this);
     }
 
-    Projectile createProjectile(Data data);
+    default Projectile createProjectile(Data data) {
+        return new Projectile(
+                data.location,
+                data.velocity,
+                data.bounce,
+                data.drag,
+                data.gravity,
+                data.expansion
+        );
+    }
 
     class Data {
         private Location location;
@@ -29,6 +38,15 @@ public interface ProjectileProviderSystem extends CalibreSystem {
             this.drag = drag;
             this.gravity = gravity;
             this.expansion = expansion;
+        }
+
+        public Data(Data o) {
+            location = o.location.clone();
+            velocity = o.velocity.clone();
+            bounce = o.bounce;
+            drag = o.drag;
+            gravity = o.gravity;
+            expansion = o.expansion;
         }
 
         public Location getLocation() { return location; }

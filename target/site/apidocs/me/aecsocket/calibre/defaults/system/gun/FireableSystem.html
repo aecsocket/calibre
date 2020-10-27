@@ -27,8 +27,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":9,"i16":9,"i17":10,"i18":10,"i19":10,"i20":9};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -165,16 +165,26 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="FireableSystem.ChamberHandling.html" title="enum in me.aecsocket.calibre.defaults.system.gun">FireableSystem.ChamberHandling</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="FireableSystem.Events.html" title="class in me.aecsocket.calibre.defaults.system.gun">FireableSystem.Events</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="FireableSystem.ProjectileData.html" title="class in me.aecsocket.calibre.defaults.system.gun">FireableSystem.ProjectileData</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a id="nested.classes.inherited.from.class.me.aecsocket.calibre.util.AcceptsCalibrePlugin">
+<li class="blockList"><a id="nested.classes.inherited.from.class.me.aecsocket.calibre.item.system.CalibreSystem">
 <!--   -->
 </a>
-<h3>Nested classes/interfaces inherited from interface&nbsp;me.aecsocket.calibre.util.<a href="../../../util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></h3>
-<code><a href="../../../util/AcceptsCalibrePlugin.Adapter.html" title="class in me.aecsocket.calibre.util">AcceptsCalibrePlugin.Adapter</a></code></li>
+<h3>Nested classes/interfaces inherited from interface&nbsp;me.aecsocket.calibre.item.system.<a href="../../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></h3>
+<code><a href="../../../item/system/CalibreSystem.Adapter.html" title="class in me.aecsocket.calibre.item.system">CalibreSystem.Adapter</a></code></li>
 </ul>
 </li>
 </ul>
@@ -194,11 +204,16 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>static <a href="../../../item/util/damagecause/DamageCause.html" title="interface in me.aecsocket.calibre.item.util.damagecause">DamageCause</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#GUN_DAMAGE_CAUSE">GUN_DAMAGE_CAUSE</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ID">ID</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;me.aecsocket.unifiedframework.stat.Stat&lt;?&gt;&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATS">STATS</a></span></code></th>
 <td class="colLast">&nbsp;</td>
@@ -250,62 +265,124 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>double</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#calculateShotSpread()">calculateShotSpread</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chamber(me.aecsocket.calibre.defaults.system.gun.FireableSystem.Events.PreChamber)">chamber</a></span>&#8203;(<a href="FireableSystem.Events.PreChamber.html" title="class in me.aecsocket.calibre.defaults.system.gun">FireableSystem.Events.PreChamber</a>&nbsp;event)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="FireableSystem.html" title="class in me.aecsocket.calibre.defaults.system.gun">FireableSystem</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clone()">clone</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="FireableSystem.html" title="class in me.aecsocket.calibre.defaults.system.gun">FireableSystem</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copy()">copy</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fire(me.aecsocket.calibre.defaults.system.gun.FireableSystem.Events.Fire)">fire</a></span>&#8203;(<a href="FireableSystem.Events.Fire.html" title="class in me.aecsocket.calibre.defaults.system.gun">FireableSystem.Events.Fire</a>&nbsp;event)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fireOnce(me.aecsocket.calibre.defaults.system.gun.FireableSystem.Events.PreFireOnce)">fireOnce</a></span>&#8203;(<a href="FireableSystem.Events.PreFireOnce.html" title="class in me.aecsocket.calibre.defaults.system.gun">FireableSystem.Events.PreFireOnce</a>&nbsp;event)</code></th>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fireOnce(me.aecsocket.calibre.defaults.system.gun.FireableSystem.Events.FireOnce)">fireOnce</a></span>&#8203;(<a href="FireableSystem.Events.FireOnce.html" title="class in me.aecsocket.calibre.defaults.system.gun">FireableSystem.Events.FireOnce</a>&nbsp;event)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="../../../item/component/search/SystemSearchResult.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchResult</a>&lt;<a href="AmmoStorageSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun">AmmoStorageSystem</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAmmo()">getAmmo</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="../../../item/component/search/SystemSearchResult.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchResult</a>&lt;<a href="../projectile/ProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.projectile">ProjectileProviderSystem</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getChamber()">getChamber</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;me.aecsocket.unifiedframework.stat.Stat&lt;?&gt;&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDefaultStats()">getDefaultStats</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Collection.html?is-external=true" title="class or interface in java.util" class="externalLink">Collection</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDependencies()">getDependencies</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getId()">getId</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>double</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getShotSpread()">getShotSpread</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getShotSpreadTime()">getShotSpreadTime</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">initialize</a></span>&#8203;(<a href="../../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent,
           <a href="../../../item/component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;tree)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isUsable()">isUsable</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>static org.bukkit.util.Vector</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#randomRotate(org.bukkit.util.Vector,double)">randomRotate</a></span>&#8203;(org.bukkit.util.Vector&nbsp;direction,
+            double&nbsp;spread)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>static double</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#randomSpread(double)">randomSpread</a></span>&#8203;(double&nbsp;spread)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShotSpread(double)">setShotSpread</a></span>&#8203;(double&nbsp;shotSpread)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShotSpreadTime(long)">setShotSpreadTime</a></span>&#8203;(long&nbsp;shotSpreadTime)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUsable(boolean)">setUsable</a></span>&#8203;(boolean&nbsp;usable)</code></th>
 <td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i20" class="altColor">
+<td class="colFirst"><code>static <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html?is-external=true" title="class or interface in java.util" class="externalLink">Optional</a>&lt;org.bukkit.Location&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sightIn(org.bukkit.Location,double,double,double,double)">sightIn</a></span>&#8203;(org.bukkit.Location&nbsp;location,
+       double&nbsp;v,
+       double&nbsp;x,
+       double&nbsp;y,
+       double&nbsp;g)</code></th>
+<td class="colLast">
+<div class="block">Modifies a location to be sighted in to shoot at a particular position along the plane of the view model.</div>
+</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -327,7 +404,14 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;me.aecsocket.calibre.util.<a href="../../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></h3>
-<code><a href="../../../util/CalibreIdentifiable.html#getLocalizedName(java.lang.String)">getLocalizedName</a>, <a href="../../../util/CalibreIdentifiable.html#getLocalizedName(org.bukkit.command.CommandSender)">getLocalizedName</a>, <a href="../../../util/CalibreIdentifiable.html#getLongInfo(java.lang.String)">getLongInfo</a>, <a href="../../../util/CalibreIdentifiable.html#getShortInfo(java.lang.String)">getShortInfo</a>, <a href="../../../util/CalibreIdentifiable.html#validate()">validate</a></code></li>
+<code><a href="../../../util/CalibreIdentifiable.html#getLocalizedName(java.lang.String)">getLocalizedName</a>, <a href="../../../util/CalibreIdentifiable.html#getLocalizedName(org.bukkit.command.CommandSender)">getLocalizedName</a>, <a href="../../../util/CalibreIdentifiable.html#getShortInfo(java.lang.String)">getShortInfo</a>, <a href="../../../util/CalibreIdentifiable.html#validate()">validate</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.me.aecsocket.calibre.item.system.CalibreSystem">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;me.aecsocket.calibre.item.system.<a href="../../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></h3>
+<code><a href="../../../item/system/CalibreSystem.html#getLongInfo(java.lang.String)">getLongInfo</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.me.aecsocket.unifiedframework.registry.Identifiable">
@@ -363,6 +447,15 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#me.aecsocket.calibre.defaults.system.gun.FireableSystem.ID">Constant Field Values</a></dd>
 </dl>
+</li>
+</ul>
+<a id="GUN_DAMAGE_CAUSE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>GUN_DAMAGE_CAUSE</h4>
+<pre>public static final&nbsp;<a href="../../../item/util/damagecause/DamageCause.html" title="interface in me.aecsocket.calibre.item.util.damagecause">DamageCause</a> GUN_DAMAGE_CAUSE</pre>
 </li>
 </ul>
 <a id="STATS">
@@ -421,6 +514,51 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <pre class="methodSignature">public&nbsp;void&nbsp;setUsable&#8203;(boolean&nbsp;usable)</pre>
 </li>
 </ul>
+<a id="getShotSpread()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getShotSpread</h4>
+<pre class="methodSignature">public&nbsp;double&nbsp;getShotSpread()</pre>
+</li>
+</ul>
+<a id="setShotSpread(double)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setShotSpread</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setShotSpread&#8203;(double&nbsp;shotSpread)</pre>
+</li>
+</ul>
+<a id="getShotSpreadTime()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getShotSpreadTime</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getShotSpreadTime()</pre>
+</li>
+</ul>
+<a id="setShotSpreadTime(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setShotSpreadTime</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setShotSpreadTime&#8203;(long&nbsp;shotSpreadTime)</pre>
+</li>
+</ul>
+<a id="calculateShotSpread()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>calculateShotSpread</h4>
+<pre class="methodSignature">public&nbsp;double&nbsp;calculateShotSpread()</pre>
+</li>
+</ul>
 <a id="initialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">
 <!--   -->
 </a>
@@ -446,6 +584,24 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;me.aecsocket.unifiedframework.stat.Stat&lt;?&gt;&gt;&nbsp;getDefaultStats()</pre>
 </li>
 </ul>
+<a id="getChamber()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getChamber</h4>
+<pre class="methodSignature">public&nbsp;<a href="../../../item/component/search/SystemSearchResult.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchResult</a>&lt;<a href="../projectile/ProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.projectile">ProjectileProviderSystem</a>&gt;&nbsp;getChamber()</pre>
+</li>
+</ul>
+<a id="getAmmo()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAmmo</h4>
+<pre class="methodSignature">public&nbsp;<a href="../../../item/component/search/SystemSearchResult.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchResult</a>&lt;<a href="AmmoStorageSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun">AmmoStorageSystem</a>&gt;&nbsp;getAmmo()</pre>
+</li>
+</ul>
 <a id="fire(me.aecsocket.calibre.defaults.system.gun.FireableSystem.Events.Fire)">
 <!--   -->
 </a>
@@ -455,13 +611,22 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <pre class="methodSignature">public&nbsp;void&nbsp;fire&#8203;(<a href="FireableSystem.Events.Fire.html" title="class in me.aecsocket.calibre.defaults.system.gun">FireableSystem.Events.Fire</a>&nbsp;event)</pre>
 </li>
 </ul>
-<a id="fireOnce(me.aecsocket.calibre.defaults.system.gun.FireableSystem.Events.PreFireOnce)">
+<a id="fireOnce(me.aecsocket.calibre.defaults.system.gun.FireableSystem.Events.FireOnce)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>fireOnce</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;fireOnce&#8203;(<a href="FireableSystem.Events.PreFireOnce.html" title="class in me.aecsocket.calibre.defaults.system.gun">FireableSystem.Events.PreFireOnce</a>&nbsp;event)</pre>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;fireOnce&#8203;(<a href="FireableSystem.Events.FireOnce.html" title="class in me.aecsocket.calibre.defaults.system.gun">FireableSystem.Events.FireOnce</a>&nbsp;event)</pre>
+</li>
+</ul>
+<a id="chamber(me.aecsocket.calibre.defaults.system.gun.FireableSystem.Events.PreChamber)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>chamber</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;chamber&#8203;(<a href="FireableSystem.Events.PreChamber.html" title="class in me.aecsocket.calibre.defaults.system.gun">FireableSystem.Events.PreChamber</a>&nbsp;event)</pre>
 </li>
 </ul>
 <a id="getId()">
@@ -498,10 +663,53 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <a id="copy()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>copy</h4>
 <pre class="methodSignature">public&nbsp;<a href="FireableSystem.html" title="class in me.aecsocket.calibre.defaults.system.gun">FireableSystem</a>&nbsp;copy()</pre>
+</li>
+</ul>
+<a id="sightIn(org.bukkit.Location,double,double,double,double)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sightIn</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html?is-external=true" title="class or interface in java.util" class="externalLink">Optional</a>&lt;org.bukkit.Location&gt;&nbsp;sightIn&#8203;(org.bukkit.Location&nbsp;location,
+                                                    double&nbsp;v,
+                                                    double&nbsp;x,
+                                                    double&nbsp;y,
+                                                    double&nbsp;g)</pre>
+<div class="block">Modifies a location to be sighted in to shoot at a particular position along the plane of the view model.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>location</code> - The original position. WIll be copied.</dd>
+<dd><code>v</code> - The speed of the projectile.</dd>
+<dd><code>x</code> - The distance between the final point and the origin, in meters.</dd>
+<dd><code>y</code> - The height between the final point and the origin, in meters.</dd>
+<dd><code>g</code> - The gravity in this space, in m/s.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The sighted in position. If the point is unable to be reached, an empty Optional is returned.</dd>
+</dl>
+</li>
+</ul>
+<a id="randomSpread(double)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>randomSpread</h4>
+<pre class="methodSignature">public static&nbsp;double&nbsp;randomSpread&#8203;(double&nbsp;spread)</pre>
+</li>
+</ul>
+<a id="randomRotate(org.bukkit.util.Vector,double)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>randomRotate</h4>
+<pre class="methodSignature">public static&nbsp;org.bukkit.util.Vector&nbsp;randomRotate&#8203;(org.bukkit.util.Vector&nbsp;direction,
+                                                  double&nbsp;spread)</pre>
 </li>
 </ul>
 </li>

@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -197,6 +197,13 @@ implements <a href="../CalibreHook.html" title="interface in me.aecsocket.calibr
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onEnable()">onEnable</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Called when the plugin is enabled.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerTypeAdapters(com.google.gson.GsonBuilder)">registerTypeAdapters</a></span>&#8203;(com.google.gson.GsonBuilder&nbsp;builder)</code></th>
 <td class="colLast">
 <div class="block">Called when extra type adapters can be registered on a <code>GsonBuilder</code>.</div>
@@ -215,7 +222,7 @@ implements <a href="../CalibreHook.html" title="interface in me.aecsocket.calibr
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;me.aecsocket.calibre.<a href="../CalibreHook.html" title="interface in me.aecsocket.calibre">CalibreHook</a></h3>
-<code><a href="../CalibreHook.html#onDisable()">onDisable</a>, <a href="../CalibreHook.html#onEnable()">onEnable</a></code></li>
+<code><a href="../CalibreHook.html#onDisable()">onDisable</a></code></li>
 </ul>
 </li>
 </ul>
@@ -266,6 +273,21 @@ implements <a href="../CalibreHook.html" title="interface in me.aecsocket.calibr
 <dd><code><a href="../CalibreHook.html#acceptPlugin(me.aecsocket.calibre.CalibrePlugin)">acceptPlugin</a></code>&nbsp;in interface&nbsp;<code><a href="../CalibreHook.html" title="interface in me.aecsocket.calibre">CalibreHook</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>plugin</code> - The plugin.</dd>
+</dl>
+</li>
+</ul>
+<a id="onEnable()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onEnable</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;onEnable()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../CalibreHook.html#onEnable()">CalibreHook</a></code></span></div>
+<div class="block">Called when the plugin is enabled.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../CalibreHook.html#onEnable()">onEnable</a></code>&nbsp;in interface&nbsp;<code><a href="../CalibreHook.html" title="interface in me.aecsocket.calibre">CalibreHook</a></code></dd>
 </dl>
 </li>
 </ul>

@@ -1,6 +1,5 @@
 package me.aecsocket.calibre.defaults.system;
 
-import com.google.gson.annotations.Expose;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.ItemAnimation;
 import me.aecsocket.calibre.item.ItemEvents;
@@ -8,6 +7,7 @@ import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.BaseSystem;
 import me.aecsocket.calibre.item.system.CalibreSystem;
+import me.aecsocket.calibre.item.system.LoadTimeOnly;
 import me.aecsocket.calibre.item.util.slot.EquipmentItemSlot;
 import me.aecsocket.calibre.item.util.slot.ItemSlot;
 import me.aecsocket.calibre.item.util.user.AnimatableItemUser;
@@ -48,16 +48,16 @@ public class ItemSystem extends BaseSystem {
     public static final UUID ARMOR_UUID = new UUID(69, 420);
     public static final UUID MOVE_SPEED_UUID = new UUID(420, 69);
 
-    @Expose(serialize = false) private String nameKey;
-    @Expose(serialize = false) private String descriptionKey;
+    @LoadTimeOnly private String itemNameKey;
+    @LoadTimeOnly private String descriptionKey;
     private long nextAvailable;
 
     public ItemSystem(CalibrePlugin plugin) {
         super(plugin);
     }
 
-    public String getNameKey() { return nameKey; }
-    public void setNameKey(String nameKey) { this.nameKey = nameKey; }
+    public String getItemNameKey() { return itemNameKey; }
+    public void setItemNameKey(String itemNameKey) { this.itemNameKey = itemNameKey; }
 
     public String getDescriptionKey() { return descriptionKey; }
     public void setDescriptionKey(String descriptionKey) { this.descriptionKey = descriptionKey; }
@@ -71,7 +71,7 @@ public class ItemSystem extends BaseSystem {
 
         parent.registerSystemService(ItemSystem.class, this);
 
-        if (nameKey == null) nameKey = parent.getNameKey();
+        if (itemNameKey == null) itemNameKey = parent.getNameKey();
         if (descriptionKey == null) descriptionKey = parent.getNameKey() + ".description";
 
         EventDispatcher events = tree.getEventDispatcher();
@@ -105,7 +105,7 @@ public class ItemSystem extends BaseSystem {
         // Lore
         List<String> sections = new ArrayList<>();
 
-        plugin.rgen(player, nameKey).ifPresent(meta::setDisplayName);
+        plugin.rgen(player, itemNameKey).ifPresent(meta::setDisplayName);
         plugin.rgen(player, descriptionKey).ifPresent(sections::add);
 
         callEvent(new Events.SectionCreate(
@@ -163,7 +163,8 @@ public class ItemSystem extends BaseSystem {
 
     @Override public String getId() { return ID; }
     @Override public Collection<String> getDependencies() { return Collections.emptyList(); }
-    @Override public CalibreSystem copy() { return this; }
+    @Override public ItemSystem clone() { return (ItemSystem) super.clone(); }
+    @Override public ItemSystem copy() { return clone(); }
 
     public static final class Events {
         private Events() {}

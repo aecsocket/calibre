@@ -1,10 +1,10 @@
 package me.aecsocket.calibre.defaults.system.gun;
 
-import com.google.gson.annotations.Expose;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.defaults.system.ComponentStorageSystem;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.ComponentTree;
+import me.aecsocket.calibre.item.system.LoadTimeOnly;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -12,7 +12,7 @@ import java.util.Collections;
 public class AmmoContainerSystem extends ComponentStorageSystem implements AmmoStorageSystem {
     public static final String ID = "ammo_container";
 
-    @Expose(serialize = false) private int capacity;
+    @LoadTimeOnly private int capacity;
 
     public AmmoContainerSystem(CalibrePlugin plugin) {
         super(plugin);

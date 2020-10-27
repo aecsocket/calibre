@@ -4,6 +4,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import me.aecsocket.calibre.CalibreHook;
 import me.aecsocket.calibre.CalibrePlugin;
+import me.aecsocket.calibre.defaults.service.CalibreDamage;
+import me.aecsocket.calibre.defaults.service.CalibrePenetration;
 import me.aecsocket.calibre.defaults.system.ComponentStorageSystem;
 import me.aecsocket.calibre.defaults.system.ItemSystem;
 import me.aecsocket.calibre.defaults.system.gun.AmmoContainerSystem;
@@ -15,6 +17,9 @@ import me.aecsocket.calibre.util.CalibreIdentifiable;
 import me.aecsocket.unifiedframework.util.CollectionInit;
 import me.aecsocket.unifiedframework.util.Quantifier;
 import me.aecsocket.unifiedframework.util.json.QuantifierAdapter;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.ServicePriority;
+import org.bukkit.plugin.ServicesManager;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -28,6 +33,13 @@ public class DefaultCalibreHook implements CalibreHook {
     @Override
     public void acceptPlugin(CalibrePlugin plugin) {
         this.plugin = plugin;
+    }
+
+    @Override
+    public void onEnable() {
+        ServicesManager servicesManager = Bukkit.getServicesManager();
+        servicesManager.register(CalibreDamage.Service.class, new CalibreDamage.Provider(), plugin, ServicePriority.Lowest);
+        servicesManager.register(CalibrePenetration.Service.class, new CalibrePenetration.Provider(plugin), plugin, ServicePriority.Lowest);
     }
 
     @Override

@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -247,25 +247,33 @@ extends co.aikar.commands.BaseCommand</pre>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reload(org.bukkit.command.CommandSender)">reload</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#offset(org.bukkit.command.CommandSender,java.lang.Double,java.lang.Double,java.lang.Double)">offset</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender,
+      <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Double.html?is-external=true" title="class or interface in java.lang" class="externalLink">Double</a>&nbsp;x,
+      <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Double.html?is-external=true" title="class or interface in java.lang" class="externalLink">Double</a>&nbsp;y,
+      <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Double.html?is-external=true" title="class or interface in java.lang" class="externalLink">Double</a>&nbsp;z)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resolutionOrder(org.bukkit.command.CommandSender)">resolutionOrder</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reload(org.bukkit.command.CommandSender)">reload</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tree(org.bukkit.command.CommandSender)">tree</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resolutionOrder(org.bukkit.command.CommandSender)">resolutionOrder</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#unknown(org.bukkit.command.CommandSender)">unknown</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tree(org.bukkit.command.CommandSender)">tree</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i10" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#unknown(org.bukkit.command.CommandSender)">unknown</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#version(org.bukkit.command.CommandSender)">version</a></span>&#8203;(org.bukkit.command.CommandSender&nbsp;sender)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -444,13 +452,25 @@ extends co.aikar.commands.BaseCommand</pre>
 <a id="create(org.bukkit.command.CommandSender,org.bukkit.entity.Player,java.lang.String,java.lang.Integer)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>create</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;create&#8203;(org.bukkit.command.CommandSender&nbsp;sender,
                    org.bukkit.entity.Player&nbsp;target,
                    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;json,
                    <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>&nbsp;amount)</pre>
+</li>
+</ul>
+<a id="offset(org.bukkit.command.CommandSender,java.lang.Double,java.lang.Double,java.lang.Double)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>offset</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;offset&#8203;(org.bukkit.command.CommandSender&nbsp;sender,
+                   <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Double.html?is-external=true" title="class or interface in java.lang" class="externalLink">Double</a>&nbsp;x,
+                   <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Double.html?is-external=true" title="class or interface in java.lang" class="externalLink">Double</a>&nbsp;y,
+                   <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Double.html?is-external=true" title="class or interface in java.lang" class="externalLink">Double</a>&nbsp;z)</pre>
 </li>
 </ul>
 </li>

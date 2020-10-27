@@ -19,12 +19,12 @@ public interface ComponentProviderSystem extends CalibreSystem {
     default CalibreComponent peek() { return peekRaw() == null ? null : peekRaw().get(); }
 
     default Quantifier<CalibreComponent> nextRaw() {
-        LinkedList<Quantifier<CalibreComponent>> ammo = getComponents();
-        Quantifier<CalibreComponent> result = ammo.pollLast();
+        LinkedList<Quantifier<CalibreComponent>> components = getComponents();
+        Quantifier<CalibreComponent> result = components.peekLast();
         if (result != null) {
             result.add(-1);
             if (result.getAmount() <= 0)
-                ammo.removeLast();
+                components.removeLast();
             return result;
         }
         return null;
@@ -50,4 +50,13 @@ public interface ComponentProviderSystem extends CalibreSystem {
         ammo.add(quantifier);
         return quantifier;
     }
+
+    default int size() {
+        int sum = 0;
+        for (Quantifier<?> quantifier : getComponents())
+            sum += quantifier.getAmount();
+        return sum;
+    }
+
+    default boolean hasNext() { return peekRaw() != null; }
 }

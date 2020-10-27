@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":18,"i1":18,"i2":6,"i3":18,"i4":6,"i5":18,"i6":18,"i7":18,"i8":18};
+var data = {"i0":18,"i1":18,"i2":6,"i3":18,"i4":18,"i5":6,"i6":18,"i7":18,"i8":18,"i9":18,"i10":18};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -152,11 +152,11 @@ extends <a href="../../item/system/CalibreSystem.html" title="interface in me.ae
 </a>
 <h3>Nested Class Summary</h3>
 <ul class="blockList">
-<li class="blockList"><a id="nested.classes.inherited.from.class.me.aecsocket.calibre.util.AcceptsCalibrePlugin">
+<li class="blockList"><a id="nested.classes.inherited.from.class.me.aecsocket.calibre.item.system.CalibreSystem">
 <!--   -->
 </a>
-<h3>Nested classes/interfaces inherited from interface&nbsp;me.aecsocket.calibre.util.<a href="../../util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></h3>
-<code><a href="../../util/AcceptsCalibrePlugin.Adapter.html" title="class in me.aecsocket.calibre.util">AcceptsCalibrePlugin.Adapter</a></code></li>
+<h3>Nested classes/interfaces inherited from interface&nbsp;me.aecsocket.calibre.item.system.<a href="../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></h3>
+<code><a href="../../item/system/CalibreSystem.Adapter.html" title="class in me.aecsocket.calibre.item.system">CalibreSystem.Adapter</a></code></li>
 </ul>
 </li>
 </ul>
@@ -209,34 +209,44 @@ extends <a href="../../item/system/CalibreSystem.html" title="interface in me.ae
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code>default boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasNext()">hasNext</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">initialize</a></span>&#8203;(<a href="../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent,
           <a href="../../item/component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;tree)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isCompatible(me.aecsocket.calibre.item.component.CalibreComponent)">isCompatible</a></span>&#8203;(<a href="../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;component)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>default <a href="../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#next()">next</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>default me.aecsocket.unifiedframework.util.Quantifier&lt;<a href="../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#nextRaw()">nextRaw</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>default <a href="../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#peek()">peek</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>default me.aecsocket.unifiedframework.util.Quantifier&lt;<a href="../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#peekRaw()">peekRaw</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>default int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#size()">size</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -252,14 +262,14 @@ extends <a href="../../item/system/CalibreSystem.html" title="interface in me.ae
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;me.aecsocket.calibre.util.<a href="../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></h3>
-<code><a href="../../util/CalibreIdentifiable.html#getLocalizedName(java.lang.String)">getLocalizedName</a>, <a href="../../util/CalibreIdentifiable.html#getLocalizedName(org.bukkit.command.CommandSender)">getLocalizedName</a>, <a href="../../util/CalibreIdentifiable.html#getLongInfo(java.lang.String)">getLongInfo</a>, <a href="../../util/CalibreIdentifiable.html#getShortInfo(java.lang.String)">getShortInfo</a>, <a href="../../util/CalibreIdentifiable.html#validate()">validate</a></code></li>
+<code><a href="../../util/CalibreIdentifiable.html#getLocalizedName(java.lang.String)">getLocalizedName</a>, <a href="../../util/CalibreIdentifiable.html#getLocalizedName(org.bukkit.command.CommandSender)">getLocalizedName</a>, <a href="../../util/CalibreIdentifiable.html#getShortInfo(java.lang.String)">getShortInfo</a>, <a href="../../util/CalibreIdentifiable.html#validate()">validate</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.me.aecsocket.calibre.item.system.CalibreSystem">
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;me.aecsocket.calibre.item.system.<a href="../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></h3>
-<code><a href="../../item/system/CalibreSystem.html#copy()">copy</a>, <a href="../../item/system/CalibreSystem.html#getDefaultStats()">getDefaultStats</a>, <a href="../../item/system/CalibreSystem.html#getNameKey()">getNameKey</a>, <a href="../../item/system/CalibreSystem.html#getParent()">getParent</a></code></li>
+<code><a href="../../item/system/CalibreSystem.html#copy()">copy</a>, <a href="../../item/system/CalibreSystem.html#getDefaultStats()">getDefaultStats</a>, <a href="../../item/system/CalibreSystem.html#getLongInfo(java.lang.String)">getLongInfo</a>, <a href="../../item/system/CalibreSystem.html#getNameKey()">getNameKey</a>, <a href="../../item/system/CalibreSystem.html#getParent()">getParent</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.me.aecsocket.unifiedframework.registry.Identifiable">
@@ -370,7 +380,7 @@ extends <a href="../../item/system/CalibreSystem.html" title="interface in me.ae
 <a id="add(me.aecsocket.unifiedframework.util.Quantifier)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>add</h4>
 <pre class="methodSignature">default&nbsp;me.aecsocket.unifiedframework.util.Quantifier&lt;<a href="../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&gt;&nbsp;add&#8203;(me.aecsocket.unifiedframework.util.Quantifier&lt;<a href="../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&gt;&nbsp;quantifier)
@@ -379,6 +389,24 @@ extends <a href="../../item/system/CalibreSystem.html" title="interface in me.ae
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>me.aecsocket.unifiedframework.component.IncompatibleComponentException</code></dd>
 </dl>
+</li>
+</ul>
+<a id="size()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>size</h4>
+<pre class="methodSignature">default&nbsp;int&nbsp;size()</pre>
+</li>
+</ul>
+<a id="hasNext()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>hasNext</h4>
+<pre class="methodSignature">default&nbsp;boolean&nbsp;hasNext()</pre>
 </li>
 </ul>
 </li>

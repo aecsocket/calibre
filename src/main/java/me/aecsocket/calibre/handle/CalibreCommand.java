@@ -9,6 +9,7 @@ import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.util.CalibreIdentifiable;
+import me.aecsocket.calibre.util.CalibrePlayer;
 import me.aecsocket.calibre.util.LogMessageResult;
 import me.aecsocket.unifiedframework.item.ItemCreationException;
 import me.aecsocket.unifiedframework.item.ItemStackFactory;
@@ -18,6 +19,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.util.Vector;
 
 /**
  * The plugin's main command class.
@@ -205,5 +207,26 @@ public class CalibreCommand extends BaseCommand {
         }
 
         give(sender, target, component, amount);
+    }
+
+    @Subcommand("offset")
+    @Description("Displays the view model offset of a vector.")
+    @CommandPermission("calibre.command.offset")
+    @CommandCompletion("off|<x> <y> <z>")
+    public void offset(CommandSender sender, @Optional Double x, @Optional Double y, @Optional Double z) {
+        if (!(sender instanceof Player)) {
+            send(sender, "chat.command.not_player");
+            return;
+        }
+
+        CalibrePlayer data = plugin.getPlayerData((Player) sender);
+        if (
+                x == null
+                || y == null
+                || z == null
+        )
+            data.setViewOffset(null);
+        else
+            data.setViewOffset(new Vector(x, y, z));
     }
 }

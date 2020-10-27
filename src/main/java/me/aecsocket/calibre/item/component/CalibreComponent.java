@@ -8,10 +8,14 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.ItemEvents;
+import me.aecsocket.calibre.item.component.search.SlotSearchOptions;
+import me.aecsocket.calibre.item.component.search.SystemSearchOptions;
+import me.aecsocket.calibre.item.component.search.SystemSearchResult;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.calibre.item.system.SystemInitializationException;
 import me.aecsocket.calibre.util.CalibreIdentifiable;
 import me.aecsocket.calibre.util.ItemDescriptor;
+import me.aecsocket.calibre.util.OrderedStatMap;
 import me.aecsocket.unifiedframework.component.ComponentHolder;
 import me.aecsocket.unifiedframework.item.Item;
 import me.aecsocket.unifiedframework.item.ItemCreationException;
@@ -36,6 +40,9 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Calibre's implementation of a component. Stores systems and stats.
@@ -96,8 +103,8 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
     private Map<String, CalibreComponentSlot> slots;
     // todo clean these 2 up, combine them and their copy* methods
     private transient Map<String, CalibreSystem> systems = new HashMap<>();
-    private transient Map<Integer, StatMap> stats = new HashMap<>();
-    private transient Map<Integer, StatMap> completeStats = new HashMap<>();
+    private transient OrderedStatMap stats = new OrderedStatMap();
+    private transient OrderedStatMap completeStats = new OrderedStatMap();
 
     private final transient Map<Class<? extends CalibreSystem>, String> systemServices = new HashMap<>();
     private transient CalibreComponent parent;
@@ -165,8 +172,37 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
     @Override public String getNameKey() { return "component." + id; }
 
     @Override
+    public String getLongInfo(String locale) {
+        String none = plugin.gen(locale, "none");
+        String slotSeparator = plugin.gen(locale, "info.component.slot");
+        String systemSeparator = plugin.gen(locale, "info.component.system");
+        String statSeparator = plugin.gen(locale, "info.component.stat");
+        return plugin.gen(locale, "info.component",
+                "localized_name", getLocalizedName(locale),
+                "categories", categories.size() == 0 ? none : String.join(", ", categories),
+                "slots", slots.size() == 0
+                        ? none
+                        : slotSeparator + slots.entrySet().stream()
+                            .map(entry -> entry.getValue().getInfo(plugin, entry.getKey(), locale))
+                            .collect(Collectors.joining(slotSeparator)),
+                "systems", systems.size() == 0
+                        ? none
+                        : systemSeparator + systems.values().stream()
+                            .flatMap(sys -> Stream.of(sys.getLongInfo(locale).split("\n")))
+                            .collect(Collectors.joining(systemSeparator)),
+                "stats", stats.size() == 0
+                        ? none
+                        : statSeparator + String.join(statSeparator, stats.getInfo(plugin, locale).split("\n")),
+                "complete_stats", completeStats.size() == 0
+                        ? none
+                        : completeStats.getInfo(plugin, locale)
+        );
+    }
+
+    @Override
     public void validate() throws ValidationException {
         CalibreIdentifiable.super.validate();
+        if (categories == null) categories = new ArrayList<>();
         if (slots == null) slots = new LinkedHashMap<>();
         if (dependencies.stats == null) dependencies.stats = new LinkedHashMap<>();
         if (dependencies.systems == null) dependencies.systems = new HashMap<>();
@@ -264,17 +300,27 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
 
     //region Utils
 
-    public <T extends CalibreSystem> void searchSystems(SystemSearchOptions<T> opt, BiConsumer<CalibreComponentSlot, T> consumer) {
+    public void searchSlots(SlotSearchOptions opt, Consumer<CalibreComponentSlot> consumer) {
         walk(data -> {
             if (data.getSlot() instanceof CalibreComponentSlot) {
                 CalibreComponentSlot slot = (CalibreComponentSlot) data.getSlot();
-                opt.onEachMatching(slot, consumer);
+                if (opt.matches(slot))
+                    consumer.accept(slot);
             }
         });
     }
-    public <T extends CalibreSystem> List<Map.Entry<CalibreComponentSlot, T>> collectSystems(SystemSearchOptions<T> opt) {
-        List<Map.Entry<CalibreComponentSlot, T>> result = new ArrayList<>();
-        searchSystems(opt, (slot, sys) -> result.add(new AbstractMap.SimpleEntry<>(slot, sys)));
+    public List<CalibreComponentSlot> collectSlots(SlotSearchOptions opt) {
+        List<CalibreComponentSlot> result = new ArrayList<>();
+        searchSlots(opt, result::add);
+        return result;
+    }
+
+    public <T extends CalibreSystem> void searchSystems(SystemSearchOptions<T> opt, BiConsumer<CalibreComponentSlot, T> consumer) {
+        searchSlots(opt, slot -> opt.onEachMatching(slot, consumer));
+    }
+    public <T extends CalibreSystem> List<SystemSearchResult<T>> collectSystems(SystemSearchOptions<T> opt) {
+        List<SystemSearchResult<T>> result = new ArrayList<>();
+        searchSystems(opt, (slot, sys) -> result.add(new SystemSearchResult<>(slot, sys)));
         return result;
     }
 
@@ -295,16 +341,6 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
         slots.forEach((name, slot) -> map.put(name, slot.copy()));
         return map;
     }
-    public Map<Integer, StatMap> copyStats() {
-        Map<Integer, StatMap> map = new HashMap<>();
-        stats.forEach((order, stats) -> map.put(order, stats.copy()));
-        return map;
-    }
-    public Map<Integer, StatMap> copyCompleteStats() {
-        Map<Integer, StatMap> map = new HashMap<>();
-        completeStats.forEach((order, stats) -> map.put(order, stats.copy()));
-        return map;
-    }
     public Map<String, CalibreSystem> copySystems() {
         Map<String, CalibreSystem> map = new HashMap<>();
         systems.forEach((id, sys) -> map.put(id, sys.copy()));
@@ -314,8 +350,8 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
     public CalibreComponent copy() {
         CalibreComponent copy = clone();
         copy.slots = copySlots();
-        copy.stats = copyStats();
-        copy.completeStats = copyCompleteStats();
+        copy.stats = stats.copy();
+        copy.completeStats = completeStats.copy();
         copy.systems = copySystems();
         return copy;
     }

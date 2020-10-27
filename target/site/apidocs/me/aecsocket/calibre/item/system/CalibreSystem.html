@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":18,"i2":18,"i3":6,"i4":6};
+var data = {"i0":6,"i1":18,"i2":18,"i3":18,"i4":6,"i5":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -129,7 +129,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <dl>
 <dt>All Known Subinterfaces:</dt>
-<dd><code><a href="../../defaults/system/gun/AmmoStorageSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun">AmmoStorageSystem</a></code>, <code><a href="../../defaults/system/ComponentProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system">ComponentProviderSystem</a></code>, <code><a href="../../defaults/system/ProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system">ProjectileProviderSystem</a></code></dd>
+<dd><code><a href="../../defaults/system/gun/AmmoStorageSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun">AmmoStorageSystem</a></code>, <code><a href="../../defaults/system/ComponentProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system">ComponentProviderSystem</a></code>, <code><a href="../../defaults/system/projectile/ProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.projectile">ProjectileProviderSystem</a></code></dd>
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
@@ -152,13 +152,19 @@ extends <a href="../../util/CalibreIdentifiable.html" title="interface in me.aec
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
-<ul class="blockList">
-<li class="blockList"><a id="nested.classes.inherited.from.class.me.aecsocket.calibre.util.AcceptsCalibrePlugin">
-<!--   -->
-</a>
-<h3>Nested classes/interfaces inherited from interface&nbsp;me.aecsocket.calibre.util.<a href="../../util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></h3>
-<code><a href="../../util/AcceptsCalibrePlugin.Adapter.html" title="class in me.aecsocket.calibre.util">AcceptsCalibrePlugin.Adapter</a></code></li>
-</ul>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="CalibreSystem.Adapter.html" title="class in me.aecsocket.calibre.item.system">CalibreSystem.Adapter</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
 </li>
 </ul>
 </section>
@@ -205,17 +211,24 @@ extends <a href="../../util/CalibreIdentifiable.html" title="interface in me.aec
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>default <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLongInfo(java.lang.String)">getLongInfo</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;locale)</code></th>
+<td class="colLast">
+<div class="block">Gets a more extensive description of this object.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>default <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNameKey()">getNameKey</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Gets the translation key for the name of this object.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getParent()">getParent</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">initialize</a></span>&#8203;(<a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent,
           <a href="../component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;tree)</code></th>
@@ -234,7 +247,7 @@ extends <a href="../../util/CalibreIdentifiable.html" title="interface in me.aec
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;me.aecsocket.calibre.util.<a href="../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></h3>
-<code><a href="../../util/CalibreIdentifiable.html#getLocalizedName(java.lang.String)">getLocalizedName</a>, <a href="../../util/CalibreIdentifiable.html#getLocalizedName(org.bukkit.command.CommandSender)">getLocalizedName</a>, <a href="../../util/CalibreIdentifiable.html#getLongInfo(java.lang.String)">getLongInfo</a>, <a href="../../util/CalibreIdentifiable.html#getShortInfo(java.lang.String)">getShortInfo</a>, <a href="../../util/CalibreIdentifiable.html#validate()">validate</a></code></li>
+<code><a href="../../util/CalibreIdentifiable.html#getLocalizedName(java.lang.String)">getLocalizedName</a>, <a href="../../util/CalibreIdentifiable.html#getLocalizedName(org.bukkit.command.CommandSender)">getLocalizedName</a>, <a href="../../util/CalibreIdentifiable.html#getShortInfo(java.lang.String)">getShortInfo</a>, <a href="../../util/CalibreIdentifiable.html#validate()">validate</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.me.aecsocket.unifiedframework.registry.Identifiable">
@@ -304,7 +317,7 @@ extends <a href="../../util/CalibreIdentifiable.html" title="interface in me.aec
 <a id="getNameKey()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getNameKey</h4>
 <pre class="methodSignature">default&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getNameKey()</pre>
@@ -315,6 +328,25 @@ extends <a href="../../util/CalibreIdentifiable.html" title="interface in me.aec
 <dd><code><a href="../../util/CalibreIdentifiable.html#getNameKey()">getNameKey</a></code>&nbsp;in interface&nbsp;<code><a href="../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The translation key.</dd>
+</dl>
+</li>
+</ul>
+<a id="getLongInfo(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getLongInfo</h4>
+<pre class="methodSignature">default&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getLongInfo&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;locale)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../util/CalibreIdentifiable.html#getLongInfo(java.lang.String)">CalibreIdentifiable</a></code></span></div>
+<div class="block">Gets a more extensive description of this object.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../util/CalibreIdentifiable.html#getLongInfo(java.lang.String)">getLongInfo</a></code>&nbsp;in interface&nbsp;<code><a href="../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>locale</code> - The locale to create the info for.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The long info string, with lines separated by <code>\n</code>.</dd>
 </dl>
 </li>
 </ul>

@@ -1,13 +1,12 @@
 package me.aecsocket.calibre.defaults.system.melee;
 
-import com.google.gson.annotations.Expose;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.defaults.system.ItemSystem;
 import me.aecsocket.calibre.item.ItemEvents;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.BaseSystem;
-import me.aecsocket.calibre.item.system.CalibreSystem;
+import me.aecsocket.calibre.item.system.LoadTimeOnly;
 import me.aecsocket.calibre.item.util.slot.EquipmentItemSlot;
 import me.aecsocket.calibre.util.stat.ItemAnimationStat;
 import me.aecsocket.calibre.util.stat.SoundStat;
@@ -33,7 +32,7 @@ public class MeleeSystem extends BaseSystem {
             .get();
 
     // TODO dictates if this item is just used for stats or as an actual melee, document this
-    @Expose(serialize = false) private boolean usable;
+    @LoadTimeOnly private boolean usable;
     private transient ItemSystem itemSystem;
 
     public MeleeSystem(CalibrePlugin plugin) {
@@ -75,7 +74,8 @@ public class MeleeSystem extends BaseSystem {
 
     @Override public String getId() { return ID; }
     @Override public Collection<String> getDependencies() { return Collections.emptyList(); }
-    @Override public CalibreSystem copy() { return this; }
+    @Override public MeleeSystem clone() { return (MeleeSystem) super.clone(); }
+    @Override public MeleeSystem copy() { return clone(); }
 
     public static final class Events {
         private Events() {}

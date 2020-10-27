@@ -1,7 +1,9 @@
 package me.aecsocket.calibre.defaults.system;
 
-import com.google.gson.*;
-import com.google.gson.annotations.Expose;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -11,6 +13,7 @@ import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.ComponentCompatibility;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.BaseSystem;
+import me.aecsocket.calibre.item.system.LoadTimeOnly;
 import me.aecsocket.unifiedframework.util.Quantifier;
 import me.aecsocket.unifiedframework.util.json.JsonAdapter;
 
@@ -62,7 +65,7 @@ public class ComponentStorageSystem extends BaseSystem implements ComponentProvi
     public static final String ID = "component_storage";
 
     private transient LinkedList<Quantifier<CalibreComponent>> components = new LinkedList<>();
-    @Expose(serialize = false) private ComponentCompatibility compatibility;
+    @LoadTimeOnly private ComponentCompatibility compatibility;
 
     public ComponentStorageSystem(CalibrePlugin plugin) {
         super(plugin);

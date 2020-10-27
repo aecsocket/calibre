@@ -1,5 +1,6 @@
 package me.aecsocket.calibre.item.component;
 
+import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.unifiedframework.component.ComponentSlot;
 import me.aecsocket.unifiedframework.component.IncompatibleComponentException;
 import org.jetbrains.annotations.Nullable;
@@ -49,6 +50,13 @@ public class CalibreComponentSlot implements ComponentSlot<CalibreComponent>, Cl
     @Override
     public boolean isCompatible(@Nullable CalibreComponent component) {
         return component == null || (compatibility == null || compatibility.test(component));
+    }
+
+    public String getInfo(CalibrePlugin plugin, String name, String locale) {
+        return plugin.gen(locale, "info.slot" + (required ? ".required" : ""),
+                "name", name,
+                "tags", String.join(", ", tags)
+        );
     }
 
     public CalibreComponentSlot clone() { try { return (CalibreComponentSlot) super.clone(); } catch (CloneNotSupportedException e) { return null; } }

@@ -1,12 +1,11 @@
-package me.aecsocket.calibre.item.component;
+package me.aecsocket.calibre.item.component.search;
 
+import me.aecsocket.calibre.item.component.CalibreComponentSlot;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 
 import java.util.function.BiConsumer;
 
-public final class SystemSearchOptions<T extends CalibreSystem> {
-    private String slotTag;
-    private Integer targetPriority;
+public class SystemSearchOptions<T extends CalibreSystem> extends SlotSearchOptions {
     private Class<? extends T> serviceType;
 
     public SystemSearchOptions() {}
@@ -14,19 +13,15 @@ public final class SystemSearchOptions<T extends CalibreSystem> {
         this.serviceType = serviceType;
     }
 
-    public String getSlotTag() { return slotTag; }
-    public SystemSearchOptions<T> slotTag(String slotTag) { this.slotTag = slotTag; return this; }
-
-    public Integer getTargetPriority() { return targetPriority; }
-    public SystemSearchOptions<T> targetPriority(Integer targetPriority) { this.targetPriority = targetPriority; return this; }
+    @SuppressWarnings("unchecked")
+    @Override public SystemSearchOptions<T> slotTag(String slotTag) { return (SystemSearchOptions<T>) super.slotTag(slotTag); }
+    @SuppressWarnings("unchecked")
+    @Override public SystemSearchOptions<T> targetPriority(Integer targetPriority) { return (SystemSearchOptions<T>) super.targetPriority(targetPriority); }
 
     public Class<? extends CalibreSystem> getServiceType() { return serviceType; }
     public SystemSearchOptions<T> serviceType(Class<? extends T> serviceType) { this.serviceType = serviceType; return this; }
 
     public void onEachMatching(CalibreComponentSlot slot, BiConsumer<CalibreComponentSlot, T> consumer) {
-        if (slotTag != null && !slot.getTags().contains(slotTag)) return;
-        if (targetPriority != null && slot.getPriority() != targetPriority) return;
-
         if (slot.get() != null) {
             slot.get().getMappedServices().forEach((type, sys) -> {
                 if (serviceType != null && !serviceType.isInstance(sys)) return;

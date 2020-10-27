@@ -64,5 +64,12 @@ public class ItemDescriptor implements Cloneable {
 
     public ItemStack create() { return create(1); }
 
-    public ItemDescriptor clone() { try { return (ItemDescriptor) super.clone(); } catch (CloneNotSupportedException e) { return null; } }
+    @Override public ItemDescriptor clone() { try { return (ItemDescriptor) super.clone(); } catch (CloneNotSupportedException e) { return null; } }
+
+    @Override public String toString() {
+        return material.name() + "{"
+                + "modelData=" + modelData
+                + ", damage=" + damage
+                + "}";
+    }
 }

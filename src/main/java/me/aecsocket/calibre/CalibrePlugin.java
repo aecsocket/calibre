@@ -6,7 +6,6 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.google.gson.*;
-import com.google.gson.annotations.Expose;
 import me.aecsocket.calibre.defaults.DefaultCalibreHook;
 import me.aecsocket.calibre.handle.CalibreCommand;
 import me.aecsocket.calibre.handle.CalibrePacketAdapter;
@@ -15,6 +14,8 @@ import me.aecsocket.calibre.item.ItemAnimation;
 import me.aecsocket.calibre.item.blueprint.Blueprint;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.ComponentTree;
+import me.aecsocket.calibre.item.system.CalibreSystem;
+import me.aecsocket.calibre.item.system.LoadTimeOnly;
 import me.aecsocket.calibre.item.util.user.EntityItemUser;
 import me.aecsocket.calibre.item.util.user.ItemUser;
 import me.aecsocket.calibre.item.util.user.PlayerItemUser;
@@ -92,6 +93,8 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     private final DefaultCalibreHook defaultHook = new DefaultCalibreHook();
     /** The configurable StatMapAdapter for this plugin's GSON. */
     private final StatMapAdapter statMapAdapter = new StatMapAdapter();
+    /** The configurable system adapter for this plugin's GSON. */
+    private final CalibreSystem.Adapter systemAdapter = new CalibreSystem.Adapter();
     /** The item manager for the plugin. */
     private final ItemManager itemManager = new ItemManager(this);
     /** The map of names to plugin keys. */
@@ -130,11 +133,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
         GsonBuilder gsonBuilder = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .addSerializationExclusionStrategy(new ExclusionStrategy() {
-                    @Override
-                    public boolean shouldSkipField(FieldAttributes f) {
-                        return f.getAnnotation(Expose.class) != null && !f.getAnnotation(Expose.class).serialize();
-                    }
-
+                    @Override public boolean shouldSkipField(FieldAttributes f) { return f.getAnnotation(LoadTimeOnly.class) != null; }
                     @Override public boolean shouldSkipClass(Class<?> clazz) { return false; }
                 })
                 .registerTypeAdapter(TranslationMap.class, new TranslationMapAdapter())
@@ -144,6 +143,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                 .registerTypeAdapter(Vector2.class, Vector2Adapter.INSTANCE)
                 .registerTypeAdapter(ComponentTree.class, new ComponentTree.Adapter(this))
                 .registerTypeAdapter(ItemAnimation.class, new ItemAnimation.Adapter(this))
+                .registerTypeAdapterFactory(systemAdapter)
                 .registerTypeAdapterFactory(new CalibreComponent.Adapter())
                 .registerTypeAdapterFactory(new Blueprint.Adapter())
                 .registerTypeAdapterFactory(new AcceptsCalibrePlugin.Adapter(this));
@@ -250,6 +250,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     public PreciseLoop getPreciseLoop() { return preciseLoop; }
     public DefaultCalibreHook getDefaultHook() { return defaultHook; }
     public StatMapAdapter getStatMapAdapter() { return statMapAdapter; }
+    public CalibreSystem.Adapter getSystemAdapter() { return systemAdapter; }
     public ItemManager getItemManager() { return itemManager; }
     public Map<Player, CalibrePlayer> getPlayers() { return players; }
 

@@ -49,11 +49,10 @@ public interface CalibreIdentifiable extends Identifiable, AcceptsCalibrePlugin 
      */
     default String getShortInfo(String locale) { return getLocalizedName(locale); }
 
-    // TODO add long info for items
     /**
      * Gets a more extensive description of this object.
      * @param locale The locale to create the info for.
      * @return The long info string, with lines separated by {@code \n}.
      */
-    default String getLongInfo(String locale) { return getPlugin().gen(locale, "no_info"); }
+    default String getLongInfo(String locale) { return getPlugin().gen(locale, "none"); }
 }

@@ -79,7 +79,7 @@ public class ComponentTree {
                 if (object.has("systems")) {
                     for (Map.Entry<String, JsonElement> entry : assertObject(get(object, "systems")).entrySet()) {
                         String sId = entry.getKey();
-                        CalibreSystem sys = plugin.fromRegistry(sId, CalibreSystem.class);
+                        CalibreSystem sys = root.getSystem(sId);
                         if (sys == null) {
                             if (preserveInvalidData)
                                 throw new JsonParseException(TextUtils.format("Could not find system on {root} with ID {sys}",
@@ -87,7 +87,11 @@ public class ComponentTree {
                             else
                                 continue;
                         }
+                        // We set and null instantly so that future errors are not caused from wrong parent comps being
+                        // used for system fields.
+                        plugin.getSystemAdapter().setParent(root);
                         root.getSystems().put(sId, plugin.getGson().fromJson(entry.getValue(), sys.getClass()));
+                        plugin.getSystemAdapter().setParent(null);
                     }
                 }
                 // Slots
@@ -192,6 +196,7 @@ public class ComponentTree {
     private StatMap buildStats(Function<CalibreComponent, Map<Integer, StatMap>> statGetter) {
         StatMap stats = new StatMap();
 
+        // TODO optimize with stream#flatMap
         Map<Integer, Collection<StatMap>> perOrder = new HashMap<>();
         addStat(statGetter, perOrder, root);
         root.walk(data -> data.getComponent().ifPresent(o -> {

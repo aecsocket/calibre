@@ -1,6 +1,7 @@
 package me.aecsocket.calibre.defaults.system.projectile;
 
 import me.aecsocket.calibre.defaults.service.CalibreDamage;
+import me.aecsocket.calibre.defaults.service.CalibrePenetration;
 import me.aecsocket.calibre.item.util.damagecause.DamageCause;
 import me.aecsocket.calibre.item.util.user.ItemUser;
 import me.aecsocket.unifiedframework.loop.TickContext;
@@ -13,7 +14,7 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 public class CalibreProjectile extends Projectile {
-    public static final double MAX_DISTANCE = 2048;
+    public static final double MAX_DISTANCE = 1024;
 
     public static class Data extends ProjectileProviderSystem.Data {
         // TODO Possibly replace all of these with a System, and call #stat on that.
@@ -62,6 +63,7 @@ public class CalibreProjectile extends Projectile {
     }
 
     private Data data;
+    private double damage;
 
     public CalibreProjectile(Data data) {
         super(
@@ -73,10 +75,14 @@ public class CalibreProjectile extends Projectile {
                 data.getExpansion()
         );
         this.data = data;
+        damage = data.damage;
     }
 
     public Data getData() { return data; }
     public void setData(Data data) { this.data = data; }
+
+    public double getDamage() { return damage; }
+    public void setDamage(double damage) { this.damage = damage; }
 
     @Override
     public void tick(TickContext tickContext) {
@@ -105,9 +111,15 @@ public class CalibreProjectile extends Projectile {
 
     @Override
     protected void hitEntity(TickContext tickContext, RayTraceResult ray, Entity entity) {
-        if (data.damage > 0)
-            Utils.useService(CalibreDamage.Service.class, s ->
-                    s.damage(data.damager, entity, ray.getHitPosition(), data.damage, data.damageCause, data.armorPenetration));
+        if (damage > 0)
+            Utils.useService(CalibreDamage.Service.class, s -> {
+                Utils.useService(CalibrePenetration.Service.class, s2 -> {
+                    double mult = s2.armorMultiplier(damage, data.getArmorPenetration(), entity);
+                    damage *= mult;
+                    getVelocity().multiply(mult);
+                });
+                s.damage(data.getDamager(), entity, ray.getHitPosition(), damage, data.getDamageCause());
+            });
     }
 
     @Override

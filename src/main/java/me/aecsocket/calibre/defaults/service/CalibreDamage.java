@@ -12,14 +12,6 @@ import org.bukkit.util.Vector;
 public final class CalibreDamage {
     public interface Service {
         void damage(ItemUser damager, Entity victim, Vector position, double damage, DamageCause cause);
-        default double damage(ItemUser damager, Entity victim, Vector position, double damage, DamageCause cause, double armorPenetration) {
-            double[] mult = new double[]{1};
-            Utils.useService(CalibrePenetration.Service.class, s ->
-                    mult[0] = s.armorMultiplier(damage, armorPenetration, victim));
-            double fDamage = damage * mult[0];
-            damage(damager, victim, position, fDamage, cause);
-            return fDamage;
-        }
     }
 
     public static class Provider implements Service {

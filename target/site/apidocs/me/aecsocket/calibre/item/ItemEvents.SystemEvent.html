@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10};
+var data = {"i0":10,"i1":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -138,7 +138,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><code><a href="../defaults/system/gun/FireableSystem.Events.Event.html" title="class in me.aecsocket.calibre.defaults.system.gun">FireableSystem.Events.Event</a></code></dd>
+<dd><code><a href="../defaults/system/gun/GunSystem.Events.Event.html" title="class in me.aecsocket.calibre.defaults.system.gun">GunSystem.Events.Event</a></code></dd>
 </dl>
 <dl>
 <dt>Enclosing class:</dt>
@@ -194,6 +194,11 @@ extends <a href="ItemEvents.Event.html" title="class in me.aecsocket.calibre.ite
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="ItemEvents.SystemEvent.html" title="type parameter in ItemEvents.SystemEvent">S</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSystem()">getSystem</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>org.bukkit.inventory.ItemStack</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateItem()">updateItem</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -254,10 +259,19 @@ extends <a href="ItemEvents.Event.html" title="class in me.aecsocket.calibre.ite
 <a id="getSystem()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getSystem</h4>
 <pre class="methodSignature">public&nbsp;<a href="ItemEvents.SystemEvent.html" title="type parameter in ItemEvents.SystemEvent">S</a>&nbsp;getSystem()</pre>
+</li>
+</ul>
+<a id="updateItem()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>updateItem</h4>
+<pre class="methodSignature">public final&nbsp;org.bukkit.inventory.ItemStack&nbsp;updateItem()</pre>
 </li>
 </ul>
 </li>

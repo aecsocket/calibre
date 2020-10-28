@@ -1,8 +1,11 @@
 package me.aecsocket.calibre.defaults.service;
 
 import me.aecsocket.calibre.CalibrePlugin;
+import me.aecsocket.unifiedframework.util.Utils;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 
 public final class CalibrePenetration {
     public interface Service {
@@ -28,7 +31,10 @@ public final class CalibrePenetration {
 
         @Override public double entityMultiplier(double damage, double penetration, Entity entity) { return penetration; }
 
-        @Override public double armorMultiplier(double damage, double penetration, Entity entity) { return penetration; }
+        @Override public double armorMultiplier(double damage, double penetration, Entity entity) {
+            double armor = entity instanceof LivingEntity ? ((LivingEntity) entity).getAttribute(Attribute.GENERIC_ARMOR).getValue() : 0;
+            return armor > 0 ? Utils.clamp01(penetration / armor) : 1;
+        }
     }
 
     private CalibrePenetration() {}

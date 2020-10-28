@@ -77,6 +77,10 @@ public final class ItemEvents {
         }
 
         public S getSystem() { return system; }
+
+        public final ItemStack updateItem() {
+            return updateItem(system);
+        }
     }
 
     public interface Cancellable {

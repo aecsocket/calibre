@@ -59,6 +59,25 @@ public class OrderedStatMap extends LinkedHashMap<Integer, StatMap> {
                 .collect(Collectors.joining("\n"));
     }
 
+    public StatMap flatten() {
+        StatMap result = new StatMap();
+        ordered().forEach((order, map) -> result.modifyAll(map));
+        return result;
+    }
+
+    public OrderedStatMap combine(int order, StatMap map) {
+        if (containsKey(order))
+            get(order).modifyAll(map);
+        else
+            put(order, map.copy());
+        return this;
+    }
+
+    public OrderedStatMap combine(OrderedStatMap o) {
+        o.forEach(this::combine);
+        return this;
+    }
+
     public OrderedStatMap copy() {
         OrderedStatMap result = new OrderedStatMap();
         forEach((order, stats) -> result.put(order, stats.copy()));

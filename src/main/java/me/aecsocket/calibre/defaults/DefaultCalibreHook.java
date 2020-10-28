@@ -10,7 +10,7 @@ import me.aecsocket.calibre.defaults.system.ComponentStorageSystem;
 import me.aecsocket.calibre.defaults.system.ItemSystem;
 import me.aecsocket.calibre.defaults.system.gun.AmmoContainerSystem;
 import me.aecsocket.calibre.defaults.system.gun.BulletSystem;
-import me.aecsocket.calibre.defaults.system.gun.FireableSystem;
+import me.aecsocket.calibre.defaults.system.gun.GunSystem;
 import me.aecsocket.calibre.defaults.system.melee.MeleeSystem;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.util.CalibreIdentifiable;
@@ -57,7 +57,7 @@ public class DefaultCalibreHook implements CalibreHook {
 
                 .init(new MeleeSystem(plugin))
 
-                .init(new FireableSystem(plugin))
+                .init(new GunSystem(plugin))
                 .init(new BulletSystem(plugin))
 
                 .init(new BulletSystem(plugin))

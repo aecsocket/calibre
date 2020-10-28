@@ -4,13 +4,15 @@ import com.google.gson.*;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.calibre.item.system.SystemInitializationException;
+import me.aecsocket.calibre.util.OrderedStatMap;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
+import me.aecsocket.unifiedframework.stat.StatInstance;
 import me.aecsocket.unifiedframework.stat.StatMap;
 import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.json.JsonAdapter;
 
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.Map;
 import java.util.function.Function;
 
 public class ComponentTree {
@@ -132,6 +134,7 @@ public class ComponentTree {
     private final EventDispatcher eventDispatcher;
     private StatMap stats;
     private boolean complete;
+    private OrderedStatMap extraStats;
 
     public ComponentTree(CalibreComponent root, EventDispatcher eventDispatcher) {
         this.root = root;
@@ -159,6 +162,16 @@ public class ComponentTree {
 
     public boolean isComplete() { return complete; }
     public void setComplete(boolean complete) { this.complete = complete; }
+
+    public OrderedStatMap getExtraStats() { return extraStats; }
+    public void setExtraStats(OrderedStatMap extraStats) { this.extraStats = extraStats; }
+    public void combineStat(int order, StatMap map) { extraStats.combine(order, map); }
+    public <T> void combineStat(int order, String key, StatInstance<T> value) {
+        extraStats.computeIfAbsent(order, __ -> new StatMap()).modify(key, value);
+    }
+    public <T> void combineStat(int order, String key, Function<T, T> function) {
+        extraStats.computeIfAbsent(order, __ -> new StatMap()).modify(key, function);
+    }
 
     public void build() throws SystemInitializationException {
         complete = true;
@@ -189,34 +202,31 @@ public class ComponentTree {
         });
     }
 
-    private void addStat(Function<CalibreComponent, Map<Integer, StatMap>> statGetter, Map<Integer, Collection<StatMap>> perOrder, CalibreComponent component) {
-        statGetter.apply(component).forEach((order, map) -> perOrder.computeIfAbsent(order, __ -> new HashSet<>()).add(map));
+    private void addStat(Function<CalibreComponent, OrderedStatMap> statGetter, CalibreComponent component, OrderedStatMap stats) {
+        stats.combine(statGetter.apply(component));
     }
 
-    private StatMap buildStats(Function<CalibreComponent, Map<Integer, StatMap>> statGetter) {
-        StatMap stats = new StatMap();
+    private OrderedStatMap buildStats(Function<CalibreComponent, OrderedStatMap> statGetter) {
+        OrderedStatMap stats = new OrderedStatMap();
 
-        // TODO optimize with stream#flatMap
-        Map<Integer, Collection<StatMap>> perOrder = new HashMap<>();
-        addStat(statGetter, perOrder, root);
+        addStat(statGetter, root, stats);
         root.walk(data -> data.getComponent().ifPresent(o -> {
             if (o instanceof CalibreComponent)
-                addStat(statGetter, perOrder, (CalibreComponent) o);
+                addStat(statGetter, (CalibreComponent) o, stats);
         }));
-
-        perOrder.entrySet().stream()
-                .sorted(Comparator.comparingInt(Map.Entry::getKey))
-                .forEach(entry -> entry.getValue().forEach(stats::modifyAll));
 
         return stats;
     }
 
     public StatMap buildStats() {
-        stats = buildStats(CalibreComponent::getStats);
+        OrderedStatMap stats = buildStats(CalibreComponent::getStats);
         if (complete)
-            stats.modifyAll(buildStats(CalibreComponent::getCompleteStats));
+            stats.combine(buildStats(CalibreComponent::getCompleteStats));
+        if (extraStats != null)
+            stats.combine(extraStats);
 
-        return stats;
+        this.stats = stats.flatten();
+        return this.stats;
     }
 
     //region Utils

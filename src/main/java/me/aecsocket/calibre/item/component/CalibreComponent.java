@@ -129,8 +129,8 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
 
     @Override public Map<String, CalibreComponentSlot> getSlots() { return slots; }
     public Map<String, CalibreSystem> getSystems() { return systems; }
-    public Map<Integer, StatMap> getStats() { return stats; }
-    public Map<Integer, StatMap> getCompleteStats() { return completeStats; }
+    public OrderedStatMap getStats() { return stats; }
+    public OrderedStatMap getCompleteStats() { return completeStats; }
 
     public Map<Class<? extends CalibreSystem>, String> getSystemServices() { return systemServices; }
 

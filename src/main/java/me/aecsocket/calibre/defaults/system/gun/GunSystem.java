@@ -18,6 +18,7 @@ import me.aecsocket.calibre.item.util.slot.EquipmentItemSlot;
 import me.aecsocket.calibre.item.util.slot.ItemSlot;
 import me.aecsocket.calibre.item.util.user.EntityItemUser;
 import me.aecsocket.calibre.item.util.user.ItemUser;
+import me.aecsocket.calibre.item.util.user.LivingEntityItemUser;
 import me.aecsocket.calibre.item.util.user.PlayerItemUser;
 import me.aecsocket.calibre.util.stat.ItemAnimationStat;
 import me.aecsocket.calibre.util.stat.ParticleStat;
@@ -26,15 +27,19 @@ import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.loop.Loop;
 import me.aecsocket.unifiedframework.loop.SchedulerLoop;
 import me.aecsocket.unifiedframework.stat.Stat;
-import me.aecsocket.unifiedframework.stat.impl.BooleanStat;
-import me.aecsocket.unifiedframework.stat.impl.EnumStat;
-import me.aecsocket.unifiedframework.stat.impl.NumberStat;
-import me.aecsocket.unifiedframework.stat.impl.VectorStat;
+import me.aecsocket.unifiedframework.stat.impl.*;
 import me.aecsocket.unifiedframework.util.MapInit;
 import me.aecsocket.unifiedframework.util.Projectile;
+import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.data.ParticleData;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MainHand;
@@ -42,10 +47,12 @@ import org.bukkit.util.Vector;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
-public class FireableSystem extends BaseSystem {
+public class GunSystem extends BaseSystem {
+    /** Handles how to fire a gun if there is already a chamber loaded before firing. */
     public enum ChamberHandling {
-        /** Only fire if there is an available chamber (closed-bolt gun).*/
+        /** Only fire if there is an available chamber (closed-bolt gun). */
         NORMAL,
         /** Fail if there is an extra chamber (double feed in an open-bolt gun). */
         FAIL,
@@ -55,16 +62,70 @@ public class FireableSystem extends BaseSystem {
         CONDITIONAL_CHAMBER
     }
 
-    public static final String ID = "fireable";
+    /** Determines why a gun failed to perform an action. */
+    public static final class FailReason {
+        private FailReason() {}
+
+        /** If the gun had no loaded chamber available. */
+        public static final int EMPTY = 0;
+        /**
+         * If the gun attempted to load a chamber when there was already one present.
+         * @see ChamberHandling#FAIL
+         */
+        public static final int DOUBLE_FEED = 1;
+    }
+
+    public static class ProjectileData extends CalibreProjectile.Data {
+        private double blockPenetration;
+        private double entityPenetration;
+        private double dropoff;
+        private double range;
+        private Set<Material> breakableBlocks;
+        private Events.FireOnce event; // todo change?
+
+        public ProjectileData(Location location, Vector velocity, double bounce, double drag, double gravity, double expansion, ParticleData[] trail, double trailStep, int maxHits, ItemUser damager, double damage, DamageCause damageCause, double blockPenetration, double entityPenetration, double armorPenetration, double dropoff, double range, Set<Material> breakableBlocks, Events.FireOnce event) {
+            super(location, velocity, bounce, drag, gravity, expansion, trail, trailStep, maxHits, damager, damage, armorPenetration, damageCause);
+            this.blockPenetration = blockPenetration;
+            this.entityPenetration = entityPenetration;
+            this.dropoff = dropoff;
+            this.range = range;
+            this.breakableBlocks = breakableBlocks;
+            this.event = event;
+        }
+
+        public ProjectileData(ProjectileProviderSystem.Data o) {
+            super(o);
+        }
+
+        public double getBlockPenetration() { return blockPenetration; }
+        public void setBlockPenetration(double blockPenetration) { this.blockPenetration = blockPenetration; }
+
+        public double getEntityPenetration() { return entityPenetration; }
+        public void setEntityPenetration(double entityPenetration) { this.entityPenetration = entityPenetration; }
+
+        public double getDropoff() { return dropoff; }
+        public void setDropoff(double dropoff) { this.dropoff = dropoff; }
+
+        public double getRange() { return range; }
+        public void setRange(double range) { this.range = range; }
+
+        public Set<Material> getBreakableBlocks() { return breakableBlocks; }
+        public void setBreakableBlocks(Set<Material> breakableBlocks) { this.breakableBlocks = breakableBlocks; }
+
+        public Events.FireOnce getEvent() { return event; }
+        public void setEvent(Events.FireOnce event) { this.event = event; }
+    }
+
+    public static final String ID = "gun";
     public static final DamageCause GUN_DAMAGE_CAUSE = new DamageCause(){};
     public static final Map<String, Stat<?>> STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
-            .init("damage", new NumberStat.Double(0d))
-            .init("muzzle_velocity", new NumberStat.Double(0d))
             .init("auto_chamber", new BooleanStat(true))
             .init("chamber_handling", new EnumStat<>(ChamberHandling.class, ChamberHandling.NORMAL))
             .init("barrel_offset", new VectorStat(new Vector()))
             .init("shots", new NumberStat.Int(1))
             .init("shot_delay", new NumberStat.Long(0L))
+            .init("entity_awareness", new NumberStat.Double(0d))
+            .init("breakable_blocks", new BasicArrayStat<>(Material[].class, Material[]::new))
 
             .init("sighting_range", new NumberStat.Double(0d))
             .init("converge_range", new NumberStat.Double(0d))
@@ -76,6 +137,8 @@ public class FireableSystem extends BaseSystem {
             .init("shot_spread_recovery", new NumberStat.Double(0.995d))
             .init("projectile_spread", new NumberStat.Double(0d))
 
+            .init("damage", new NumberStat.Double(0d))
+            .init("muzzle_velocity", new NumberStat.Double(0d))
             .init("projectiles", new NumberStat.Int(1))
             .init("projectile_bounce", new NumberStat.Double(0d))
             .init("projectile_drag", new NumberStat.Double(0d))
@@ -100,43 +163,11 @@ public class FireableSystem extends BaseSystem {
             .init("chamber_delay", new NumberStat.Long(0L))
             .init("chamber_sound", new SoundStat())
             .init("chamber_animation", new ItemAnimationStat())
+
+            .init("fail_delay", new NumberStat.Long(0L))
+            .init("fail_sound", new SoundStat())
+            .init("fail_animation", new ItemAnimationStat())
             .get();
-
-    public static class ProjectileData extends CalibreProjectile.Data {
-        private double blockPenetration;
-        private double entityPenetration;
-        private double dropoff;
-        private double range;
-        private Events.FireOnce event; // todo change?
-
-        public ProjectileData(Location location, Vector velocity, double bounce, double drag, double gravity, double expansion, ParticleData[] trail, double trailStep, int maxHits, ItemUser damager, double damage, DamageCause damageCause, double blockPenetration, double entityPenetration, double armorPenetration, double dropoff, double range, Events.FireOnce event) {
-            super(location, velocity, bounce, drag, gravity, expansion, trail, trailStep, maxHits, damager, damage, armorPenetration, damageCause);
-            this.blockPenetration = blockPenetration;
-            this.entityPenetration = entityPenetration;
-            this.dropoff = dropoff;
-            this.range = range;
-            this.event = event;
-        }
-
-        public ProjectileData(ProjectileProviderSystem.Data o) {
-            super(o);
-        }
-
-        public double getBlockPenetration() { return blockPenetration; }
-        public void setBlockPenetration(double blockPenetration) { this.blockPenetration = blockPenetration; }
-
-        public double getEntityPenetration() { return entityPenetration; }
-        public void setEntityPenetration(double entityPenetration) { this.entityPenetration = entityPenetration; }
-
-        public double getDropoff() { return dropoff; }
-        public void setDropoff(double dropoff) { this.dropoff = dropoff; }
-
-        public double getRange() { return range; }
-        public void setRange(double range) { this.range = range; }
-
-        public Events.FireOnce getEvent() { return event; }
-        public void setEvent(Events.FireOnce event) { this.event = event; }
-    }
 
     @LoadTimeOnly private boolean usable;
     private transient ItemSystem itemSystem;
@@ -144,7 +175,7 @@ public class FireableSystem extends BaseSystem {
     private double shotSpread;
     private long shotSpreadTime;
 
-    public FireableSystem(CalibrePlugin plugin) {
+    public GunSystem(CalibrePlugin plugin) {
         super(plugin);
     }
 
@@ -177,21 +208,38 @@ public class FireableSystem extends BaseSystem {
 
     @Override public Map<String, Stat<?>> getDefaultStats() { return STATS; }
 
-    public SystemSearchResult<ProjectileProviderSystem> getChamber() {
-        return Utils.atOr(parent.collectSystems(
+    public List<CalibreComponentSlot> collectChamberSlots() {
+        return parent.collectSlots(
+                new SlotSearchOptions()
+                        .slotTag("chamber")
+                        .targetPriority(stat("chamber_priority"))
+        );
+    }
+    public List<SystemSearchResult<ProjectileProviderSystem>> collectChambers() {
+        return parent.collectSystems(
                 new SystemSearchOptions<>(ProjectileProviderSystem.class)
                         .slotTag("chamber")
                         .targetPriority(stat("chamber_priority"))
-        ), 0);
+        );
     }
-
-    public SystemSearchResult<AmmoStorageSystem> getAmmo() {
-        return Utils.atOr(parent.collectSystems(
+    // todo clean this up
+    public SystemSearchResult<ProjectileProviderSystem> collectChamber() { return Utils.atOr(collectChambers(), 0); }
+    public List<SystemSearchResult<AmmoStorageSystem>> collectAllAmmo() {
+        return parent.collectSystems(
                 new SystemSearchOptions<>(AmmoStorageSystem.class)
                         .slotTag("ammo")
                         .targetPriority(stat("ammo_priority"))
-        ), 0);
+        );
     }
+    public SystemSearchResult<AmmoStorageSystem> collectAmmo() {
+        for (SystemSearchResult<AmmoStorageSystem> result : collectAllAmmo()) {
+            if (result.getSystem().size() > 0)
+                return result;
+        }
+        return null;
+    }
+
+    private String format(String text, Object... args) { return TextUtils.format(TextUtils.translateColor(text), args); }
 
     private void onEvent(ItemEvents.Equip event) {
         if (!(event.getTickContext().getLoop() instanceof SchedulerLoop)) return;
@@ -210,15 +258,65 @@ public class FireableSystem extends BaseSystem {
                 event.updateItem(this);
             }
         }
+
+        if (event.getUser() instanceof PlayerItemUser) {
+            Player player = ((PlayerItemUser) event.getUser()).getEntity();
+            // TODO ac bar
+            player.sendActionBar(
+                    collectAllAmmo().stream()
+                            .map(result -> {
+                                AmmoStorageSystem sys = result.getSystem();
+                                String icon = sys.getIcon();
+                                String emptyIcon = sys.getEmptyIcon();
+                                return sys.getComponents().stream()
+                                        .map(q -> {
+                                            CalibreComponent comp = q.get();
+                                            BulletSystem bullet = comp.getSystem(BulletSystem.class);
+                                            return bullet == null ? null : (bullet.getPrefix() + icon).repeat(q.getAmount());
+                                        })
+                                        .collect(Collectors.joining())
+                                        + emptyIcon.repeat(Math.max(0, sys.getCapacity() - sys.size()));
+                            })
+                            .collect(Collectors.joining(ChatColor.RESET + " "))
+                    + ChatColor.GRAY + " [" +
+                    collectChambers().stream()
+                            .filter(result -> result.getSystem() instanceof BulletSystem)
+                            .map(result -> {
+                                BulletSystem sys = (BulletSystem) result.getSystem();
+                                return sys.getPrefix() + sys.getIcon();
+                            })
+                            .collect(Collectors.joining())
+                    + ChatColor.GRAY + "] " + ChatColor.DARK_AQUA +
+                    String.format("%.0f", (double) stat("sighting_range")) + "m"
+            );
+            /*
+            if (actionBar != null) {
+                player.sendActionBar(format(actionBar,
+                        "count_ammo", getAllAmmo().stream()
+                                .map(result -> format(actionBarAmmo,
+                                        "size", result.getSystem().size(),
+                                        "capacity", result.getSystem().getCapacity()))
+                                .collect(Collectors.joining(actionBarAmmoSeparator)),
+                        "bar_ammo", getAllAmmo().stream()
+                                .map(result -> )
+                        "count_chamber", getChambers().size(),
+                        "sighting_range", stat("sighting_range")
+                ));
+            }*/
+        }
     }
 
     private void onEvent(ItemEvents.Interact event) {
-        fire(new Events.Fire(
-                event.getStack(),
-                event.getSlot(),
-                event.getUser(),
-                this
-        ));
+        if (!Utils.isRightClick(event.getAction())) {
+            if (stat("chamber_handling") == ChamberHandling.NORMAL && collectChamber() == null)
+                chamber(new Events.PreChamber(
+                        event.getStack(), event.getSlot(), event.getUser(), this
+                ));
+            else
+                fire(new Events.Fire(
+                        event.getStack(), event.getSlot(), event.getUser(), this
+                ));
+        }
     }
 
     public void fire(Events.Fire event) {
@@ -231,43 +329,46 @@ public class FireableSystem extends BaseSystem {
         shootAt = new long[shots];
         for (int i = 0; i < shots; i++)
             shootAt[i] = System.currentTimeMillis() + (shotDelay * i);
-        event.updateItem(this);
+        event.updateItem();
     }
 
     public boolean fireOnce(Events.FireOnce event) {
         if (callEvent(event).cancelled) return false;
         ItemUser user = event.getUser();
 
-        SystemSearchResult<AmmoStorageSystem> ammoResult = getAmmo();
+        SystemSearchResult<AmmoStorageSystem> ammoResult = collectAmmo();
         // Grab chamber
         SystemSearchResult<ProjectileProviderSystem> chamberResult;
         switch ((ChamberHandling) stat("chamber_handling")) {
             // Emulates open-bolt gun
             case FAIL:
-                event.updateItem(this);
+                fail(new Events.Fail(
+                        event.getStack(), event.getSlot(), event.getUser(), this, FailReason.DOUBLE_FEED
+                ));
+                event.updateItem();
                 return false;
             case DISCARD:
                 chamber(new Events.PreChamber(
                         event.getStack(), event.getSlot(), event.getUser(), this
                 ));
                 // TODO also eject bullet if discarded
-                chamberResult = getChamber();
+                chamberResult = collectChamber();
                 break;
             case CONDITIONAL_CHAMBER:
-                chamberResult = getChamber();
+                chamberResult = collectChamber();
                 if (chamberResult == null) {
                     chamber(new Events.PreChamber(
                             event.getStack(), event.getSlot(), event.getUser(), this
                     ));
-                    chamberResult = getChamber();
+                    chamberResult = collectChamber();
                 }
                 break;
             // Emulates closed-bolt gun
             default:
-                chamberResult = getChamber();
+                chamberResult = collectChamber();
         }
         if (chamberResult == null) {
-            event.updateItem(this);
+            event.updateItem();
             return false;
         }
         CalibreComponentSlot chamberSlot = chamberResult.getSlot();
@@ -279,7 +380,7 @@ public class FireableSystem extends BaseSystem {
             barrelOffset = barrelOffset.clone().setX(-barrelOffset.getX());
         Location location = Utils.getFacingRelative(user.getLocation(), barrelOffset);
         if (user instanceof EntityItemUser && Utils.isObstructed(((EntityItemUser) user).getEntity(), location)) {
-            event.updateItem(this);
+            event.updateItem();
             return false;
         }
 
@@ -318,6 +419,7 @@ public class FireableSystem extends BaseSystem {
                     user, stat("damage"), GUN_DAMAGE_CAUSE,
                     stat("block_penetration"), stat("entity_penetration"), stat("armor_penetration"),
                     stat("dropoff"), stat("range"),
+                    stat("breakable_blocks") == null ? null : new HashSet<>(Arrays.asList(stat("breakable_blocks"))),
                     event
             )).inEntity(user instanceof EntityItemUser ? ((EntityItemUser) user).getEntity() : null)));
         }
@@ -332,13 +434,28 @@ public class FireableSystem extends BaseSystem {
             }
         }
 
+        // Entity awareness
+        if (user instanceof LivingEntityItemUser) {
+            LivingEntity eUser = ((LivingEntityItemUser) user).getEntity();
+            double entityAwareness = stat("entity_awareness");
+            if (entityAwareness > 0 && (!(user instanceof PlayerItemUser) || ((PlayerItemUser) user).getEntity().getGameMode() != GameMode.CREATIVE)) {
+                location.getNearbyLivingEntities(entityAwareness).forEach(entity -> {
+                    if (entity.getType() != eUser.getType() && entity instanceof Monster && ((Monster) entity).getTarget() == null)
+                        ((Monster) entity).setTarget(eUser);
+                });
+            }
+        }
+
         itemSystem.doAction(this, "fire", user, event.getSlot(), location);
-        event.updateItem(this);
+        event.updateItem();
         return true;
     }
 
     public void chamber(Events.PreChamber event) {
+        if (!usable) return;
+        if (!itemSystem.isAvailable()) return;
         if (callEvent(event).cancelled) return;
+
         AmmoStorageSystem[] ammo = new AmmoStorageSystem[]{null};
         boolean[] search = new boolean[]{true};
         Map<CalibreComponentSlot, CalibreComponent> loadedChambers = new HashMap<>();
@@ -349,7 +466,7 @@ public class FireableSystem extends BaseSystem {
                 slot -> {
                     if (!search[0]) return;
                     if (ammo[0] == null || !ammo[0].hasNext()) {
-                        SystemSearchResult<AmmoStorageSystem> result = getAmmo();
+                        SystemSearchResult<AmmoStorageSystem> result = collectAmmo();
                         if (result == null) {
                             search[0] = false;
                             return;
@@ -374,13 +491,24 @@ public class FireableSystem extends BaseSystem {
         if (loadedChambers.size() > 0) {
             loadedChambers.forEach(CalibreComponentSlot::set);
             itemSystem.doAction(this, "chamber", event.getUser(), event.getSlot());
+            event.updateItem();
+        } else {
+            fail(new Events.Fail(
+                    event.getStack(), event.getSlot(), event.getUser(), this, FailReason.EMPTY
+            ));
         }
+    }
+
+    public void fail(Events.Fail event) {
+        if (callEvent(event).cancelled) return;
+        itemSystem.doAction(this, "fail", event.getUser(), event.getSlot());
+        event.updateItem();
     }
 
     @Override public String getId() { return ID; }
     @Override public Collection<String> getDependencies() { return Collections.emptyList(); }
-    @Override public FireableSystem clone() { return (FireableSystem) super.clone(); }
-    @Override public FireableSystem copy() { return clone(); }
+    @Override public GunSystem clone() { return (GunSystem) super.clone(); }
+    @Override public GunSystem copy() { return clone(); }
 
     /**
      * Modifies a location to be sighted in to shoot at a particular position along the plane of the view model.
@@ -414,8 +542,8 @@ public class FireableSystem extends BaseSystem {
     public static final class Events {
         private Events() {}
 
-        public static class Event extends ItemEvents.SystemEvent<FireableSystem> {
-            public Event(ItemStack stack, ItemSlot slot, ItemUser user, FireableSystem system) {
+        public static class Event extends ItemEvents.SystemEvent<GunSystem> {
+            public Event(ItemStack stack, ItemSlot slot, ItemUser user, GunSystem system) {
                 super(stack, slot, user, system);
             }
         }
@@ -423,7 +551,7 @@ public class FireableSystem extends BaseSystem {
         public static class Fire extends Event implements ItemEvents.Cancellable {
             private boolean cancelled;
 
-            public Fire(ItemStack stack, ItemSlot slot, ItemUser user, FireableSystem system) {
+            public Fire(ItemStack stack, ItemSlot slot, ItemUser user, GunSystem system) {
                 super(stack, slot, user, system);
             }
 
@@ -435,7 +563,7 @@ public class FireableSystem extends BaseSystem {
         public static class FireOnce extends Event implements ItemEvents.Cancellable {
             private boolean cancelled;
 
-            public FireOnce(ItemStack stack, ItemSlot slot, ItemUser user, FireableSystem system) {
+            public FireOnce(ItemStack stack, ItemSlot slot, ItemUser user, GunSystem system) {
                 super(stack, slot, user, system);
             }
 
@@ -446,7 +574,7 @@ public class FireableSystem extends BaseSystem {
         public static class PreChamber extends Event implements ItemEvents.Cancellable {
             private boolean cancelled;
 
-            public PreChamber(ItemStack stack, ItemSlot slot, ItemUser user, FireableSystem system) {
+            public PreChamber(ItemStack stack, ItemSlot slot, ItemUser user, GunSystem system) {
                 super(stack, slot, user, system);
             }
 
@@ -457,12 +585,27 @@ public class FireableSystem extends BaseSystem {
         public static class Chamber extends Event {
             private final Map<CalibreComponentSlot, CalibreComponent> loadedChambers;
 
-            public Chamber(ItemStack stack, ItemSlot slot, ItemUser user, FireableSystem system, Map<CalibreComponentSlot, CalibreComponent> loadedChambers) {
+            public Chamber(ItemStack stack, ItemSlot slot, ItemUser user, GunSystem system, Map<CalibreComponentSlot, CalibreComponent> loadedChambers) {
                 super(stack, slot, user, system);
                 this.loadedChambers = loadedChambers;
             }
 
             public Map<CalibreComponentSlot, CalibreComponent> getLoadedChambers() { return loadedChambers; }
+        }
+
+        public static class Fail extends Event implements ItemEvents.Cancellable {
+            private boolean cancelled;
+            private final int reason;
+
+            public Fail(ItemStack stack, ItemSlot slot, ItemUser user, GunSystem system, int reason) {
+                super(stack, slot, user, system);
+                this.reason = reason;
+            }
+
+            @Override public boolean isCancelled() { return cancelled; }
+            @Override public void setCancelled(boolean cancelled) { this.cancelled = cancelled; }
+
+            public int getReason() { return reason; }
         }
     }
 }

@@ -7,6 +7,10 @@ public class SlotSearchOptions {
     private Integer targetPriority;
 
     public SlotSearchOptions() {}
+    public SlotSearchOptions(SlotSearchOptions o) {
+        slotTag = o.slotTag;
+        targetPriority = o.targetPriority;
+    }
 
     public String getSlotTag() { return slotTag; }
     public SlotSearchOptions slotTag(String slotTag) { this.slotTag = slotTag; return this; }

@@ -9,6 +9,13 @@ public class SystemSearchOptions<T extends CalibreSystem> extends SlotSearchOpti
     private Class<? extends T> serviceType;
 
     public SystemSearchOptions() {}
+    public SystemSearchOptions(SystemSearchOptions<T> o) {
+        super(o);
+        serviceType = o.serviceType;
+    }
+    public SystemSearchOptions(SlotSearchOptions o) {
+        super(o);
+    }
     public SystemSearchOptions(Class<T> serviceType) {
         this.serviceType = serviceType;
     }

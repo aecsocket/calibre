@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":9,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10};
+var data = {"i0":10,"i1":9,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -255,15 +255,21 @@ implements me.aecsocket.unifiedframework.gui.GUIItem</pre>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAllowModification(boolean)">setAllowModification</a></span>&#8203;(boolean&nbsp;allowModification)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onClick(me.aecsocket.unifiedframework.gui.GUIView,org.bukkit.event.inventory.InventoryClickEvent)">onClick</a></span>&#8203;(me.aecsocket.unifiedframework.gui.GUIView&nbsp;view,
+       org.bukkit.event.inventory.InventoryClickEvent&nbsp;event)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setComponent(me.aecsocket.calibre.item.component.CalibreComponent)">setComponent</a></span>&#8203;(<a href="../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;component)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAllowModification(boolean)">setAllowModification</a></span>&#8203;(boolean&nbsp;allowModification)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i11" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setComponent(me.aecsocket.calibre.item.component.CalibreComponent)">setComponent</a></span>&#8203;(<a href="../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;component)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLimitedModification(boolean)">setLimitedModification</a></span>&#8203;(boolean&nbsp;limitedModification)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -281,7 +287,7 @@ implements me.aecsocket.unifiedframework.gui.GUIItem</pre>
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;me.aecsocket.unifiedframework.gui.GUIItem</h3>
-<code>onClick, onInventoryMove, onRelease</code></li>
+<code>onInventoryMove, onRelease</code></li>
 </ul>
 </li>
 </ul>
@@ -459,6 +465,20 @@ implements me.aecsocket.unifiedframework.gui.GUIItem</pre>
 <pre class="methodSignature">public&nbsp;org.bukkit.inventory.ItemStack&nbsp;createIcon&#8203;(org.bukkit.entity.Player&nbsp;player,
                                                  @Nullable
                                                  @Nullable <a href="../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;activeComponent)</pre>
+</li>
+</ul>
+<a id="onClick(me.aecsocket.unifiedframework.gui.GUIView,org.bukkit.event.inventory.InventoryClickEvent)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onClick</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;onClick&#8203;(me.aecsocket.unifiedframework.gui.GUIView&nbsp;view,
+                    org.bukkit.event.inventory.InventoryClickEvent&nbsp;event)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code>onClick</code>&nbsp;in interface&nbsp;<code>me.aecsocket.unifiedframework.gui.GUIItem</code></dd>
+</dl>
 </li>
 </ul>
 <a id="createIcon(me.aecsocket.calibre.CalibrePlugin,me.aecsocket.calibre.item.component.CalibreComponentSlot,java.lang.String,org.bukkit.entity.Player,me.aecsocket.calibre.item.component.CalibreComponent)">

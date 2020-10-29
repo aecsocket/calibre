@@ -15,6 +15,7 @@ import me.aecsocket.calibre.util.CalibreIdentifiable;
 import me.aecsocket.calibre.util.HasDependencies;
 import me.aecsocket.calibre.util.ItemDescriptor;
 import me.aecsocket.calibre.util.OrderedStatMap;
+import me.aecsocket.calibre.util.stat.SoundStat;
 import me.aecsocket.unifiedframework.component.ComponentHolder;
 import me.aecsocket.unifiedframework.item.Item;
 import me.aecsocket.unifiedframework.item.ItemCreationException;
@@ -67,6 +68,9 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
     public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init("item", new ItemDescriptor.Stat())
             .init("lower", new BooleanStat(false))
+
+            .init("slot_view_add", new SoundStat())
+            .init("slot_view_remove", new SoundStat())
             .get();
     public static final AttributeModifier ATTACK_SPEED_ATTR = new AttributeModifier(new UUID(42069, 69420), "generic.attack_speed", -1, AttributeModifier.Operation.MULTIPLY_SCALAR_1, EquipmentSlot.HAND);
 
@@ -307,12 +311,13 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
 
     public final CalibreComponent withSimpleTree() {
         CalibreComponent copy = copy();
-        copy.tree = ComponentTree.createAndBuild(copy);
+        ComponentTree.createAndBuild(copy);
         return copy;
     }
 
     public final <T> T stat(String key) { return tree.stat(key); }
     public final <T> T callEvent(T event) { return tree.callEvent(event); }
+    public final boolean isRoot() { return tree.getRoot() == this; }
 
     //endregion
 

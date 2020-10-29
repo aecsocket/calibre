@@ -88,10 +88,10 @@ public class SlotViewGUI extends GUI {
     }
 
     public void notifyUpdate(GUIView view) {
-        view.reopen();
-        component.getTree().build();
+        component = component.withSimpleTree();
         if (slot != null)
             slot.set(component.createItem(view.getPlayer(), slot.get().getAmount()));
+        view.reopen();
     }
 
     @Override

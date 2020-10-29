@@ -7,6 +7,7 @@ import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.util.slot.EntityItemSlot;
 import me.aecsocket.calibre.item.util.slot.ItemSlot;
 import me.aecsocket.calibre.item.util.user.PlayerItemUser;
+import me.aecsocket.unifiedframework.gui.GUIView;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -141,15 +142,21 @@ public class EventHandle implements Listener {
         if (event.getClick() != ClickType.RIGHT) return;
         CalibreComponent component = plugin.fromItem(event.getCurrentItem());
         if (component == null) return;
+        GUIView view = plugin.getGUIManager().getView(player);
+        boolean allowModification =
+                plugin.setting("slot_view.allow_modification", boolean.class, true)
+                        && (view == null || !(view.getGUI() instanceof SlotViewGUI));
         new SlotViewGUI(
                 plugin, plugin.getGUIManager(), component,
-                plugin.setting("slot_view.allow_modification", boolean.class, true),
+                allowModification,
                 plugin.setting("slot_view.limited_modification", boolean.class, true),
-                // todo broken?
-                new ItemSlot() {
+                // this works!
+                allowModification
+                ? new ItemSlot() {
                     @Override public ItemStack get() { return event.getCurrentItem(); }
                     @Override public void set(ItemStack item) { event.setCurrentItem(item); }
                 }
+                : null
         ).open((Player) event.getWhoClicked());
     }
 }

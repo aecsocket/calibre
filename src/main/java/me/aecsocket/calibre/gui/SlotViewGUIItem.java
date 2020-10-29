@@ -8,8 +8,11 @@ import me.aecsocket.unifiedframework.gui.GUIItem;
 import me.aecsocket.unifiedframework.gui.GUIView;
 import me.aecsocket.unifiedframework.item.ItemCreationException;
 import me.aecsocket.unifiedframework.util.Utils;
+import me.aecsocket.unifiedframework.util.data.SoundData;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -94,6 +97,51 @@ public class SlotViewGUIItem implements GUIItem {
 
     public ItemStack createIcon(Player player, @Nullable CalibreComponent activeComponent) {
         return createIcon(plugin, slot, slotName, player, activeComponent);
+    }
+
+    @Override
+    public void onClick(GUIView view, InventoryClickEvent event) {
+        event.setCancelled(true);
+        if (event.getClick() == ClickType.RIGHT) {
+            // TODO component editing menu
+            return;
+        }
+
+        if (slot == null) return;
+        if (!allowModification || (limitedModification && !slot.canFieldModify())) return;
+
+        Player player = view.getPlayer();
+        ItemStack rawCursor = view.getRawCursor();
+        if (Utils.empty(rawCursor) && slot.get() != null) {
+            try {
+                CalibreComponent component = slot.get().withSimpleTree();
+                view.setRawCursor(component.createItem(player));
+                slot.set(null);
+                SoundData.play(player.getLocation(), component.stat("slot_view_remove"));
+            } catch (ItemCreationException e) {
+                return;
+            }
+        } else if (!Utils.empty(rawCursor)) {
+            CalibreComponent component = plugin.fromItem(rawCursor);
+            if (component == null || !slot.isCompatible(component)) return;
+
+            try {
+                if (slot.get() == null)
+                    view.setRawCursor(rawCursor.subtract());
+                else if (rawCursor.getAmount() > 1)
+                    return;
+                else
+                    view.setRawCursor(slot.get().withSimpleTree().createItem(player));
+                slot.set(component);
+                SoundData.play(player.getLocation(), component.stat("slot_view_add"));
+            } catch (ItemCreationException e) {
+                return;
+            }
+        } else
+            return;
+
+        event.setCancelled(false);
+        ((SlotViewGUI) view.getGUI()).notifyUpdate(view);
     }
 
     public static ItemStack createIcon(CalibrePlugin plugin, CalibreComponentSlot slot, String slotName, Player player, @Nullable CalibreComponent activeComponent) {

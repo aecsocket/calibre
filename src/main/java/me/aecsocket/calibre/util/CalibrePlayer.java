@@ -12,6 +12,7 @@ import me.aecsocket.unifiedframework.loop.SchedulerLoop;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.loop.Tickable;
 import me.aecsocket.unifiedframework.util.Utils;
+import me.aecsocket.unifiedframework.util.Vector2;
 import me.aecsocket.unifiedframework.util.data.ParticleData;
 import org.bukkit.Color;
 import org.bukkit.Particle;
@@ -34,6 +35,12 @@ public class CalibrePlayer implements Tickable {
 
     private ItemAnimation.Instance animation;
     private Vector viewOffset;
+    private Vector2 recoil = new Vector2();
+    private double recoilSpeed;
+    private double recoilRecovery;
+    private long recoilRecoveryAfter;
+    private double recoilRecoverySpeed;
+    private Vector2 recoilToRecover = new Vector2();
 
     public CalibrePlayer(CalibrePlugin plugin, Player player) {
         this.plugin = plugin;
@@ -51,9 +58,35 @@ public class CalibrePlayer implements Tickable {
     public Vector getViewOffset() { return viewOffset; }
     public void setViewOffset(Vector viewOffset) { this.viewOffset = viewOffset; }
 
+    public Vector2 getRecoil() { return recoil; }
+    public void setRecoil(Vector2 recoil) { this.recoil = recoil; }
+
+    public double getRecoilSpeed() { return recoilSpeed; }
+    public void setRecoilSpeed(double recoilSpeed) { this.recoilSpeed = recoilSpeed; }
+
+    public double getRecoilRecovery() { return recoilRecovery; }
+    public void setRecoilRecovery(double recoilRecovery) { this.recoilRecovery = recoilRecovery; }
+
+    public long getRecoilRecoveryAfter() { return recoilRecoveryAfter; }
+    public void setRecoilRecoveryAfter(long recoilRecoveryAfter) { this.recoilRecoveryAfter = recoilRecoveryAfter; }
+
+    public double getRecoilRecoverySpeed() { return recoilRecoverySpeed; }
+    public void setRecoilRecoverySpeed(double recoilRecoverySpeed) { this.recoilRecoverySpeed = recoilRecoverySpeed; }
+
+    public Vector2 getRecoilToRecover() { return recoilToRecover; }
+    public void setRecoilToRecover(Vector2 recoilToRecover) { this.recoilToRecover = recoilToRecover; }
+
     public ItemAnimation.Instance startAnimation(ItemAnimation animation, EquipmentSlot slot) {
         this.animation = animation.start(player, slot);
         return this.animation;
+    }
+
+    public void applyRecoil(Vector2 recoil, double recoilSpeed, double recoilRecovery, long recoilRecoveryAfter, double recoilRecoverySpeed) {
+        this.recoil.add(recoil.getX(), -recoil.getY());
+        this.recoilSpeed = recoilSpeed;
+        this.recoilRecovery = recoilRecovery;
+        this.recoilRecoveryAfter = System.currentTimeMillis() + recoilRecoveryAfter;
+        this.recoilRecoverySpeed = recoilRecoverySpeed;
     }
 
     @Override
@@ -82,7 +115,29 @@ public class CalibrePlayer implements Tickable {
                 SlotViewGUI gui = (SlotViewGUI) view.getGUI();
                 gui.validate(view);
             }
+        } else {
+            if (recoil.manhattanLength() > 0.005) {
+                Vector2 rotation = recoil.clone().multiply(recoilSpeed);
+                CalibreProtocol.rotateCamera(player, rotation.getX(), rotation.getY());
+                recoil.multiply(1 - recoilSpeed);
+                recoilToRecover.add(rotation.multiply(-recoilRecovery));
+
+                if (recoil.manhattanLength() <= 0.005)
+                    recoil.zero();
+            }
+
+            if (recoilRecoveryAfter > 0 && System.currentTimeMillis() >= recoilRecoveryAfter) {
+                Vector2 rotation = recoilToRecover.clone().multiply(recoilRecoverySpeed);
+                CalibreProtocol.rotateCamera(player, rotation.getX(), rotation.getY());
+                recoilToRecover.multiply(1 - recoilRecoverySpeed);
+
+                if (recoilToRecover.manhattanLength() <= 0.005) {
+                    recoilToRecover.zero();
+                    recoilRecoveryAfter = 0;
+                }
+            }
         }
+
         cachedItems.forEach((slot, entry) -> {
             if (entry != null)
                 entry.getValue().callEvent(new ItemEvents.Equip(entry.getKey(), new EntityItemSlot(player, slot), user, tickContext));

@@ -38,6 +38,7 @@ import me.aecsocket.unifiedframework.stat.impl.*;
 import me.aecsocket.unifiedframework.util.MapInit;
 import me.aecsocket.unifiedframework.util.Projectile;
 import me.aecsocket.unifiedframework.util.Utils;
+import me.aecsocket.unifiedframework.util.Vector2;
 import me.aecsocket.unifiedframework.util.data.ParticleData;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -142,6 +143,12 @@ public class GunSystem extends BaseSystem {
             .init("shot_spread", new NumberStat.Double(0d))
             .init("shot_spread_recovery", new NumberStat.Double(0.995d))
             .init("projectile_spread", new NumberStat.Double(0d))
+
+            .init("recoil", new Vector2Stat(new Vector2()))
+            .init("recoil_speed", new NumberStat.Double(1d))
+            .init("recoil_recovery", new NumberStat.Double(1d))
+            .init("recoil_recovery_after", new NumberStat.Long(0L))
+            .init("recoil_recovery_speed", new NumberStat.Double(1d))
 
             .init("damage", new NumberStat.Double(0d))
             .init("muzzle_velocity", new NumberStat.Double(0d))
@@ -592,6 +599,13 @@ public class GunSystem extends BaseSystem {
 
         Vector velocity = location.getDirection().normalize().multiply(muzzleVelocity);
         randomRotate(velocity, spread);
+
+        // Recoil
+        if (user instanceof ShooterItemUser)
+            ((ShooterItemUser) user).applyRecoil(
+                    stat("recoil"), stat("recoil_speed"),
+                    stat("recoil_recovery"), stat("recoil_recovery_after"), stat("recoil_recovery_speed")
+            );
 
         Location fLocation = location;
         for (int i = 0; i < (int) stat("projectiles"); i++) {

@@ -1,9 +1,11 @@
 package me.aecsocket.calibre.handle;
 
 import me.aecsocket.calibre.CalibrePlugin;
+import me.aecsocket.calibre.gui.SlotViewGUI;
 import me.aecsocket.calibre.item.ItemEvents;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.util.slot.EntityItemSlot;
+import me.aecsocket.calibre.item.util.slot.ItemSlot;
 import me.aecsocket.calibre.item.util.user.PlayerItemUser;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -11,9 +13,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -49,8 +51,8 @@ public class EventHandle implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
-        EntityEquipment equipment = event.getPlayer().getEquipment();
         if (event.getHand() != EquipmentSlot.HAND) return;
+        EntityEquipment equipment = event.getPlayer().getEquipment();
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             ItemStack item = equipment.getItem(slot);
             ItemEvents.Interact iEvent = ItemEvents.BukkitInteract.of(plugin, event, slot);
@@ -58,6 +60,13 @@ public class EventHandle implements Listener {
             event.setUseItemInHand(iEvent.getHandResult());
             event.setUseInteractedBlock(iEvent.getBlockResult());
         }
+    }
+
+    @EventHandler
+    public void onSwapHand(PlayerSwapHandItemsEvent event) {
+        EntityEquipment equipment = event.getPlayer().getEquipment();
+        for (EquipmentSlot slot : EquipmentSlot.values())
+            callEvent(equipment.getItem(slot), ItemEvents.BukkitSwapHand.of(plugin, event, slot));
     }
 
     @EventHandler
@@ -89,6 +98,22 @@ public class EventHandle implements Listener {
     }
 
     @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        EntityEquipment equipment = event.getPlayer().getEquipment();
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            ItemStack item = equipment.getItem(slot);
+            callEvent(item, new ItemEvents.Draw(
+                    item, new EntityItemSlot(event.getPlayer(), slot), plugin.userOf(event.getPlayer())
+            ));
+        }
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        plugin.getPlayers().remove(event.getPlayer());
+    }
+
+    @EventHandler
     public void onClick(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
         PlayerItemUser user = plugin.userOf(player);
@@ -111,5 +136,20 @@ public class EventHandle implements Listener {
             item = inv.getItem(event.getSlot());
             callEvent(item, new ItemEvents.Draw(item, handSlot, user));
         }
+
+        if (!plugin.setting("slot_view.enabled", boolean.class, true)) return;
+        if (event.getClick() != ClickType.RIGHT) return;
+        CalibreComponent component = plugin.fromItem(event.getCurrentItem());
+        if (component == null) return;
+        new SlotViewGUI(
+                plugin, plugin.getGUIManager(), component,
+                plugin.setting("slot_view.allow_modification", boolean.class, true),
+                plugin.setting("slot_view.limited_modification", boolean.class, true),
+                // todo broken?
+                new ItemSlot() {
+                    @Override public ItemStack get() { return event.getCurrentItem(); }
+                    @Override public void set(ItemStack item) { event.setCurrentItem(item); }
+                }
+        ).open((Player) event.getWhoClicked());
     }
 }

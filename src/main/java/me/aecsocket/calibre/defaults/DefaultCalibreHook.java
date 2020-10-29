@@ -11,6 +11,10 @@ import me.aecsocket.calibre.defaults.system.ItemSystem;
 import me.aecsocket.calibre.defaults.system.gun.AmmoContainerSystem;
 import me.aecsocket.calibre.defaults.system.gun.BulletSystem;
 import me.aecsocket.calibre.defaults.system.gun.GunSystem;
+import me.aecsocket.calibre.defaults.system.gun.firemode.FireModeReference;
+import me.aecsocket.calibre.defaults.system.gun.firemode.FireModeSystem;
+import me.aecsocket.calibre.defaults.system.gun.sight.SightReference;
+import me.aecsocket.calibre.defaults.system.gun.sight.SightSystem;
 import me.aecsocket.calibre.defaults.system.melee.MeleeSystem;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.util.CalibreIdentifiable;
@@ -30,6 +34,8 @@ import java.util.HashSet;
 public class DefaultCalibreHook implements CalibreHook {
     private CalibrePlugin plugin;
 
+    public CalibrePlugin getPlugin() { return plugin; }
+
     @Override
     public void acceptPlugin(CalibrePlugin plugin) {
         this.plugin = plugin;
@@ -46,6 +52,8 @@ public class DefaultCalibreHook implements CalibreHook {
     public void registerTypeAdapters(GsonBuilder builder) {
         builder
                 .registerTypeAdapter(new TypeToken<Quantifier<ComponentTree>>(){}.getType(), new QuantifierAdapter<ComponentTree>())
+                .registerTypeAdapter(FireModeReference.class, new FireModeReference.Adapter())
+                .registerTypeAdapter(SightReference.class, new SightReference.Adapter())
                 .registerTypeAdapterFactory(new ComponentStorageSystem.Adapter(plugin));
     }
 
@@ -59,9 +67,9 @@ public class DefaultCalibreHook implements CalibreHook {
 
                 .init(new GunSystem(plugin))
                 .init(new BulletSystem(plugin))
-
-                .init(new BulletSystem(plugin))
                 .init(new AmmoContainerSystem(plugin))
+                .init(new FireModeSystem(plugin))
+                .init(new SightSystem(plugin))
                 .get();
     }
 }

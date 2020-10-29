@@ -9,6 +9,7 @@ import com.google.gson.stream.JsonWriter;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.util.CalibreIdentifiable;
+import me.aecsocket.calibre.util.OrderedStatMap;
 import me.aecsocket.unifiedframework.stat.Stat;
 
 import java.io.IOException;
@@ -65,9 +66,11 @@ public interface CalibreSystem extends CalibreIdentifiable {
     }
 
     CalibreComponent getParent();
-    void initialize(CalibreComponent parent, ComponentTree tree) throws SystemInitializationException;
+    default void systemInitialize(CalibreComponent parent) throws SystemInitializationException {}
+    default void initialize(CalibreComponent parent, ComponentTree tree) throws SystemInitializationException {}
 
     default Map<String, Stat<?>> getDefaultStats() { return Collections.emptyMap(); }
+    default OrderedStatMap buildStats() { return null; }
 
     CalibreSystem copy();
     /*

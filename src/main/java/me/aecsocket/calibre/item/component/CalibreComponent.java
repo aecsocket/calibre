@@ -1,11 +1,9 @@
 package me.aecsocket.calibre.item.component;
 
-import com.google.gson.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.internal.Streams;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.ItemEvents;
 import me.aecsocket.calibre.item.component.search.SlotSearchOptions;
@@ -14,6 +12,7 @@ import me.aecsocket.calibre.item.component.search.SystemSearchResult;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.calibre.item.system.SystemInitializationException;
 import me.aecsocket.calibre.util.CalibreIdentifiable;
+import me.aecsocket.calibre.util.HasDependencies;
 import me.aecsocket.calibre.util.ItemDescriptor;
 import me.aecsocket.calibre.util.OrderedStatMap;
 import me.aecsocket.unifiedframework.component.ComponentHolder;
@@ -37,7 +36,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -47,38 +46,13 @@ import java.util.stream.Stream;
 /**
  * Calibre's implementation of a component. Stores systems and stats.
  */
-public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<CalibreComponentSlot>, Cloneable, Item {
+public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<CalibreComponentSlot>, Cloneable, HasDependencies<CalibreComponent.Dependencies>, Item {
     public static final String ITEM_TYPE = "component";
-
-    /**
-     * A GSON type adapter for this class.
-     */
-    public static class Adapter implements TypeAdapterFactory {
-        @Override
-        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-            if (!CalibreComponent.class.isAssignableFrom(type.getRawType())) return null;
-            TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
-            return new TypeAdapter<>() {
-                @Override public void write(JsonWriter out, T value) throws IOException { delegate.write(out, value); }
-
-                @Override
-                public T read(JsonReader in) {
-                    JsonElement tree = Streams.parse(in);
-                    T value = delegate.fromJsonTree(tree);
-
-                    CalibreComponent component = (CalibreComponent) value;
-                    component.dependencies = gson.fromJson(tree, Dependencies.class);
-
-                    return value;
-                }
-            };
-        }
-    }
 
     /**
      * Temporarily stores info on deserialization for resolution later.
      */
-    private static class Dependencies {
+    protected static class Dependencies {
         @SerializedName("extends")
         private final String extend;
         private Map<String, JsonElement> systems = new HashMap<>();
@@ -118,6 +92,10 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
     public CalibreComponent() {
         this(null, null);
     }
+
+    @Override public Dependencies getLoadDependencies() { return dependencies; }
+    @Override public void setLoadDependencies(Dependencies dependencies) { this.dependencies = dependencies; }
+    @Override public Type getLoadDependenciesType() { return Dependencies.class; }
 
     @Override public CalibrePlugin getPlugin() { return plugin; }
     @Override public void setPlugin(CalibrePlugin plugin) { this.plugin = plugin; }
@@ -247,6 +225,7 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
         }
 
         try {
+            systems.values().forEach(sys -> sys.systemInitialize(this));
             tree = ComponentTree.createAndBuild(this);
         } catch (SystemInitializationException e) {
             throw new ResolutionException(TextUtils.format(
@@ -254,6 +233,8 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
                     "id", id,
                     "msg", e.getMessage()), e);
         }
+
+        plugin.getStatMapAdapter().setStats(null);
 
         // Throw away the dependencies object, let it be GC'd
         dependencies = null;
@@ -355,6 +336,8 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
         copy.systems = copySystems();
         return copy;
     }
+
+    @Override public String toString() { return "CalibreComponent:" + id; }
 
     /**
      * Modifies a flag of an item which makes it hidden to the player who holds it. Items with this flag do not appear

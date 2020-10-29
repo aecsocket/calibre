@@ -1,11 +1,13 @@
 package me.aecsocket.calibre.util;
 
 import me.aecsocket.calibre.CalibrePlugin;
+import me.aecsocket.calibre.gui.SlotViewGUI;
 import me.aecsocket.calibre.item.ItemAnimation;
 import me.aecsocket.calibre.item.ItemEvents;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.util.slot.EntityItemSlot;
 import me.aecsocket.calibre.item.util.user.PlayerItemUser;
+import me.aecsocket.unifiedframework.gui.GUIView;
 import me.aecsocket.unifiedframework.loop.SchedulerLoop;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.loop.Tickable;
@@ -74,6 +76,12 @@ public class CalibrePlayer implements Tickable {
 
             if (viewOffset != null)
                 ParticleData.spawn(Utils.getFacingRelative(player.getEyeLocation(), viewOffset), VIEW_OFFSET_PARTICLE);
+
+            GUIView view = plugin.getGUIManager().getView(player);
+            if (view != null && view.getGUI() instanceof SlotViewGUI) {
+                SlotViewGUI gui = (SlotViewGUI) view.getGUI();
+                gui.validate(view);
+            }
         }
         cachedItems.forEach((slot, entry) -> {
             if (entry != null)

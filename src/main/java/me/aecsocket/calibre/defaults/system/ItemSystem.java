@@ -38,6 +38,7 @@ public class ItemSystem extends BaseSystem {
     public static final String ID = "item";
     public static final Map<String, Stat<?>> STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init("fov_multiplier", new NumberStat.Double(0.1d))
+            .init("fov_multiplier2", new NumberStat.Double(0.1d))
             .init("move_speed_multiplier", new NumberStat.Double(1d))
             .init("armor", new NumberStat.Double(0d))
 

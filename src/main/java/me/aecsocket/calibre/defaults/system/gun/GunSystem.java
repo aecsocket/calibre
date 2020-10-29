@@ -2,6 +2,12 @@ package me.aecsocket.calibre.defaults.system.gun;
 
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.defaults.system.ItemSystem;
+import me.aecsocket.calibre.defaults.system.gun.firemode.FireMode;
+import me.aecsocket.calibre.defaults.system.gun.firemode.FireModeReference;
+import me.aecsocket.calibre.defaults.system.gun.firemode.FireModeSystem;
+import me.aecsocket.calibre.defaults.system.gun.sight.Sight;
+import me.aecsocket.calibre.defaults.system.gun.sight.SightReference;
+import me.aecsocket.calibre.defaults.system.gun.sight.SightSystem;
 import me.aecsocket.calibre.defaults.system.projectile.CalibreProjectile;
 import me.aecsocket.calibre.defaults.system.projectile.ProjectileProviderSystem;
 import me.aecsocket.calibre.item.ItemEvents;
@@ -20,6 +26,7 @@ import me.aecsocket.calibre.item.util.user.EntityItemUser;
 import me.aecsocket.calibre.item.util.user.ItemUser;
 import me.aecsocket.calibre.item.util.user.LivingEntityItemUser;
 import me.aecsocket.calibre.item.util.user.PlayerItemUser;
+import me.aecsocket.calibre.util.OrderedStatMap;
 import me.aecsocket.calibre.util.stat.ItemAnimationStat;
 import me.aecsocket.calibre.util.stat.ParticleStat;
 import me.aecsocket.calibre.util.stat.SoundStat;
@@ -30,7 +37,6 @@ import me.aecsocket.unifiedframework.stat.Stat;
 import me.aecsocket.unifiedframework.stat.impl.*;
 import me.aecsocket.unifiedframework.util.MapInit;
 import me.aecsocket.unifiedframework.util.Projectile;
-import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.data.ParticleData;
 import org.bukkit.ChatColor;
@@ -164,6 +170,22 @@ public class GunSystem extends BaseSystem {
             .init("chamber_sound", new SoundStat())
             .init("chamber_animation", new ItemAnimationStat())
 
+            .init("aim_in_delay", new NumberStat.Long(0L))
+            .init("aim_in_sound", new SoundStat())
+            .init("aim_in_animation", new ItemAnimationStat())
+
+            .init("aim_out_delay", new NumberStat.Long(0L))
+            .init("aim_out_sound", new SoundStat())
+            .init("aim_out_animation", new ItemAnimationStat())
+
+            .init("change_sight_delay", new NumberStat.Long(0L))
+            .init("change_sight_sound", new SoundStat())
+            .init("change_sight_animation", new ItemAnimationStat())
+
+            .init("change_fire_mode_delay", new NumberStat.Long(0L))
+            .init("change_fire_mode_sound", new SoundStat())
+            .init("change_fire_mode_animation", new ItemAnimationStat())
+
             .init("fail_delay", new NumberStat.Long(0L))
             .init("fail_sound", new SoundStat())
             .init("fail_animation", new ItemAnimationStat())
@@ -174,6 +196,10 @@ public class GunSystem extends BaseSystem {
     private long[] shootAt;
     private double shotSpread;
     private long shotSpreadTime;
+
+    private SightReference sight;
+    private boolean aiming;
+    private FireModeReference fireMode;
 
     public GunSystem(CalibrePlugin plugin) {
         super(plugin);
@@ -187,6 +213,21 @@ public class GunSystem extends BaseSystem {
 
     public long getShotSpreadTime() { return shotSpreadTime; }
     public void setShotSpreadTime(long shotSpreadTime) { this.shotSpreadTime = shotSpreadTime; }
+
+    public SightReference getSight() { return sight; }
+    public void setSight(SightReference sight) { this.sight = sight; }
+
+    public boolean isAiming() { return aiming; }
+    public void setAiming(boolean aiming) { this.aiming = aiming; }
+
+    public FireModeReference getFireMode() { return fireMode; }
+    public void setFireMode(FireModeReference fireMode) { this.fireMode = fireMode; }
+
+    public boolean available() {
+        return usable
+                && itemSystem.isAvailable()
+                && getTree().isComplete();
+    }
 
     public double calculateShotSpread() {
         long time = System.currentTimeMillis();
@@ -203,10 +244,37 @@ public class GunSystem extends BaseSystem {
 
         EventDispatcher events = tree.getEventDispatcher();
         events.registerListener(ItemEvents.Equip.class, this::onEvent, 0);
+        events.registerListener(ItemEvents.Holster.class, this::onEvent, 0);
         events.registerListener(ItemEvents.Interact.class, this::onEvent, 0);
+        events.registerListener(ItemEvents.SwapHand.class, this::onEvent, 0);
+        events.registerListener(ItemEvents.BukkitSwapHand.class, this::onEvent, 0);
+
+        if (fireMode == null)
+            fireMode = Utils.atOr(collectFireModes(), 0);
+        if (sight == null)
+            sight = Utils.atOr(collectSights(), 0);
     }
 
     @Override public Map<String, Stat<?>> getDefaultStats() { return STATS; }
+
+    @Override
+    public OrderedStatMap buildStats() {
+        OrderedStatMap stats = new OrderedStatMap();
+
+        FireMode fireMode = getMappedFireMode();
+        if (fireMode != null && fireMode.getStats() != null)
+            stats.combine(fireMode.getStats());
+
+        Sight sight = getMappedSight();
+        if (sight != null) {
+            if (sight.getStats() != null)
+                stats.combine(sight.getStats());
+            if (aiming && sight.getActiveStats() != null)
+                stats.combine(sight.getActiveStats());
+        }
+
+        return stats;
+    }
 
     public List<CalibreComponentSlot> collectChamberSlots() {
         return parent.collectSlots(
@@ -239,12 +307,92 @@ public class GunSystem extends BaseSystem {
         return null;
     }
 
-    private String format(String text, Object... args) { return TextUtils.format(TextUtils.translateColor(text), args); }
+    // TODO clean this up
+
+    //region Sights
+
+    private void collectSights(CalibreComponent component, List<SightReference> result, String path) {
+        SightSystem sys = component.getSystem(SightSystem.class);
+        if (sys != null) {
+            for (int i = 0; i < sys.getSights().size(); i++)
+                result.add(new SightReference(path, i));
+        }
+    }
+
+    public List<SightReference> collectSights() {
+        List<SightReference> result = new ArrayList<>();
+        collectSights(parent, result, null);
+        parent.walk(data -> {
+            data.getComponent().ifPresent(raw -> {
+                if (!(raw instanceof CalibreComponent)) return;
+                CalibreComponent comp = (CalibreComponent) raw;
+                collectSights(comp, result, data.getJoinedPath());
+            });
+        });
+        return result;
+    }
+    public SightReference getSight(int index) {
+        List<SightReference> sights = collectSights();
+        return sights.size() == 0 ? null : sights.get(Math.max(0, index % sights.size()));
+    }
+
+    public Sight getMappedSight() { return sight == null ? null : sight.getMapped(parent); }
+    public Sight getMappedSight(int index) {
+        SightReference ref = getSight(index);
+        return ref == null ? null : ref.getMapped(parent);
+    }
+
+    public int getSightIndex() { return collectSights().indexOf(sight); }
+
+    //endregion
+
+    //region Fire modes
+
+    private void collectFireModes(CalibreComponent component, List<FireModeReference> result, String path) {
+        FireModeSystem sys = component.getSystem(FireModeSystem.class);
+        if (sys != null) {
+            for (int i = 0; i < sys.getModes().size(); i++)
+                result.add(new FireModeReference(path, i));
+        }
+    }
+
+    public List<FireModeReference> collectFireModes() {
+        List<FireModeReference> result = new ArrayList<>();
+        collectFireModes(parent, result, null);
+        parent.walk(data -> {
+            data.getComponent().ifPresent(raw -> {
+                if (!(raw instanceof CalibreComponent)) return;
+                CalibreComponent comp = (CalibreComponent) raw;
+                collectFireModes(comp, result, data.getJoinedPath());
+            });
+        });
+        return result;
+    }
+    public FireModeReference getFireMode(int index) {
+        List<FireModeReference> fireModes = collectFireModes();
+        return fireModes.size() == 0 ? null : fireModes.get(Math.max(0, index % fireModes.size()));
+    }
+
+    public FireMode getMappedFireMode() { return fireMode == null ? null : fireMode.getMapped(parent); }
+    public FireMode getMappedFireMode(int index) {
+        FireModeReference ref = getFireMode(index);
+        return ref == null ? null : ref.getMapped(parent);
+    }
+
+    public int getFireModeIndex() { return collectFireModes().indexOf(fireMode); }
+
+    //endregion
 
     private void onEvent(ItemEvents.Equip event) {
+        if (!getTree().isComplete()) return;
         if (!(event.getTickContext().getLoop() instanceof SchedulerLoop)) return;
         if (event.getSlot() instanceof EquipmentItemSlot && ((EquipmentItemSlot) event.getSlot()).getEquipmentSlot() != EquipmentSlot.HAND) return;
-        while (shootAt != null && shootAt.length > 0 && System.currentTimeMillis() >= shootAt[0]) {
+        while (
+                shootAt != null
+                        && shootAt.length > 0
+                        && System.currentTimeMillis() >= shootAt[0]
+                        && shootAt[0] < System.currentTimeMillis() + 50 // prevent late shots
+        ) {
             long[] newShootAt = new long[shootAt.length - 1];
             System.arraycopy(shootAt, 1, newShootAt, 0, newShootAt.length);
             shootAt = newShootAt;
@@ -286,7 +434,11 @@ public class GunSystem extends BaseSystem {
                                 return sys.getPrefix() + sys.getIcon();
                             })
                             .collect(Collectors.joining())
-                    + ChatColor.GRAY + "] " + ChatColor.DARK_AQUA +
+                    + ChatColor.GRAY + "] " + ChatColor.YELLOW +
+                    (getMappedFireMode() == null ? "-none-" : getMappedFireMode().getName())
+                    + ChatColor.GOLD + " " +
+                    (getMappedSight() == null ? "-none-" : getMappedSight().getName())
+                    + ChatColor.DARK_AQUA + " " +
                     String.format("%.0f", (double) stat("sighting_range")) + "m"
             );
             /*
@@ -306,7 +458,14 @@ public class GunSystem extends BaseSystem {
         }
     }
 
+    private void onEvent(ItemEvents.Holster event) {
+        shootAt = null;
+        aiming = false;
+        event.updateItem(this);
+    }
+
     private void onEvent(ItemEvents.Interact event) {
+        if (!available()) return;
         if (!Utils.isRightClick(event.getAction())) {
             if (stat("chamber_handling") == ChamberHandling.NORMAL && collectChamber() == null)
                 chamber(new Events.PreChamber(
@@ -316,12 +475,39 @@ public class GunSystem extends BaseSystem {
                 fire(new Events.Fire(
                         event.getStack(), event.getSlot(), event.getUser(), this
                 ));
+        } else {
+            if (
+                    event.getUser() instanceof PlayerItemUser
+                    && ((PlayerItemUser) event.getUser()).getEntity().isSneaking()
+                    && collectSights().size() > 1
+            ) {
+                changeSight(new Events.CycleSight(
+                        event.getStack(), event.getSlot(), event.getUser(), this
+                ));
+            } else {
+                toggleAiming(new Events.ToggleAiming(
+                        event.getStack(), event.getSlot(), event.getUser(), this, !aiming
+                ));
+            }
+        }
+    }
+
+    private void onEvent(ItemEvents.SwapHand event) {
+        if (!available()) return;
+        changeFireMode(new Events.CycleFireMode(
+                event.getStack(), event.getSlot(), event.getUser(), this
+        ));
+    }
+
+    private void onEvent(ItemEvents.BukkitSwapHand event) {
+        if (event.getSlot() instanceof EquipmentItemSlot) {
+            EquipmentSlot slot = ((EquipmentItemSlot) event.getSlot()).getEquipmentSlot();
+            if (slot == EquipmentSlot.HAND || slot == EquipmentSlot.OFF_HAND)
+                event.getEvent().setCancelled(true);
         }
     }
 
     public void fire(Events.Fire event) {
-        if (!usable) return;
-        if (!itemSystem.isAvailable()) return;
         if (callEvent(event).cancelled) return;
 
         int shots = stat("shots");
@@ -452,8 +638,6 @@ public class GunSystem extends BaseSystem {
     }
 
     public void chamber(Events.PreChamber event) {
-        if (!usable) return;
-        if (!itemSystem.isAvailable()) return;
         if (callEvent(event).cancelled) return;
 
         AmmoStorageSystem[] ammo = new AmmoStorageSystem[]{null};
@@ -497,6 +681,41 @@ public class GunSystem extends BaseSystem {
                     event.getStack(), event.getSlot(), event.getUser(), this, FailReason.EMPTY
             ));
         }
+    }
+
+    public void toggleAiming(Events.ToggleAiming event) {
+        if (callEvent(event).cancelled) return;
+        if (aiming == event.newAiming) return;
+
+        // TODO probably add a stat to delay this to e.g. prevent quickscoping
+        aiming = event.newAiming;
+        getTree().buildStats();
+
+        itemSystem.doAction(this, "aim_" + (aiming ? "in" : "out"), event.getUser(), event.getSlot());
+        event.updateItem();
+    }
+
+    public void changeSight(Events.ChangeSight event) {
+        if (callEvent(event).cancelled) return;
+        SightReference newSight = event.newSight;
+        if (newSight == null || newSight.equals(sight)) return;
+
+        sight = newSight;
+
+        itemSystem.doAction(this, "change_sight", event.getUser(), event.getSlot());
+        event.updateItem();
+    }
+
+    public void changeFireMode(Events.ChangeFireMode event) {
+        if (callEvent(event).cancelled) return;
+        FireModeReference newMode = event.newMode;
+        if (newMode == null || newMode.equals(fireMode)) return;
+
+        fireMode = newMode;
+        getTree().buildStats();
+
+        itemSystem.doAction(this, "change_fire_mode", event.getUser(), event.getSlot());
+        event.updateItem();
     }
 
     public void fail(Events.Fail event) {
@@ -591,6 +810,66 @@ public class GunSystem extends BaseSystem {
             }
 
             public Map<CalibreComponentSlot, CalibreComponent> getLoadedChambers() { return loadedChambers; }
+        }
+
+        public static class ToggleAiming extends Event implements ItemEvents.Cancellable {
+            private boolean cancelled;
+            private boolean newAiming;
+
+            public ToggleAiming(ItemStack stack, ItemSlot slot, ItemUser user, GunSystem system, boolean newAiming) {
+                super(stack, slot, user, system);
+                this.newAiming = newAiming;
+            }
+
+            @Override public boolean isCancelled() { return cancelled; }
+            @Override public void setCancelled(boolean cancelled) { this.cancelled = cancelled; }
+
+            public boolean willAim() { return newAiming; }
+            public void setWillAim(boolean newAiming) { this.newAiming = newAiming; }
+        }
+
+        public static class ChangeSight extends Event implements ItemEvents.Cancellable {
+            private boolean cancelled;
+            private SightReference newSight;
+
+            public ChangeSight(ItemStack stack, ItemSlot slot, ItemUser user, GunSystem system, SightReference newSight) {
+                super(stack, slot, user, system);
+                this.newSight = newSight;
+            }
+
+            @Override public boolean isCancelled() { return cancelled; }
+            @Override public void setCancelled(boolean cancelled) { this.cancelled = cancelled; }
+
+            public SightReference getNewSight() { return newSight; }
+            public void setNewSight(SightReference newSight) { this.newSight = newSight; }
+        }
+
+        public static class CycleSight extends ChangeSight {
+            public CycleSight(ItemStack stack, ItemSlot slot, ItemUser user, GunSystem system) {
+                super(stack, slot, user, system, system.getSight(system.getSightIndex() + 1));
+            }
+        }
+
+        public static class ChangeFireMode extends Event implements ItemEvents.Cancellable {
+            private boolean cancelled;
+            private FireModeReference newMode;
+
+            public ChangeFireMode(ItemStack stack, ItemSlot slot, ItemUser user, GunSystem system, FireModeReference newMode) {
+                super(stack, slot, user, system);
+                this.newMode = newMode;
+            }
+
+            @Override public boolean isCancelled() { return cancelled; }
+            @Override public void setCancelled(boolean cancelled) { this.cancelled = cancelled; }
+
+            public FireModeReference getNewMode() { return newMode; }
+            public void setNewMode(FireModeReference newMode) { this.newMode = newMode; }
+        }
+
+        public static class CycleFireMode extends ChangeFireMode {
+            public CycleFireMode(ItemStack stack, ItemSlot slot, ItemUser user, GunSystem system) {
+                super(stack, slot, user, system, system.getFireMode(system.getFireModeIndex() + 1));
+            }
         }
 
         public static class Fail extends Event implements ItemEvents.Cancellable {

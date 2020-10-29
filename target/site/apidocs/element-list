@@ -3,8 +3,11 @@ me.aecsocket.calibre.defaults
 me.aecsocket.calibre.defaults.service
 me.aecsocket.calibre.defaults.system
 me.aecsocket.calibre.defaults.system.gun
+me.aecsocket.calibre.defaults.system.gun.firemode
+me.aecsocket.calibre.defaults.system.gun.sight
 me.aecsocket.calibre.defaults.system.melee
 me.aecsocket.calibre.defaults.system.projectile
+me.aecsocket.calibre.gui
 me.aecsocket.calibre.handle
 me.aecsocket.calibre.item
 me.aecsocket.calibre.item.blueprint

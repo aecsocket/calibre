@@ -1,14 +1,13 @@
 package me.aecsocket.calibre.item.blueprint;
 
-import com.google.gson.*;
-import com.google.gson.internal.Streams;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.util.CalibreIdentifiable;
+import me.aecsocket.calibre.util.HasDependencies;
 import me.aecsocket.unifiedframework.item.ItemCreationException;
 import me.aecsocket.unifiedframework.item.ItemStackFactory;
 import me.aecsocket.unifiedframework.registry.ResolutionContext;
@@ -18,39 +17,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class Blueprint implements CalibreIdentifiable, ItemStackFactory {
-    /**
-     * A GSON type adapter for this class.
-     */
-    public static class Adapter implements TypeAdapterFactory {
-        @Override
-        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-            if (!Blueprint.class.isAssignableFrom(type.getRawType())) return null;
-            TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
-            return new TypeAdapter<>() {
-                @Override public void write(JsonWriter out, T value) throws IOException { delegate.write(out, value); }
-
-                @Override
-                public T read(JsonReader in) {
-                    JsonElement tree = Streams.parse(in);
-                    T value = delegate.fromJsonTree(tree);
-
-                    Blueprint blueprint = (Blueprint) value;
-                    blueprint.dependencies = gson.fromJson(tree, Dependencies.class);
-
-                    return value;
-                }
-            };
-        }
-    }
+public class Blueprint implements CalibreIdentifiable, HasDependencies<Blueprint.Dependencies>, ItemStackFactory {
     /**
      * Temporarily stores info on deserialization for resolution later.
      */
-    private static class Dependencies {
+    protected static class Dependencies {
         private final JsonElement tree;
 
         public Dependencies() {
@@ -70,6 +45,10 @@ public class Blueprint implements CalibreIdentifiable, ItemStackFactory {
     public Blueprint() {
         this(null);
     }
+
+    @Override public Dependencies getLoadDependencies() { return dependencies; }
+    @Override public void setLoadDependencies(Dependencies dependencies) { this.dependencies = dependencies; }
+    @Override public Type getLoadDependenciesType() { return Dependencies.class; }
 
     @Override public CalibrePlugin getPlugin() { return plugin; }
     @Override public void setPlugin(CalibrePlugin plugin) { this.plugin = plugin; }
@@ -117,4 +96,6 @@ public class Blueprint implements CalibreIdentifiable, ItemStackFactory {
     }
 
     public CalibreComponent getRoot() { return tree.getRoot(); }
+
+    @Override public String toString() { return "Blueprint:" + id; }
 }

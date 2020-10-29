@@ -20,6 +20,7 @@ import me.aecsocket.calibre.item.util.user.EntityItemUser;
 import me.aecsocket.calibre.item.util.user.ItemUser;
 import me.aecsocket.calibre.item.util.user.PlayerItemUser;
 import me.aecsocket.calibre.util.*;
+import me.aecsocket.unifiedframework.gui.GUIManager;
 import me.aecsocket.unifiedframework.gui.GUIVector;
 import me.aecsocket.unifiedframework.item.ItemAdapter;
 import me.aecsocket.unifiedframework.item.ItemManager;
@@ -110,6 +111,8 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     private PaperCommandManager commandManager;
     /** The plugin's main command instance. */
     private CalibreCommand command;
+    /** The plugin's GUI manager. */
+    private GUIManager guiManager;
 
     //region Plugin
 
@@ -144,11 +147,11 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                 .registerTypeAdapter(ComponentTree.class, new ComponentTree.Adapter(this))
                 .registerTypeAdapter(ItemAnimation.class, new ItemAnimation.Adapter(this))
                 .registerTypeAdapterFactory(systemAdapter)
-                .registerTypeAdapterFactory(new CalibreComponent.Adapter())
-                .registerTypeAdapterFactory(new Blueprint.Adapter())
+                .registerTypeAdapterFactory(new HasDependencies.Adapter())
                 .registerTypeAdapterFactory(new AcceptsCalibrePlugin.Adapter(this));
         hooks.forEach(hook -> hook.registerTypeAdapters(gsonBuilder));
         gson = gsonBuilder.create();
+        settings.setGson(gson);
 
         // Commands
         commandManager = new PaperCommandManager(this);
@@ -202,7 +205,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                 try {
                     ComponentTree tree = gson.fromJson(json, ComponentTree.class);
                     return tree == null ? null : tree.getRoot();
-                } catch (JsonParseException e) {
+                } catch (Exception e) {
                     if (System.currentTimeMillis() >= nextError) {
                         elog(LogLevel.WARN, e, "Failed to parse item JSON: {msg}\n{json}",
                                 "msg", e.getMessage(), "json", prettyPrinter().toJson(gson.fromJson(json, JsonElement.class)));
@@ -216,6 +219,8 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
         protocolManager = ProtocolLibrary.getProtocolManager();
         CalibreProtocol.initialize(this);
         protocolManager.addPacketListener(new CalibrePacketAdapter(this));
+
+        guiManager = new GUIManager(this);
 
         Bukkit.getPluginManager().registerEvents(new EventHandle(this), this);
 
@@ -258,6 +263,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     public ProtocolManager getProtocolManager() { return protocolManager; }
     public PaperCommandManager getCommandManager() { return commandManager; }
     public CalibreCommand getCommand() { return command; }
+    public GUIManager getGUIManager() { return guiManager; }
 
     //endregion
 

@@ -23,6 +23,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -171,6 +172,29 @@ public final class ItemEvents {
             return new BukkitInteract(item, new EntityItemSlot(player, slot), plugin.userOf(player),
                     event.getAction(), event.getClickedBlock(), event.getBlockFace(),
                     event.useItemInHand(), event.useInteractedBlock(), event);
+        }
+    }
+
+    public static class SwapHand extends Event {
+        public SwapHand(ItemStack stack, ItemSlot slot, ItemUser user) {
+            super(stack, slot, user);
+        }
+    }
+
+    public static class BukkitSwapHand extends SwapHand {
+        private final PlayerSwapHandItemsEvent event;
+
+        public BukkitSwapHand(ItemStack stack, ItemSlot slot, ItemUser user, PlayerSwapHandItemsEvent event) {
+            super(stack, slot, user);
+            this.event = event;
+        }
+
+        public PlayerSwapHandItemsEvent getEvent() { return event; }
+
+        public static BukkitSwapHand of(CalibrePlugin plugin, PlayerSwapHandItemsEvent event, EquipmentSlot slot) {
+            Player player = event.getPlayer();
+            ItemStack item = player.getInventory().getItem(slot);
+            return new BukkitSwapHand(item, new EntityItemSlot(player, slot), plugin.userOf(player), event);
         }
     }
 

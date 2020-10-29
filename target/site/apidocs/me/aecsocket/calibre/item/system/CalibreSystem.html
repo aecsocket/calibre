@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":18,"i2":18,"i3":18,"i4":6,"i5":6};
+var data = {"i0":18,"i1":6,"i2":18,"i3":18,"i4":18,"i5":6,"i6":18,"i7":18};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -133,7 +133,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="../../defaults/system/gun/AmmoContainerSystem.html" title="class in me.aecsocket.calibre.defaults.system.gun">AmmoContainerSystem</a></code>, <code><a href="BaseSystem.html" title="class in me.aecsocket.calibre.item.system">BaseSystem</a></code>, <code><a href="../../defaults/system/gun/BulletSystem.html" title="class in me.aecsocket.calibre.defaults.system.gun">BulletSystem</a></code>, <code><a href="../../defaults/system/ComponentStorageSystem.html" title="class in me.aecsocket.calibre.defaults.system">ComponentStorageSystem</a></code>, <code><a href="../../defaults/system/gun/GunSystem.html" title="class in me.aecsocket.calibre.defaults.system.gun">GunSystem</a></code>, <code><a href="../../defaults/system/ItemSystem.html" title="class in me.aecsocket.calibre.defaults.system">ItemSystem</a></code>, <code><a href="../../defaults/system/melee/MeleeSystem.html" title="class in me.aecsocket.calibre.defaults.system.melee">MeleeSystem</a></code></dd>
+<dd><code><a href="../../defaults/system/gun/AmmoContainerSystem.html" title="class in me.aecsocket.calibre.defaults.system.gun">AmmoContainerSystem</a></code>, <code><a href="BaseSystem.html" title="class in me.aecsocket.calibre.item.system">BaseSystem</a></code>, <code><a href="../../defaults/system/gun/BulletSystem.html" title="class in me.aecsocket.calibre.defaults.system.gun">BulletSystem</a></code>, <code><a href="../../defaults/system/ComponentStorageSystem.html" title="class in me.aecsocket.calibre.defaults.system">ComponentStorageSystem</a></code>, <code><a href="../../defaults/system/gun/firemode/FireModeSystem.html" title="class in me.aecsocket.calibre.defaults.system.gun.firemode">FireModeSystem</a></code>, <code><a href="../../defaults/system/gun/GunSystem.html" title="class in me.aecsocket.calibre.defaults.system.gun">GunSystem</a></code>, <code><a href="../../defaults/system/ItemSystem.html" title="class in me.aecsocket.calibre.defaults.system">ItemSystem</a></code>, <code><a href="../../defaults/system/melee/MeleeSystem.html" title="class in me.aecsocket.calibre.defaults.system.melee">MeleeSystem</a></code>, <code><a href="../../defaults/system/gun/sight/SightSystem.html" title="class in me.aecsocket.calibre.defaults.system.gun.sight">SightSystem</a></code></dd>
 </dl>
 <hr>
 <pre>public interface <span class="typeNameLabel">CalibreSystem</span>
@@ -200,38 +200,48 @@ extends <a href="../../util/CalibreIdentifiable.html" title="interface in me.aec
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>default <a href="../../util/OrderedStatMap.html" title="class in me.aecsocket.calibre.util">OrderedStatMap</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildStats()">buildStats</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copy()">copy</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>default <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;me.aecsocket.unifiedframework.stat.Stat&lt;?&gt;&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDefaultStats()">getDefaultStats</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>default <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLongInfo(java.lang.String)">getLongInfo</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;locale)</code></th>
 <td class="colLast">
 <div class="block">Gets a more extensive description of this object.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>default <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNameKey()">getNameKey</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Gets the translation key for the name of this object.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getParent()">getParent</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code>void</code></td>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">initialize</a></span>&#8203;(<a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent,
           <a href="../component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;tree)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#systemInitialize(me.aecsocket.calibre.item.component.CalibreComponent)">systemInitialize</a></span>&#8203;(<a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -281,15 +291,29 @@ extends <a href="../../util/CalibreIdentifiable.html" title="interface in me.aec
 <pre class="methodSignature"><a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;getParent()</pre>
 </li>
 </ul>
+<a id="systemInitialize(me.aecsocket.calibre.item.component.CalibreComponent)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>systemInitialize</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;systemInitialize&#8203;(<a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent)
+                       throws <a href="SystemInitializationException.html" title="class in me.aecsocket.calibre.item.system">SystemInitializationException</a></pre>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="SystemInitializationException.html" title="class in me.aecsocket.calibre.item.system">SystemInitializationException</a></code></dd>
+</dl>
+</li>
+</ul>
 <a id="initialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>initialize</h4>
-<pre class="methodSignature">void&nbsp;initialize&#8203;(<a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent,
-                <a href="../component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;tree)
-         throws <a href="SystemInitializationException.html" title="class in me.aecsocket.calibre.item.system">SystemInitializationException</a></pre>
+<pre class="methodSignature">default&nbsp;void&nbsp;initialize&#8203;(<a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent,
+                        <a href="../component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;tree)
+                 throws <a href="SystemInitializationException.html" title="class in me.aecsocket.calibre.item.system">SystemInitializationException</a></pre>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="SystemInitializationException.html" title="class in me.aecsocket.calibre.item.system">SystemInitializationException</a></code></dd>
@@ -303,6 +327,15 @@ extends <a href="../../util/CalibreIdentifiable.html" title="interface in me.aec
 <li class="blockList">
 <h4>getDefaultStats</h4>
 <pre class="methodSignature">default&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;me.aecsocket.unifiedframework.stat.Stat&lt;?&gt;&gt;&nbsp;getDefaultStats()</pre>
+</li>
+</ul>
+<a id="buildStats()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildStats</h4>
+<pre class="methodSignature">default&nbsp;<a href="../../util/OrderedStatMap.html" title="class in me.aecsocket.calibre.util">OrderedStatMap</a>&nbsp;buildStats()</pre>
 </li>
 </ul>
 <a id="copy()">

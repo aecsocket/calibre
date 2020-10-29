@@ -12,6 +12,9 @@ import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.json.JsonAdapter;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -134,7 +137,7 @@ public class ComponentTree {
     private final EventDispatcher eventDispatcher;
     private StatMap stats;
     private boolean complete;
-    private OrderedStatMap extraStats;
+    private StatMap extraStats;
 
     public ComponentTree(CalibreComponent root, EventDispatcher eventDispatcher) {
         this.root = root;
@@ -163,15 +166,10 @@ public class ComponentTree {
     public boolean isComplete() { return complete; }
     public void setComplete(boolean complete) { this.complete = complete; }
 
-    public OrderedStatMap getExtraStats() { return extraStats; }
-    public void setExtraStats(OrderedStatMap extraStats) { this.extraStats = extraStats; }
-    public void combineStat(int order, StatMap map) { extraStats.combine(order, map); }
-    public <T> void combineStat(int order, String key, StatInstance<T> value) {
-        extraStats.computeIfAbsent(order, __ -> new StatMap()).modify(key, value);
-    }
-    public <T> void combineStat(int order, String key, Function<T, T> function) {
-        extraStats.computeIfAbsent(order, __ -> new StatMap()).modify(key, function);
-    }
+    public StatMap getExtraStats() { return extraStats; }
+    public void setExtraStats(StatMap extraStats) { this.extraStats = extraStats; }
+    public <T> void combineStat(String key, StatInstance<T> value) { extraStats.modify(key, value); }
+    public <T> void combineStat(String key, Function<T, T> function) { extraStats.modify(key, function); }
 
     public void build() throws SystemInitializationException {
         complete = true;
@@ -202,31 +200,73 @@ public class ComponentTree {
         });
     }
 
-    private void addStat(Function<CalibreComponent, OrderedStatMap> statGetter, CalibreComponent component, OrderedStatMap stats) {
-        stats.combine(statGetter.apply(component));
-    }
+    /*
+    consider:
+    root (-1:{item:IRON_HOE},0:{damage:3})
+    |_ magazine (-2:{damage:+1},-1:{item:IRON_INGOT},0:{damage:+5})
+    order of stat combining, for any call of buildStats:
+      1. root:0
+      2. magazine:0
+      3. magazine:-2
+      4. magazine:-1
+      5. root:-1
+    orders >=0 are called first, being root-first
+    orders <0 are called last, being depth-first (reversed ComponentHolder#walk order)
 
-    private OrderedStatMap buildStats(Function<CalibreComponent, OrderedStatMap> statGetter) {
-        OrderedStatMap stats = new OrderedStatMap();
+    Full process:
+    1) build component stats }
+    2) build system stats    } iterate over components
+    3) build complete stats  }
+    4) combine w/ extra stats
 
-        addStat(statGetter, root, stats);
-        root.walk(data -> data.getComponent().ifPresent(o -> {
-            if (o instanceof CalibreComponent)
-                addStat(statGetter, (CalibreComponent) o, stats);
+    for ONE call of buildStats:
+    1) gather all OrderedStatMaps individually in the tree IN ORDER
+    2) for >=0 order maps, combine them in order
+    3) for <0 order maps, combine them in reverse order
+     */
+
+    private StatMap buildStats(Function<CalibreComponent, OrderedStatMap> statGetter) {
+        // step 1
+        List<OrderedStatMap> orderedMaps = new ArrayList<>();
+        orderedMaps.add(statGetter.apply(root));
+        root.walk(data -> data.getComponent().ifPresent(raw -> {
+            if (raw instanceof CalibreComponent)
+                orderedMaps.add(statGetter.apply((CalibreComponent) raw));
+        }));
+
+        StatMap stats = new StatMap();
+        // step 2
+        orderedMaps.forEach(orderedMap -> orderedMap.forEach((order, map) -> {
+            if (order >= 0)
+                stats.modifyAll(map);
+        }));
+
+        // step 3
+        Collections.reverse(orderedMaps);
+        orderedMaps.forEach(orderedMap -> orderedMap.forEach((order, map) -> {
+            if (order < 0)
+                stats.modifyAll(map);
         }));
 
         return stats;
     }
 
     public StatMap buildStats() {
-        OrderedStatMap stats = buildStats(CalibreComponent::getStats);
+        stats = buildStats(comp -> {
+            OrderedStatMap map = comp.getStats().copy();
+            comp.getSystems().values().forEach(sys -> {
+                OrderedStatMap sysStats = sys.buildStats();
+                if (sysStats != null)
+                    map.combine(sysStats);
+            });
+            return map;
+        });
         if (complete)
-            stats.combine(buildStats(CalibreComponent::getCompleteStats));
+            stats.modifyAll(buildStats(CalibreComponent::getCompleteStats));
         if (extraStats != null)
-            stats.combine(extraStats);
+            stats.modifyAll(extraStats);
 
-        this.stats = stats.flatten();
-        return this.stats;
+        return stats;
     }
 
     //region Utils

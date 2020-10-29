@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":9,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":9,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":9,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":9,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -133,12 +133,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a></code>, <code><a href="../../util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></code>, <code><a href="../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></code>, <code>me.aecsocket.unifiedframework.component.ComponentHolder&lt;<a href="CalibreComponentSlot.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentSlot</a>&gt;</code>, <code>me.aecsocket.unifiedframework.item.Item</code>, <code>me.aecsocket.unifiedframework.item.ItemStackFactory</code>, <code>me.aecsocket.unifiedframework.registry.Identifiable</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a></code>, <code><a href="../../util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></code>, <code><a href="../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></code>, <code><a href="../../util/HasDependencies.html" title="interface in me.aecsocket.calibre.util">HasDependencies</a>&lt;<a href="CalibreComponent.Dependencies.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent.Dependencies</a>&gt;</code>, <code>me.aecsocket.unifiedframework.component.ComponentHolder&lt;<a href="CalibreComponentSlot.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentSlot</a>&gt;</code>, <code>me.aecsocket.unifiedframework.item.Item</code>, <code>me.aecsocket.unifiedframework.item.ItemStackFactory</code>, <code>me.aecsocket.unifiedframework.registry.Identifiable</code></dd>
 </dl>
 <hr>
 <pre>public class <span class="typeNameLabel">CalibreComponent</span>
 extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>
-implements <a href="../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a>, me.aecsocket.unifiedframework.component.ComponentHolder&lt;<a href="CalibreComponentSlot.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentSlot</a>&gt;, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a>, me.aecsocket.unifiedframework.item.Item</pre>
+implements <a href="../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a>, me.aecsocket.unifiedframework.component.ComponentHolder&lt;<a href="CalibreComponentSlot.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentSlot</a>&gt;, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a>, <a href="../../util/HasDependencies.html" title="interface in me.aecsocket.calibre.util">HasDependencies</a>&lt;<a href="CalibreComponent.Dependencies.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent.Dependencies</a>&gt;, me.aecsocket.unifiedframework.item.Item</pre>
 <div class="block">Calibre's implementation of a component. Stores systems and stats.</div>
 </li>
 </ul>
@@ -161,13 +161,27 @@ implements <a href="../../util/CalibreIdentifiable.html" title="interface in me.
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="CalibreComponent.Adapter.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent.Adapter</a></span></code></th>
+<td class="colFirst"><code>protected static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="CalibreComponent.Dependencies.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent.Dependencies</a></span></code></th>
 <td class="colLast">
-<div class="block">A GSON type adapter for this class.</div>
+<div class="block">Temporarily stores info on deserialization for resolution later.</div>
 </td>
 </tr>
 </table>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.me.aecsocket.calibre.util.AcceptsCalibrePlugin">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;me.aecsocket.calibre.util.<a href="../../util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></h3>
+<code><a href="../../util/AcceptsCalibrePlugin.Adapter.html" title="class in me.aecsocket.calibre.util">AcceptsCalibrePlugin.Adapter</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.me.aecsocket.calibre.util.HasDependencies">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;me.aecsocket.calibre.util.<a href="../../util/HasDependencies.html" title="interface in me.aecsocket.calibre.util">HasDependencies</a></h3>
+<code><a href="../../util/HasDependencies.Adapter.html" title="class in me.aecsocket.calibre.util">HasDependencies.Adapter</a></code></li>
+</ul>
 </li>
 </ul>
 </section>
@@ -332,75 +346,85 @@ implements <a href="../../util/CalibreIdentifiable.html" title="interface in me.
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i14" class="altColor">
+<td class="colFirst"><code><a href="CalibreComponent.Dependencies.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent.Dependencies</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLoadDependencies()">getLoadDependencies</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect" class="externalLink">Type</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLoadDependenciesType()">getLoadDependenciesType</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i16" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLongInfo(java.lang.String)">getLongInfo</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;locale)</code></th>
 <td class="colLast">
 <div class="block">Gets a more extensive description of this object.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="../system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;,&#8203;<a href="../system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMappedServices()">getMappedServices</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNameKey()">getNameKey</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Gets the translation key for the name of this object.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code><a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getParent()">getParent</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code><a href="../../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPlugin()">getPlugin</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="CalibreComponentSlot.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentSlot</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSlots()">getSlots</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code><a href="../../util/OrderedStatMap.html" title="class in me.aecsocket.calibre.util">OrderedStatMap</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getStats()">getStats</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>&lt;T extends <a href="../system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;<br>T</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSystem(java.lang.Class)">getSystem</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;T&gt;&nbsp;type)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code><a href="../system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSystem(java.lang.String)">getSystem</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;id)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="../system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSystems()">getSystems</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>&lt;T extends <a href="../system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;<br>T</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSystemService(java.lang.Class)">getSystemService</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;T&gt;&nbsp;type)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="../system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;,&#8203;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSystemServices()">getSystemServices</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code><a href="ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTree()">getTree</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isHidden(me.aecsocket.calibre.CalibrePlugin,org.bukkit.inventory.ItemStack)">isHidden</a></span>&#8203;(<a href="../../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin,
         org.bukkit.inventory.ItemStack&nbsp;item)</code></th>
@@ -408,41 +432,41 @@ implements <a href="../../util/CalibreIdentifiable.html" title="interface in me.
 <div class="block">Gets if the specified item has a flag which makes it hidden to the player who holds it.</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>&lt;T extends <a href="../system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;<br>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerSystemService(java.lang.Class,java.lang.String)">registerSystemService</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;T&gt;&nbsp;type,
                      <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;systemId)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>&lt;T extends <a href="../system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;<br>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerSystemService(java.lang.Class,T)">registerSystemService</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;T&gt;&nbsp;type,
                      T&nbsp;system)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resolve(me.aecsocket.unifiedframework.registry.ResolutionContext)">resolve</a></span>&#8203;(me.aecsocket.unifiedframework.registry.ResolutionContext&nbsp;context)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#searchSlots(me.aecsocket.calibre.item.component.search.SlotSearchOptions,java.util.function.Consumer)">searchSlots</a></span>&#8203;(<a href="search/SlotSearchOptions.html" title="class in me.aecsocket.calibre.item.component.search">SlotSearchOptions</a>&nbsp;opt,
            <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Consumer.html?is-external=true" title="class or interface in java.util.function" class="externalLink">Consumer</a>&lt;<a href="CalibreComponentSlot.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentSlot</a>&gt;&nbsp;consumer)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>&lt;T extends <a href="../system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;<br>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#searchSystems(me.aecsocket.calibre.item.component.search.SystemSearchOptions,java.util.function.BiConsumer)">searchSystems</a></span>&#8203;(<a href="search/SystemSearchOptions.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchOptions</a>&lt;T&gt;&nbsp;opt,
              <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/BiConsumer.html?is-external=true" title="class or interface in java.util.function" class="externalLink">BiConsumer</a>&lt;<a href="CalibreComponentSlot.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentSlot</a>,&#8203;T&gt;&nbsp;consumer)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCategories(java.util.List)">setCategories</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;categories)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>static org.bukkit.inventory.ItemStack</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setHidden(me.aecsocket.calibre.CalibrePlugin,org.bukkit.inventory.ItemStack,boolean)">setHidden</a></span>&#8203;(<a href="../../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin,
          org.bukkit.inventory.ItemStack&nbsp;item,
@@ -451,32 +475,42 @@ implements <a href="../../util/CalibreIdentifiable.html" title="interface in me.
 <div class="block">Modifies a flag of an item which makes it hidden to the player who holds it.</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i37" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLoadDependencies(me.aecsocket.calibre.item.component.CalibreComponent.Dependencies)">setLoadDependencies</a></span>&#8203;(<a href="CalibreComponent.Dependencies.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent.Dependencies</a>&nbsp;dependencies)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setParent(me.aecsocket.calibre.item.component.CalibreComponent)">setParent</a></span>&#8203;(<a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlugin(me.aecsocket.calibre.CalibrePlugin)">setPlugin</a></span>&#8203;(<a href="../../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTree(me.aecsocket.calibre.item.component.ComponentTree)">setTree</a></span>&#8203;(<a href="ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;tree)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stat(java.lang.String)">stat</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i42" class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#validate()">validate</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><code><a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withSimpleTree()">withSimpleTree</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
@@ -487,7 +521,7 @@ implements <a href="../../util/CalibreIdentifiable.html" title="interface in me.
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a></h3>
-<code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink">wait</a></code></li>
+<code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink">wait</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.me.aecsocket.calibre.util.CalibreIdentifiable">
@@ -596,6 +630,45 @@ implements <a href="../../util/CalibreIdentifiable.html" title="interface in me.
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="getLoadDependencies()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getLoadDependencies</h4>
+<pre class="methodSignature">public&nbsp;<a href="CalibreComponent.Dependencies.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent.Dependencies</a>&nbsp;getLoadDependencies()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../util/HasDependencies.html#getLoadDependencies()">getLoadDependencies</a></code>&nbsp;in interface&nbsp;<code><a href="../../util/HasDependencies.html" title="interface in me.aecsocket.calibre.util">HasDependencies</a>&lt;<a href="CalibreComponent.Dependencies.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent.Dependencies</a>&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a id="setLoadDependencies(me.aecsocket.calibre.item.component.CalibreComponent.Dependencies)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setLoadDependencies</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setLoadDependencies&#8203;(<a href="CalibreComponent.Dependencies.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent.Dependencies</a>&nbsp;dependencies)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../util/HasDependencies.html#setLoadDependencies(D)">setLoadDependencies</a></code>&nbsp;in interface&nbsp;<code><a href="../../util/HasDependencies.html" title="interface in me.aecsocket.calibre.util">HasDependencies</a>&lt;<a href="CalibreComponent.Dependencies.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent.Dependencies</a>&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a id="getLoadDependenciesType()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getLoadDependenciesType</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect" class="externalLink">Type</a>&nbsp;getLoadDependenciesType()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../util/HasDependencies.html#getLoadDependenciesType()">getLoadDependenciesType</a></code>&nbsp;in interface&nbsp;<code><a href="../../util/HasDependencies.html" title="interface in me.aecsocket.calibre.util">HasDependencies</a>&lt;<a href="CalibreComponent.Dependencies.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent.Dependencies</a>&gt;</code></dd>
+</dl>
+</li>
+</ul>
 <a id="getPlugin()">
 <!--   -->
 </a>
@@ -1036,6 +1109,19 @@ implements <a href="../../util/CalibreIdentifiable.html" title="interface in me.
 <li class="blockList">
 <h4>copy</h4>
 <pre class="methodSignature">public&nbsp;<a href="CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;copy()</pre>
+</li>
+</ul>
+<a id="toString()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>toString</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;toString()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a></code></dd>
+</dl>
 </li>
 </ul>
 <a id="setHidden(me.aecsocket.calibre.CalibrePlugin,org.bukkit.inventory.ItemStack,boolean)">

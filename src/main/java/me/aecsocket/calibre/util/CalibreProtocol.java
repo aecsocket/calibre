@@ -97,7 +97,7 @@ public final class CalibreProtocol {
         packet.getBooleans().write(1, player.isFlying());
         packet.getBooleans().write(2, player.getAllowFlight());
         packet.getBooleans().write(3, player.getGameMode() == GameMode.CREATIVE);
-        packet.getFloat().write(0, player.getFlySpeed());
+        packet.getFloat().write(0, player.getFlySpeed() / 2);
         packet.getFloat().write(1, (float) fov);
         plugin.sendPacket(player, packet);
     }

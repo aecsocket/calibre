@@ -4,9 +4,11 @@ import me.aecsocket.calibre.item.util.damagecause.DamageCause;
 import me.aecsocket.calibre.item.util.user.EntityItemUser;
 import me.aecsocket.calibre.item.util.user.ItemUser;
 import me.aecsocket.unifiedframework.util.Utils;
+import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public final class CalibreDamage {
@@ -17,6 +19,11 @@ public final class CalibreDamage {
     public static class Provider implements Service {
         @Override
         public void damage(ItemUser damager, Entity victim, Vector position, double damage, DamageCause cause) {
+            if (victim instanceof Player) {
+                GameMode gameMode =  ((Player) victim).getGameMode();
+                if (gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR) return;
+            }
+
             if (victim instanceof LivingEntity) {
                 // #damage calls
                 LivingEntity lVictim = (LivingEntity) victim;

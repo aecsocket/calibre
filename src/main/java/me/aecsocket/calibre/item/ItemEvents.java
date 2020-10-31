@@ -1,26 +1,24 @@
 package me.aecsocket.calibre.item;
 
 import me.aecsocket.calibre.CalibrePlugin;
-import me.aecsocket.calibre.item.component.CalibreComponent;
-import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.calibre.item.util.damagecause.BukkitDamageCause;
 import me.aecsocket.calibre.item.util.damagecause.DamageCause;
 import me.aecsocket.calibre.item.util.slot.EntityItemSlot;
 import me.aecsocket.calibre.item.util.slot.ItemSlot;
 import me.aecsocket.calibre.item.util.slot.PlayerItemSlot;
-import me.aecsocket.calibre.item.util.user.AnimatableItemUser;
 import me.aecsocket.calibre.item.util.user.ItemUser;
-import me.aecsocket.calibre.item.util.user.PlayerItemUser;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
@@ -51,21 +49,8 @@ public final class ItemEvents {
         public ItemUser getUser() { return user; }
 
         // TODO shorthand to update the item in the slot. document this.
-        public final ItemStack updateItem(CalibreSystem system, boolean hideUpdated) {
-            ComponentTree tree = system.getParent().getTree();
-            ItemStack updated = tree.getRoot().createItem(
-                    user instanceof PlayerItemUser ? ((PlayerItemUser) user).getEntity() : null,
-                    slot.get().getAmount()
-            );
-            tree.callEvent(new Update(updated, slot, user));
-            if (hideUpdated)
-                CalibreComponent.setHidden(tree.getRoot().getPlugin(), updated, true);
-            slot.set(updated);
-            return updated;
-        }
-
         public final ItemStack updateItem(CalibreSystem system) {
-            return updateItem(system, user instanceof AnimatableItemUser && ((AnimatableItemUser) user).getAnimation() != null);
+            return system.getParent().getTree().getRoot().updateItem(user, slot);
         }
     }
 
@@ -195,6 +180,35 @@ public final class ItemEvents {
             Player player = event.getPlayer();
             ItemStack item = player.getInventory().getItem(slot);
             return new BukkitSwapHand(item, new EntityItemSlot(player, slot), plugin.userOf(player), event);
+        }
+    }
+
+    public static class Drop extends Event {
+        public Drop(ItemStack stack, ItemSlot slot, ItemUser user) {
+            super(stack, slot, user);
+        }
+    }
+
+    public static class BukkitDrop extends Drop {
+        private final PlayerDropItemEvent event;
+
+        public BukkitDrop(ItemStack stack, ItemSlot slot, ItemUser user, PlayerDropItemEvent event) {
+            super(stack, slot, user);
+            this.event = event;
+        }
+
+        public PlayerDropItemEvent getEvent() { return event; }
+
+        public static BukkitDrop of(CalibrePlugin plugin, PlayerDropItemEvent event) {
+            Player player = event.getPlayer();
+            Item drop = event.getItemDrop();
+            return new BukkitDrop(
+                    drop.getItemStack(),
+                    new ItemSlot() {
+                        @Override public ItemStack get() { return drop.getItemStack(); }
+                        @Override public void set(ItemStack item) { drop.setItemStack(item); }
+                    },
+                    plugin.userOf(player), event);
         }
     }
 

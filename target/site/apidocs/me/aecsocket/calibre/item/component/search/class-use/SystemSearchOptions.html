@@ -107,10 +107,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="#me.aecsocket.calibre.item.component">me.aecsocket.calibre.item.component</a></th>
+<th class="colFirst" scope="row"><a href="#me.aecsocket.calibre.defaults.system.gun">me.aecsocket.calibre.defaults.system.gun</a></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<th class="colFirst" scope="row"><a href="#me.aecsocket.calibre.item.component">me.aecsocket.calibre.item.component</a></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="#me.aecsocket.calibre.item.component.search">me.aecsocket.calibre.item.component.search</a></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -119,6 +123,33 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </li>
 <li class="blockList">
 <ul class="blockList">
+<li class="blockList">
+<section role="region"><a id="me.aecsocket.calibre.defaults.system.gun">
+<!--   -->
+</a>
+<h3>Uses of <a href="../SystemSearchOptions.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchOptions</a> in <a href="../../../../defaults/system/gun/package-summary.html">me.aecsocket.calibre.defaults.system.gun</a></h3>
+<table class="useSummary">
+<caption><span>Methods in <a href="../../../../defaults/system/gun/package-summary.html">me.aecsocket.calibre.defaults.system.gun</a> that return <a href="../SystemSearchOptions.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchOptions</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../SystemSearchOptions.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchOptions</a>&lt;<a href="../../../../defaults/system/gun/AmmoStorageSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun">AmmoStorageSystem</a>&gt;</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">GunSystem.</span><code><span class="memberNameLink"><a href="../../../../defaults/system/gun/GunSystem.html#ammoSystemSearch()">ammoSystemSearch</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../SystemSearchOptions.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchOptions</a>&lt;<a href="../../../../defaults/system/projectile/ProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.projectile">ProjectileProviderSystem</a>&gt;</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">GunSystem.</span><code><span class="memberNameLink"><a href="../../../../defaults/system/gun/GunSystem.html#chamberSystemSearch()">chamberSystemSearch</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</section>
+</li>
 <li class="blockList">
 <section role="region"><a id="me.aecsocket.calibre.item.component">
 <!--   -->
@@ -138,6 +169,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>&lt;T extends <a href="../../../system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;<br><a href="../SystemSearchResult.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchResult</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">CalibreComponent.</span><code><span class="memberNameLink"><a href="../../CalibreComponent.html#firstOf(me.aecsocket.calibre.item.component.search.SystemSearchOptions)">firstOf</a></span>&#8203;(<a href="../SystemSearchOptions.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchOptions</a>&lt;T&gt;&nbsp;opt)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>&lt;T extends <a href="../../../system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;<br>void</code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">CalibreComponent.</span><code><span class="memberNameLink"><a href="../../CalibreComponent.html#searchSystems(me.aecsocket.calibre.item.component.search.SystemSearchOptions,java.util.function.BiConsumer)">searchSystems</a></span>&#8203;(<a href="../SystemSearchOptions.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchOptions</a>&lt;T&gt;&nbsp;opt,
              <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/BiConsumer.html?is-external=true" title="class or interface in java.util.function" class="externalLink">BiConsumer</a>&lt;<a href="../../CalibreComponentSlot.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentSlot</a>,&#8203;T&gt;&nbsp;consumer)</code></th>

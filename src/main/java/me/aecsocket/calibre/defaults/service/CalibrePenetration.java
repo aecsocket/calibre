@@ -26,7 +26,7 @@ public final class CalibrePenetration {
         @Override
         public double blockMultiplier(double damage, double penetration, Block block) {
             float hardness = plugin.setting("service.penetration.hardness." + block.getType().name(), float.class, block.getType().getBlastResistance());
-            return hardness > 0 ? Math.min(1, penetration / hardness) : 1;
+            return hardness > 0 ? 1 - Math.min(1, hardness / penetration) : 1;
         }
 
         @Override public double entityMultiplier(double damage, double penetration, Entity entity) { return penetration; }

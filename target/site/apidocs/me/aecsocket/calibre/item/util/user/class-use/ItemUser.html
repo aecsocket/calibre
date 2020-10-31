@@ -131,6 +131,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
+<th class="colFirst" scope="row"><a href="#me.aecsocket.calibre.item.component">me.aecsocket.calibre.item.component</a></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="#me.aecsocket.calibre.item.util.user">me.aecsocket.calibre.item.util.user</a></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -192,6 +196,22 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
       <a href="../../damagecause/DamageCause.html" title="interface in me.aecsocket.calibre.item.util.damagecause">DamageCause</a>&nbsp;cause)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a></code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">CalibreComponentSupplier.Provider.</span><code><span class="memberNameLink"><a href="../../../../defaults/service/CalibreComponentSupplier.Provider.html#supply(me.aecsocket.calibre.item.component.CalibreComponentSlot,me.aecsocket.calibre.item.util.user.ItemUser,me.aecsocket.calibre.item.system.CalibreSystem,boolean)">supply</a></span>&#8203;(<a href="../../../component/CalibreComponentSlot.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentSlot</a>&nbsp;slot,
+      <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
+      <a href="../../../system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&nbsp;requester,
+      boolean&nbsp;consume)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a></code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">CalibreComponentSupplier.Service.</span><code><span class="memberNameLink"><a href="../../../../defaults/service/CalibreComponentSupplier.Service.html#supply(me.aecsocket.calibre.item.component.CalibreComponentSlot,me.aecsocket.calibre.item.util.user.ItemUser,me.aecsocket.calibre.item.system.CalibreSystem,boolean)">supply</a></span>&#8203;(<a href="../../../component/CalibreComponentSlot.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentSlot</a>&nbsp;slot,
+      <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
+      <a href="../../../system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&nbsp;requester,
+      boolean&nbsp;consume)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -219,11 +239,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">ItemSystem.</span><code><span class="memberNameLink"><a href="../../../../defaults/system/ItemSystem.html#doAction(me.aecsocket.calibre.item.system.CalibreSystem,java.lang.String,me.aecsocket.calibre.item.util.user.ItemUser,me.aecsocket.calibre.item.util.slot.ItemSlot,org.bukkit.Location)">doAction</a></span>&#8203;(<a href="../../../system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&nbsp;system,
+<th class="colSecond" scope="row"><span class="typeNameLabel">ItemSystem.</span><code><span class="memberNameLink"><a href="../../../../defaults/system/ItemSystem.html#doAction(me.aecsocket.calibre.item.system.CalibreSystem,java.lang.String,me.aecsocket.calibre.item.util.user.ItemUser,me.aecsocket.calibre.item.util.slot.ItemSlot,org.bukkit.util.Vector)">doAction</a></span>&#8203;(<a href="../../../system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&nbsp;system,
         <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;actionName,
         <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
         <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
-        org.bukkit.Location&nbsp;location)</code></th>
+        org.bukkit.util.Vector&nbsp;offset)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
@@ -342,13 +362,20 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../defaults/system/gun/GunSystem.ProjectileData.html#%3Cinit%3E(org.bukkit.Location,org.bukkit.util.Vector,double,double,double,double,me.aecsocket.unifiedframework.util.data.ParticleData%5B%5D,double,int,me.aecsocket.calibre.item.util.user.ItemUser,double,me.aecsocket.calibre.item.util.damagecause.DamageCause,double,double,double,double,double,java.util.Set,me.aecsocket.calibre.defaults.system.gun.GunSystem.Events.FireOnce)">ProjectileData</a></span>&#8203;(org.bukkit.Location&nbsp;location,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../defaults/system/gun/GunSystem.Events.PreReload.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,me.aecsocket.calibre.defaults.system.gun.GunSystem)">PreReload</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
+         <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
+         <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
+         <a href="../../../../defaults/system/gun/GunSystem.html" title="class in me.aecsocket.calibre.defaults.system.gun">GunSystem</a>&nbsp;system)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../defaults/system/gun/GunSystem.ProjectileData.html#%3Cinit%3E(org.bukkit.Location,org.bukkit.util.Vector,double,double,double,double,me.aecsocket.calibre.util.CalibreParticleData%5B%5D,double,int,me.aecsocket.calibre.item.util.user.ItemUser,double,me.aecsocket.calibre.item.util.damagecause.DamageCause,double,double,double,double,double,java.util.Set,me.aecsocket.calibre.defaults.system.gun.GunSystem.Events.FireOnce)">ProjectileData</a></span>&#8203;(org.bukkit.Location&nbsp;location,
               org.bukkit.util.Vector&nbsp;velocity,
               double&nbsp;bounce,
               double&nbsp;drag,
               double&nbsp;gravity,
               double&nbsp;expansion,
-              me.aecsocket.unifiedframework.util.data.ParticleData[]&nbsp;trail,
+              <a href="../../../../util/CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]&nbsp;trail,
               double&nbsp;trailStep,
               int&nbsp;maxHits,
               <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;damager,
@@ -363,7 +390,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
               <a href="../../../../defaults/system/gun/GunSystem.Events.FireOnce.html" title="class in me.aecsocket.calibre.defaults.system.gun">GunSystem.Events.FireOnce</a>&nbsp;event)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../defaults/system/gun/GunSystem.Events.ToggleAiming.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,me.aecsocket.calibre.defaults.system.gun.GunSystem,boolean)">ToggleAiming</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
             <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
             <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
@@ -418,13 +445,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../defaults/system/projectile/CalibreProjectile.Data.html#%3Cinit%3E(org.bukkit.Location,org.bukkit.util.Vector,double,double,double,double,me.aecsocket.unifiedframework.util.data.ParticleData%5B%5D,double,int,me.aecsocket.calibre.item.util.user.ItemUser,double,double,me.aecsocket.calibre.item.util.damagecause.DamageCause)">Data</a></span>&#8203;(org.bukkit.Location&nbsp;location,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../defaults/system/projectile/CalibreProjectile.Data.html#%3Cinit%3E(org.bukkit.Location,org.bukkit.util.Vector,double,double,double,double,me.aecsocket.calibre.util.CalibreParticleData%5B%5D,double,int,me.aecsocket.calibre.item.util.user.ItemUser,double,double,me.aecsocket.calibre.item.util.damagecause.DamageCause)">Data</a></span>&#8203;(org.bukkit.Location&nbsp;location,
     org.bukkit.util.Vector&nbsp;velocity,
     double&nbsp;bounce,
     double&nbsp;drag,
     double&nbsp;gravity,
     double&nbsp;expansion,
-    me.aecsocket.unifiedframework.util.data.ParticleData[]&nbsp;trail,
+    <a href="../../../../util/CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]&nbsp;trail,
     double&nbsp;trailStep,
     int&nbsp;maxHits,
     <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;damager,
@@ -503,13 +530,20 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.BukkitDrop.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,org.bukkit.event.player.PlayerDropItemEvent)">BukkitDrop</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
+          <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
+          <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
+          org.bukkit.event.player.PlayerDropItemEvent&nbsp;event)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.BukkitHolster.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,org.bukkit.event.player.PlayerItemHeldEvent)">BukkitHolster</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
              <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
              <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
              org.bukkit.event.player.PlayerItemHeldEvent&nbsp;event)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.BukkitInteract.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,org.bukkit.event.block.Action,org.bukkit.block.Block,org.bukkit.block.BlockFace,org.bukkit.event.Event.Result,org.bukkit.event.Event.Result,org.bukkit.event.player.PlayerInteractEvent)">BukkitInteract</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
               <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
               <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
@@ -521,14 +555,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
               org.bukkit.event.player.PlayerInteractEvent&nbsp;event)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.BukkitSwapHand.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,org.bukkit.event.player.PlayerSwapHandItemsEvent)">BukkitSwapHand</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
               <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
               <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
               org.bukkit.event.player.PlayerSwapHandItemsEvent&nbsp;event)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.Damage.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser,double,me.aecsocket.calibre.item.util.damagecause.DamageCause,double)">Damage</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
       <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
       <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
@@ -537,8 +571,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
       double&nbsp;damage)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.Draw.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser)">Draw</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
+    <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
+    <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.Drop.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser)">Drop</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
     <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
     <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -590,6 +630,29 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../ItemEvents.Update.html#%3Cinit%3E(org.bukkit.inventory.ItemStack,me.aecsocket.calibre.item.util.slot.ItemSlot,me.aecsocket.calibre.item.util.user.ItemUser)">Update</a></span>&#8203;(org.bukkit.inventory.ItemStack&nbsp;stack,
       <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
       <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</section>
+</li>
+<li class="blockList">
+<section role="region"><a id="me.aecsocket.calibre.item.component">
+<!--   -->
+</a>
+<h3>Uses of <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a> in <a href="../../../component/package-summary.html">me.aecsocket.calibre.item.component</a></h3>
+<table class="useSummary">
+<caption><span>Methods in <a href="../../../component/package-summary.html">me.aecsocket.calibre.item.component</a> with parameters of type <a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>org.bukkit.inventory.ItemStack</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">CalibreComponent.</span><code><span class="memberNameLink"><a href="../../../component/CalibreComponent.html#updateItem(me.aecsocket.calibre.item.util.user.ItemUser,me.aecsocket.calibre.item.util.slot.ItemSlot)">updateItem</a></span>&#8203;(<a href="../ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
+          <a href="../../slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </tbody>

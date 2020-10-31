@@ -9,6 +9,7 @@ import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.BaseSystem;
 import me.aecsocket.calibre.item.system.LoadTimeOnly;
 import me.aecsocket.calibre.item.util.user.PlayerItemUser;
+import me.aecsocket.calibre.util.ItemDescriptor;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.Utils;
@@ -22,7 +23,7 @@ import org.bukkit.util.RayTraceResult;
 import java.util.Collection;
 import java.util.Collections;
 
-public class BulletSystem extends BaseSystem implements ProjectileProviderSystem {
+public class BulletSystem extends BaseSystem implements GunProjectileProviderSystem {
     public static class Projectile extends CalibreProjectile {
         public static final double DAMAGE_THRESHOLD = 0.01;
 
@@ -91,21 +92,27 @@ public class BulletSystem extends BaseSystem implements ProjectileProviderSystem
 
     @LoadTimeOnly private String prefix;
     @LoadTimeOnly private String icon;
+    @LoadTimeOnly private ItemDescriptor ejection;
 
     public BulletSystem(CalibrePlugin plugin) {
         super(plugin);
     }
 
+    @Override
     public String getPrefix() { return prefix; }
     public void setPrefix(String prefix) { this.prefix = prefix; }
 
+    @Override
     public String getIcon() { return icon; }
     public void setIcon(String icon) { this.icon = icon; }
+
+    public ItemDescriptor getEjection() { return ejection; }
+    public void setEjection(ItemDescriptor ejection) { this.ejection = ejection; }
 
     @Override
     public void initialize(CalibreComponent parent, ComponentTree tree) {
         super.initialize(parent, tree);
-        ProjectileProviderSystem.super.initialize(parent, tree);
+        GunProjectileProviderSystem.super.initialize(parent, tree);
 
         prefix = prefix == null ? "" : TextUtils.translateColor(prefix);
         icon = icon == null ? "" : TextUtils.translateColor(icon);
@@ -117,8 +124,11 @@ public class BulletSystem extends BaseSystem implements ProjectileProviderSystem
             return new Projectile((GunSystem.ProjectileData) data);
         if (data instanceof CalibreProjectile.Data)
             return new CalibreProjectile((CalibreProjectile.Data) data);
-        return ProjectileProviderSystem.super.createProjectile(data);
+        return GunProjectileProviderSystem.super.createProjectile(data);
     }
+
+    @Override
+    public ItemStack createEjection() { return ejection == null ? null : ejection.create(); }
 
     @Override public String getId() { return ID; }
     @Override public Collection<String> getDependencies() { return Collections.emptyList(); }

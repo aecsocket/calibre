@@ -477,7 +477,9 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
 
     //endregion
 
-    public CalibrePlayer getPlayerData(Player player) { return players.computeIfAbsent(player, __ -> new CalibrePlayer(this, player)); }
+    public CalibrePlayer getPlayerData(Player player) {
+        return players.computeIfAbsent(player, __ -> new CalibrePlayer(this, player));
+    }
     public PlayerItemUser userOf(Player player) { return getPlayerData(player).getUser(); }
     public ItemUser userOf(Entity entity) { return entity instanceof Player ? userOf((Player) entity) : EntityItemUser.of(entity); }
 

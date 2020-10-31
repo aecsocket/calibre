@@ -13,6 +13,7 @@ import me.aecsocket.calibre.item.util.slot.ItemSlot;
 import me.aecsocket.calibre.item.util.user.AnimatableItemUser;
 import me.aecsocket.calibre.item.util.user.ItemUser;
 import me.aecsocket.calibre.item.util.user.PlayerItemUser;
+import me.aecsocket.calibre.util.CalibreParticleData;
 import me.aecsocket.calibre.util.CalibreProtocol;
 import me.aecsocket.calibre.util.CalibreSoundData;
 import me.aecsocket.calibre.util.stat.ItemAnimationStat;
@@ -30,6 +31,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -117,8 +119,13 @@ public class ItemSystem extends BaseSystem {
                 sections
         ));
         List<String> lore = Arrays.asList(String.join(plugin.gen(player, "system.item.section_separator"), sections).split("\n"));
-        if (lore.size() > 0 && !lore.get(0).equals(""))
+        if (lore.size() > 0) {
+            if (lore.get(0).equals("")) {
+                lore = new ArrayList<>(lore);
+                lore.remove(0);
+            }
             meta.setLore(lore);
+        }
     }
 
     private void onEvent(ItemEvents.Update event) {
@@ -134,20 +141,19 @@ public class ItemSystem extends BaseSystem {
         resetFov(event.getUser());
     }
 
-    public void doAction(CalibreSystem system, String actionName, ItemUser user, ItemSlot slot, Location location) {
+    public void doAction(CalibreSystem system, String actionName, ItemUser user, ItemSlot slot, Vector offset) {
         ComponentTree tree = system.getParent().getTree();
-        if (location == null)
-            location = user.getLocation();
+        Location location = offset == null ? user.getLocation() : user.getLocation().add(offset);
 
         Long delay = tree.stat(actionName + "_delay");
         CalibreSoundData[] sound = tree.stat(actionName + "_sound");
-        ParticleData[] particle = tree.stat(actionName + "_particle");
+        CalibreParticleData[] particle = tree.stat(actionName + "_particle");
         ItemAnimation animation = tree.stat(actionName + "_animation");
 
         if (delay != null)
             applyDelay(delay);
         if (sound != null)
-            SoundData.play(location, sound);
+            SoundData.play(() -> offset == null ? user.getLocation() : user.getLocation().add(offset), sound);
         if (particle != null)
             ParticleData.spawn(location, particle);
         if (animation != null && user instanceof AnimatableItemUser && slot instanceof EquipmentItemSlot)

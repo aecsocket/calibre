@@ -14,13 +14,16 @@ import me.aecsocket.calibre.item.component.ComponentCompatibility;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.BaseSystem;
 import me.aecsocket.calibre.item.system.LoadTimeOnly;
+import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.util.Quantifier;
 import me.aecsocket.unifiedframework.util.json.JsonAdapter;
+import org.bukkit.entity.Player;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.StringJoiner;
 
 public class ComponentStorageSystem extends BaseSystem implements ComponentProviderSystem, Cloneable {
     public static class Adapter implements TypeAdapterFactory, JsonAdapter {
@@ -52,9 +55,11 @@ public class ComponentStorageSystem extends BaseSystem implements ComponentProvi
                     JsonObject tree = assertObject(Streams.parse(in));
                     T result = delegate.fromJsonTree(tree);
                     ((ComponentStorageSystem) result).setComponents(
-                            ComponentStorageSystem.fromTreeList(gson.fromJson(
+                            tree.has("components")
+                            ? ComponentStorageSystem.fromTreeList(gson.fromJson(
                                     get(tree, "components"), new TypeToken<LinkedList<Quantifier<ComponentTree>>>(){}.getType()
                             ))
+                            : new LinkedList<>()
                     );
                     return result;
                 }
@@ -81,11 +86,25 @@ public class ComponentStorageSystem extends BaseSystem implements ComponentProvi
     public void initialize(CalibreComponent parent, ComponentTree tree) {
         super.initialize(parent, tree);
         ComponentProviderSystem.super.initialize(parent, tree);
+
+        EventDispatcher events = tree.getEventDispatcher();
+        events.registerListener(ItemSystem.Events.SectionCreate.class, this::onEvent, 0);
     }
 
     @Override
     public boolean isCompatible(CalibreComponent component) {
         return component != null && (compatibility == null || compatibility.test(component));
+    }
+
+    private void onEvent(ItemSystem.Events.SectionCreate event) {
+        if (!parent.isRoot()) return;
+        Player player = event.getPlayer();
+        StringJoiner section = new StringJoiner(plugin.gen(player, "system.component_storage.line.separator"));
+        for (Quantifier<CalibreComponent> quantifier : components)
+            section.add(plugin.gen(player, "system.component_storage.line",
+                    "amount", quantifier.getAmount(),
+                    "component", quantifier.get().getLocalizedName(player)));
+        event.getSections().add(section.toString());
     }
 
     public LinkedList<Quantifier<ComponentTree>> toTreeList() {

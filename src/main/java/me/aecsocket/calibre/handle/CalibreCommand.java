@@ -134,7 +134,7 @@ public class CalibreCommand extends BaseCommand {
     public void resolutionOrder(CommandSender sender) {
         for (Ref<CalibreIdentifiable> node : GraphUtils.topologicallySortedNodes(plugin.getRegistry().getDependencyGraph())) {
             CalibreIdentifiable object = node.get();
-            send(sender, "chat.command.list.info",
+            send(sender, "chat.command.list.line",
                     "class", object.getClass().getSimpleName(),
                     "id", object.getId(),
                     "info", object.getShortInfo(plugin.locale(sender)));

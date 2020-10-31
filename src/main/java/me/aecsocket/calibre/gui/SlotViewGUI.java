@@ -1,5 +1,6 @@
 package me.aecsocket.calibre.gui;
 
+import com.google.gson.Gson;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.CalibreComponentSlot;
@@ -8,7 +9,6 @@ import me.aecsocket.unifiedframework.gui.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +22,6 @@ public class SlotViewGUI extends GUI {
     private boolean allowModification;
     private boolean limitedModification;
     private ItemSlot slot;
-
 
     public SlotViewGUI(CalibrePlugin plugin, GUIManager guiManager, CalibreComponent component, boolean allowModification, boolean limitedModification, ItemSlot slot) {
         this.plugin = plugin;
@@ -76,14 +75,18 @@ public class SlotViewGUI extends GUI {
         component.getSlots().forEach((childName, child) -> putItems(map, child, childName, vec2));
     }
 
-    public boolean check(GUIView view) {
+    public boolean check() {
         if (slot == null) return true;
-        ItemStack expectedItem = component.createItem(view.getPlayer());
-        return expectedItem.isSimilar(slot.get());
+        Gson gson = plugin.getGson();
+        String expectedTree = gson.toJson(component.getTree());
+        CalibreComponent realComponent = plugin.fromItem(slot.get());
+        if (realComponent == null) return false;
+        String realTree = gson.toJson(realComponent.getTree());
+        return expectedTree.equals(realTree);
     }
 
     public void validate(GUIView view) {
-        if (!check(view))
+        if (!check())
             view.getView().close();
     }
 

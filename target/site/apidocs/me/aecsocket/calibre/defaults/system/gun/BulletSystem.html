@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -138,12 +138,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a></code>, <code><a href="../projectile/ProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.projectile">ProjectileProviderSystem</a></code>, <code><a href="../../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></code>, <code><a href="../../../util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></code>, <code><a href="../../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></code>, <code>me.aecsocket.unifiedframework.registry.Identifiable</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a></code>, <code><a href="GunProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun">GunProjectileProviderSystem</a></code>, <code><a href="../projectile/ProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.projectile">ProjectileProviderSystem</a></code>, <code><a href="../../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></code>, <code><a href="../../../util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></code>, <code><a href="../../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></code>, <code>me.aecsocket.unifiedframework.registry.Identifiable</code></dd>
 </dl>
 <hr>
 <pre>public class <span class="typeNameLabel">BulletSystem</span>
 extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsocket.calibre.item.system">BaseSystem</a>
-implements <a href="../projectile/ProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.projectile">ProjectileProviderSystem</a></pre>
+implements <a href="GunProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun">GunProjectileProviderSystem</a></pre>
 </li>
 </ul>
 </div>
@@ -270,42 +270,57 @@ implements <a href="../projectile/ProjectileProviderSystem.html" title="interfac
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>org.bukkit.inventory.ItemStack</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createEjection()">createEjection</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>me.aecsocket.unifiedframework.util.Projectile</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createProjectile(me.aecsocket.calibre.defaults.system.projectile.ProjectileProviderSystem.Data)">createProjectile</a></span>&#8203;(<a href="../projectile/ProjectileProviderSystem.Data.html" title="class in me.aecsocket.calibre.defaults.system.projectile">ProjectileProviderSystem.Data</a>&nbsp;data)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Collection.html?is-external=true" title="class or interface in java.util" class="externalLink">Collection</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDependencies()">getDependencies</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getIcon()">getIcon</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getId()">getId</a></span>()</code></th>
+<td class="colFirst"><code><a href="../../../util/ItemDescriptor.html" title="class in me.aecsocket.calibre.util">ItemDescriptor</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getEjection()">getEjection</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPrefix()">getPrefix</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getIcon()">getIcon</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getId()">getId</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPrefix()">getPrefix</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">initialize</a></span>&#8203;(<a href="../../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent,
           <a href="../../../item/component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;tree)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setEjection(me.aecsocket.calibre.util.ItemDescriptor)">setEjection</a></span>&#8203;(<a href="../../../util/ItemDescriptor.html" title="class in me.aecsocket.calibre.util">ItemDescriptor</a>&nbsp;ejection)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setIcon(java.lang.String)">setIcon</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;icon)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPrefix(java.lang.String)">setPrefix</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;prefix)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -418,6 +433,10 @@ implements <a href="../projectile/ProjectileProviderSystem.html" title="interfac
 <li class="blockList">
 <h4>getPrefix</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getPrefix()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="GunProjectileProviderSystem.html#getPrefix()">getPrefix</a></code>&nbsp;in interface&nbsp;<code><a href="GunProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun">GunProjectileProviderSystem</a></code></dd>
+</dl>
 </li>
 </ul>
 <a id="setPrefix(java.lang.String)">
@@ -436,6 +455,10 @@ implements <a href="../projectile/ProjectileProviderSystem.html" title="interfac
 <li class="blockList">
 <h4>getIcon</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getIcon()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="GunProjectileProviderSystem.html#getIcon()">getIcon</a></code>&nbsp;in interface&nbsp;<code><a href="GunProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun">GunProjectileProviderSystem</a></code></dd>
+</dl>
 </li>
 </ul>
 <a id="setIcon(java.lang.String)">
@@ -445,6 +468,24 @@ implements <a href="../projectile/ProjectileProviderSystem.html" title="interfac
 <li class="blockList">
 <h4>setIcon</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setIcon&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;icon)</pre>
+</li>
+</ul>
+<a id="getEjection()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getEjection</h4>
+<pre class="methodSignature">public&nbsp;<a href="../../../util/ItemDescriptor.html" title="class in me.aecsocket.calibre.util">ItemDescriptor</a>&nbsp;getEjection()</pre>
+</li>
+</ul>
+<a id="setEjection(me.aecsocket.calibre.util.ItemDescriptor)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setEjection</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setEjection&#8203;(<a href="../../../util/ItemDescriptor.html" title="class in me.aecsocket.calibre.util">ItemDescriptor</a>&nbsp;ejection)</pre>
 </li>
 </ul>
 <a id="initialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">
@@ -475,6 +516,19 @@ implements <a href="../projectile/ProjectileProviderSystem.html" title="interfac
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../projectile/ProjectileProviderSystem.html#createProjectile(me.aecsocket.calibre.defaults.system.projectile.ProjectileProviderSystem.Data)">createProjectile</a></code>&nbsp;in interface&nbsp;<code><a href="../projectile/ProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.projectile">ProjectileProviderSystem</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="createEjection()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createEjection</h4>
+<pre class="methodSignature">public&nbsp;org.bukkit.inventory.ItemStack&nbsp;createEjection()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="GunProjectileProviderSystem.html#createEjection()">createEjection</a></code>&nbsp;in interface&nbsp;<code><a href="GunProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun">GunProjectileProviderSystem</a></code></dd>
 </dl>
 </li>
 </ul>

@@ -4,6 +4,8 @@ import me.aecsocket.calibre.defaults.service.CalibreDamage;
 import me.aecsocket.calibre.defaults.service.CalibrePenetration;
 import me.aecsocket.calibre.item.util.damagecause.DamageCause;
 import me.aecsocket.calibre.item.util.user.ItemUser;
+import me.aecsocket.calibre.item.util.user.PlayerItemUser;
+import me.aecsocket.calibre.util.CalibreParticleData;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.util.Projectile;
 import me.aecsocket.unifiedframework.util.Utils;
@@ -19,7 +21,7 @@ public class CalibreProjectile extends Projectile {
     public static class Data extends ProjectileProviderSystem.Data {
         // TODO Possibly replace all of these with a System, and call #stat on that.
         // Less abstract but way cleaner.
-        private ParticleData[] trail;
+        private CalibreParticleData[] trail;
         private double trailStep;
         private int maxHits;
         private ItemUser damager;
@@ -27,7 +29,7 @@ public class CalibreProjectile extends Projectile {
         private double armorPenetration;
         private DamageCause damageCause;
 
-        public Data(Location location, Vector velocity, double bounce, double drag, double gravity, double expansion, ParticleData[] trail, double trailStep, int maxHits, ItemUser damager, double damage, double armorPenetration, DamageCause damageCause) {
+        public Data(Location location, Vector velocity, double bounce, double drag, double gravity, double expansion, CalibreParticleData[] trail, double trailStep, int maxHits, ItemUser damager, double damage, double armorPenetration, DamageCause damageCause) {
             super(location, velocity, bounce, drag, gravity, expansion);
             this.trail = trail;
             this.trailStep = trailStep;
@@ -40,8 +42,8 @@ public class CalibreProjectile extends Projectile {
 
         public Data(ProjectileProviderSystem.Data o) { super(o); }
 
-        public ParticleData[] getTrail() { return trail; }
-        public void setTrail(ParticleData[] trail) { this.trail = trail; }
+        public CalibreParticleData[] getTrail() { return trail; }
+        public void setTrail(CalibreParticleData[] trail) { this.trail = trail; }
 
         public double getTrailStep() { return trailStep; }
         public void setTrailStep(double trailStep) { this.trailStep = trailStep; }

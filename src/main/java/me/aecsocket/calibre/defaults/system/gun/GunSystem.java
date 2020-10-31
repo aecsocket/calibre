@@ -1,6 +1,7 @@
 package me.aecsocket.calibre.defaults.system.gun;
 
 import me.aecsocket.calibre.CalibrePlugin;
+import me.aecsocket.calibre.defaults.service.CalibreComponentSupplier;
 import me.aecsocket.calibre.defaults.system.ItemSystem;
 import me.aecsocket.calibre.defaults.system.gun.firemode.FireMode;
 import me.aecsocket.calibre.defaults.system.gun.firemode.FireModeReference;
@@ -26,6 +27,7 @@ import me.aecsocket.calibre.item.util.user.EntityItemUser;
 import me.aecsocket.calibre.item.util.user.ItemUser;
 import me.aecsocket.calibre.item.util.user.LivingEntityItemUser;
 import me.aecsocket.calibre.item.util.user.PlayerItemUser;
+import me.aecsocket.calibre.util.CalibreParticleData;
 import me.aecsocket.calibre.util.OrderedStatMap;
 import me.aecsocket.calibre.util.stat.ItemAnimationStat;
 import me.aecsocket.calibre.util.stat.ParticleStat;
@@ -39,11 +41,11 @@ import me.aecsocket.unifiedframework.util.MapInit;
 import me.aecsocket.unifiedframework.util.Projectile;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.Vector2;
-import me.aecsocket.unifiedframework.util.data.ParticleData;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
@@ -90,7 +92,7 @@ public class GunSystem extends BaseSystem {
         private Set<Material> breakableBlocks;
         private Events.FireOnce event; // todo change?
 
-        public ProjectileData(Location location, Vector velocity, double bounce, double drag, double gravity, double expansion, ParticleData[] trail, double trailStep, int maxHits, ItemUser damager, double damage, DamageCause damageCause, double blockPenetration, double entityPenetration, double armorPenetration, double dropoff, double range, Set<Material> breakableBlocks, Events.FireOnce event) {
+        public ProjectileData(Location location, Vector velocity, double bounce, double drag, double gravity, double expansion, CalibreParticleData[] trail, double trailStep, int maxHits, ItemUser damager, double damage, DamageCause damageCause, double blockPenetration, double entityPenetration, double armorPenetration, double dropoff, double range, Set<Material> breakableBlocks, Events.FireOnce event) {
             super(location, velocity, bounce, drag, gravity, expansion, trail, trailStep, maxHits, damager, damage, armorPenetration, damageCause);
             this.blockPenetration = blockPenetration;
             this.entityPenetration = entityPenetration;
@@ -124,6 +126,7 @@ public class GunSystem extends BaseSystem {
     }
 
     public static final String ID = "gun";
+    public static final int ITEM_DESPAWN_TIME = 20 * 60 * 5;
     public static final DamageCause GUN_DAMAGE_CAUSE = new DamageCause(){};
     public static final Map<String, Stat<?>> STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init("auto_chamber", new BooleanStat(true))
@@ -133,6 +136,9 @@ public class GunSystem extends BaseSystem {
             .init("shot_delay", new NumberStat.Long(0L))
             .init("entity_awareness", new NumberStat.Double(0d))
             .init("breakable_blocks", new BasicArrayStat<>(Material[].class, Material[]::new))
+            .init("ejection_port_offset", new VectorStat(new Vector()))
+            .init("ejection_port_velocity", new VectorStat(new Vector()))
+            .init("ejection_lifetime", new NumberStat.Long(0L))
 
             .init("sighting_range", new NumberStat.Double(0d))
             .init("converge_range", new NumberStat.Double(0d))
@@ -192,6 +198,18 @@ public class GunSystem extends BaseSystem {
             .init("change_fire_mode_delay", new NumberStat.Long(0L))
             .init("change_fire_mode_sound", new SoundStat())
             .init("change_fire_mode_animation", new ItemAnimationStat())
+
+            .init("reload_delay", new NumberStat.Long(0L))
+            .init("reload_sound", new SoundStat())
+            .init("reload_animation", new ItemAnimationStat())
+
+            .init("load_ammo_delay", new NumberStat.Long(0L))
+            .init("load_ammo_sound", new SoundStat())
+            .init("load_ammo_animation", new ItemAnimationStat())
+
+            .init("load_chamber_delay", new NumberStat.Long(0L))
+            .init("load_chamber_sound", new SoundStat())
+            .init("load_chamber_animation", new ItemAnimationStat())
 
             .init("fail_delay", new NumberStat.Long(0L))
             .init("fail_sound", new SoundStat())
@@ -255,6 +273,8 @@ public class GunSystem extends BaseSystem {
         events.registerListener(ItemEvents.Interact.class, this::onEvent, 0);
         events.registerListener(ItemEvents.SwapHand.class, this::onEvent, 0);
         events.registerListener(ItemEvents.BukkitSwapHand.class, this::onEvent, 0);
+        events.registerListener(ItemEvents.Drop.class, this::onEvent, 0);
+        events.registerListener(ItemEvents.BukkitDrop.class, this::onEvent, 0);
 
         if (fireMode == null)
             fireMode = Utils.atOr(collectFireModes(), 0);
@@ -283,36 +303,27 @@ public class GunSystem extends BaseSystem {
         return stats;
     }
 
-    public List<CalibreComponentSlot> collectChamberSlots() {
-        return parent.collectSlots(
-                new SlotSearchOptions()
-                        .slotTag("chamber")
-                        .targetPriority(stat("chamber_priority"))
-        );
+    public SlotSearchOptions chamberSlotSearch() {
+        return new SlotSearchOptions()
+                .slotTag("chamber")
+                .targetPriority(stat("chamber_priority"));
     }
-    public List<SystemSearchResult<ProjectileProviderSystem>> collectChambers() {
-        return parent.collectSystems(
-                new SystemSearchOptions<>(ProjectileProviderSystem.class)
-                        .slotTag("chamber")
-                        .targetPriority(stat("chamber_priority"))
-        );
+    public SystemSearchOptions<ProjectileProviderSystem> chamberSystemSearch() {
+        return new SystemSearchOptions<ProjectileProviderSystem>(chamberSlotSearch())
+                .serviceType(ProjectileProviderSystem.class);
     }
-    // todo clean this up
-    public SystemSearchResult<ProjectileProviderSystem> collectChamber() { return Utils.atOr(collectChambers(), 0); }
-    public List<SystemSearchResult<AmmoStorageSystem>> collectAllAmmo() {
-        return parent.collectSystems(
-                new SystemSearchOptions<>(AmmoStorageSystem.class)
-                        .slotTag("ammo")
-                        .targetPriority(stat("ammo_priority"))
-        );
+    public SystemSearchResult<ProjectileProviderSystem> collectChamber() { return parent.firstOf(chamberSystemSearch()); }
+
+    public SlotSearchOptions ammoSlotSearch() {
+        return new SlotSearchOptions()
+                .slotTag("ammo")
+                .targetPriority(stat("ammo_priority"));
     }
-    public SystemSearchResult<AmmoStorageSystem> collectAmmo() {
-        for (SystemSearchResult<AmmoStorageSystem> result : collectAllAmmo()) {
-            if (result.getSystem().size() > 0)
-                return result;
-        }
-        return null;
+    public SystemSearchOptions<AmmoStorageSystem> ammoSystemSearch() {
+        return new SystemSearchOptions<AmmoStorageSystem>(ammoSlotSearch())
+                .serviceType(AmmoStorageSystem.class);
     }
+    public SystemSearchResult<AmmoStorageSystem> collectAmmo() {return parent.firstOf(ammoSystemSearch()); }
 
     // TODO clean this up
 
@@ -396,9 +407,9 @@ public class GunSystem extends BaseSystem {
         if (event.getSlot() instanceof EquipmentItemSlot && ((EquipmentItemSlot) event.getSlot()).getEquipmentSlot() != EquipmentSlot.HAND) return;
         while (
                 shootAt != null
-                        && shootAt.length > 0
-                        && System.currentTimeMillis() >= shootAt[0]
-                        && shootAt[0] < System.currentTimeMillis() + 50 // prevent late shots
+                && shootAt.length > 0
+                && System.currentTimeMillis() >= shootAt[0]
+                && shootAt[0] < System.currentTimeMillis() + 50 // prevent late shots
         ) {
             long[] newShootAt = new long[shootAt.length - 1];
             System.arraycopy(shootAt, 1, newShootAt, 0, newShootAt.length);
@@ -418,7 +429,7 @@ public class GunSystem extends BaseSystem {
             Player player = ((PlayerItemUser) event.getUser()).getEntity();
             // TODO ac bar
             player.sendActionBar(
-                    collectAllAmmo().stream()
+                    parent.collectSystems(ammoSystemSearch()).stream()
                             .map(result -> {
                                 AmmoStorageSystem sys = result.getSystem();
                                 String icon = sys.getIcon();
@@ -434,10 +445,10 @@ public class GunSystem extends BaseSystem {
                             })
                             .collect(Collectors.joining(ChatColor.RESET + " "))
                     + ChatColor.GRAY + " [" +
-                    collectChambers().stream()
-                            .filter(result -> result.getSystem() instanceof BulletSystem)
+                    parent.collectSystems(chamberSystemSearch()).stream()
+                            .filter(result -> result.getSystem() instanceof GunProjectileProviderSystem)
                             .map(result -> {
-                                BulletSystem sys = (BulletSystem) result.getSystem();
+                                GunProjectileProviderSystem sys = (GunProjectileProviderSystem) result.getSystem();
                                 return sys.getPrefix() + sys.getIcon();
                             })
                             .collect(Collectors.joining())
@@ -473,7 +484,7 @@ public class GunSystem extends BaseSystem {
 
     private void onEvent(ItemEvents.Interact event) {
         if (!available()) return;
-        if (!Utils.isRightClick(event.getAction())) {
+        if (Utils.isRightClick(event.getAction())) {
             if (stat("chamber_handling") == ChamberHandling.NORMAL && collectChamber() == null)
                 chamber(new Events.PreChamber(
                         event.getStack(), event.getSlot(), event.getUser(), this
@@ -484,7 +495,8 @@ public class GunSystem extends BaseSystem {
                 ));
         } else {
             if (
-                    event.getUser() instanceof PlayerItemUser
+                    aiming
+                    && event.getUser() instanceof PlayerItemUser
                     && ((PlayerItemUser) event.getUser()).getEntity().isSneaking()
                     && collectSights().size() > 1
             ) {
@@ -512,6 +524,17 @@ public class GunSystem extends BaseSystem {
             if (slot == EquipmentSlot.HAND || slot == EquipmentSlot.OFF_HAND)
                 event.getEvent().setCancelled(true);
         }
+    }
+
+    private void onEvent(ItemEvents.Drop event) {
+        if (!available()) return;
+        reload(new Events.PreReload(
+                event.getStack(), event.getSlot(), event.getUser(), this
+        ));
+    }
+
+    private void onEvent(ItemEvents.BukkitDrop event) {
+        event.getEvent().setCancelled(true);
     }
 
     public void fire(Events.Fire event) {
@@ -544,7 +567,6 @@ public class GunSystem extends BaseSystem {
                 chamber(new Events.PreChamber(
                         event.getStack(), event.getSlot(), event.getUser(), this
                 ));
-                // TODO also eject bullet if discarded
                 chamberResult = collectChamber();
                 break;
             case CONDITIONAL_CHAMBER:
@@ -600,14 +622,7 @@ public class GunSystem extends BaseSystem {
         Vector velocity = location.getDirection().normalize().multiply(muzzleVelocity);
         randomRotate(velocity, spread);
 
-        // Recoil
-        if (user instanceof ShooterItemUser)
-            ((ShooterItemUser) user).applyRecoil(
-                    stat("recoil"), stat("recoil_speed"),
-                    stat("recoil_recovery"), stat("recoil_recovery_after"), stat("recoil_recovery_speed")
-            );
-
-        Location fLocation = location;
+        Location fLocation = location.clone();
         for (int i = 0; i < (int) stat("projectiles"); i++) {
             Loop loop = plugin.getSchedulerLoop();
             loop.onNextTick(() -> loop.registerTickable(chamber.createProjectile(new ProjectileData(
@@ -624,7 +639,16 @@ public class GunSystem extends BaseSystem {
             )).inEntity(user instanceof EntityItemUser ? ((EntityItemUser) user).getEntity() : null)));
         }
 
+        // Recoil
+        if (user instanceof ShooterItemUser)
+            ((ShooterItemUser) user).applyRecoil(
+                    stat("recoil"), stat("recoil_speed"),
+                    stat("recoil_recovery"), stat("recoil_recovery_after"), stat("recoil_recovery_speed")
+            );
+
         // Chamber
+        if (user instanceof LivingEntityItemUser)
+            ejectChamber(chamber, ((LivingEntityItemUser) user).getEntity());
         chamberResult.getSlot().set(null);
         if (stat("auto_chamber")) {
             if (ammoResult != null) {
@@ -646,13 +670,14 @@ public class GunSystem extends BaseSystem {
             }
         }
 
-        itemSystem.doAction(this, "fire", user, event.getSlot(), location);
+        itemSystem.doAction(this, "fire", user, event.getSlot(), location.subtract(user.getLocation()).toVector());
         event.updateItem();
         return true;
     }
 
     public void chamber(Events.PreChamber event) {
         if (callEvent(event).cancelled) return;
+        ItemUser user = event.getUser();
 
         AmmoStorageSystem[] ammo = new AmmoStorageSystem[]{null};
         boolean[] search = new boolean[]{true};
@@ -673,7 +698,7 @@ public class GunSystem extends BaseSystem {
                     }
 
                     CalibreComponent nextChamber = ammo[0].peek();
-                    if (slot.isCompatible(nextChamber)) {
+                    if (nextChamber != null && slot.isCompatible(nextChamber)) {
                         nextChamber = ammo[0].next();
                         loadedChambers.put(slot, nextChamber);
                     }
@@ -687,12 +712,16 @@ public class GunSystem extends BaseSystem {
         callEvent(event2);
 
         if (loadedChambers.size() > 0) {
-            loadedChambers.forEach(CalibreComponentSlot::set);
-            itemSystem.doAction(this, "chamber", event.getUser(), event.getSlot());
+            loadedChambers.forEach((slot, comp) -> {
+                if (slot.get() != null && user instanceof LivingEntityItemUser)
+                    ejectChamber(slot.get().getSystem(ProjectileProviderSystem.class), ((LivingEntityItemUser) user).getEntity());
+                slot.set(comp);
+            });
+            itemSystem.doAction(this, "chamber", user, event.getSlot());
             event.updateItem();
         } else {
             fail(new Events.Fail(
-                    event.getStack(), event.getSlot(), event.getUser(), this, FailReason.EMPTY
+                    event.getStack(), event.getSlot(), user, this, FailReason.EMPTY
             ));
         }
     }
@@ -732,10 +761,84 @@ public class GunSystem extends BaseSystem {
         event.updateItem();
     }
 
+    public void reload(Events.PreReload event) {
+        if (callEvent(event).cancelled) return;
+        ItemUser user = event.getUser();
+        ItemSlot itemSlot = event.getSlot();
+
+        // TODO split these up into:
+        // - load
+        // - unload
+        // - reload
+        // - loadChamber
+        boolean[] resume = new boolean[]{true};
+        parent.searchSystems(ammoSystemSearch(), (slot, sys) -> {
+            if (!resume[0]) return;
+            if (sys.size() >= sys.getCapacity()) return;
+
+            resume[0] = false;
+            // Pass reloading to the ammo storage system
+            sys.reload(slot, event);
+
+        });
+        if (!resume[0]) return;
+
+        parent.searchSlots(ammoSlotSearch(), slot -> {
+            if (!resume[0]) return;
+
+            resume[0] = false;
+            // Place non-empty compatible component into slot from inventory
+            Utils.useService(CalibreComponentSupplier.Service.class, s -> {
+                CalibreComponent component = s.supply(slot, user, this, true);
+                if (component != null) {
+                    slot.set(component);
+                    getTree().buildStats();
+                    itemSystem.doAction(this, "load_ammo", user, itemSlot);
+                    event.updateItem();
+                }
+            });
+        });
+        if (!resume[0]) return;
+
+        parent.searchSlots(chamberSlotSearch(), slot -> {
+            if (!resume[0]) return;
+            if (slot.get() != null) return;
+
+            resume[0] = false;
+            // Place chamber from inventory
+            Utils.useService(CalibreComponentSupplier.Service.class, s -> {
+                CalibreComponent component = s.supply(slot, user, this, true);
+                // TODO apply this after a stat delay, "load_chamber_after"
+                if (component != null) {
+                    slot.set(component);
+                    getTree().buildStats();
+                    itemSystem.doAction(this, "load_chamber", user, itemSlot);
+                    event.updateItem();
+                }
+            });
+        });
+    }
+
     public void fail(Events.Fail event) {
         if (callEvent(event).cancelled) return;
         itemSystem.doAction(this, "fail", event.getUser(), event.getSlot());
         event.updateItem();
+    }
+
+    public void ejectChamber(ProjectileProviderSystem chamber, LivingEntity entity) {
+        if (!(chamber instanceof GunProjectileProviderSystem)) return;
+        Vector offset = stat("ejection_port_offset");
+        Location position = Utils.getFacingRelative(entity, offset);
+        Vector velocity = Utils.getFacingRelative(entity, offset.add(stat("ejection_port_velocity"))).subtract(position).toVector();
+        ItemStack item = ((GunProjectileProviderSystem) chamber).createEjection();
+        if (item == null) return;
+
+        Item drop = position.getWorld().dropItem(position, item);
+        drop.setVelocity(velocity);
+        drop.setPickupDelay(Integer.MAX_VALUE);
+        drop.setCanMobPickup(false);
+        drop.setTicksLived(ITEM_DESPAWN_TIME - (int) Utils.toTicks(stat("ejection_lifetime")));
+        drop.setVelocity(velocity);
     }
 
     @Override public String getId() { return ID; }
@@ -884,6 +987,17 @@ public class GunSystem extends BaseSystem {
             public CycleFireMode(ItemStack stack, ItemSlot slot, ItemUser user, GunSystem system) {
                 super(stack, slot, user, system, system.getFireMode(system.getFireModeIndex() + 1));
             }
+        }
+
+        public static class PreReload extends Event implements ItemEvents.Cancellable {
+            private boolean cancelled;
+
+            public PreReload(ItemStack stack, ItemSlot slot, ItemUser user, GunSystem system) {
+                super(stack, slot, user, system);
+            }
+
+            @Override public boolean isCancelled() { return cancelled; }
+            @Override public void setCancelled(boolean cancelled) { this.cancelled = cancelled; }
         }
 
         public static class Fail extends Event implements ItemEvents.Cancellable {

@@ -26,7 +26,8 @@ import java.util.EnumMap;
 import java.util.Map;
 
 public class CalibrePlayer implements Tickable {
-    public static final ParticleData[] VIEW_OFFSET_PARTICLE = { new ParticleData(Particle.REDSTONE, 0, new Vector(), 0, new Particle.DustOptions(Color.WHITE, 0.5f)) };
+    public static final CalibreParticleData[] VIEW_OFFSET_PARTICLE = { new CalibreParticleData(Particle.REDSTONE, 0, new Vector(), 0, new Particle.DustOptions(Color.WHITE, 0.5f)) };
+    public static final double CAMERA_THRESHOLD = 0.2;
 
     private final CalibrePlugin plugin;
     private final Player player;
@@ -116,13 +117,13 @@ public class CalibrePlayer implements Tickable {
                 gui.validate(view);
             }
         } else {
-            if (recoil.manhattanLength() > 0.005) {
+            if (recoil.manhattanLength() > CAMERA_THRESHOLD) {
                 Vector2 rotation = recoil.clone().multiply(recoilSpeed);
                 CalibreProtocol.rotateCamera(player, rotation.getX(), rotation.getY());
                 recoil.multiply(1 - recoilSpeed);
                 recoilToRecover.add(rotation.multiply(-recoilRecovery));
 
-                if (recoil.manhattanLength() <= 0.005)
+                if (recoil.manhattanLength() <= CAMERA_THRESHOLD)
                     recoil.zero();
             }
 
@@ -131,7 +132,7 @@ public class CalibrePlayer implements Tickable {
                 CalibreProtocol.rotateCamera(player, rotation.getX(), rotation.getY());
                 recoilToRecover.multiply(1 - recoilRecoverySpeed);
 
-                if (recoilToRecover.manhattanLength() <= 0.005) {
+                if (recoilToRecover.manhattanLength() <= CAMERA_THRESHOLD) {
                     recoilToRecover.zero();
                     recoilRecoveryAfter = 0;
                 }

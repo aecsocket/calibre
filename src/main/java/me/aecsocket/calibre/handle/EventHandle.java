@@ -6,8 +6,11 @@ import me.aecsocket.calibre.item.ItemEvents;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.util.slot.EntityItemSlot;
 import me.aecsocket.calibre.item.util.slot.ItemSlot;
+import me.aecsocket.calibre.item.util.slot.PlayerItemSlot;
 import me.aecsocket.calibre.item.util.user.PlayerItemUser;
 import me.aecsocket.unifiedframework.gui.GUIView;
+import me.aecsocket.unifiedframework.util.data.SoundData;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,6 +27,8 @@ import org.bukkit.inventory.PlayerInventory;
 
 public class EventHandle implements Listener {
     private final CalibrePlugin plugin;
+    private int cannotInteract;
+    private int cannotDrop;
 
     public EventHandle(CalibrePlugin plugin) {
         this.plugin = plugin;
@@ -52,6 +57,7 @@ public class EventHandle implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
+        if (cannotInteract == Bukkit.getCurrentTick()) return;
         if (event.getHand() != EquipmentSlot.HAND) return;
         EntityEquipment equipment = event.getPlayer().getEquipment();
         for (EquipmentSlot slot : EquipmentSlot.values()) {
@@ -68,6 +74,12 @@ public class EventHandle implements Listener {
         EntityEquipment equipment = event.getPlayer().getEquipment();
         for (EquipmentSlot slot : EquipmentSlot.values())
             callEvent(equipment.getItem(slot), ItemEvents.BukkitSwapHand.of(plugin, event, slot));
+    }
+
+    @EventHandler
+    public void onDrop(PlayerDropItemEvent event) {
+        cannotInteract = Bukkit.getCurrentTick();
+        callEvent(event.getItemDrop().getItemStack(), ItemEvents.BukkitDrop.of(plugin, event));
     }
 
     @EventHandler
@@ -116,6 +128,8 @@ public class EventHandle implements Listener {
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
+        cannotInteract = Bukkit.getCurrentTick();
+        cannotDrop = Bukkit.getCurrentTick();
         Player player = (Player) event.getWhoClicked();
         PlayerItemUser user = plugin.userOf(player);
         PlayerInventory inv = player.getInventory();
@@ -138,25 +152,51 @@ public class EventHandle implements Listener {
             callEvent(item, new ItemEvents.Draw(item, handSlot, user));
         }
 
-        if (!plugin.setting("slot_view.enabled", boolean.class, true)) return;
-        if (event.getClick() != ClickType.RIGHT) return;
-        CalibreComponent component = plugin.fromItem(event.getCurrentItem());
-        if (component == null) return;
         GUIView view = plugin.getGUIManager().getView(player);
-        boolean allowModification =
-                plugin.setting("slot_view.allow_modification", boolean.class, true)
-                        && (view == null || !(view.getGUI() instanceof SlotViewGUI));
-        new SlotViewGUI(
-                plugin, plugin.getGUIManager(), component,
-                allowModification,
-                plugin.setting("slot_view.limited_modification", boolean.class, true),
-                // this works!
-                allowModification
-                ? new ItemSlot() {
-                    @Override public ItemStack get() { return event.getCurrentItem(); }
-                    @Override public void set(ItemStack item) { event.setCurrentItem(item); }
+        SlotViewGUI gui = view == null
+                ? null
+                : view.getGUI() instanceof SlotViewGUI
+                ? (SlotViewGUI) view.getGUI()
+                : null;
+        if (plugin.setting("slot_view.enabled", boolean.class, true) && event.getClick() == ClickType.RIGHT) {
+            CalibreComponent component = plugin.fromItem(event.getCurrentItem());
+            if (component == null) return;
+            boolean allowModification = plugin.setting("slot_view.allow_modification", boolean.class, true) && gui == null;
+            new SlotViewGUI(
+                    plugin, plugin.getGUIManager(), component,
+                    allowModification,
+                    plugin.setting("slot_view.limited_modification", boolean.class, true),
+                    // this works!
+                    allowModification
+                            ? new ItemSlot() {
+                                @Override public ItemStack get() { return event.getCurrentItem(); }
+                                @Override public void set(ItemStack item) { event.setCurrentItem(item); }
+                            }
+                            : null
+            ).open((Player) event.getWhoClicked());
+            return;
+        }
+
+        if (
+                plugin.setting("quick_modify.enabled", boolean.class, true)
+                && event.getClick() == ClickType.LEFT
+                && (gui == null || event.getClickedInventory() != event.getView().getTopInventory())
+        ) {
+            if (event.getCurrentItem() == null || event.getCurrentItem().getAmount() > 1) return;
+            CalibreComponent base = plugin.fromItem(event.getCurrentItem());
+            CalibreComponent mod = plugin.fromItem(event.getCursor());
+            if (base == null || mod == null) return;
+            if (base.combine(mod, plugin.setting("quick_modify.limited_modification", boolean.class, true)) != null) {
+                SoundData.play(player::getLocation, base.stat("quick_modify"));
+                base.updateItem(plugin.userOf(player), new PlayerItemSlot(player, event.getSlot()));
+                event.getCursor().subtract();
+                event.setCancelled(true);
+
+                if (gui != null) {
+                    gui.setComponent(base);
+                    gui.notifyUpdate(view);
                 }
-                : null
-        ).open((Player) event.getWhoClicked());
+            }
+        }
     }
 }

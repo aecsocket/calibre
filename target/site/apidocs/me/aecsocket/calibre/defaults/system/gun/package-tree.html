@@ -108,7 +108,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul>
 <li class="circle">me.aecsocket.calibre.item.system.<a href="../../../item/system/BaseSystem.html" title="class in me.aecsocket.calibre.item.system"><span class="typeNameLink">BaseSystem</span></a> (implements me.aecsocket.calibre.item.system.<a href="../../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>, java.lang.<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a>)
 <ul>
-<li class="circle">me.aecsocket.calibre.defaults.system.gun.<a href="BulletSystem.html" title="class in me.aecsocket.calibre.defaults.system.gun"><span class="typeNameLink">BulletSystem</span></a> (implements me.aecsocket.calibre.defaults.system.projectile.<a href="../projectile/ProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.projectile">ProjectileProviderSystem</a>)</li>
+<li class="circle">me.aecsocket.calibre.defaults.system.gun.<a href="BulletSystem.html" title="class in me.aecsocket.calibre.defaults.system.gun"><span class="typeNameLink">BulletSystem</span></a> (implements me.aecsocket.calibre.defaults.system.gun.<a href="GunProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun">GunProjectileProviderSystem</a>)</li>
 <li class="circle">me.aecsocket.calibre.defaults.system.<a href="../ComponentStorageSystem.html" title="class in me.aecsocket.calibre.defaults.system"><span class="typeNameLink">ComponentStorageSystem</span></a> (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a>, me.aecsocket.calibre.defaults.system.<a href="../ComponentProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system">ComponentProviderSystem</a>)
 <ul>
 <li class="circle">me.aecsocket.calibre.defaults.system.gun.<a href="AmmoContainerSystem.html" title="class in me.aecsocket.calibre.defaults.system.gun"><span class="typeNameLink">AmmoContainerSystem</span></a> (implements me.aecsocket.calibre.defaults.system.gun.<a href="AmmoStorageSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun">AmmoStorageSystem</a>)</li>
@@ -140,6 +140,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="circle">me.aecsocket.calibre.defaults.system.gun.<a href="GunSystem.Events.Fire.html" title="class in me.aecsocket.calibre.defaults.system.gun"><span class="typeNameLink">GunSystem.Events.Fire</span></a> (implements me.aecsocket.calibre.item.<a href="../../../item/ItemEvents.Cancellable.html" title="interface in me.aecsocket.calibre.item">ItemEvents.Cancellable</a>)</li>
 <li class="circle">me.aecsocket.calibre.defaults.system.gun.<a href="GunSystem.Events.FireOnce.html" title="class in me.aecsocket.calibre.defaults.system.gun"><span class="typeNameLink">GunSystem.Events.FireOnce</span></a> (implements me.aecsocket.calibre.item.<a href="../../../item/ItemEvents.Cancellable.html" title="interface in me.aecsocket.calibre.item">ItemEvents.Cancellable</a>)</li>
 <li class="circle">me.aecsocket.calibre.defaults.system.gun.<a href="GunSystem.Events.PreChamber.html" title="class in me.aecsocket.calibre.defaults.system.gun"><span class="typeNameLink">GunSystem.Events.PreChamber</span></a> (implements me.aecsocket.calibre.item.<a href="../../../item/ItemEvents.Cancellable.html" title="interface in me.aecsocket.calibre.item">ItemEvents.Cancellable</a>)</li>
+<li class="circle">me.aecsocket.calibre.defaults.system.gun.<a href="GunSystem.Events.PreReload.html" title="class in me.aecsocket.calibre.defaults.system.gun"><span class="typeNameLink">GunSystem.Events.PreReload</span></a> (implements me.aecsocket.calibre.item.<a href="../../../item/ItemEvents.Cancellable.html" title="interface in me.aecsocket.calibre.item">ItemEvents.Cancellable</a>)</li>
 <li class="circle">me.aecsocket.calibre.defaults.system.gun.<a href="GunSystem.Events.ToggleAiming.html" title="class in me.aecsocket.calibre.defaults.system.gun"><span class="typeNameLink">GunSystem.Events.ToggleAiming</span></a> (implements me.aecsocket.calibre.item.<a href="../../../item/ItemEvents.Cancellable.html" title="interface in me.aecsocket.calibre.item">ItemEvents.Cancellable</a>)</li>
 </ul>
 </li>
@@ -183,6 +184,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="circle">me.aecsocket.calibre.defaults.system.gun.<a href="AmmoStorageSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun"><span class="typeNameLink">AmmoStorageSystem</span></a></li>
 </ul>
 </li>
+<li class="circle">me.aecsocket.calibre.defaults.system.projectile.<a href="../projectile/ProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.projectile"><span class="typeNameLink">ProjectileProviderSystem</span></a>
+<ul>
+<li class="circle">me.aecsocket.calibre.defaults.system.gun.<a href="GunProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun"><span class="typeNameLink">GunProjectileProviderSystem</span></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -198,6 +204,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="circle">me.aecsocket.calibre.defaults.system.<a href="../ComponentProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system"><span class="typeNameLink">ComponentProviderSystem</span></a>
 <ul>
 <li class="circle">me.aecsocket.calibre.defaults.system.gun.<a href="AmmoStorageSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun"><span class="typeNameLink">AmmoStorageSystem</span></a></li>
+</ul>
+</li>
+<li class="circle">me.aecsocket.calibre.defaults.system.projectile.<a href="../projectile/ProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.projectile"><span class="typeNameLink">ProjectileProviderSystem</span></a>
+<ul>
+<li class="circle">me.aecsocket.calibre.defaults.system.gun.<a href="GunProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun"><span class="typeNameLink">GunProjectileProviderSystem</span></a></li>
 </ul>
 </li>
 </ul>

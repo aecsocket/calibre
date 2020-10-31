@@ -4,10 +4,12 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import me.aecsocket.calibre.CalibreHook;
 import me.aecsocket.calibre.CalibrePlugin;
+import me.aecsocket.calibre.defaults.service.CalibreComponentSupplier;
 import me.aecsocket.calibre.defaults.service.CalibreDamage;
 import me.aecsocket.calibre.defaults.service.CalibrePenetration;
 import me.aecsocket.calibre.defaults.system.ComponentStorageSystem;
 import me.aecsocket.calibre.defaults.system.ItemSystem;
+import me.aecsocket.calibre.defaults.system.SlotDisplaySystem;
 import me.aecsocket.calibre.defaults.system.gun.AmmoContainerSystem;
 import me.aecsocket.calibre.defaults.system.gun.BulletSystem;
 import me.aecsocket.calibre.defaults.system.gun.GunSystem;
@@ -46,6 +48,7 @@ public class DefaultCalibreHook implements CalibreHook {
         ServicesManager servicesManager = Bukkit.getServicesManager();
         servicesManager.register(CalibreDamage.Service.class, new CalibreDamage.Provider(), plugin, ServicePriority.Lowest);
         servicesManager.register(CalibrePenetration.Service.class, new CalibrePenetration.Provider(plugin), plugin, ServicePriority.Lowest);
+        servicesManager.register(CalibreComponentSupplier.Service.class, new CalibreComponentSupplier.Provider(plugin), plugin, ServicePriority.Lowest);
     }
 
     @Override
@@ -61,6 +64,7 @@ public class DefaultCalibreHook implements CalibreHook {
     public Collection<CalibreIdentifiable> getPreRegisters() {
         return CollectionInit.of(new HashSet<CalibreIdentifiable>())
                 .init(new ItemSystem(plugin))
+                .init(new SlotDisplaySystem(plugin))
                 .init(new ComponentStorageSystem(plugin))
 
                 .init(new MeleeSystem(plugin))

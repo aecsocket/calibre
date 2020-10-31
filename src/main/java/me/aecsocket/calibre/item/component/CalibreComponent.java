@@ -11,6 +11,10 @@ import me.aecsocket.calibre.item.component.search.SystemSearchOptions;
 import me.aecsocket.calibre.item.component.search.SystemSearchResult;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.calibre.item.system.SystemInitializationException;
+import me.aecsocket.calibre.item.util.slot.ItemSlot;
+import me.aecsocket.calibre.item.util.user.AnimatableItemUser;
+import me.aecsocket.calibre.item.util.user.ItemUser;
+import me.aecsocket.calibre.item.util.user.PlayerItemUser;
 import me.aecsocket.calibre.util.CalibreIdentifiable;
 import me.aecsocket.calibre.util.HasDependencies;
 import me.aecsocket.calibre.util.ItemDescriptor;
@@ -39,6 +43,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -71,6 +76,7 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
 
             .init("slot_view_add", new SoundStat())
             .init("slot_view_remove", new SoundStat())
+            .init("quick_modify", new SoundStat())
             .get();
     public static final AttributeModifier ATTACK_SPEED_ATTR = new AttributeModifier(new UUID(42069, 69420), "generic.attack_speed", -1, AttributeModifier.Operation.MULTIPLY_SCALAR_1, EquipmentSlot.HAND);
 
@@ -127,7 +133,7 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
     public CalibreSystem getSystem(String id) { return systems.get(id); }
     public <T extends CalibreSystem> T getSystem(Class<T> type) {
         for (CalibreSystem sys : systems.values()) {
-            if (sys.getClass() == type)
+            if (sys.getClass().isAssignableFrom(type))
                 return type.cast(sys);
         }
         return null;
@@ -261,6 +267,18 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
         });
     }
 
+    public ItemStack updateItem(ItemUser user, ItemSlot slot) {
+        ItemStack item = createItem(
+                user instanceof PlayerItemUser
+                ? ((PlayerItemUser) user).getEntity()
+                : null, slot.get().getAmount());
+        tree.callEvent(new ItemEvents.Update(item, slot, user));
+        if (user instanceof AnimatableItemUser && ((AnimatableItemUser) user).getAnimation() != null)
+            setHidden(plugin, item, true);
+        slot.set(item);
+        return item;
+    }
+
     /**
      * Add the parent component's attributes to this component.
      * <p>
@@ -285,6 +303,25 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
 
     //region Utils
 
+    public CalibreComponentSlot combine(CalibreComponent mod, boolean limitedModification) {
+        CalibreComponentSlot[] result = new CalibreComponentSlot[]{null};
+        walk(data -> {
+            if (result[0] != null) return;
+            if (data.getSlot() instanceof CalibreComponentSlot) {
+                CalibreComponentSlot slot = (CalibreComponentSlot) data.getSlot();
+                if (
+                        slot.get() == null
+                        && slot.isCompatible(mod)
+                        && (slot.canFieldModify() || !limitedModification)
+                ) {
+                    slot.set(mod);
+                    result[0] = slot;
+                }
+            }
+        });
+        return result[0];
+    }
+
     public void searchSlots(SlotSearchOptions opt, Consumer<CalibreComponentSlot> consumer) {
         walk(data -> {
             if (data.getSlot() instanceof CalibreComponentSlot) {
@@ -307,6 +344,14 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
         List<SystemSearchResult<T>> result = new ArrayList<>();
         searchSystems(opt, (slot, sys) -> result.add(new SystemSearchResult<>(slot, sys)));
         return result;
+    }
+    public <T extends CalibreSystem> SystemSearchResult<T> firstOf(SystemSearchOptions<T> opt) {
+        AtomicReference<SystemSearchResult<T>> result = new AtomicReference<>();
+        searchSystems(opt, (slot, sys) -> {
+            if (result.get() != null) return;
+            result.set(new SystemSearchResult<>(slot, sys));
+        });
+        return result.get();
     }
 
     public final CalibreComponent withSimpleTree() {
@@ -340,6 +385,11 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
         copy.completeStats = completeStats.copy();
         copy.systems = copySystems();
         return copy;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, categories, slots, systems, stats, completeStats);
     }
 
     @Override public String toString() { return "CalibreComponent:" + id; }

@@ -117,7 +117,7 @@ public class SlotViewGUIItem implements GUIItem {
                 CalibreComponent component = slot.get().withSimpleTree();
                 view.setRawCursor(component.createItem(player));
                 slot.set(null);
-                SoundData.play(player.getLocation(), component.stat("slot_view_remove"));
+                SoundData.play(player::getLocation, component.stat("slot_view_remove"));
             } catch (ItemCreationException e) {
                 return;
             }
@@ -133,7 +133,7 @@ public class SlotViewGUIItem implements GUIItem {
                 else
                     view.setRawCursor(slot.get().withSimpleTree().createItem(player));
                 slot.set(component);
-                SoundData.play(player.getLocation(), component.stat("slot_view_add"));
+                SoundData.play(player::getLocation, component.stat("slot_view_add"));
             } catch (ItemCreationException e) {
                 return;
             }

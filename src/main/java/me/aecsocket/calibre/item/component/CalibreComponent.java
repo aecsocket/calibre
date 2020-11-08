@@ -45,6 +45,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -92,6 +93,7 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
 
     private final transient Map<Class<? extends CalibreSystem>, String> systemServices = new HashMap<>();
     private transient CalibreComponent parent;
+    private transient String parentSlotName;
     private transient ComponentTree tree;
 
     public CalibreComponent(CalibrePlugin plugin, String id) {
@@ -124,6 +126,9 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
 
     public CalibreComponent getParent() { return parent; }
     public void setParent(CalibreComponent parent) { this.parent = parent; }
+
+    public String getParentSlotName() { return parentSlotName; }
+    public void setParentSlotName(String parentSlotName) { this.parentSlotName = parentSlotName; }
 
     public ComponentTree getTree() { return tree; }
     public void setTree(ComponentTree tree) { this.tree = tree; }
@@ -261,6 +266,7 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
             callEvent(new ItemEvents.Create(player, amount, item, meta));
             PersistentDataContainer data = meta.getPersistentDataContainer();
             plugin.getItemManager().saveTypeKey(meta, this);
+            //player.sendMessage(id + ": ammo = " + getSystem(GunSystem.class).collectAmmo().getSystem().size());
             data.set(plugin.key("tree"), PersistentDataType.STRING, plugin.getGson().toJson(tree));
             if (stat("lower"))
                 meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, ATTACK_SPEED_ATTR);
@@ -345,14 +351,15 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
         searchSystems(opt, (slot, sys) -> result.add(new SystemSearchResult<>(slot, sys)));
         return result;
     }
-    public <T extends CalibreSystem> SystemSearchResult<T> firstOf(SystemSearchOptions<T> opt) {
+    public <T extends CalibreSystem> SystemSearchResult<T> firstOf(SystemSearchOptions<T> opt, BiPredicate<CalibreComponentSlot, T> predicate) {
         AtomicReference<SystemSearchResult<T>> result = new AtomicReference<>();
         searchSystems(opt, (slot, sys) -> {
-            if (result.get() != null) return;
+            if (result.get() != null || (predicate != null && !predicate.test(slot, sys))) return;
             result.set(new SystemSearchResult<>(slot, sys));
         });
         return result.get();
     }
+    public <T extends CalibreSystem> SystemSearchResult<T> firstOf(SystemSearchOptions<T> opt) { return firstOf(opt, null); }
 
     public final CalibreComponent withSimpleTree() {
         CalibreComponent copy = copy();
@@ -362,7 +369,22 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
 
     public final <T> T stat(String key) { return tree.stat(key); }
     public final <T> T callEvent(T event) { return tree.callEvent(event); }
+
+    public CalibreComponentSlot getParentSlot() {
+        // use #getSlots directly because it's faster
+        return parent.getSlots().get(parentSlotName);
+    }
+
     public final boolean isRoot() { return tree.getRoot() == this; }
+    public final String[] getTreePath() {
+        if (getParent() == null) return new String[0];
+        String[] parents = getParent().getTreePath();
+        String[] result = new String[parents.length + 1];
+        System.arraycopy(parents, 0, result, 0, parents.length);
+        result[result.length - 1] = parentSlotName;
+        return result;
+    }
+    public final String getJoinedTreePath() { return String.join(".", getTreePath()); }
 
     //endregion
 

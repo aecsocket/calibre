@@ -134,23 +134,6 @@ public class EventHandle implements Listener {
         PlayerItemUser user = plugin.userOf(player);
         PlayerInventory inv = player.getInventory();
         EntityItemSlot handSlot = new EntityItemSlot(player, EquipmentSlot.HAND);
-        if (event.getSlot() == inv.getHeldItemSlot()) {
-            // Must have holster before draw so that, in case both items the event is called on are the same item,
-            // the last event ran is a draw event
-            ItemStack item = inv.getItem(event.getSlot());
-            callEvent(item, new ItemEvents.Holster(item, handSlot, user));
-
-            item = event.getCursor();
-            callEvent(item, new ItemEvents.Draw(item, handSlot, user));
-        }
-
-        if (event.getHotbarButton() == inv.getHeldItemSlot()) {
-            ItemStack item = inv.getItem(event.getHotbarButton());
-            callEvent(item, new ItemEvents.Holster(item, handSlot, user));
-
-            item = inv.getItem(event.getSlot());
-            callEvent(item, new ItemEvents.Draw(item, handSlot, user));
-        }
 
         GUIView view = plugin.getGUIManager().getView(player);
         SlotViewGUI gui = view == null
@@ -161,7 +144,8 @@ public class EventHandle implements Listener {
         if (plugin.setting("slot_view.enabled", boolean.class, true) && event.getClick() == ClickType.RIGHT) {
             CalibreComponent component = plugin.fromItem(event.getCurrentItem());
             if (component == null) return;
-            boolean allowModification = plugin.setting("slot_view.allow_modification", boolean.class, true) && gui == null;
+            boolean allowModification = plugin.setting("slot_view.allow_modification", boolean.class, true)
+                    && (gui == null || (gui.getSlot() == null || !event.getCurrentItem().equals(gui.getSlot().get())));
             new SlotViewGUI(
                     plugin, plugin.getGUIManager(), component,
                     allowModification,
@@ -186,17 +170,37 @@ public class EventHandle implements Listener {
             CalibreComponent base = plugin.fromItem(event.getCurrentItem());
             CalibreComponent mod = plugin.fromItem(event.getCursor());
             if (base == null || mod == null) return;
+            boolean updateGui = gui != null && gui.getSlot() != null && event.getCurrentItem().equals(gui.getSlot().get());
             if (base.combine(mod, plugin.setting("quick_modify.limited_modification", boolean.class, true)) != null) {
                 SoundData.play(player::getLocation, base.stat("quick_modify"));
                 base.updateItem(plugin.userOf(player), new PlayerItemSlot(player, event.getSlot()));
                 event.getCursor().subtract();
                 event.setCancelled(true);
 
-                if (gui != null) {
+                if (updateGui) {
                     gui.setComponent(base);
                     gui.notifyUpdate(view);
                 }
+                return;
             }
+        }
+
+        if (event.getSlot() == inv.getHeldItemSlot()) {
+            // Must have holster before draw so that, in case both items the event is called on are the same item,
+            // the last event ran is a draw event
+            ItemStack item = inv.getItem(event.getSlot());
+            callEvent(item, new ItemEvents.Holster(item, handSlot, user));
+
+            item = event.getCursor();
+            callEvent(item, new ItemEvents.Draw(item, handSlot, user));
+        }
+
+        if (event.getHotbarButton() == inv.getHeldItemSlot()) {
+            ItemStack item = inv.getItem(event.getHotbarButton());
+            callEvent(item, new ItemEvents.Holster(item, handSlot, user));
+
+            item = inv.getItem(event.getSlot());
+            callEvent(item, new ItemEvents.Draw(item, handSlot, user));
         }
     }
 }

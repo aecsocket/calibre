@@ -41,10 +41,7 @@ import me.aecsocket.unifiedframework.util.MapInit;
 import me.aecsocket.unifiedframework.util.Projectile;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.Vector2;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
@@ -133,6 +130,7 @@ public class GunSystem extends BaseSystem {
             .init("chamber_handling", new EnumStat<>(ChamberHandling.class, ChamberHandling.NORMAL))
             .init("barrel_offset", new VectorStat(new Vector()))
             .init("shots", new NumberStat.Int(1))
+            .init("shot_start_delay", new NumberStat.Long(0L))
             .init("shot_delay", new NumberStat.Long(0L))
             .init("entity_awareness", new NumberStat.Double(0d))
             .init("breakable_blocks", new BasicArrayStat<>(Material[].class, Material[]::new))
@@ -180,22 +178,27 @@ public class GunSystem extends BaseSystem {
             .init("fire_animation", new ItemAnimationStat())
 
             .init("chamber_delay", new NumberStat.Long(0L))
+            .init("chamber_after", new NumberStat.Long(0L))
             .init("chamber_sound", new SoundStat())
             .init("chamber_animation", new ItemAnimationStat())
 
             .init("aim_in_delay", new NumberStat.Long(0L))
+            .init("aim_in_after", new NumberStat.Long(0L))
             .init("aim_in_sound", new SoundStat())
             .init("aim_in_animation", new ItemAnimationStat())
 
             .init("aim_out_delay", new NumberStat.Long(0L))
+            .init("aim_out_after", new NumberStat.Long(0L))
             .init("aim_out_sound", new SoundStat())
             .init("aim_out_animation", new ItemAnimationStat())
 
             .init("change_sight_delay", new NumberStat.Long(0L))
+            .init("change_sight_after", new NumberStat.Long(0L))
             .init("change_sight_sound", new SoundStat())
             .init("change_sight_animation", new ItemAnimationStat())
 
             .init("change_fire_mode_delay", new NumberStat.Long(0L))
+            .init("change_fire_mode_after", new NumberStat.Long(0L))
             .init("change_fire_mode_sound", new SoundStat())
             .init("change_fire_mode_animation", new ItemAnimationStat())
 
@@ -218,7 +221,6 @@ public class GunSystem extends BaseSystem {
 
     @LoadTimeOnly private boolean usable;
     private transient ItemSystem itemSystem;
-    private long[] shootAt;
     private double shotSpread;
     private long shotSpreadTime;
 
@@ -323,7 +325,7 @@ public class GunSystem extends BaseSystem {
         return new SystemSearchOptions<AmmoStorageSystem>(ammoSlotSearch())
                 .serviceType(AmmoStorageSystem.class);
     }
-    public SystemSearchResult<AmmoStorageSystem> collectAmmo() {return parent.firstOf(ammoSystemSearch()); }
+    public SystemSearchResult<AmmoStorageSystem> collectAmmo() { return parent.firstOf(ammoSystemSearch(), (slot, sys) -> sys.hasNext()); }
 
     // TODO clean this up
 
@@ -405,25 +407,6 @@ public class GunSystem extends BaseSystem {
         if (!getTree().isComplete()) return;
         if (!(event.getTickContext().getLoop() instanceof SchedulerLoop)) return;
         if (event.getSlot() instanceof EquipmentItemSlot && ((EquipmentItemSlot) event.getSlot()).getEquipmentSlot() != EquipmentSlot.HAND) return;
-        while (
-                shootAt != null
-                && shootAt.length > 0
-                && System.currentTimeMillis() >= shootAt[0]
-                && shootAt[0] < System.currentTimeMillis() + 50 // prevent late shots
-        ) {
-            long[] newShootAt = new long[shootAt.length - 1];
-            System.arraycopy(shootAt, 1, newShootAt, 0, newShootAt.length);
-            shootAt = newShootAt;
-            if (!fireOnce(new Events.FireOnce(
-                    event.getStack(),
-                    event.getSlot(),
-                    event.getUser(),
-                    this
-            ))) {
-                shootAt = null;
-                event.updateItem(this);
-            }
-        }
 
         if (event.getUser() instanceof PlayerItemUser) {
             Player player = ((PlayerItemUser) event.getUser()).getEntity();
@@ -477,7 +460,7 @@ public class GunSystem extends BaseSystem {
     }
 
     private void onEvent(ItemEvents.Holster event) {
-        shootAt = null;
+        //shootAt = null;
         aiming = false;
         event.updateItem(this);
     }
@@ -542,9 +525,19 @@ public class GunSystem extends BaseSystem {
 
         int shots = stat("shots");
         long shotDelay = stat("shot_delay");
-        shootAt = new long[shots];
+        long shotStartDelay = stat("shot_start_delay");
         for (int i = 0; i < shots; i++)
-            shootAt[i] = System.currentTimeMillis() + (shotDelay * i);
+            itemSystem.addTask(this, event.getSlot(), sys -> {
+                if (!fireOnce(new Events.FireOnce(
+                        event.getStack(),
+                        event.getSlot(),
+                        event.getUser(),
+                        this
+                ))) {
+                    itemSystem.cancelTasks();
+                    event.updateItem(this);
+                }
+            }, shotStartDelay + (shotDelay * i));
         event.updateItem();
     }
 
@@ -582,10 +575,8 @@ public class GunSystem extends BaseSystem {
             default:
                 chamberResult = collectChamber();
         }
-        if (chamberResult == null) {
-            event.updateItem();
+        if (chamberResult == null)
             return false;
-        }
         CalibreComponentSlot chamberSlot = chamberResult.getSlot();
         ProjectileProviderSystem chamber = chamberResult.getSystem();
 
@@ -594,10 +585,8 @@ public class GunSystem extends BaseSystem {
         if (user instanceof PlayerItemUser && ((PlayerItemUser) user).getEntity().getMainHand() == MainHand.LEFT)
             barrelOffset = barrelOffset.clone().setX(-barrelOffset.getX());
         Location location = Utils.getFacingRelative(user.getLocation(), barrelOffset);
-        if (user instanceof EntityItemUser && Utils.isObstructed(((EntityItemUser) user).getEntity(), location)) {
-            event.updateItem();
+        if (user instanceof EntityItemUser && Utils.isObstructed(((EntityItemUser) user).getEntity(), location))
             return false;
-        }
 
         double muzzleVelocity = stat("muzzle_velocity");
         double gravity = stat("projectile_gravity");
@@ -681,7 +670,7 @@ public class GunSystem extends BaseSystem {
 
         AmmoStorageSystem[] ammo = new AmmoStorageSystem[]{null};
         boolean[] search = new boolean[]{true};
-        Map<CalibreComponentSlot, CalibreComponent> loadedChambers = new HashMap<>();
+        LinkedHashMap<CalibreComponentSlot, AmmoStorageSystem> loadedChambers = new LinkedHashMap<>();
         parent.searchSlots(
                 new SlotSearchOptions()
                         .slotTag("chamber")
@@ -698,10 +687,8 @@ public class GunSystem extends BaseSystem {
                     }
 
                     CalibreComponent nextChamber = ammo[0].peek();
-                    if (nextChamber != null && slot.isCompatible(nextChamber)) {
-                        nextChamber = ammo[0].next();
-                        loadedChambers.put(slot, nextChamber);
-                    }
+                    if (nextChamber != null && slot.isCompatible(nextChamber))
+                        loadedChambers.put(slot, ammo[0]);
                 }
         );
 
@@ -712,12 +699,14 @@ public class GunSystem extends BaseSystem {
         callEvent(event2);
 
         if (loadedChambers.size() > 0) {
-            loadedChambers.forEach((slot, comp) -> {
-                if (slot.get() != null && user instanceof LivingEntityItemUser)
-                    ejectChamber(slot.get().getSystem(ProjectileProviderSystem.class), ((LivingEntityItemUser) user).getEntity());
-                slot.set(comp);
+            itemSystem.doAction(this, "chamber", user, event.getSlot(), sys -> {
+                loadedChambers.forEach((slot, sys2) -> {
+                    if (slot.get() != null && user instanceof LivingEntityItemUser)
+                        ejectChamber(slot.get().getSystem(ProjectileProviderSystem.class), ((LivingEntityItemUser) user).getEntity());
+                    slot.set(sys2.next());
+                });
+                event.updateItem();
             });
-            itemSystem.doAction(this, "chamber", user, event.getSlot());
             event.updateItem();
         } else {
             fail(new Events.Fail(
@@ -730,11 +719,10 @@ public class GunSystem extends BaseSystem {
         if (callEvent(event).cancelled) return;
         if (aiming == event.newAiming) return;
 
-        // TODO probably add a stat to delay this to e.g. prevent quickscoping
-        aiming = event.newAiming;
-        getTree().buildStats();
-
-        itemSystem.doAction(this, "aim_" + (aiming ? "in" : "out"), event.getUser(), event.getSlot());
+        itemSystem.doAction(this, "aim_" + (aiming ? "out" : "in"), event.getUser(), event.getSlot(), sys -> {
+            aiming = event.newAiming;
+            event.updateItem();
+        });
         event.updateItem();
     }
 
@@ -743,9 +731,10 @@ public class GunSystem extends BaseSystem {
         SightReference newSight = event.newSight;
         if (newSight == null || newSight.equals(sight)) return;
 
-        sight = newSight;
-
-        itemSystem.doAction(this, "change_sight", event.getUser(), event.getSlot());
+        itemSystem.doAction(this, "change_sight", event.getUser(), event.getSlot(), sys -> {
+            sight = newSight;
+            event.updateItem();
+        });
         event.updateItem();
     }
 
@@ -754,10 +743,10 @@ public class GunSystem extends BaseSystem {
         FireModeReference newMode = event.newMode;
         if (newMode == null || newMode.equals(fireMode)) return;
 
-        fireMode = newMode;
-        getTree().buildStats();
-
-        itemSystem.doAction(this, "change_fire_mode", event.getUser(), event.getSlot());
+        itemSystem.doAction(this, "change_fire_mode", event.getUser(), event.getSlot(), sys -> {
+            fireMode = newMode;
+            event.updateItem();
+        });
         event.updateItem();
     }
 
@@ -789,12 +778,20 @@ public class GunSystem extends BaseSystem {
             resume[0] = false;
             // Place non-empty compatible component into slot from inventory
             Utils.useService(CalibreComponentSupplier.Service.class, s -> {
-                CalibreComponent component = s.supply(slot, user, this, true);
+                CalibreComponent component = s.supply(slot, user, this, false);
                 if (component != null) {
                     slot.set(component);
                     getTree().buildStats();
                     itemSystem.doAction(this, "load_ammo", user, itemSlot);
-                    event.updateItem();
+                    ItemStack oldStack = event.getStack().clone();
+                    // todo
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                        if (!event.getSlot().get().equals(oldStack)) return;
+                        CalibreComponent newComponent = s.supply(slot, user, this, true);
+                        if (newComponent == null) return;
+                        slot.set(newComponent);
+                        event.updateItem();
+                    }, 15);
                 }
             });
         });
@@ -919,14 +916,14 @@ public class GunSystem extends BaseSystem {
         }
 
         public static class Chamber extends Event {
-            private final Map<CalibreComponentSlot, CalibreComponent> loadedChambers;
+            private final LinkedHashMap<CalibreComponentSlot, AmmoStorageSystem> loadedChambers;
 
-            public Chamber(ItemStack stack, ItemSlot slot, ItemUser user, GunSystem system, Map<CalibreComponentSlot, CalibreComponent> loadedChambers) {
+            public Chamber(ItemStack stack, ItemSlot slot, ItemUser user, GunSystem system, LinkedHashMap<CalibreComponentSlot, AmmoStorageSystem> loadedChambers) {
                 super(stack, slot, user, system);
                 this.loadedChambers = loadedChambers;
             }
 
-            public Map<CalibreComponentSlot, CalibreComponent> getLoadedChambers() { return loadedChambers; }
+            public LinkedHashMap<CalibreComponentSlot, AmmoStorageSystem> getLoadedChambers() { return loadedChambers; }
         }
 
         public static class ToggleAiming extends Event implements ItemEvents.Cancellable {

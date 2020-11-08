@@ -102,6 +102,8 @@ public final class ItemEvents {
         }
     }
 
+    // IMPORTANT: YOU **MUST NOT** update the item in this event IF THE LOOP USED IS NOT A SCHEDULER LOOP!!!!!!!!!
+    // it will mess with scheduled item tasks
     public static class Equip extends Event {
         private final TickContext tickContext;
 

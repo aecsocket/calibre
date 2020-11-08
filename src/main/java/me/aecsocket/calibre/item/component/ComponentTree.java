@@ -178,10 +178,12 @@ public class ComponentTree {
 
     private void build(CalibreComponent parent) throws SystemInitializationException {
         parent.setTree(this);
-        for (CalibreComponentSlot slot : parent.getSlots().values()) {
+        for (Map.Entry<String, CalibreComponentSlot> entry : parent.getSlots().entrySet()) {
+            CalibreComponentSlot slot = entry.getValue();
             CalibreComponent child = slot.get();
             if (child != null) {
                 child.setParent(parent);
+                child.setParentSlotName(entry.getKey());
                 build(child);
             } else if (slot.isRequired())
                 complete = false;

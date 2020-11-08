@@ -4,6 +4,7 @@ import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.ItemAnimation;
 import me.aecsocket.calibre.item.ItemEvents;
 import me.aecsocket.calibre.item.component.CalibreComponent;
+import me.aecsocket.calibre.item.component.CalibreComponentSlot;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.BaseSystem;
 import me.aecsocket.calibre.item.system.CalibreSystem;
@@ -12,18 +13,23 @@ import me.aecsocket.calibre.item.util.slot.EquipmentItemSlot;
 import me.aecsocket.calibre.item.util.slot.ItemSlot;
 import me.aecsocket.calibre.item.util.user.AnimatableItemUser;
 import me.aecsocket.calibre.item.util.user.ItemUser;
+import me.aecsocket.calibre.item.util.user.LivingEntityItemUser;
 import me.aecsocket.calibre.item.util.user.PlayerItemUser;
 import me.aecsocket.calibre.util.CalibreParticleData;
 import me.aecsocket.calibre.util.CalibreProtocol;
 import me.aecsocket.calibre.util.CalibreSoundData;
 import me.aecsocket.calibre.util.stat.ItemAnimationStat;
 import me.aecsocket.calibre.util.stat.SoundStat;
+import me.aecsocket.unifiedframework.component.ComponentSlot;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
+import me.aecsocket.unifiedframework.loop.SchedulerLoop;
 import me.aecsocket.unifiedframework.stat.Stat;
 import me.aecsocket.unifiedframework.stat.impl.NumberStat;
 import me.aecsocket.unifiedframework.util.MapInit;
+import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.data.ParticleData;
 import me.aecsocket.unifiedframework.util.data.SoundData;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -31,10 +37,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.util.Consumer;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ItemSystem extends BaseSystem {
     public static final String ID = "item";
@@ -53,6 +61,7 @@ public class ItemSystem extends BaseSystem {
     @LoadTimeOnly private String itemNameKey;
     @LoadTimeOnly private String descriptionKey;
     private long nextAvailable;
+    private List<Integer> tasks = new ArrayList<>();
 
     public ItemSystem(CalibrePlugin plugin) {
         super(plugin);
@@ -67,6 +76,9 @@ public class ItemSystem extends BaseSystem {
     public long getNextAvailable() { return nextAvailable; }
     public void setNextAvailable(long nextAvailable) { this.nextAvailable = nextAvailable; }
 
+    public List<Integer> getTasks() { return tasks; }
+    public void setTasks(List<Integer> tasks) { this.tasks = tasks; }
+
     @Override
     public void initialize(CalibreComponent parent, ComponentTree tree) {
         super.initialize(parent, tree);
@@ -79,8 +91,10 @@ public class ItemSystem extends BaseSystem {
         EventDispatcher events = tree.getEventDispatcher();
         events.registerListener(ItemEvents.Create.class, this::onEvent, 0);
         events.registerListener(ItemEvents.Update.class, this::onEvent, 0);
+        events.registerListener(ItemEvents.Equip.class, this::onEvent, 0);
         events.registerListener(ItemEvents.Draw.class, this::onEvent, 0);
         events.registerListener(ItemEvents.Holster.class, this::onEvent, 0);
+        events.registerListener(ItemEvents.Damage.class, this::onEvent, 0);
     }
 
     @Override public Map<String, Stat<?>> getDefaultStats() { return STATS; }
@@ -118,18 +132,34 @@ public class ItemSystem extends BaseSystem {
                 meta,
                 sections
         ));
-        List<String> lore = Arrays.asList(String.join(plugin.gen(player, "system.item.section_separator"), sections).split("\n"));
+        List<String> lore = new ArrayList<>(Arrays.asList(String.join(plugin.gen(player, "system.item.section_separator"), sections).split("\n")));
         if (lore.size() > 0) {
             if (lore.get(0).equals("")) {
                 lore = new ArrayList<>(lore);
                 lore.remove(0);
             }
+            List<String> a = new ArrayList<>();
+            parent.walk(data -> {
+                data.getComponent().ifPresent(r -> {
+                    a.add(((CalibreComponent) r).getJoinedTreePath());
+                });
+            });
+            lore.addAll(a);
             meta.setLore(lore);
         }
     }
 
     private void onEvent(ItemEvents.Update event) {
         updateFov(event.getUser());
+    }
+
+    private void onEvent(ItemEvents.Equip event) {
+        // the updateItem call in this somehow messes with delayed tasks
+        if (!(event.getTickContext().getLoop() instanceof SchedulerLoop)) return;
+        if (tasks != null) {
+            if (tasks.removeIf(id -> !Bukkit.getScheduler().isQueued(id)))
+                event.updateItem(this);
+        }
     }
 
     private void onEvent(ItemEvents.Draw event) {
@@ -139,19 +169,35 @@ public class ItemSystem extends BaseSystem {
 
     private void onEvent(ItemEvents.Holster event) {
         resetFov(event.getUser());
+        cancelTasks();
     }
 
-    public void doAction(CalibreSystem system, String actionName, ItemUser user, ItemSlot slot, Vector offset) {
+    private void onEvent(ItemEvents.Damage event) {
+        if (event.getUser() instanceof LivingEntityItemUser) {
+            if (((LivingEntityItemUser) event.getUser()).getEntity().getHealth() - event.getFinalDamage() <= 0) {
+                cancelTasks();
+            }
+        }
+    }
+
+    public <T extends CalibreSystem> void doAction(T system, String actionName, ItemUser user, ItemSlot slot, Vector offset, Consumer<T> afterTask) {
         ComponentTree tree = system.getParent().getTree();
         Location location = offset == null ? user.getLocation() : user.getLocation().add(offset);
 
         Long delay = tree.stat(actionName + "_delay");
+        Long after = tree.stat(actionName + "_after");
         CalibreSoundData[] sound = tree.stat(actionName + "_sound");
         CalibreParticleData[] particle = tree.stat(actionName + "_particle");
         ItemAnimation animation = tree.stat(actionName + "_animation");
 
         if (delay != null)
             applyDelay(delay);
+        if (afterTask != null) {
+            if (after == null)
+                afterTask.accept(system);
+            else
+                addTask(system, slot, afterTask, after);
+        }
         if (sound != null)
             SoundData.play(() -> offset == null ? user.getLocation() : user.getLocation().add(offset), sound);
         if (particle != null)
@@ -160,8 +206,56 @@ public class ItemSystem extends BaseSystem {
             ((AnimatableItemUser) user).startAnimation(animation, ((EquipmentItemSlot) slot).getEquipmentSlot());
     }
 
+    public void doAction(CalibreSystem system, String actionName, ItemUser user, ItemSlot slot, Vector offset) {
+        doAction(system, actionName, user, slot, offset, null);
+    }
+
+    public <T extends CalibreSystem> void doAction(T system, String actionName, ItemUser user, ItemSlot slot, Consumer<T> afterTask) {
+        doAction(system, actionName, user, slot, null, afterTask);
+    }
+
     public void doAction(CalibreSystem system, String actionName, ItemUser user, ItemSlot slot) {
-        doAction(system, actionName, user, slot, null);
+        doAction(system, actionName, user, slot, null, null);
+    }
+
+    public <S extends CalibreSystem> int addTask(S caller, ItemSlot slot, Consumer<S> run, long delay) {
+        // caller MUST have same parent as this instance's
+        AtomicInteger task = new AtomicInteger();
+        task.set(Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            CalibreComponent now = plugin.fromItem(slot.get());
+            if (now == null) return;
+
+            String path = parent.getJoinedTreePath();
+            CalibreComponent comp;
+            if (path.length() == 0) {
+                comp = now;
+            } else {
+                ComponentSlot<?> thisSlot = now.getSlot(path);
+                if (!(thisSlot instanceof CalibreComponentSlot)) return;
+                comp = ((CalibreComponentSlot) thisSlot).get();
+            }
+
+            ItemSystem nowSystem = (ItemSystem) comp.getSystem(ID);
+            if (nowSystem == null) return;
+            if (nowSystem.tasks == null || !nowSystem.tasks.contains(task.get())) return;
+
+            if (caller != null) {
+                @SuppressWarnings("unchecked")
+                S nowCaller = (S) comp.getSystem(caller.getId());
+                run.accept(nowCaller);
+            } else
+                run.accept(null);
+        }, Utils.toTicks(delay)));
+        if (tasks == null)
+            tasks = new ArrayList<>();
+        tasks.add(task.get());
+        return task.get();
+    }
+    public void cancelTasks() {
+        if (tasks != null) {
+            tasks.forEach(Bukkit.getScheduler()::cancelTask);
+            tasks.clear();
+        }
     }
 
     public void applyDelay(long ms) { nextAvailable = System.currentTimeMillis() + ms; }

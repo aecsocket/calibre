@@ -19,7 +19,7 @@ public class SlotSearchOptions {
     public SlotSearchOptions targetPriority(Integer targetPriority) { this.targetPriority = targetPriority; return this; }
 
     public boolean matches(CalibreComponentSlot slot) {
-        if (slotTag != null && slot.getTags() != null && !slot.getTags().contains(slotTag)) return false;
+        if (slotTag != null && (slot.getTags() == null || !slot.getTags().contains(slotTag))) return false;
         if (targetPriority != null && slot.getPriority() != targetPriority) return false;
         return true;
     }

@@ -254,6 +254,43 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tbody>
 </table>
 <table class="useSummary">
+<caption><span>Methods in <a href="../../../defaults/system/package-summary.html">me.aecsocket.calibre.defaults.system</a> with type parameters of type <a href="../CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>&lt;S extends <a href="../CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;<br>int</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">ItemSystem.</span><code><span class="memberNameLink"><a href="../../../defaults/system/ItemSystem.html#addTask(S,me.aecsocket.calibre.item.util.slot.ItemSlot,org.bukkit.util.Consumer,long)">addTask</a></span>&#8203;(S&nbsp;caller,
+       <a href="../../util/slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
+       org.bukkit.util.Consumer&lt;S&gt;&nbsp;run,
+       long&nbsp;delay)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>&lt;T extends <a href="../CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;<br>void</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">ItemSystem.</span><code><span class="memberNameLink"><a href="../../../defaults/system/ItemSystem.html#doAction(T,java.lang.String,me.aecsocket.calibre.item.util.user.ItemUser,me.aecsocket.calibre.item.util.slot.ItemSlot,org.bukkit.util.Consumer)">doAction</a></span>&#8203;(T&nbsp;system,
+        <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;actionName,
+        <a href="../../util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
+        <a href="../../util/slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
+        org.bukkit.util.Consumer&lt;T&gt;&nbsp;afterTask)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>&lt;T extends <a href="../CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;<br>void</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">ItemSystem.</span><code><span class="memberNameLink"><a href="../../../defaults/system/ItemSystem.html#doAction(T,java.lang.String,me.aecsocket.calibre.item.util.user.ItemUser,me.aecsocket.calibre.item.util.slot.ItemSlot,org.bukkit.util.Vector,org.bukkit.util.Consumer)">doAction</a></span>&#8203;(T&nbsp;system,
+        <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;actionName,
+        <a href="../../util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user,
+        <a href="../../util/slot/ItemSlot.html" title="interface in me.aecsocket.calibre.item.util.slot">ItemSlot</a>&nbsp;slot,
+        org.bukkit.util.Vector&nbsp;offset,
+        org.bukkit.util.Consumer&lt;T&gt;&nbsp;afterTask)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<table class="useSummary">
 <caption><span>Methods in <a href="../../../defaults/system/package-summary.html">me.aecsocket.calibre.defaults.system</a> with parameters of type <a href="../CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -483,28 +520,34 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>&lt;T extends <a href="../CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;<br>T</code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">CalibreComponent.</span><code><span class="memberNameLink"><a href="../../component/CalibreComponent.html#getSystem(java.lang.Class)">getSystem</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;T&gt;&nbsp;type)</code></th>
+<td class="colFirst"><code>&lt;T extends <a href="../CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;<br><a href="../../component/search/SystemSearchResult.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchResult</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">CalibreComponent.</span><code><span class="memberNameLink"><a href="../../component/CalibreComponent.html#firstOf(me.aecsocket.calibre.item.component.search.SystemSearchOptions,java.util.function.BiPredicate)">firstOf</a></span>&#8203;(<a href="../../component/search/SystemSearchOptions.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchOptions</a>&lt;T&gt;&nbsp;opt,
+       <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/BiPredicate.html?is-external=true" title="class or interface in java.util.function" class="externalLink">BiPredicate</a>&lt;<a href="../../component/CalibreComponentSlot.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentSlot</a>,&#8203;T&gt;&nbsp;predicate)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>&lt;T extends <a href="../CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;<br>T</code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">CalibreComponent.</span><code><span class="memberNameLink"><a href="../../component/CalibreComponent.html#getSystemService(java.lang.Class)">getSystemService</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;T&gt;&nbsp;type)</code></th>
+<th class="colSecond" scope="row"><span class="typeNameLabel">CalibreComponent.</span><code><span class="memberNameLink"><a href="../../component/CalibreComponent.html#getSystem(java.lang.Class)">getSystem</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;T&gt;&nbsp;type)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>&lt;T extends <a href="../CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;<br>T</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">CalibreComponent.</span><code><span class="memberNameLink"><a href="../../component/CalibreComponent.html#getSystemService(java.lang.Class)">getSystemService</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;T&gt;&nbsp;type)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>&lt;T extends <a href="../CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;<br>void</code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">CalibreComponent.</span><code><span class="memberNameLink"><a href="../../component/CalibreComponent.html#registerSystemService(java.lang.Class,java.lang.String)">registerSystemService</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;T&gt;&nbsp;type,
                      <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;systemId)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>&lt;T extends <a href="../CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;<br>void</code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">CalibreComponent.</span><code><span class="memberNameLink"><a href="../../component/CalibreComponent.html#registerSystemService(java.lang.Class,T)">registerSystemService</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;T&gt;&nbsp;type,
                      T&nbsp;system)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>&lt;T extends <a href="../CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;<br>void</code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">CalibreComponent.</span><code><span class="memberNameLink"><a href="../../component/CalibreComponent.html#searchSystems(me.aecsocket.calibre.item.component.search.SystemSearchOptions,java.util.function.BiConsumer)">searchSystems</a></span>&#8203;(<a href="../../component/search/SystemSearchOptions.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchOptions</a>&lt;T&gt;&nbsp;opt,
              <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/BiConsumer.html?is-external=true" title="class or interface in java.util.function" class="externalLink">BiConsumer</a>&lt;<a href="../../component/CalibreComponentSlot.html" title="class in me.aecsocket.calibre.item.component">CalibreComponentSlot</a>,&#8203;T&gt;&nbsp;consumer)</code></th>

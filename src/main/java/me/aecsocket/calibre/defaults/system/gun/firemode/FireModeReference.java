@@ -27,7 +27,7 @@ public class FireModeReference extends SystemReference<FireModeSystem, FireMode>
 
     public FireModeReference(SystemReference<FireModeSystem, FireMode> o) { super(o); }
 
-    @Override protected Class<FireModeSystem> getSystemType() { return FireModeSystem.class; }
+    @Override protected String getSystemId() { return FireModeSystem.ID; }
     @Override
     protected FireMode getMapped(FireModeSystem system) {
         List<FireMode> modes = system.getModes();

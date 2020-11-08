@@ -42,7 +42,7 @@ public class SightSystem extends BaseSystem implements HasDependencies<SightSyst
     @Override
     public void systemInitialize(CalibreComponent parent) throws SystemInitializationException {
         if (dependencies.sights != null)
-            sights = plugin.getGson().fromJson(dependencies.sights, new TypeToken<List<Sight>>(){}.getType());
+            sights = plugin.getGson().fromJson(dependencies.sights, new TypeToken<List<Sight>>() {}.getType());
     }
 
     @Override
@@ -54,4 +54,7 @@ public class SightSystem extends BaseSystem implements HasDependencies<SightSyst
     @Override public Collection<String> getDependencies() { return Collections.emptyList(); }
     @Override public SightSystem clone() { return (SightSystem) super.clone(); }
     @Override public SightSystem copy() { return clone(); }
+
+    @Override
+    public String toString() { return "SightSystem" + sights; }
 }

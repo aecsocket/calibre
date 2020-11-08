@@ -132,19 +132,12 @@ public class ItemSystem extends BaseSystem {
                 meta,
                 sections
         ));
-        List<String> lore = new ArrayList<>(Arrays.asList(String.join(plugin.gen(player, "system.item.section_separator"), sections).split("\n")));
+        List<String> lore = Arrays.asList(String.join(plugin.gen(player, "system.item.section_separator"), sections).split("\n"));
         if (lore.size() > 0) {
             if (lore.get(0).equals("")) {
                 lore = new ArrayList<>(lore);
                 lore.remove(0);
             }
-            List<String> a = new ArrayList<>();
-            parent.walk(data -> {
-                data.getComponent().ifPresent(r -> {
-                    a.add(((CalibreComponent) r).getJoinedTreePath());
-                });
-            });
-            lore.addAll(a);
             meta.setLore(lore);
         }
     }

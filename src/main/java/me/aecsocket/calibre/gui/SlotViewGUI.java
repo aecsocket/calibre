@@ -59,7 +59,7 @@ public class SlotViewGUI extends GUI {
     public Map<Integer, GUIItem> getItems(Player player) {
         Map<Integer, GUIItem> map = new HashMap<>();
         GUIVector center = plugin.setting("slot_view.center", GUIVector.class, new GUIVector(4, 3));
-        map.put(center.toSlot(), new SlotViewGUIItem(this, component.withSimpleTree()));
+        map.put(center.toSlot(), new SlotViewGUIItem(this, component.withSingleTree()));
         component.getSlots().forEach((slotName, slot) -> putItems(map, slot, slotName, center));
         return map;
     }

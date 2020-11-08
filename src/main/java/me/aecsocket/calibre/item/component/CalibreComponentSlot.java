@@ -77,4 +77,6 @@ public class CalibreComponentSlot implements ComponentSlot<CalibreComponent>, Cl
             copy.component = component.copy();
         return copy;
     }
+
+    @Override public String toString() { return component == null ? "null" : component.toString(); }
 }

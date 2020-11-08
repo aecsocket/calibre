@@ -266,7 +266,6 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
             callEvent(new ItemEvents.Create(player, amount, item, meta));
             PersistentDataContainer data = meta.getPersistentDataContainer();
             plugin.getItemManager().saveTypeKey(meta, this);
-            //player.sendMessage(id + ": ammo = " + getSystem(GunSystem.class).collectAmmo().getSystem().size());
             data.set(plugin.key("tree"), PersistentDataType.STRING, plugin.getGson().toJson(tree));
             if (stat("lower"))
                 meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, ATTACK_SPEED_ATTR);
@@ -290,6 +289,7 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
      * <p>
      * This action modifies:
      * <ul>
+     *     <li>categories</li>
      *     <li>slots</li>
      *     <li>stats</li>
      *     <li>systems</li>
@@ -297,6 +297,7 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
      * @param parent The parent component.
      */
     public void extend(CalibreComponent parent) {
+        categories.addAll(parent.categories);
         slots.putAll(parent.copySlots());
         parent.stats.forEach((order, map) -> {
             if (stats.containsKey(order))
@@ -366,6 +367,12 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
         ComponentTree.createAndBuild(copy);
         return copy;
     }
+    public final CalibreComponent withSingleTree() {
+        CalibreComponent copy = copy();
+        copy.slots = Collections.emptyMap();
+        ComponentTree.createAndBuild(copy);
+        return copy;
+    }
 
     public final <T> T stat(String key) { return tree.stat(key); }
     public final <T> T callEvent(T event) { return tree.callEvent(event); }
@@ -414,7 +421,7 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
         return Objects.hash(id, categories, slots, systems, stats, completeStats);
     }
 
-    @Override public String toString() { return "CalibreComponent:" + id; }
+    @Override public String toString() { return "CalibreComponent:" + id + slots; }
 
     /**
      * Modifies a flag of an item which makes it hidden to the player who holds it. Items with this flag do not appear

@@ -27,7 +27,7 @@ public class SightReference extends SystemReference<SightSystem, Sight> {
 
     public SightReference(SystemReference<SightSystem, Sight> o) { super(o); }
 
-    @Override protected Class<SightSystem> getSystemType() { return SightSystem.class; }
+    @Override protected String getSystemId() { return SightSystem.ID; }
     @Override
     protected Sight getMapped(SightSystem system) {
         List<Sight> modes = system.getSights();

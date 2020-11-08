@@ -266,6 +266,7 @@ public class GunSystem extends BaseSystem {
     @Override
     public void initialize(CalibreComponent parent, ComponentTree tree) {
         super.initialize(parent, tree);
+        if (!usable) return;
 
         itemSystem = parent.getSystemService(ItemSystem.class);
 
@@ -277,11 +278,6 @@ public class GunSystem extends BaseSystem {
         events.registerListener(ItemEvents.BukkitSwapHand.class, this::onEvent, 0);
         events.registerListener(ItemEvents.Drop.class, this::onEvent, 0);
         events.registerListener(ItemEvents.BukkitDrop.class, this::onEvent, 0);
-
-        if (fireMode == null)
-            fireMode = Utils.atOr(collectFireModes(), 0);
-        if (sight == null)
-            sight = Utils.atOr(collectSights(), 0);
     }
 
     @Override public Map<String, Stat<?>> getDefaultStats() { return STATS; }
@@ -407,6 +403,18 @@ public class GunSystem extends BaseSystem {
         if (!getTree().isComplete()) return;
         if (!(event.getTickContext().getLoop() instanceof SchedulerLoop)) return;
         if (event.getSlot() instanceof EquipmentItemSlot && ((EquipmentItemSlot) event.getSlot()).getEquipmentSlot() != EquipmentSlot.HAND) return;
+
+        boolean update = false;
+        if (fireMode == null || getMappedFireMode() == null) {
+            fireMode = Utils.atOr(collectFireModes(), 0);
+            update = true;
+        }
+        if (sight == null || getMappedSight() == null) {
+            sight = Utils.atOr(collectSights(), 0);
+            update = true;
+        }
+        if (update)
+            event.updateItem(this);
 
         if (event.getUser() instanceof PlayerItemUser) {
             Player player = ((PlayerItemUser) event.getUser()).getEntity();

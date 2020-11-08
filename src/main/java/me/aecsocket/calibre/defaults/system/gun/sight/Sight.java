@@ -22,5 +22,5 @@ public class Sight {
     public OrderedStatMap getActiveStats() { return activeStats; }
     public void setActiveStats(OrderedStatMap activeStats) { this.activeStats = activeStats; }
 
-    @Override public String toString() { return name + ":" + stats; }
+    @Override public String toString() { return name + ":" + stats + " " + activeStats; }
 }

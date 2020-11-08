@@ -51,6 +51,7 @@ public class OrderedStatMap extends LinkedHashMap<Integer, StatMap> {
                                                 "name", stat.getKey(),
                                                 "class", TypeToken.get(stat.getValue().getStat().getValueType()).getRawType().getSimpleName(),
                                                 "value", stat.getValue().valueToString(),
+                                                "mod", stat.getValue().getModFunction(),
                                                 "default", stat.getValue().defaultToString()
                                         )
                                 ))

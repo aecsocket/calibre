@@ -238,17 +238,21 @@ public class ComponentTree {
 
         StatMap stats = new StatMap();
         // step 2
-        orderedMaps.forEach(orderedMap -> orderedMap.forEach((order, map) -> {
+        OrderedStatMap resultMap = new OrderedStatMap();
+        orderedMaps.forEach(resultMap::combine);
+        resultMap.forEach((order, map) -> {
             if (order >= 0)
                 stats.modifyAll(map);
-        }));
+        });
 
         // step 3
         Collections.reverse(orderedMaps);
-        orderedMaps.forEach(orderedMap -> orderedMap.forEach((order, map) -> {
+        resultMap = new OrderedStatMap();
+        orderedMaps.forEach(resultMap::combine);
+        resultMap.forEach((order, map) -> {
             if (order < 0)
                 stats.modifyAll(map);
-        }));
+        });
 
         return stats;
     }

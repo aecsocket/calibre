@@ -4,6 +4,7 @@ import com.google.gson.*;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.unifiedframework.component.ComponentHolder;
+import me.aecsocket.unifiedframework.component.ComponentSlot;
 import me.aecsocket.unifiedframework.util.json.JsonAdapter;
 
 import java.lang.reflect.Type;
@@ -36,7 +37,7 @@ public abstract class SystemReference<S extends CalibreSystem, T> {
     public String getPath() { return path; }
     public int getIndex() { return index; }
 
-    protected abstract Class<S> getSystemType();
+    protected abstract String getSystemId();
     protected abstract T getMapped(S system);
 
     public CalibreComponent fromPath(ComponentHolder<?> holder) {
@@ -44,19 +45,21 @@ public abstract class SystemReference<S extends CalibreSystem, T> {
         if (path == null)
             target = holder;
         else {
-            Object raw = holder.getSlot(path).get();
-            if (raw instanceof ComponentHolder<?>)
-                target = (ComponentHolder<?>) raw;
+            ComponentSlot<?> slot = holder.getSlot(path);
+            if (slot == null) return null;
+            if (slot.get() instanceof ComponentHolder<?>)
+                target = (ComponentHolder<?>) slot.get();
         }
 
         if (!(target instanceof CalibreComponent)) return null;
         return (CalibreComponent) target;
     }
 
+    @SuppressWarnings("unchecked")
     public T getMapped(ComponentHolder<?> holder) {
         CalibreComponent component = fromPath(holder);
         if (component == null) return null;
-        return getMapped(component.getSystem(getSystemType()));
+        return getMapped((S) component.getSystem(getSystemId()));
     }
 
     @Override

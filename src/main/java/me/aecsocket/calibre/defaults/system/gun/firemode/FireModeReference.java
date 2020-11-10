@@ -31,7 +31,10 @@ public class FireModeReference extends SystemReference<FireModeSystem, FireMode>
     @Override
     protected FireMode getMapped(FireModeSystem system) {
         List<FireMode> modes = system.getModes();
-        return getIndex() >= modes.size()
-                ? null : modes.get(getIndex());
+        return modes == null
+                ? null
+                : getIndex() >= modes.size()
+                ? null
+                : modes.get(getIndex());
     }
 }

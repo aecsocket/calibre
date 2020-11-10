@@ -11,12 +11,12 @@ import me.aecsocket.calibre.item.component.search.SystemSearchOptions;
 import me.aecsocket.calibre.item.component.search.SystemSearchResult;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.calibre.item.system.SystemInitializationException;
+import me.aecsocket.calibre.item.util.LoadTimeDependencies;
 import me.aecsocket.calibre.item.util.slot.ItemSlot;
 import me.aecsocket.calibre.item.util.user.AnimatableItemUser;
 import me.aecsocket.calibre.item.util.user.ItemUser;
 import me.aecsocket.calibre.item.util.user.PlayerItemUser;
 import me.aecsocket.calibre.util.CalibreIdentifiable;
-import me.aecsocket.calibre.util.HasDependencies;
 import me.aecsocket.calibre.util.ItemDescriptor;
 import me.aecsocket.calibre.util.OrderedStatMap;
 import me.aecsocket.calibre.util.stat.SoundStat;
@@ -28,20 +28,15 @@ import me.aecsocket.unifiedframework.registry.ResolutionException;
 import me.aecsocket.unifiedframework.registry.ValidationException;
 import me.aecsocket.unifiedframework.stat.Stat;
 import me.aecsocket.unifiedframework.stat.StatMap;
-import me.aecsocket.unifiedframework.stat.impl.BooleanStat;
 import me.aecsocket.unifiedframework.util.MapInit;
 import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.Utils;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -53,7 +48,7 @@ import java.util.stream.Stream;
 /**
  * Calibre's implementation of a component. Stores systems and stats.
  */
-public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<CalibreComponentSlot>, Cloneable, HasDependencies<CalibreComponent.Dependencies>, Item {
+public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<CalibreComponentSlot>, Cloneable, Item {
     public static final String ITEM_TYPE = "component";
 
     /**
@@ -73,15 +68,13 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
 
     public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init("item", new ItemDescriptor.Stat())
-            .init("lower", new BooleanStat(false))
 
             .init("slot_view_add", new SoundStat())
             .init("slot_view_remove", new SoundStat())
             .init("quick_modify", new SoundStat())
             .get();
-    public static final AttributeModifier ATTACK_SPEED_ATTR = new AttributeModifier(new UUID(42069, 69420), "generic.attack_speed", -1, AttributeModifier.Operation.MULTIPLY_SCALAR_1, EquipmentSlot.HAND);
 
-    private transient Dependencies dependencies;
+    @LoadTimeDependencies private transient Dependencies dependencies;
     private transient CalibrePlugin plugin;
     private final String id;
     private List<String> categories;
@@ -104,10 +97,6 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
     public CalibreComponent() {
         this(null, null);
     }
-
-    @Override public Dependencies getLoadDependencies() { return dependencies; }
-    @Override public void setLoadDependencies(Dependencies dependencies) { this.dependencies = dependencies; }
-    @Override public Type getLoadDependenciesType() { return Dependencies.class; }
 
     @Override public CalibrePlugin getPlugin() { return plugin; }
     @Override public void setPlugin(CalibrePlugin plugin) { this.plugin = plugin; }
@@ -267,8 +256,6 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
             PersistentDataContainer data = meta.getPersistentDataContainer();
             plugin.getItemManager().saveTypeKey(meta, this);
             data.set(plugin.key("tree"), PersistentDataType.STRING, plugin.getGson().toJson(tree));
-            if (stat("lower"))
-                meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, ATTACK_SPEED_ATTR);
         });
     }
 
@@ -371,6 +358,7 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
         CalibreComponent copy = copy();
         copy.slots = Collections.emptyMap();
         ComponentTree.createAndBuild(copy);
+        copy.tree.setComplete(false);
         return copy;
     }
 

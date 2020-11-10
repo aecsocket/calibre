@@ -9,12 +9,10 @@ import me.aecsocket.calibre.item.util.user.PlayerItemUser;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-public final class CalibreComponentSupplier {
-    public interface Service {
-        CalibreComponent supply(CalibreComponentSlot slot, ItemUser user, CalibreSystem requester, boolean consume);
-    }
+public interface CalibreComponentSupplier extends CalibreInbuilt {
+    CalibreComponent supply(CalibreComponentSlot slot, ItemUser user, CalibreSystem requester, boolean consume);
 
-    public static class Provider implements Service {
+    class Provider implements CalibreComponentSupplier {
         private final CalibrePlugin plugin;
 
         public Provider(CalibrePlugin plugin) {
@@ -49,6 +47,4 @@ public final class CalibreComponentSupplier {
             return null;
         }
     }
-
-    private CalibreComponentSupplier() {}
 }

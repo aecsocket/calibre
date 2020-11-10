@@ -11,12 +11,10 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-public final class CalibreDamage {
-    public interface Service {
-        void damage(ItemUser damager, Entity victim, Vector position, double damage, DamageCause cause);
-    }
+public interface CalibreDamage extends CalibreInbuilt {
+    void damage(ItemUser damager, Entity victim, Vector position, double damage, DamageCause cause);
 
-    public static class Provider implements Service {
+    class Provider implements CalibreDamage {
         @Override
         public void damage(ItemUser damager, Entity victim, Vector position, double damage, DamageCause cause) {
             if (victim instanceof Player) {
@@ -41,6 +39,4 @@ public final class CalibreDamage {
             }
         }
     }
-
-    private CalibreDamage() {}
 }

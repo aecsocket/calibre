@@ -6,16 +6,16 @@ import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.BaseSystem;
+import me.aecsocket.calibre.item.system.LoadTimeOnly;
 import me.aecsocket.calibre.item.system.SystemInitializationException;
-import me.aecsocket.calibre.util.HasDependencies;
+import me.aecsocket.calibre.item.util.LoadTimeDependencies;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class FireModeSystem extends BaseSystem implements HasDependencies<FireModeSystem.Dependencies> {
+public class FireModeSystem extends BaseSystem {
     public static final String ID = "fire_mode";
 
     /**
@@ -25,16 +25,12 @@ public class FireModeSystem extends BaseSystem implements HasDependencies<FireMo
         private JsonArray modes;
     }
 
-    private transient Dependencies dependencies;
-    private transient List<FireMode> modes = new ArrayList<>();
+    @LoadTimeDependencies private transient Dependencies dependencies;
+    @LoadTimeOnly private transient List<FireMode> modes = new ArrayList<>();
 
     public FireModeSystem(CalibrePlugin plugin) {
         super(plugin);
     }
-
-    @Override public Dependencies getLoadDependencies() { return dependencies; }
-    @Override public void setLoadDependencies(Dependencies dependencies) { this.dependencies = dependencies; }
-    @Override public Type getLoadDependenciesType() { return Dependencies.class; }
 
     public List<FireMode> getModes() { return modes; }
     public void setModes(List<FireMode> modes) { this.modes = modes; }

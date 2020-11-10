@@ -40,7 +40,7 @@ public class BulletSystem extends BaseSystem implements GunProjectileProviderSys
 
         @Override
         protected void hitBlock(TickContext tickContext, RayTraceResult ray, Block block) {
-            Utils.useService(CalibrePenetration.Service.class, s -> {
+            Utils.useService(CalibrePenetration.class, s -> {
                 double mult = s.blockMultiplier(getDamage(), data.getBlockPenetration(), block);
                 setDamage(getDamage() * mult);
                 getVelocity().multiply(mult);
@@ -63,7 +63,7 @@ public class BulletSystem extends BaseSystem implements GunProjectileProviderSys
             super.hitEntity(tickContext, ray, entity);
             setDamage(oldDamage);
 
-            Utils.useService(CalibrePenetration.Service.class, s -> {
+            Utils.useService(CalibrePenetration.class, s -> {
                 double mult = s.entityMultiplier(getDamage(), data.getEntityPenetration(), entity);
                 setDamage(getDamage() * mult);
                 getVelocity().multiply(mult);

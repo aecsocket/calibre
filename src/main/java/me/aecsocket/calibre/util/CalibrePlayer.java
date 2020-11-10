@@ -43,6 +43,11 @@ public class CalibrePlayer implements Tickable {
     private double recoilRecoverySpeed;
     private Vector2 recoilToRecover = new Vector2();
 
+    private int stamina = -1;
+    private int maxStamina = -1;
+    private long lastStaminaDrain;
+    private boolean canUseStamina = true;
+
     public CalibrePlayer(CalibrePlugin plugin, Player player) {
         this.plugin = plugin;
         this.player = player;
@@ -77,6 +82,18 @@ public class CalibrePlayer implements Tickable {
     public Vector2 getRecoilToRecover() { return recoilToRecover; }
     public void setRecoilToRecover(Vector2 recoilToRecover) { this.recoilToRecover = recoilToRecover; }
 
+    public int getStamina() { return stamina; }
+    public void setStamina(int stamina) { this.stamina = stamina; }
+
+    public int getMaxStamina() { return maxStamina; }
+    public void setMaxStamina(int maxStamina) { this.maxStamina = maxStamina; }
+
+    public long getLastStaminaDrain() { return lastStaminaDrain; }
+    public void setLastStaminaDrain(long lastStaminaDrain) { this.lastStaminaDrain = lastStaminaDrain; }
+
+    public boolean canUseStamina() { return canUseStamina; }
+    public void setCanUseStamina(boolean canUseStamina) { this.canUseStamina = canUseStamina; }
+
     public ItemAnimation.Instance startAnimation(ItemAnimation animation, EquipmentSlot slot) {
         this.animation = animation.start(player, slot);
         return this.animation;
@@ -88,6 +105,10 @@ public class CalibrePlayer implements Tickable {
         this.recoilRecovery = recoilRecovery;
         this.recoilRecoveryAfter = System.currentTimeMillis() + recoilRecoveryAfter;
         this.recoilRecoverySpeed = recoilRecoverySpeed;
+    }
+
+    public void rotateCamera(double x, double y) {
+        CalibreProtocol.rotateCamera(player, x, y);
     }
 
     @Override
@@ -119,7 +140,7 @@ public class CalibrePlayer implements Tickable {
         } else {
             if (recoil.manhattanLength() > CAMERA_THRESHOLD) {
                 Vector2 rotation = recoil.clone().multiply(recoilSpeed);
-                CalibreProtocol.rotateCamera(player, rotation.getX(), rotation.getY());
+                rotateCamera(rotation.getX(), rotation.getY());
                 recoil.multiply(1 - recoilSpeed);
                 recoilToRecover.add(rotation.multiply(-recoilRecovery));
 
@@ -129,7 +150,7 @@ public class CalibrePlayer implements Tickable {
 
             if (recoilRecoveryAfter > 0 && System.currentTimeMillis() >= recoilRecoveryAfter) {
                 Vector2 rotation = recoilToRecover.clone().multiply(recoilRecoverySpeed);
-                CalibreProtocol.rotateCamera(player, rotation.getX(), rotation.getY());
+                rotateCamera(rotation.getX(), rotation.getY());
                 recoilToRecover.multiply(1 - recoilRecoverySpeed);
 
                 if (recoilToRecover.manhattanLength() <= CAMERA_THRESHOLD) {

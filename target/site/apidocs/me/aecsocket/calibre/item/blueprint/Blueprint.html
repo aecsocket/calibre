@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -133,12 +133,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../../util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></code>, <code><a href="../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></code>, <code><a href="../../util/HasDependencies.html" title="interface in me.aecsocket.calibre.util">HasDependencies</a>&lt;<a href="Blueprint.Dependencies.html" title="class in me.aecsocket.calibre.item.blueprint">Blueprint.Dependencies</a>&gt;</code>, <code>me.aecsocket.unifiedframework.item.ItemStackFactory</code>, <code>me.aecsocket.unifiedframework.registry.Identifiable</code></dd>
+<dd><code><a href="../../util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></code>, <code><a href="../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></code>, <code>me.aecsocket.unifiedframework.item.ItemStackFactory</code>, <code>me.aecsocket.unifiedframework.registry.Identifiable</code></dd>
 </dl>
 <hr>
 <pre>public class <span class="typeNameLabel">Blueprint</span>
 extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>
-implements <a href="../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a>, <a href="../../util/HasDependencies.html" title="interface in me.aecsocket.calibre.util">HasDependencies</a>&lt;<a href="Blueprint.Dependencies.html" title="class in me.aecsocket.calibre.item.blueprint">Blueprint.Dependencies</a>&gt;, me.aecsocket.unifiedframework.item.ItemStackFactory</pre>
+implements <a href="../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a>, me.aecsocket.unifiedframework.item.ItemStackFactory</pre>
 </li>
 </ul>
 </div>
@@ -173,13 +173,6 @@ implements <a href="../../util/CalibreIdentifiable.html" title="interface in me.
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;me.aecsocket.calibre.util.<a href="../../util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></h3>
 <code><a href="../../util/AcceptsCalibrePlugin.Adapter.html" title="class in me.aecsocket.calibre.util">AcceptsCalibrePlugin.Adapter</a></code></li>
-</ul>
-<ul class="blockList">
-<li class="blockList"><a id="nested.classes.inherited.from.class.me.aecsocket.calibre.util.HasDependencies">
-<!--   -->
-</a>
-<h3>Nested classes/interfaces inherited from interface&nbsp;me.aecsocket.calibre.util.<a href="../../util/HasDependencies.html" title="interface in me.aecsocket.calibre.util">HasDependencies</a></h3>
-<code><a href="../../util/HasDependencies.Adapter.html" title="class in me.aecsocket.calibre.util">HasDependencies.Adapter</a></code></li>
 </ul>
 </li>
 </ul>
@@ -257,63 +250,48 @@ implements <a href="../../util/CalibreIdentifiable.html" title="interface in me.
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="Blueprint.Dependencies.html" title="class in me.aecsocket.calibre.item.blueprint">Blueprint.Dependencies</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLoadDependencies()">getLoadDependencies</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect" class="externalLink">Type</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLoadDependenciesType()">getLoadDependenciesType</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNameKey()">getNameKey</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Gets the translation key for the name of this object.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPlugin()">getPlugin</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRoot()">getRoot</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTree()">getTree</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resolve(me.aecsocket.unifiedframework.registry.ResolutionContext)">resolve</a></span>&#8203;(me.aecsocket.unifiedframework.registry.ResolutionContext&nbsp;context)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i10" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLoadDependencies(me.aecsocket.calibre.item.blueprint.Blueprint.Dependencies)">setLoadDependencies</a></span>&#8203;(<a href="Blueprint.Dependencies.html" title="class in me.aecsocket.calibre.item.blueprint">Blueprint.Dependencies</a>&nbsp;dependencies)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i11" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlugin(me.aecsocket.calibre.CalibrePlugin)">setPlugin</a></span>&#8203;(<a href="../../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTree(me.aecsocket.calibre.item.component.ComponentTree)">setTree</a></span>&#8203;(<a href="../component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;tree)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#validate()">validate</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
@@ -384,45 +362,6 @@ implements <a href="../../util/CalibreIdentifiable.html" title="interface in me.
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getLoadDependencies()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getLoadDependencies</h4>
-<pre class="methodSignature">public&nbsp;<a href="Blueprint.Dependencies.html" title="class in me.aecsocket.calibre.item.blueprint">Blueprint.Dependencies</a>&nbsp;getLoadDependencies()</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../util/HasDependencies.html#getLoadDependencies()">getLoadDependencies</a></code>&nbsp;in interface&nbsp;<code><a href="../../util/HasDependencies.html" title="interface in me.aecsocket.calibre.util">HasDependencies</a>&lt;<a href="Blueprint.Dependencies.html" title="class in me.aecsocket.calibre.item.blueprint">Blueprint.Dependencies</a>&gt;</code></dd>
-</dl>
-</li>
-</ul>
-<a id="setLoadDependencies(me.aecsocket.calibre.item.blueprint.Blueprint.Dependencies)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setLoadDependencies</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setLoadDependencies&#8203;(<a href="Blueprint.Dependencies.html" title="class in me.aecsocket.calibre.item.blueprint">Blueprint.Dependencies</a>&nbsp;dependencies)</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../util/HasDependencies.html#setLoadDependencies(D)">setLoadDependencies</a></code>&nbsp;in interface&nbsp;<code><a href="../../util/HasDependencies.html" title="interface in me.aecsocket.calibre.util">HasDependencies</a>&lt;<a href="Blueprint.Dependencies.html" title="class in me.aecsocket.calibre.item.blueprint">Blueprint.Dependencies</a>&gt;</code></dd>
-</dl>
-</li>
-</ul>
-<a id="getLoadDependenciesType()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getLoadDependenciesType</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect" class="externalLink">Type</a>&nbsp;getLoadDependenciesType()</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../util/HasDependencies.html#getLoadDependenciesType()">getLoadDependenciesType</a></code>&nbsp;in interface&nbsp;<code><a href="../../util/HasDependencies.html" title="interface in me.aecsocket.calibre.util">HasDependencies</a>&lt;<a href="Blueprint.Dependencies.html" title="class in me.aecsocket.calibre.item.blueprint">Blueprint.Dependencies</a>&gt;</code></dd>
-</dl>
-</li>
-</ul>
 <a id="getPlugin()">
 <!--   -->
 </a>

@@ -16,6 +16,7 @@ import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.calibre.item.system.LoadTimeOnly;
+import me.aecsocket.calibre.item.util.DependenciesAdapter;
 import me.aecsocket.calibre.item.util.user.EntityItemUser;
 import me.aecsocket.calibre.item.util.user.ItemUser;
 import me.aecsocket.calibre.item.util.user.PlayerItemUser;
@@ -147,7 +148,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                 .registerTypeAdapter(ComponentTree.class, new ComponentTree.Adapter(this))
                 .registerTypeAdapter(ItemAnimation.class, new ItemAnimation.Adapter(this))
                 .registerTypeAdapterFactory(systemAdapter)
-                .registerTypeAdapterFactory(new HasDependencies.Adapter())
+                .registerTypeAdapterFactory(new DependenciesAdapter())
                 .registerTypeAdapterFactory(new AcceptsCalibrePlugin.Adapter(this));
         hooks.forEach(hook -> hook.registerTypeAdapters(gsonBuilder));
         gson = gsonBuilder.create();

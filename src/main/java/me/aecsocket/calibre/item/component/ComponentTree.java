@@ -5,6 +5,7 @@ import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.calibre.item.system.SystemInitializationException;
 import me.aecsocket.calibre.util.OrderedStatMap;
+import me.aecsocket.unifiedframework.component.ComponentSlot;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.stat.StatInstance;
 import me.aecsocket.unifiedframework.stat.StatMap;
@@ -103,10 +104,10 @@ public class ComponentTree {
                 if (object.has("slots")) {
                     for (Map.Entry<String, JsonElement> entry : assertObject(get(object, "slots")).entrySet()) {
                         String name = entry.getKey();
-                        CalibreComponentSlot slot = root.getSlots().get(name);
-                        if (slot == null) {
+                        ComponentSlot<?> slot = root.getSlot(name);
+                        if (!(slot instanceof CalibreComponentSlot)) {
                             if (preserveInvalidData)
-                                throw new JsonParseException(TextUtils.format("Could not find slot on {root} with name {slot}",
+                                throw new JsonParseException(TextUtils.format("Could not find valid slot on {root} with name {slot}",
                                         "root", root.getId(), "slot", name));
                             else
                                 continue;
@@ -119,7 +120,7 @@ public class ComponentTree {
                             else
                                 continue;
                         }
-                        slot.set(subtree.root);
+                        ((CalibreComponentSlot) slot).set(subtree.root);
                     }
                 }
             }

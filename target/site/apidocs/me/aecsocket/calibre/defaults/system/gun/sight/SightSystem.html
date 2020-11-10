@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -138,12 +138,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a></code>, <code><a href="../../../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></code>, <code><a href="../../../../util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></code>, <code><a href="../../../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></code>, <code><a href="../../../../util/HasDependencies.html" title="interface in me.aecsocket.calibre.util">HasDependencies</a>&lt;<a href="SightSystem.Dependencies.html" title="class in me.aecsocket.calibre.defaults.system.gun.sight">SightSystem.Dependencies</a>&gt;</code>, <code>me.aecsocket.unifiedframework.registry.Identifiable</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Cloneable</a></code>, <code><a href="../../../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></code>, <code><a href="../../../../util/AcceptsCalibrePlugin.html" title="interface in me.aecsocket.calibre.util">AcceptsCalibrePlugin</a></code>, <code><a href="../../../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></code>, <code>me.aecsocket.unifiedframework.registry.Identifiable</code></dd>
 </dl>
 <hr>
 <pre>public class <span class="typeNameLabel">SightSystem</span>
-extends <a href="../../../../item/system/BaseSystem.html" title="class in me.aecsocket.calibre.item.system">BaseSystem</a>
-implements <a href="../../../../util/HasDependencies.html" title="interface in me.aecsocket.calibre.util">HasDependencies</a>&lt;<a href="SightSystem.Dependencies.html" title="class in me.aecsocket.calibre.defaults.system.gun.sight">SightSystem.Dependencies</a>&gt;</pre>
+extends <a href="../../../../item/system/BaseSystem.html" title="class in me.aecsocket.calibre.item.system">BaseSystem</a></pre>
 </li>
 </ul>
 </div>
@@ -178,13 +177,6 @@ implements <a href="../../../../util/HasDependencies.html" title="interface in m
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;me.aecsocket.calibre.item.system.<a href="../../../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></h3>
 <code><a href="../../../../item/system/CalibreSystem.Adapter.html" title="class in me.aecsocket.calibre.item.system">CalibreSystem.Adapter</a></code></li>
-</ul>
-<ul class="blockList">
-<li class="blockList"><a id="nested.classes.inherited.from.class.me.aecsocket.calibre.util.HasDependencies">
-<!--   -->
-</a>
-<h3>Nested classes/interfaces inherited from interface&nbsp;me.aecsocket.calibre.util.<a href="../../../../util/HasDependencies.html" title="interface in me.aecsocket.calibre.util">HasDependencies</a></h3>
-<code><a href="../../../../util/HasDependencies.Adapter.html" title="class in me.aecsocket.calibre.util">HasDependencies.Adapter</a></code></li>
 </ul>
 </li>
 </ul>
@@ -282,42 +274,27 @@ implements <a href="../../../../util/HasDependencies.html" title="interface in m
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="SightSystem.Dependencies.html" title="class in me.aecsocket.calibre.defaults.system.gun.sight">SightSystem.Dependencies</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLoadDependencies()">getLoadDependencies</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect" class="externalLink">Type</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLoadDependenciesType()">getLoadDependenciesType</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Sight.html" title="class in me.aecsocket.calibre.defaults.system.gun.sight">Sight</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSights()">getSights</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">initialize</a></span>&#8203;(<a href="../../../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent,
           <a href="../../../../item/component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;tree)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i8" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLoadDependencies(me.aecsocket.calibre.defaults.system.gun.sight.SightSystem.Dependencies)">setLoadDependencies</a></span>&#8203;(<a href="SightSystem.Dependencies.html" title="class in me.aecsocket.calibre.defaults.system.gun.sight">SightSystem.Dependencies</a>&nbsp;dependencies)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i9" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSights(java.util.List)">setSights</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Sight.html" title="class in me.aecsocket.calibre.defaults.system.gun.sight">Sight</a>&gt;&nbsp;sights)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#systemInitialize(me.aecsocket.calibre.item.component.CalibreComponent)">systemInitialize</a></span>&#8203;(<a href="../../../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
@@ -416,45 +393,6 @@ implements <a href="../../../../util/HasDependencies.html" title="interface in m
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getLoadDependencies()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getLoadDependencies</h4>
-<pre class="methodSignature">public&nbsp;<a href="SightSystem.Dependencies.html" title="class in me.aecsocket.calibre.defaults.system.gun.sight">SightSystem.Dependencies</a>&nbsp;getLoadDependencies()</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../util/HasDependencies.html#getLoadDependencies()">getLoadDependencies</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../util/HasDependencies.html" title="interface in me.aecsocket.calibre.util">HasDependencies</a>&lt;<a href="SightSystem.Dependencies.html" title="class in me.aecsocket.calibre.defaults.system.gun.sight">SightSystem.Dependencies</a>&gt;</code></dd>
-</dl>
-</li>
-</ul>
-<a id="setLoadDependencies(me.aecsocket.calibre.defaults.system.gun.sight.SightSystem.Dependencies)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setLoadDependencies</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setLoadDependencies&#8203;(<a href="SightSystem.Dependencies.html" title="class in me.aecsocket.calibre.defaults.system.gun.sight">SightSystem.Dependencies</a>&nbsp;dependencies)</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../util/HasDependencies.html#setLoadDependencies(D)">setLoadDependencies</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../util/HasDependencies.html" title="interface in me.aecsocket.calibre.util">HasDependencies</a>&lt;<a href="SightSystem.Dependencies.html" title="class in me.aecsocket.calibre.defaults.system.gun.sight">SightSystem.Dependencies</a>&gt;</code></dd>
-</dl>
-</li>
-</ul>
-<a id="getLoadDependenciesType()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getLoadDependenciesType</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect" class="externalLink">Type</a>&nbsp;getLoadDependenciesType()</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../util/HasDependencies.html#getLoadDependenciesType()">getLoadDependenciesType</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../util/HasDependencies.html" title="interface in me.aecsocket.calibre.util">HasDependencies</a>&lt;<a href="SightSystem.Dependencies.html" title="class in me.aecsocket.calibre.defaults.system.gun.sight">SightSystem.Dependencies</a>&gt;</code></dd>
-</dl>
-</li>
-</ul>
 <a id="getSights()">
 <!--   -->
 </a>
@@ -482,8 +420,6 @@ implements <a href="../../../../util/HasDependencies.html" title="interface in m
 <pre class="methodSignature">public&nbsp;void&nbsp;systemInitialize&#8203;(<a href="../../../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent)
                       throws <a href="../../../../item/system/SystemInitializationException.html" title="class in me.aecsocket.calibre.item.system">SystemInitializationException</a></pre>
 <dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../item/system/CalibreSystem.html#systemInitialize(me.aecsocket.calibre.item.component.CalibreComponent)">systemInitialize</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../item/system/SystemInitializationException.html" title="class in me.aecsocket.calibre.item.system">SystemInitializationException</a></code></dd>
 </dl>
@@ -512,10 +448,6 @@ implements <a href="../../../../util/HasDependencies.html" title="interface in m
 <li class="blockList">
 <h4>getId</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getId()</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code>getId</code>&nbsp;in interface&nbsp;<code>me.aecsocket.unifiedframework.registry.Identifiable</code></dd>
-</dl>
 </li>
 </ul>
 <a id="getDependencies()">
@@ -525,10 +457,6 @@ implements <a href="../../../../util/HasDependencies.html" title="interface in m
 <li class="blockList">
 <h4>getDependencies</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Collection.html?is-external=true" title="class or interface in java.util" class="externalLink">Collection</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;getDependencies()</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code>getDependencies</code>&nbsp;in interface&nbsp;<code>me.aecsocket.unifiedframework.registry.Identifiable</code></dd>
-</dl>
 </li>
 </ul>
 <a id="clone()">
@@ -551,10 +479,6 @@ implements <a href="../../../../util/HasDependencies.html" title="interface in m
 <li class="blockList">
 <h4>copy</h4>
 <pre class="methodSignature">public&nbsp;<a href="SightSystem.html" title="class in me.aecsocket.calibre.defaults.system.gun.sight">SightSystem</a>&nbsp;copy()</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../item/system/CalibreSystem.html#copy()">copy</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></code></dd>
-</dl>
 </li>
 </ul>
 <a id="toString()">

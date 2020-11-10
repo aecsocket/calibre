@@ -8,13 +8,9 @@ import me.aecsocket.calibre.item.component.CalibreComponentSlot;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.BaseSystem;
 import me.aecsocket.calibre.item.system.CalibreSystem;
-import me.aecsocket.calibre.item.system.LoadTimeOnly;
 import me.aecsocket.calibre.item.util.slot.EquipmentItemSlot;
 import me.aecsocket.calibre.item.util.slot.ItemSlot;
-import me.aecsocket.calibre.item.util.user.AnimatableItemUser;
-import me.aecsocket.calibre.item.util.user.ItemUser;
-import me.aecsocket.calibre.item.util.user.LivingEntityItemUser;
-import me.aecsocket.calibre.item.util.user.PlayerItemUser;
+import me.aecsocket.calibre.item.util.user.*;
 import me.aecsocket.calibre.util.CalibreParticleData;
 import me.aecsocket.calibre.util.CalibreProtocol;
 import me.aecsocket.calibre.util.CalibreSoundData;
@@ -24,7 +20,9 @@ import me.aecsocket.unifiedframework.component.ComponentSlot;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.loop.SchedulerLoop;
 import me.aecsocket.unifiedframework.stat.Stat;
+import me.aecsocket.unifiedframework.stat.impl.BooleanStat;
 import me.aecsocket.unifiedframework.stat.impl.NumberStat;
+import me.aecsocket.unifiedframework.stat.impl.StringStat;
 import me.aecsocket.unifiedframework.util.MapInit;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.data.ParticleData;
@@ -34,9 +32,12 @@ import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Consumer;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
@@ -47,6 +48,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ItemSystem extends BaseSystem {
     public static final String ID = "item";
     public static final Map<String, Stat<?>> STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
+            .init("lower", new BooleanStat(false))
             .init("fov_multiplier", new NumberStat.Double(0.1d))
             .init("move_speed_multiplier", new NumberStat.Double(1d))
             .init("armor", new NumberStat.Double(0d))
@@ -54,12 +56,15 @@ public class ItemSystem extends BaseSystem {
             .init("draw_delay", new NumberStat.Long(0L))
             .init("draw_sound", new SoundStat())
             .init("draw_animation", new ItemAnimationStat())
+
+            .init("name_key", new StringStat())
+            .init("description_key", new StringStat())
             .get();
     public static final UUID ARMOR_UUID = new UUID(69, 420);
     public static final UUID MOVE_SPEED_UUID = new UUID(420, 69);
+    public static final AttributeModifier ATTACK_SPEED_ATTR = new AttributeModifier(new UUID(42069, 69420), "generic.attack_speed", -1, AttributeModifier.Operation.MULTIPLY_SCALAR_1, EquipmentSlot.HAND);
+    public static final PotionEffect LOWER_EFFECT = new PotionEffect(PotionEffectType.FAST_DIGGING, 3, 127, false, false, false);
 
-    @LoadTimeOnly private String itemNameKey;
-    @LoadTimeOnly private String descriptionKey;
     private long nextAvailable;
     private List<Integer> tasks = new ArrayList<>();
 
@@ -67,26 +72,27 @@ public class ItemSystem extends BaseSystem {
         super(plugin);
     }
 
-    public String getItemNameKey() { return itemNameKey; }
-    public void setItemNameKey(String itemNameKey) { this.itemNameKey = itemNameKey; }
-
-    public String getDescriptionKey() { return descriptionKey; }
-    public void setDescriptionKey(String descriptionKey) { this.descriptionKey = descriptionKey; }
-
     public long getNextAvailable() { return nextAvailable; }
     public void setNextAvailable(long nextAvailable) { this.nextAvailable = nextAvailable; }
 
     public List<Integer> getTasks() { return tasks; }
     public void setTasks(List<Integer> tasks) { this.tasks = tasks; }
 
+    public String getNameKey() {
+        String result = stat("name_key");
+        return result == null ? parent.getNameKey() : result;
+    }
+
+    public String getDescriptionKey() {
+        String result = stat("description_key");
+        return result == null ? parent.getNameKey() + ".description" : result;
+    }
+
     @Override
     public void initialize(CalibreComponent parent, ComponentTree tree) {
         super.initialize(parent, tree);
 
         parent.registerSystemService(ItemSystem.class, this);
-
-        if (itemNameKey == null) itemNameKey = parent.getNameKey();
-        if (descriptionKey == null) descriptionKey = parent.getNameKey() + ".description";
 
         EventDispatcher events = tree.getEventDispatcher();
         events.registerListener(ItemEvents.Create.class, this::onEvent, 0);
@@ -118,12 +124,14 @@ public class ItemSystem extends BaseSystem {
         meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_UUID, "generic.armor", stat("armor"), AttributeModifier.Operation.ADD_NUMBER));
         meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(MOVE_SPEED_UUID, "generic.movement_speed", (double) stat("move_speed_multiplier") - 1, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        if (stat("lower"))
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, ATTACK_SPEED_ATTR);
 
         // Lore
         List<String> sections = new ArrayList<>();
 
-        plugin.rgen(player, itemNameKey).ifPresent(meta::setDisplayName);
-        plugin.rgen(player, descriptionKey).ifPresent(sections::add);
+        plugin.rgen(player, getNameKey()).ifPresent(meta::setDisplayName);
+        plugin.rgen(player, getDescriptionKey()).ifPresent(sections::add);
 
         callEvent(new Events.SectionCreate(
                 event.getPlayer(),
@@ -149,6 +157,8 @@ public class ItemSystem extends BaseSystem {
     private void onEvent(ItemEvents.Equip event) {
         // the updateItem call in this somehow messes with delayed tasks
         if (!(event.getTickContext().getLoop() instanceof SchedulerLoop)) return;
+        if ((boolean) stat("lower") && event.getUser() instanceof LivingEntityItemUser)
+            ((LivingEntityItemUser) event.getUser()).getEntity().addPotionEffect(LOWER_EFFECT);
         if (tasks != null) {
             if (tasks.removeIf(id -> !Bukkit.getScheduler().isQueued(id)))
                 event.updateItem(this);

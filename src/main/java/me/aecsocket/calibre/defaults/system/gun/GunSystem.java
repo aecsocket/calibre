@@ -1,7 +1,10 @@
 package me.aecsocket.calibre.defaults.system.gun;
 
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.defaults.service.CalibreComponentSupplier;
+import me.aecsocket.calibre.defaults.service.CalibreSwayStabilization;
 import me.aecsocket.calibre.defaults.system.ItemSystem;
 import me.aecsocket.calibre.defaults.system.gun.firemode.FireMode;
 import me.aecsocket.calibre.defaults.system.gun.firemode.FireModeReference;
@@ -20,6 +23,7 @@ import me.aecsocket.calibre.item.component.search.SystemSearchOptions;
 import me.aecsocket.calibre.item.component.search.SystemSearchResult;
 import me.aecsocket.calibre.item.system.BaseSystem;
 import me.aecsocket.calibre.item.system.LoadTimeOnly;
+import me.aecsocket.calibre.item.system.SystemInitializationException;
 import me.aecsocket.calibre.item.util.damagecause.DamageCause;
 import me.aecsocket.calibre.item.util.slot.EquipmentItemSlot;
 import me.aecsocket.calibre.item.util.slot.ItemSlot;
@@ -28,6 +32,7 @@ import me.aecsocket.calibre.item.util.user.ItemUser;
 import me.aecsocket.calibre.item.util.user.LivingEntityItemUser;
 import me.aecsocket.calibre.item.util.user.PlayerItemUser;
 import me.aecsocket.calibre.util.CalibreParticleData;
+import me.aecsocket.calibre.item.util.LoadTimeDependencies;
 import me.aecsocket.calibre.util.OrderedStatMap;
 import me.aecsocket.calibre.util.stat.ItemAnimationStat;
 import me.aecsocket.calibre.util.stat.ParticleStat;
@@ -127,6 +132,7 @@ public class GunSystem extends BaseSystem {
     public static final DamageCause GUN_DAMAGE_CAUSE = new DamageCause(){};
     public static final Map<String, Stat<?>> STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init("auto_chamber", new BooleanStat(true))
+            .init("can_fire_underwater", new BooleanStat(false))
             .init("chamber_handling", new EnumStat<>(ChamberHandling.class, ChamberHandling.NORMAL))
             .init("barrel_offset", new VectorStat(new Vector()))
             .init("shots", new NumberStat.Int(1))
@@ -153,6 +159,10 @@ public class GunSystem extends BaseSystem {
             .init("recoil_recovery", new NumberStat.Double(1d))
             .init("recoil_recovery_after", new NumberStat.Long(0L))
             .init("recoil_recovery_speed", new NumberStat.Double(1d))
+
+            .init("sway", new Vector2Stat(new Vector2()))
+            .init("sway_stabilize_multiplier", new NumberStat.Double(0d))
+            .init("sway_spread_multiplier", new NumberStat.Double(0d))
 
             .init("damage", new NumberStat.Double(0d))
             .init("muzzle_velocity", new NumberStat.Double(0d))
@@ -219,7 +229,23 @@ public class GunSystem extends BaseSystem {
             .init("fail_animation", new ItemAnimationStat())
             .get();
 
+    /**
+     * Temporarily stores info on deserialization for resolution later.
+     */
+    protected static class Dependencies {
+        private JsonObject aimingStats;
+        private JsonObject notAimingStats;
+        private JsonObject noSightStats;
+        private JsonObject noFireModeStats;
+    }
+
     @LoadTimeOnly private boolean usable;
+    @LoadTimeOnly private boolean showActionBar;
+    @LoadTimeDependencies private transient Dependencies dependencies;
+    @LoadTimeOnly private transient OrderedStatMap aimingStats;
+    @LoadTimeOnly private transient OrderedStatMap notAimingStats;
+    @LoadTimeOnly private transient OrderedStatMap noSightStats;
+    @LoadTimeOnly private transient OrderedStatMap noFireModeStats;
     private transient ItemSystem itemSystem;
     private double shotSpread;
     private long shotSpreadTime;
@@ -231,9 +257,22 @@ public class GunSystem extends BaseSystem {
     public GunSystem(CalibrePlugin plugin) {
         super(plugin);
     }
+    public GunSystem() { this(null); }
 
     public boolean isUsable() { return usable; }
     public void setUsable(boolean usable) { this.usable = usable; }
+
+    public OrderedStatMap getAimingStats() { return aimingStats; }
+    public void setAimingStats(OrderedStatMap aimingStats) { this.aimingStats = aimingStats; }
+
+    public OrderedStatMap getNotAimingStats() { return notAimingStats; }
+    public void setNotAimingStats(OrderedStatMap notAimingStats) { this.notAimingStats = notAimingStats; }
+
+    public OrderedStatMap getNoSightStats() { return noSightStats; }
+    public void setNoSightStats(OrderedStatMap noSightStats) { this.noSightStats = noSightStats; }
+
+    public OrderedStatMap getNoFireModeStats() { return noFireModeStats; }
+    public void setNoFireModeStats(OrderedStatMap noFireModeStats) { this.noFireModeStats = noFireModeStats; }
 
     public double getShotSpread() { return shotSpread; }
     public void setShotSpread(double shotSpread) { this.shotSpread = shotSpread; }
@@ -250,17 +289,16 @@ public class GunSystem extends BaseSystem {
     public FireModeReference getFireMode() { return fireMode; }
     public void setFireMode(FireModeReference fireMode) { this.fireMode = fireMode; }
 
-    public boolean available() {
-        return usable
-                && itemSystem.isAvailable()
-                && getTree().isComplete();
-    }
-
-    public double calculateShotSpread() {
-        long time = System.currentTimeMillis();
-        shotSpread *= Math.pow(stat("shot_spread_recovery"), time - shotSpreadTime);
-        shotSpreadTime = time;
-        return shotSpread;
+    @Override
+    public void systemInitialize(CalibreComponent parent) throws SystemInitializationException {
+        if (dependencies.aimingStats != null)
+            aimingStats = plugin.getGson().fromJson(dependencies.aimingStats, new TypeToken<OrderedStatMap>(){}.getType());
+        if (dependencies.notAimingStats != null)
+            notAimingStats = plugin.getGson().fromJson(dependencies.notAimingStats, new TypeToken<OrderedStatMap>(){}.getType());
+        if (dependencies.noSightStats != null)
+            noSightStats = plugin.getGson().fromJson(dependencies.noSightStats, new TypeToken<OrderedStatMap>(){}.getType());
+        if (dependencies.noFireModeStats != null)
+            noFireModeStats = plugin.getGson().fromJson(dependencies.noFireModeStats, new TypeToken<OrderedStatMap>(){}.getType());
     }
 
     @Override
@@ -282,18 +320,44 @@ public class GunSystem extends BaseSystem {
 
     @Override public Map<String, Stat<?>> getDefaultStats() { return STATS; }
 
+    public boolean available() {
+        return usable
+                && itemSystem.isAvailable()
+                && getTree().isComplete();
+    }
+
+    public double calculateShotSpread() {
+        long time = System.currentTimeMillis();
+        shotSpread *= Math.pow(stat("shot_spread_recovery"), (time - shotSpreadTime) / 1000d);
+        shotSpreadTime = time;
+        return shotSpread;
+    }
+
     @Override
     public OrderedStatMap buildStats() {
         OrderedStatMap stats = new OrderedStatMap();
 
         FireMode fireMode = getMappedFireMode();
-        if (fireMode != null && fireMode.getStats() != null)
-            stats.combine(fireMode.getStats());
+        if (fireMode == null) {
+            if (noFireModeStats != null)
+                stats.combine(noFireModeStats);
+        } else {
+            if (fireMode.getStats() != null)
+                stats.combine(fireMode.getStats());
+        }
+
+        if (aiming && aimingStats != null)
+            stats.combine(aimingStats);
+        else if (!aiming && notAimingStats != null)
+            stats.combine(notAimingStats);
 
         Sight sight = getMappedSight();
-        if (sight != null) {
-            if (sight.getStats() != null)
-                stats.combine(sight.getStats());
+        if (sight == null) {
+            if (noSightStats != null)
+                stats.combine(noSightStats);
+        } else {
+            if (!aiming && sight.getInactiveStats() != null)
+                stats.combine(sight.getInactiveStats());
             if (aiming && sight.getActiveStats() != null)
                 stats.combine(sight.getActiveStats());
         }
@@ -401,7 +465,27 @@ public class GunSystem extends BaseSystem {
 
     private void onEvent(ItemEvents.Equip event) {
         if (!getTree().isComplete()) return;
-        if (!(event.getTickContext().getLoop() instanceof SchedulerLoop)) return;
+        if (!(event.getTickContext().getLoop() instanceof SchedulerLoop)) {
+            if (event.getUser() instanceof ShooterItemUser) {
+                ShooterItemUser user = (ShooterItemUser) event.getUser();
+                Vector2 sway = stat("sway");
+                sway.multiply(1 + (calculateShotSpread() * (double) stat("sway_spread_multiplier"))); // todo * (((data.getSpread() / base.stat("spread", double.class)) + 1) * base.stat("spread_sway_multiplier", double.class));
+                if (sway.manhattanLength() > 0) {
+                    double angle = Math.toRadians(event.getTickContext().getLoop().getTicks());
+                    Vector2 rotation = new Vector2(
+                            Math.cos(angle) * sway.getX(),
+                            Math.sin(angle) * sway.getY()
+                    );
+                    Utils.useService(CalibreSwayStabilization.class, s -> {
+                        if (s.stabilize(event.getUser(), rotation, event.getTickContext()))
+                            rotation.multiply((double) stat("sway_stabilize_multiplier"));
+                    });
+
+                    if (rotation.manhattanLength() > 0)
+                        user.rotateCamera((float) rotation.getX(), (float) rotation.getY());
+                }
+            }
+        }
         if (event.getSlot() instanceof EquipmentItemSlot && ((EquipmentItemSlot) event.getSlot()).getEquipmentSlot() != EquipmentSlot.HAND) return;
 
         boolean update = false;
@@ -419,37 +503,41 @@ public class GunSystem extends BaseSystem {
         if (event.getUser() instanceof PlayerItemUser) {
             Player player = ((PlayerItemUser) event.getUser()).getEntity();
             // TODO ac bar
-            player.sendActionBar(
-                    parent.collectSystems(ammoSystemSearch()).stream()
-                            .map(result -> {
-                                AmmoStorageSystem sys = result.getSystem();
-                                String icon = sys.getIcon();
-                                String emptyIcon = sys.getEmptyIcon();
-                                return sys.getComponents().stream()
-                                        .map(q -> {
-                                            CalibreComponent comp = q.get();
-                                            BulletSystem bullet = comp.getSystem(BulletSystem.class);
-                                            return bullet == null ? null : (bullet.getPrefix() + icon).repeat(q.getAmount());
+            if (showActionBar) {
+                player.sendActionBar(
+                        parent.collectSystems(ammoSystemSearch()).stream()
+                                .map(result -> {
+                                    AmmoStorageSystem sys = result.getSystem();
+                                    String icon = sys.getIcon();
+                                    String emptyIcon = sys.getEmptyIcon();
+                                    return sys.getComponents().stream()
+                                            .map(q -> {
+                                                CalibreComponent comp = q.get();
+                                                BulletSystem bullet = comp.getSystem(BulletSystem.class);
+                                                return bullet == null ? null : (bullet.getPrefix() + icon).repeat(q.getAmount());
+                                            })
+                                            .collect(Collectors.joining())
+                                            + emptyIcon.repeat(Math.max(0, sys.getCapacity() - sys.size()));
+                                })
+                                .collect(Collectors.joining(ChatColor.RESET + " "))
+                                + ChatColor.GRAY + " [" +
+                                parent.collectSystems(chamberSystemSearch()).stream()
+                                        .filter(result -> result.getSystem() instanceof GunProjectileProviderSystem)
+                                        .map(result -> {
+                                            GunProjectileProviderSystem sys = (GunProjectileProviderSystem) result.getSystem();
+                                            return sys.getPrefix() + sys.getIcon();
                                         })
                                         .collect(Collectors.joining())
-                                        + emptyIcon.repeat(Math.max(0, sys.getCapacity() - sys.size()));
-                            })
-                            .collect(Collectors.joining(ChatColor.RESET + " "))
-                    + ChatColor.GRAY + " [" +
-                    parent.collectSystems(chamberSystemSearch()).stream()
-                            .filter(result -> result.getSystem() instanceof GunProjectileProviderSystem)
-                            .map(result -> {
-                                GunProjectileProviderSystem sys = (GunProjectileProviderSystem) result.getSystem();
-                                return sys.getPrefix() + sys.getIcon();
-                            })
-                            .collect(Collectors.joining())
-                    + ChatColor.GRAY + "] " + ChatColor.YELLOW +
-                    (getMappedFireMode() == null ? "-none-" : getMappedFireMode().getName())
-                    + ChatColor.GOLD + " " +
-                    (getMappedSight() == null ? "-none-" : getMappedSight().getName())
-                    + ChatColor.DARK_AQUA + " " +
-                    String.format("%.0f", (double) stat("sighting_range")) + "m"
-            );
+                                + ChatColor.GRAY + "] " + ChatColor.YELLOW +
+                                (getMappedFireMode() == null ? "-none-" : getMappedFireMode().getName())
+                                + ChatColor.GOLD + " " +
+                                (getMappedSight() == null ? "-none-" : getMappedSight().getName())
+                                + ChatColor.DARK_AQUA + " " +
+                                String.format("%.0f", (double) stat("sighting_range")) + "m"
+                                + ChatColor.GRAY + " " +
+                                String.format("%.3f", calculateShotSpread())
+                );
+            }
             /*
             if (actionBar != null) {
                 player.sendActionBar(format(actionBar,
@@ -553,6 +641,19 @@ public class GunSystem extends BaseSystem {
         if (callEvent(event).cancelled) return false;
         ItemUser user = event.getUser();
 
+        // Get location
+        Vector barrelOffset = stat("barrel_offset");
+        if (user instanceof PlayerItemUser && ((PlayerItemUser) user).getEntity().getMainHand() == MainHand.LEFT)
+            barrelOffset = barrelOffset.clone().setX(-barrelOffset.getX());
+        Location location = Utils.getFacingRelative(user.getLocation(), barrelOffset);
+        if (!(boolean) stat("can_fire_underwater")) {
+            Material type = location.getBlock().getType();
+            if (type == Material.WATER || type == Material.LAVA)
+                return false;
+        }
+        if (user instanceof EntityItemUser && Utils.isObstructed(((EntityItemUser) user).getEntity(), location))
+            return false;
+
         SystemSearchResult<AmmoStorageSystem> ammoResult = collectAmmo();
         // Grab chamber
         SystemSearchResult<ProjectileProviderSystem> chamberResult;
@@ -587,14 +688,6 @@ public class GunSystem extends BaseSystem {
             return false;
         CalibreComponentSlot chamberSlot = chamberResult.getSlot();
         ProjectileProviderSystem chamber = chamberResult.getSystem();
-
-        // Get location
-        Vector barrelOffset = stat("barrel_offset");
-        if (user instanceof PlayerItemUser && ((PlayerItemUser) user).getEntity().getMainHand() == MainHand.LEFT)
-            barrelOffset = barrelOffset.clone().setX(-barrelOffset.getX());
-        Location location = Utils.getFacingRelative(user.getLocation(), barrelOffset);
-        if (user instanceof EntityItemUser && Utils.isObstructed(((EntityItemUser) user).getEntity(), location))
-            return false;
 
         double muzzleVelocity = stat("muzzle_velocity");
         double gravity = stat("projectile_gravity");
@@ -725,6 +818,7 @@ public class GunSystem extends BaseSystem {
 
     public void toggleAiming(Events.ToggleAiming event) {
         if (callEvent(event).cancelled) return;
+        if (getMappedSight() == null) return;
         if (aiming == event.newAiming) return;
 
         itemSystem.doAction(this, "aim_" + (aiming ? "out" : "in"), event.getUser(), event.getSlot(), sys -> {
@@ -785,7 +879,7 @@ public class GunSystem extends BaseSystem {
 
             resume[0] = false;
             // Place non-empty compatible component into slot from inventory
-            Utils.useService(CalibreComponentSupplier.Service.class, s -> {
+            Utils.useService(CalibreComponentSupplier.class, s -> {
                 CalibreComponent component = s.supply(slot, user, this, false);
                 if (component != null) {
                     slot.set(component);
@@ -811,7 +905,7 @@ public class GunSystem extends BaseSystem {
 
             resume[0] = false;
             // Place chamber from inventory
-            Utils.useService(CalibreComponentSupplier.Service.class, s -> {
+            Utils.useService(CalibreComponentSupplier.class, s -> {
                 CalibreComponent component = s.supply(slot, user, this, true);
                 // TODO apply this after a stat delay, "load_chamber_after"
                 if (component != null) {

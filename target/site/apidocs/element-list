@@ -14,6 +14,7 @@ me.aecsocket.calibre.item.blueprint
 me.aecsocket.calibre.item.component
 me.aecsocket.calibre.item.component.search
 me.aecsocket.calibre.item.system
+me.aecsocket.calibre.item.util
 me.aecsocket.calibre.item.util.damagecause
 me.aecsocket.calibre.item.util.slot
 me.aecsocket.calibre.item.util.user

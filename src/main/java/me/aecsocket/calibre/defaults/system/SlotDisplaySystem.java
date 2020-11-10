@@ -2,9 +2,9 @@ package me.aecsocket.calibre.defaults.system;
 
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.component.CalibreComponent;
+import me.aecsocket.calibre.item.component.CalibreComponentSlot;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.BaseSystem;
-import me.aecsocket.unifiedframework.component.ComponentSlot;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import org.bukkit.entity.Player;
 
@@ -37,7 +37,8 @@ public class SlotDisplaySystem extends BaseSystem {
         String prefix = plugin.gen(player, "system.slot_display.prefix");
         StringJoiner lore = new StringJoiner("\n");
         parent.walk(data -> {
-            ComponentSlot<?> slot = data.getSlot();
+            if (!(data.getSlot() instanceof CalibreComponentSlot)) return;
+            CalibreComponentSlot slot = (CalibreComponentSlot) data.getSlot();
             AtomicReference<CalibreComponent> component = new AtomicReference<>();
             data.getComponent().ifPresent(o -> {
                 if (o instanceof CalibreComponent)
@@ -46,10 +47,7 @@ public class SlotDisplaySystem extends BaseSystem {
             lore.add(
                     plugin.gen(player, "system.slot_display.line",
                             "prefix", prefix.repeat(data.getDepth() - 1),
-                            "slot", plugin.gen(player, "system.slot_display.slot." + (slot.isRequired() ? "required" : "normal"),
-                                    "name", plugin.gen(player, "slot." + data.getLastNode()
-                                    )
-                            ),
+                            "slot", slot.getName(plugin, data.getLastNode(), plugin.locale(player)),
                             "component", plugin.gen(player, "system.slot_display.component." + (
                                     data.getComponent().isEmpty()
                                     ? "empty"

@@ -155,7 +155,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,me.aecsocket.calibre.util.OrderedStatMap,me.aecsocket.calibre.util.OrderedStatMap)">Sight</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;name,
-     <a href="../../../../util/OrderedStatMap.html" title="class in me.aecsocket.calibre.util">OrderedStatMap</a>&nbsp;stats,
+     <a href="../../../../util/OrderedStatMap.html" title="class in me.aecsocket.calibre.util">OrderedStatMap</a>&nbsp;inactiveStats,
      <a href="../../../../util/OrderedStatMap.html" title="class in me.aecsocket.calibre.util">OrderedStatMap</a>&nbsp;activeStats)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -183,13 +183,13 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getName()">getName</a></span>()</code></th>
+<td class="colFirst"><code><a href="../../../../util/OrderedStatMap.html" title="class in me.aecsocket.calibre.util">OrderedStatMap</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getInactiveStats()">getInactiveStats</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="../../../../util/OrderedStatMap.html" title="class in me.aecsocket.calibre.util">OrderedStatMap</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getStats()">getStats</a></span>()</code></th>
+<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getName()">getName</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
@@ -199,12 +199,12 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setName(java.lang.String)">setName</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;name)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setInactiveStats(me.aecsocket.calibre.util.OrderedStatMap)">setInactiveStats</a></span>&#8203;(<a href="../../../../util/OrderedStatMap.html" title="class in me.aecsocket.calibre.util">OrderedStatMap</a>&nbsp;inactiveStats)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setStats(me.aecsocket.calibre.util.OrderedStatMap)">setStats</a></span>&#8203;(<a href="../../../../util/OrderedStatMap.html" title="class in me.aecsocket.calibre.util">OrderedStatMap</a>&nbsp;stats)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setName(java.lang.String)">setName</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;name)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
@@ -243,7 +243,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <li class="blockList">
 <h4>Sight</h4>
 <pre>public&nbsp;Sight&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;name,
-             <a href="../../../../util/OrderedStatMap.html" title="class in me.aecsocket.calibre.util">OrderedStatMap</a>&nbsp;stats,
+             <a href="../../../../util/OrderedStatMap.html" title="class in me.aecsocket.calibre.util">OrderedStatMap</a>&nbsp;inactiveStats,
              <a href="../../../../util/OrderedStatMap.html" title="class in me.aecsocket.calibre.util">OrderedStatMap</a>&nbsp;activeStats)</pre>
 </li>
 </ul>
@@ -275,22 +275,22 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <pre class="methodSignature">public&nbsp;void&nbsp;setName&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;name)</pre>
 </li>
 </ul>
-<a id="getStats()">
+<a id="getInactiveStats()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getStats</h4>
-<pre class="methodSignature">public&nbsp;<a href="../../../../util/OrderedStatMap.html" title="class in me.aecsocket.calibre.util">OrderedStatMap</a>&nbsp;getStats()</pre>
+<h4>getInactiveStats</h4>
+<pre class="methodSignature">public&nbsp;<a href="../../../../util/OrderedStatMap.html" title="class in me.aecsocket.calibre.util">OrderedStatMap</a>&nbsp;getInactiveStats()</pre>
 </li>
 </ul>
-<a id="setStats(me.aecsocket.calibre.util.OrderedStatMap)">
+<a id="setInactiveStats(me.aecsocket.calibre.util.OrderedStatMap)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setStats</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setStats&#8203;(<a href="../../../../util/OrderedStatMap.html" title="class in me.aecsocket.calibre.util">OrderedStatMap</a>&nbsp;stats)</pre>
+<h4>setInactiveStats</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setInactiveStats&#8203;(<a href="../../../../util/OrderedStatMap.html" title="class in me.aecsocket.calibre.util">OrderedStatMap</a>&nbsp;inactiveStats)</pre>
 </li>
 </ul>
 <a id="getActiveStats()">

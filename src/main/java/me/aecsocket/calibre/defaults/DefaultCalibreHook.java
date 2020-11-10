@@ -4,9 +4,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import me.aecsocket.calibre.CalibreHook;
 import me.aecsocket.calibre.CalibrePlugin;
-import me.aecsocket.calibre.defaults.service.CalibreComponentSupplier;
-import me.aecsocket.calibre.defaults.service.CalibreDamage;
-import me.aecsocket.calibre.defaults.service.CalibrePenetration;
+import me.aecsocket.calibre.defaults.service.*;
 import me.aecsocket.calibre.defaults.system.ComponentStorageSystem;
 import me.aecsocket.calibre.defaults.system.ItemSystem;
 import me.aecsocket.calibre.defaults.system.SlotDisplaySystem;
@@ -25,18 +23,22 @@ import me.aecsocket.unifiedframework.util.Quantifier;
 import me.aecsocket.unifiedframework.util.json.QuantifierAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.ServicePriority;
-import org.bukkit.plugin.ServicesManager;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 /**
  * A default hook loaded into the {@link CalibrePlugin}.
  */
 public class DefaultCalibreHook implements CalibreHook {
     private CalibrePlugin plugin;
+    private final Map<Class<? extends CalibreInbuilt>, CalibreInbuilt> inbuiltServices = new HashMap<>();
 
     public CalibrePlugin getPlugin() { return plugin; }
+
+    public Map<?, ?> getInbuiltServices() { return inbuiltServices; }
 
     @Override
     public void acceptPlugin(CalibrePlugin plugin) {
@@ -45,10 +47,17 @@ public class DefaultCalibreHook implements CalibreHook {
 
     @Override
     public void onEnable() {
-        ServicesManager servicesManager = Bukkit.getServicesManager();
-        servicesManager.register(CalibreDamage.Service.class, new CalibreDamage.Provider(), plugin, ServicePriority.Lowest);
-        servicesManager.register(CalibrePenetration.Service.class, new CalibrePenetration.Provider(plugin), plugin, ServicePriority.Lowest);
-        servicesManager.register(CalibreComponentSupplier.Service.class, new CalibreComponentSupplier.Provider(plugin), plugin, ServicePriority.Lowest);
+        registerService(CalibreDamage.class, new CalibreDamage.Provider());
+        registerService(CalibrePenetration.class, new CalibrePenetration.Provider(plugin));
+        registerService(CalibreComponentSupplier.class, new CalibreComponentSupplier.Provider(plugin));
+        registerService(CalibreRaytracing.class, new CalibreRaytracing.Provider());
+        registerService(CalibreSwayStabilization.class, new CalibreSwayStabilization.Provider(plugin));
+    }
+
+    private <S extends CalibreInbuilt, P extends S> void registerService(Class<S> serviceType, P provider) {
+        inbuiltServices.put(serviceType, provider);
+        Bukkit.getServicesManager().register(serviceType, provider, plugin, ServicePriority.Lowest);
+        provider.enable();
     }
 
     @Override

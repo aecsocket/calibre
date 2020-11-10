@@ -7,14 +7,12 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
-public final class CalibrePenetration {
-    public interface Service {
-        double blockMultiplier(double damage, double penetration, Block block);
-        double entityMultiplier(double damage, double penetration, Entity entity);
-        double armorMultiplier(double damage, double penetration, Entity entity);
-    }
+public interface CalibrePenetration extends CalibreInbuilt {
+    double blockMultiplier(double damage, double penetration, Block block);
+    double entityMultiplier(double damage, double penetration, Entity entity);
+    double armorMultiplier(double damage, double penetration, Entity entity);
 
-    public static class Provider implements Service {
+    class Provider implements CalibrePenetration {
         private final CalibrePlugin plugin;
 
         public Provider(CalibrePlugin plugin) {
@@ -36,6 +34,4 @@ public final class CalibrePenetration {
             return armor > 0 ? Utils.clamp01(penetration / armor) : 1;
         }
     }
-
-    private CalibrePenetration() {}
 }

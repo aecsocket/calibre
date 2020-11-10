@@ -70,6 +70,13 @@ public class CalibreComponentSlot implements ComponentSlot<CalibreComponent>, Cl
         );
     }
 
+    public String getName(CalibrePlugin plugin, String name, String locale) {
+        return plugin.gen(locale,
+                "slot_display." + (required ? "required" : "normal"),
+                "name", plugin.gen(locale, "slot." + name)
+        );
+    }
+
     public CalibreComponentSlot clone() { try { return (CalibreComponentSlot) super.clone(); } catch (CloneNotSupportedException e) { return null; } }
     public CalibreComponentSlot copy() {
         CalibreComponentSlot copy = clone();

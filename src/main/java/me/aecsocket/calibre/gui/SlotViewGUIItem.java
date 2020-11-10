@@ -44,7 +44,7 @@ public class SlotViewGUIItem implements GUIItem {
                         ? component
                         : slot.get() == null
                                 ? null
-                                : slot.get().withSimpleTree(),
+                                : slot.get(),
                 gui.allowsModification(), gui.limitsModification());
     }
 
@@ -77,7 +77,7 @@ public class SlotViewGUIItem implements GUIItem {
         else if (component != null) {
             ItemStack item;
             try {
-                item = component.createItem(player);
+                item = component.withSingleTree().createItem(player);
             } catch (ItemCreationException e) {
                 item = Utils.modMeta(
                         plugin.setting("slot_view.icon.no_item", ItemDescriptor.class, new ItemDescriptor(Material.BARRIER, 0, 0))
@@ -87,7 +87,7 @@ public class SlotViewGUIItem implements GUIItem {
             if (slot != null)
                 Utils.modMeta(item, meta -> {
                     List<String> lore = meta.hasLore() ? meta.getLore() : new ArrayList<>();
-                    lore.add(plugin.gen(player, "slot." + slotName));
+                    lore.add(slot.getName(plugin, slotName, plugin.locale(player)));
                     meta.setLore(lore);
                 });
             return item;
@@ -102,10 +102,6 @@ public class SlotViewGUIItem implements GUIItem {
     @Override
     public void onClick(GUIView view, InventoryClickEvent event) {
         event.setCancelled(true);
-        if (event.getClick() == ClickType.RIGHT) {
-            // TODO component editing menu
-            return;
-        }
 
         if (slot == null) return;
         if (!allowModification || (limitedModification && !slot.canFieldModify())) return;
@@ -113,6 +109,11 @@ public class SlotViewGUIItem implements GUIItem {
         Player player = view.getPlayer();
         ItemStack rawCursor = view.getRawCursor();
         if (Utils.empty(rawCursor) && slot.get() != null) {
+            if (event.getClick() == ClickType.RIGHT) {
+                // TODO component editing menu
+                return;
+            }
+
             try {
                 CalibreComponent component = slot.get().withSimpleTree();
                 view.setRawCursor(component.createItem(player));

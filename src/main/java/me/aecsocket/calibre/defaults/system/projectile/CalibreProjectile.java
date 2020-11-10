@@ -2,9 +2,9 @@ package me.aecsocket.calibre.defaults.system.projectile;
 
 import me.aecsocket.calibre.defaults.service.CalibreDamage;
 import me.aecsocket.calibre.defaults.service.CalibrePenetration;
+import me.aecsocket.calibre.defaults.service.CalibreRaytracing;
 import me.aecsocket.calibre.item.util.damagecause.DamageCause;
 import me.aecsocket.calibre.item.util.user.ItemUser;
-import me.aecsocket.calibre.item.util.user.PlayerItemUser;
 import me.aecsocket.calibre.util.CalibreParticleData;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.util.Projectile;
@@ -66,6 +66,7 @@ public class CalibreProjectile extends Projectile {
 
     private Data data;
     private double damage;
+    private CalibreRaytracing raytracing;
 
     public CalibreProjectile(Data data) {
         super(
@@ -78,6 +79,7 @@ public class CalibreProjectile extends Projectile {
         );
         this.data = data;
         damage = data.damage;
+        Utils.useService(CalibreRaytracing.class, s -> raytracing = s);
     }
 
     public Data getData() { return data; }
@@ -85,6 +87,14 @@ public class CalibreProjectile extends Projectile {
 
     public double getDamage() { return damage; }
     public void setDamage(double damage) { this.damage = damage; }
+
+    public CalibreRaytracing getRaytracing() { return raytracing; }
+    public void setRaytracing(CalibreRaytracing raytracing) { this.raytracing = raytracing; }
+
+    @Override
+    protected RayTraceResult rayTrace(double distance) {
+        return raytracing == null ? super.rayTrace(distance) : raytracing.rayTrace(getLocation(), getVelocity(), distance, getExpansion());
+    }
 
     @Override
     public void tick(TickContext tickContext) {
@@ -114,8 +124,8 @@ public class CalibreProjectile extends Projectile {
     @Override
     protected void hitEntity(TickContext tickContext, RayTraceResult ray, Entity entity) {
         if (damage > 0)
-            Utils.useService(CalibreDamage.Service.class, s -> {
-                Utils.useService(CalibrePenetration.Service.class, s2 -> {
+            Utils.useService(CalibreDamage.class, s -> {
+                Utils.useService(CalibrePenetration.class, s2 -> {
                     double mult = s2.armorMultiplier(damage, data.getArmorPenetration(), entity);
                     damage *= mult;
                     getVelocity().multiply(mult);

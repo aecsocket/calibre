@@ -32,6 +32,15 @@ public class SlotViewGUI extends GUI {
         this.slot = slot;
     }
 
+    public SlotViewGUI(CalibrePlugin plugin, CalibreComponent component, boolean allowModification, ItemSlot slot) {
+        this(
+                plugin, plugin.getGUIManager(),
+                component, allowModification,
+                plugin.setting("slot_view.limited_modification", boolean.class, true),
+                slot
+        );
+    }
+
     public CalibrePlugin getPlugin() { return plugin; }
     @Override public GUIManager getGUIManager() { return guiManager; }
 
@@ -59,7 +68,7 @@ public class SlotViewGUI extends GUI {
     public Map<Integer, GUIItem> getItems(Player player) {
         Map<Integer, GUIItem> map = new HashMap<>();
         GUIVector center = plugin.setting("slot_view.center", GUIVector.class, new GUIVector(4, 3));
-        map.put(center.toSlot(), new SlotViewGUIItem(this, component.withSingleTree()));
+        map.put(center.toSlot(), new SlotViewGUIItem(this, component));
         component.getSlots().forEach((slotName, slot) -> putItems(map, slot, slotName, center));
         return map;
     }

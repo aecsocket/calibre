@@ -6,8 +6,8 @@ import com.google.gson.JsonParseException;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.ComponentTree;
+import me.aecsocket.calibre.item.util.LoadTimeDependencies;
 import me.aecsocket.calibre.util.CalibreIdentifiable;
-import me.aecsocket.calibre.util.HasDependencies;
 import me.aecsocket.unifiedframework.item.ItemCreationException;
 import me.aecsocket.unifiedframework.item.ItemStackFactory;
 import me.aecsocket.unifiedframework.registry.ResolutionContext;
@@ -17,11 +17,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class Blueprint implements CalibreIdentifiable, HasDependencies<Blueprint.Dependencies>, ItemStackFactory {
+public class Blueprint implements CalibreIdentifiable, ItemStackFactory {
     /**
      * Temporarily stores info on deserialization for resolution later.
      */
@@ -33,7 +32,7 @@ public class Blueprint implements CalibreIdentifiable, HasDependencies<Blueprint
         }
     }
 
-    private transient Dependencies dependencies;
+    @LoadTimeDependencies private transient Dependencies dependencies;
     private transient CalibrePlugin plugin;
     private final String id;
     private transient ComponentTree tree;
@@ -45,10 +44,6 @@ public class Blueprint implements CalibreIdentifiable, HasDependencies<Blueprint
     public Blueprint() {
         this(null);
     }
-
-    @Override public Dependencies getLoadDependencies() { return dependencies; }
-    @Override public void setLoadDependencies(Dependencies dependencies) { this.dependencies = dependencies; }
-    @Override public Type getLoadDependenciesType() { return Dependencies.class; }
 
     @Override public CalibrePlugin getPlugin() { return plugin; }
     @Override public void setPlugin(CalibrePlugin plugin) { this.plugin = plugin; }
@@ -92,10 +87,12 @@ public class Blueprint implements CalibreIdentifiable, HasDependencies<Blueprint
 
     @Override
     public ItemStack createItem(@Nullable Player player, int amount) throws ItemCreationException {
+        if (getRoot() == null)
+            throw new ItemCreationException("Invalid tree");
         return getRoot().createItem(player, amount);
     }
 
-    public CalibreComponent getRoot() { return tree.getRoot(); }
+    public CalibreComponent getRoot() { return tree == null ? null : tree.getRoot(); }
 
     @Override public String toString() { return "Blueprint:" + id; }
 }

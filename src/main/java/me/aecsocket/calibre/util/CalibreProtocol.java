@@ -5,6 +5,8 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.EquivalentConverter;
 import com.comphenix.protocol.utility.MinecraftReflection;
 import com.comphenix.protocol.wrappers.EnumWrappers;
+import com.comphenix.protocol.wrappers.WrappedDataWatcher;
+import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.unifiedframework.util.MapInit;
 import org.bukkit.GameMode;
@@ -13,10 +15,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public final class CalibreProtocol {
     private static CalibrePlugin plugin;
@@ -125,5 +124,18 @@ public final class CalibreProtocol {
         packet.getFloat().write(1, (float) pitch);
         packet.getSets(TELEPORT_FLAG_CONVERTER).write(0, POSITION_FLAGS);
         plugin.sendPacket(player, packet);
+    }
+
+    public static void sendAir(Player player, int air) {
+        PacketContainer packet = plugin.getProtocolManager().createPacket(PacketType.Play.Server.ENTITY_METADATA);
+        packet.getIntegers().write(0, player.getEntityId());
+        packet.getWatchableCollectionModifier().write(0, Collections.singletonList(
+                new WrappedWatchableObject(new WrappedDataWatcher.WrappedDataWatcherObject(1, WrappedDataWatcher.Registry.get(Integer.class)), air)
+        ));
+        plugin.sendPacket(player, packet);
+    }
+
+    public static void sendAir(Player player, double percentage) {
+        sendAir(player, (int) (((Math.round(percentage * 10.0) / 10.0) - 0.05) * player.getMaximumAir()));
     }
 }

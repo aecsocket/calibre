@@ -141,16 +141,14 @@ public class EventHandle implements Listener {
                 : view.getGUI() instanceof SlotViewGUI
                 ? (SlotViewGUI) view.getGUI()
                 : null;
-        if (plugin.setting("slot_view.enabled", boolean.class, true) && event.getClick() == ClickType.RIGHT) {
+        boolean guiClicked = gui != null && event.getClickedInventory() == event.getView().getTopInventory();
+        if (!guiClicked && plugin.setting("slot_view.enabled", boolean.class, true) && event.getClick() == ClickType.RIGHT) {
             CalibreComponent component = plugin.fromItem(event.getCurrentItem());
             if (component == null) return;
-            boolean allowModification = plugin.setting("slot_view.allow_modification", boolean.class, true)
-                    && (gui == null || (gui.getSlot() == null || !event.getCurrentItem().equals(gui.getSlot().get())));
+            boolean allowModification = plugin.setting("slot_view.allow_modification", boolean.class, true);
             new SlotViewGUI(
-                    plugin, plugin.getGUIManager(), component,
+                    plugin, component,
                     allowModification,
-                    plugin.setting("slot_view.limited_modification", boolean.class, true),
-                    // this works!
                     allowModification
                             ? new ItemSlot() {
                                 @Override public ItemStack get() { return event.getCurrentItem(); }

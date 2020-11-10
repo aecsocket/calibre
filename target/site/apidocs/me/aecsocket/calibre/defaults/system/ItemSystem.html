@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -199,8 +199,18 @@ extends <a href="../../item/system/BaseSystem.html" title="class in me.aecsocket
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>static org.bukkit.attribute.AttributeModifier</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ATTACK_SPEED_ATTR">ATTACK_SPEED_ATTR</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ID">ID</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static org.bukkit.potion.PotionEffect</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#LOWER_EFFECT">LOWER_EFFECT</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
@@ -357,8 +367,10 @@ extends <a href="../../item/system/BaseSystem.html" title="class in me.aecsocket
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getItemNameKey()">getItemNameKey</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNameKey()">getNameKey</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Gets the translation key for the name of this object.</div>
+</td>
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>long</code></td>
@@ -388,25 +400,15 @@ extends <a href="../../item/system/BaseSystem.html" title="class in me.aecsocket
 </tr>
 <tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDescriptionKey(java.lang.String)">setDescriptionKey</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;descriptionKey)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setNextAvailable(long)">setNextAvailable</a></span>&#8203;(long&nbsp;nextAvailable)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setItemNameKey(java.lang.String)">setItemNameKey</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;itemNameKey)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i22" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setNextAvailable(long)">setNextAvailable</a></span>&#8203;(long&nbsp;nextAvailable)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i23" class="rowColor">
-<td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTasks(java.util.List)">setTasks</a></span>&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>&gt;&nbsp;tasks)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateFov(me.aecsocket.calibre.item.util.user.ItemUser)">updateFov</a></span>&#8203;(<a href="../../item/util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -417,7 +419,7 @@ extends <a href="../../item/system/BaseSystem.html" title="class in me.aecsocket
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;me.aecsocket.calibre.item.system.<a href="../../item/system/BaseSystem.html" title="class in me.aecsocket.calibre.item.system">BaseSystem</a></h3>
-<code><a href="../../item/system/BaseSystem.html#callEvent(T)">callEvent</a>, <a href="../../item/system/BaseSystem.html#getNameKey()">getNameKey</a>, <a href="../../item/system/BaseSystem.html#getParent()">getParent</a>, <a href="../../item/system/BaseSystem.html#getPlugin()">getPlugin</a>, <a href="../../item/system/BaseSystem.html#getTree()">getTree</a>, <a href="../../item/system/BaseSystem.html#setPlugin(me.aecsocket.calibre.CalibrePlugin)">setPlugin</a>, <a href="../../item/system/BaseSystem.html#stat(java.lang.String)">stat</a></code></li>
+<code><a href="../../item/system/BaseSystem.html#callEvent(T)">callEvent</a>, <a href="../../item/system/BaseSystem.html#getParent()">getParent</a>, <a href="../../item/system/BaseSystem.html#getPlugin()">getPlugin</a>, <a href="../../item/system/BaseSystem.html#getTree()">getTree</a>, <a href="../../item/system/BaseSystem.html#setPlugin(me.aecsocket.calibre.CalibrePlugin)">setPlugin</a>, <a href="../../item/system/BaseSystem.html#stat(java.lang.String)">stat</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -497,10 +499,28 @@ extends <a href="../../item/system/BaseSystem.html" title="class in me.aecsocket
 <a id="MOVE_SPEED_UUID">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>MOVE_SPEED_UUID</h4>
 <pre>public static final&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/UUID.html?is-external=true" title="class or interface in java.util" class="externalLink">UUID</a> MOVE_SPEED_UUID</pre>
+</li>
+</ul>
+<a id="ATTACK_SPEED_ATTR">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ATTACK_SPEED_ATTR</h4>
+<pre>public static final&nbsp;org.bukkit.attribute.AttributeModifier ATTACK_SPEED_ATTR</pre>
+</li>
+</ul>
+<a id="LOWER_EFFECT">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>LOWER_EFFECT</h4>
+<pre>public static final&nbsp;org.bukkit.potion.PotionEffect LOWER_EFFECT</pre>
 </li>
 </ul>
 </li>
@@ -532,42 +552,6 @@ extends <a href="../../item/system/BaseSystem.html" title="class in me.aecsocket
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getItemNameKey()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getItemNameKey</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getItemNameKey()</pre>
-</li>
-</ul>
-<a id="setItemNameKey(java.lang.String)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setItemNameKey</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setItemNameKey&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;itemNameKey)</pre>
-</li>
-</ul>
-<a id="getDescriptionKey()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getDescriptionKey</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getDescriptionKey()</pre>
-</li>
-</ul>
-<a id="setDescriptionKey(java.lang.String)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setDescriptionKey</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setDescriptionKey&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;descriptionKey)</pre>
-</li>
-</ul>
 <a id="getNextAvailable()">
 <!--   -->
 </a>
@@ -602,6 +586,36 @@ extends <a href="../../item/system/BaseSystem.html" title="class in me.aecsocket
 <li class="blockList">
 <h4>setTasks</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setTasks&#8203;(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>&gt;&nbsp;tasks)</pre>
+</li>
+</ul>
+<a id="getNameKey()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getNameKey</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getNameKey()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../util/CalibreIdentifiable.html#getNameKey()">CalibreIdentifiable</a></code></span></div>
+<div class="block">Gets the translation key for the name of this object.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../util/CalibreIdentifiable.html#getNameKey()">getNameKey</a></code>&nbsp;in interface&nbsp;<code><a href="../../util/CalibreIdentifiable.html" title="interface in me.aecsocket.calibre.util">CalibreIdentifiable</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../item/system/CalibreSystem.html#getNameKey()">getNameKey</a></code>&nbsp;in interface&nbsp;<code><a href="../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../../item/system/BaseSystem.html#getNameKey()">getNameKey</a></code>&nbsp;in class&nbsp;<code><a href="../../item/system/BaseSystem.html" title="class in me.aecsocket.calibre.item.system">BaseSystem</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The translation key.</dd>
+</dl>
+</li>
+</ul>
+<a id="getDescriptionKey()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDescriptionKey</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getDescriptionKey()</pre>
 </li>
 </ul>
 <a id="initialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">

@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -241,6 +241,18 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendAir(org.bukkit.entity.Player,double)">sendAir</a></span>&#8203;(org.bukkit.entity.Player&nbsp;player,
+       double&nbsp;percentage)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendAir(org.bukkit.entity.Player,int)">sendAir</a></span>&#8203;(org.bukkit.entity.Player&nbsp;player,
+       int&nbsp;air)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendItem(org.bukkit.entity.Player,org.bukkit.inventory.ItemStack,int)">sendItem</a></span>&#8203;(org.bukkit.entity.Player&nbsp;player,
         org.bukkit.inventory.ItemStack&nbsp;item,
         int&nbsp;slot)</code></th>
@@ -248,7 +260,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <div class="block">Send a packet setting an item in the player's inventory.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendItem(org.bukkit.entity.Player,org.bukkit.inventory.ItemStack,org.bukkit.inventory.EquipmentSlot)">sendItem</a></span>&#8203;(org.bukkit.entity.Player&nbsp;player,
         org.bukkit.inventory.ItemStack&nbsp;item,
@@ -257,7 +269,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <div class="block">Send a packet setting an item in the player's inventory.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#slotOf(org.bukkit.entity.Player,org.bukkit.inventory.EquipmentSlot)">slotOf</a></span>&#8203;(org.bukkit.entity.Player&nbsp;player,
       org.bukkit.inventory.EquipmentSlot&nbsp;slot)</code></th>
@@ -424,7 +436,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <a id="rotateCamera(org.bukkit.entity.Player,double,double)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>rotateCamera</h4>
 <pre class="methodSignature">public static&nbsp;void&nbsp;rotateCamera&#8203;(org.bukkit.entity.Player&nbsp;player,
@@ -437,6 +449,26 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <dd><code>yaw</code> - The relative yaw.</dd>
 <dd><code>pitch</code> - The relative pitch.</dd>
 </dl>
+</li>
+</ul>
+<a id="sendAir(org.bukkit.entity.Player,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sendAir</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;sendAir&#8203;(org.bukkit.entity.Player&nbsp;player,
+                           int&nbsp;air)</pre>
+</li>
+</ul>
+<a id="sendAir(org.bukkit.entity.Player,double)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>sendAir</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;sendAir&#8203;(org.bukkit.entity.Player&nbsp;player,
+                           double&nbsp;percentage)</pre>
 </li>
 </ul>
 </li>

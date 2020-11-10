@@ -72,7 +72,7 @@ public class AmmoContainerSystem extends ComponentStorageSystem implements AmmoS
             Utils.giveItem(player, parent.withSimpleTree().createItem(player));
         }
 
-        Utils.useService(CalibreComponentSupplier.Service.class, s ->
+        Utils.useService(CalibreComponentSupplier.class, s ->
                 slot.set(s.supply(slot, event.getUser(), this, true)));
 
         itemSystem.doAction(this, "reload", event.getUser(), event.getSlot());

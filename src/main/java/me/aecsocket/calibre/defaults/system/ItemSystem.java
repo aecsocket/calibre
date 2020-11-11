@@ -78,7 +78,7 @@ public class ItemSystem extends BaseSystem {
     public List<Integer> getTasks() { return tasks; }
     public void setTasks(List<Integer> tasks) { this.tasks = tasks; }
 
-    public String getNameKey() {
+    public String getItemNameKey() {
         String result = stat("name_key");
         return result == null ? parent.getNameKey() : result;
     }
@@ -130,7 +130,7 @@ public class ItemSystem extends BaseSystem {
         // Lore
         List<String> sections = new ArrayList<>();
 
-        plugin.rgen(player, getNameKey()).ifPresent(meta::setDisplayName);
+        plugin.rgen(player, getItemNameKey()).ifPresent(meta::setDisplayName);
         plugin.rgen(player, getDescriptionKey()).ifPresent(sections::add);
 
         callEvent(new Events.SectionCreate(

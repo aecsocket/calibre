@@ -156,7 +156,7 @@ public class SlotViewGUIItem implements GUIItem {
                         ? "compatible"
                         : "incompatible"
                 ), ItemDescriptor.class, new ItemDescriptor(Material.GRAY_STAINED_GLASS_PANE, 0, 0)).create(), meta -> {
-            meta.setDisplayName(plugin.gen("slot." + slotName));
+            meta.setDisplayName(slot.getName(plugin, slotName, plugin.locale(player)));
             if (slot.canFieldModify())
                 meta.setLore(Collections.singletonList(plugin.gen(player, "slot_view.can_field_modify")));
         });

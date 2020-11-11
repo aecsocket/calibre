@@ -211,7 +211,7 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
         plugin.getStatMapAdapter().setStats(stats);
 
         try {
-            dependencies.stats.forEach((order, map) -> this.stats.put(order, plugin.getGson().fromJson(map, StatMap.class)));
+            dependencies.stats.forEach((order, map) -> this.stats.combine(order, plugin.getGson().fromJson(map, StatMap.class)));
         } catch (JsonParseException e) {
             throw new ResolutionException(TextUtils.format(
                     "Could not deserialize stats for {id}: {msg}",
@@ -220,7 +220,7 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
         }
 
         try {
-            dependencies.completeStats.forEach((order, map) -> this.completeStats.put(order, plugin.getGson().fromJson(map, StatMap.class)));
+            dependencies.completeStats.forEach((order, map) -> this.completeStats.combine(order, plugin.getGson().fromJson(map, StatMap.class)));
         } catch (JsonParseException e) {
             throw new ResolutionException(TextUtils.format(
                     "Could not deserialize complete stats for {id}: {msg}",

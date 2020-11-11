@@ -78,6 +78,7 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
     private transient CalibrePlugin plugin;
     private final String id;
     private List<String> categories;
+    private boolean canComplete;
     private Map<String, CalibreComponentSlot> slots;
     // todo clean these 2 up, combine them and their copy* methods
     private transient Map<String, CalibreSystem> systems = new HashMap<>();
@@ -105,6 +106,9 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
 
     public List<String> getCategories() { return categories; }
     public void setCategories(List<String> categories) { this.categories = categories; }
+
+    public boolean canComplete() { return canComplete; }
+    public void setCanComplete(boolean canComplete) { this.canComplete = canComplete; }
 
     @Override public Map<String, CalibreComponentSlot> getSlots() { return slots; }
     public Map<String, CalibreSystem> getSystems() { return systems; }

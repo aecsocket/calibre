@@ -173,7 +173,7 @@ public class ComponentTree {
     public <T> void combineStat(String key, Function<T, T> function) { extraStats.modify(key, function); }
 
     public void build() throws SystemInitializationException {
-        complete = true;
+        complete = root.canComplete();
         build(root);
     }
 

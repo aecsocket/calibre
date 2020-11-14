@@ -209,8 +209,8 @@ extends <a href="../../item/system/BaseSystem.html" title="class in me.aecsocket
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>static org.bukkit.potion.PotionEffect</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#LOWER_EFFECT">LOWER_EFFECT</a></span></code></th>
+<td class="colFirst"><code>static org.bukkit.potion.PotionEffect[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#LOWER_EFFECTS">LOWER_EFFECTS</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
@@ -255,6 +255,10 @@ extends <a href="../../item/system/BaseSystem.html" title="class in me.aecsocket
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">ItemSystem</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(me.aecsocket.calibre.CalibrePlugin)">ItemSystem</a></span>&#8203;(<a href="../../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -351,28 +355,28 @@ extends <a href="../../item/system/BaseSystem.html" title="class in me.aecsocket
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i11" class="rowColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Collection.html?is-external=true" title="class or interface in java.util" class="externalLink">Collection</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDependencies()">getDependencies</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDescriptionKey()">getDescriptionKey</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getId()">getId</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getItemNameKey()">getItemNameKey</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNextAvailable()">getNextAvailable</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Collection.html?is-external=true" title="class or interface in java.util" class="externalLink">Collection</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getServiceTypes()">getServiceTypes</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i16" class="altColor">
@@ -393,7 +397,7 @@ extends <a href="../../item/system/BaseSystem.html" title="class in me.aecsocket
 </tr>
 <tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resetFov(me.aecsocket.calibre.item.util.user.ItemUser)">resetFov</a></span>&#8203;(<a href="../../item/util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset(me.aecsocket.calibre.item.util.user.ItemUser)">reset</a></span>&#8203;(<a href="../../item/util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i20" class="altColor">
@@ -408,7 +412,7 @@ extends <a href="../../item/system/BaseSystem.html" title="class in me.aecsocket
 </tr>
 <tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateFov(me.aecsocket.calibre.item.util.user.ItemUser)">updateFov</a></span>&#8203;(<a href="../../item/util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#update(me.aecsocket.calibre.item.util.user.ItemUser)">update</a></span>&#8203;(<a href="../../item/util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -445,7 +449,7 @@ extends <a href="../../item/system/BaseSystem.html" title="class in me.aecsocket
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;me.aecsocket.unifiedframework.registry.Identifiable</h3>
-<code>resolve</code></li>
+<code>getDependencies, resolve</code></li>
 </ul>
 </li>
 </ul>
@@ -512,13 +516,13 @@ extends <a href="../../item/system/BaseSystem.html" title="class in me.aecsocket
 <pre>public static final&nbsp;org.bukkit.attribute.AttributeModifier ATTACK_SPEED_ATTR</pre>
 </li>
 </ul>
-<a id="LOWER_EFFECT">
+<a id="LOWER_EFFECTS">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>LOWER_EFFECT</h4>
-<pre>public static final&nbsp;org.bukkit.potion.PotionEffect LOWER_EFFECT</pre>
+<h4>LOWER_EFFECTS</h4>
+<pre>public static final&nbsp;org.bukkit.potion.PotionEffect[] LOWER_EFFECTS</pre>
 </li>
 </ul>
 </li>
@@ -534,10 +538,19 @@ extends <a href="../../item/system/BaseSystem.html" title="class in me.aecsocket
 <a id="&lt;init&gt;(me.aecsocket.calibre.CalibrePlugin)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>ItemSystem</h4>
 <pre>public&nbsp;ItemSystem&#8203;(<a href="../../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin)</pre>
+</li>
+</ul>
+<a id="&lt;init&gt;()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>ItemSystem</h4>
+<pre>public&nbsp;ItemSystem()</pre>
 </li>
 </ul>
 </li>
@@ -629,22 +642,31 @@ extends <a href="../../item/system/BaseSystem.html" title="class in me.aecsocket
 <pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;me.aecsocket.unifiedframework.stat.Stat&lt;?&gt;&gt;&nbsp;getDefaultStats()</pre>
 </li>
 </ul>
-<a id="updateFov(me.aecsocket.calibre.item.util.user.ItemUser)">
+<a id="getServiceTypes()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>updateFov</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;updateFov&#8203;(<a href="../../item/util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user)</pre>
+<h4>getServiceTypes</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Collection.html?is-external=true" title="class or interface in java.util" class="externalLink">Collection</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html?is-external=true" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a>&gt;&gt;&nbsp;getServiceTypes()</pre>
 </li>
 </ul>
-<a id="resetFov(me.aecsocket.calibre.item.util.user.ItemUser)">
+<a id="update(me.aecsocket.calibre.item.util.user.ItemUser)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>resetFov</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;resetFov&#8203;(<a href="../../item/util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user)</pre>
+<h4>update</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;update&#8203;(<a href="../../item/util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user)</pre>
+</li>
+</ul>
+<a id="reset(me.aecsocket.calibre.item.util.user.ItemUser)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>reset</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;reset&#8203;(<a href="../../item/util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;user)</pre>
 </li>
 </ul>
 <a id="doAction(me.aecsocket.calibre.item.system.CalibreSystem,java.lang.String,me.aecsocket.calibre.item.util.user.ItemUser,me.aecsocket.calibre.item.util.slot.ItemSlot,org.bukkit.util.Vector,org.bukkit.util.Consumer)">
@@ -760,15 +782,6 @@ extends <a href="../../item/system/BaseSystem.html" title="class in me.aecsocket
 <li class="blockList">
 <h4>getId</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getId()</pre>
-</li>
-</ul>
-<a id="getDependencies()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getDependencies</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Collection.html?is-external=true" title="class or interface in java.util" class="externalLink">Collection</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;getDependencies()</pre>
 </li>
 </ul>
 <a id="clone()">

@@ -13,6 +13,7 @@ import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.ComponentCompatibility;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.BaseSystem;
+import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.calibre.item.system.LoadTimeOnly;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.util.Quantifier;
@@ -75,6 +76,7 @@ public class ComponentStorageSystem extends BaseSystem implements ComponentProvi
     public ComponentStorageSystem(CalibrePlugin plugin) {
         super(plugin);
     }
+    public ComponentStorageSystem() { this(null); }
 
     public LinkedList<Quantifier<CalibreComponent>> getComponents() { return components; }
     public void setComponents(LinkedList<Quantifier<CalibreComponent>> components) { this.components = components; }
@@ -85,10 +87,14 @@ public class ComponentStorageSystem extends BaseSystem implements ComponentProvi
     @Override
     public void initialize(CalibreComponent parent, ComponentTree tree) {
         super.initialize(parent, tree);
-        ComponentProviderSystem.super.initialize(parent, tree);
 
         EventDispatcher events = tree.getEventDispatcher();
         events.registerListener(ItemSystem.Events.SectionCreate.class, this::onEvent, 0);
+    }
+
+    @Override
+    public Collection<Class<? extends CalibreSystem>> getServiceTypes() {
+        return Collections.singleton(ComponentProviderSystem.class);
     }
 
     @Override
@@ -112,7 +118,6 @@ public class ComponentStorageSystem extends BaseSystem implements ComponentProvi
     }
 
     @Override public String getId() { return ID; }
-    @Override public Collection<String> getDependencies() { return Collections.emptyList(); }
     @Override public ComponentStorageSystem clone() { return (ComponentStorageSystem) super.clone(); }
     @Override public ComponentStorageSystem copy() {
         ComponentStorageSystem copy = clone();

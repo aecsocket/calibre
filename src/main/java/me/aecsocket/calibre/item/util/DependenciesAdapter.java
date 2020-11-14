@@ -26,13 +26,15 @@ public class DependenciesAdapter implements TypeAdapterFactory {
                 T result = delegate.fromJsonTree(tree);
                 // We replace all fields with @Dependencies with the result of deserializing it,
                 // but using *this* JSON tree.
-                Class<?> type = result.getClass();
-                for (Field field : type.getDeclaredFields()) {
-                    if (field.isAnnotationPresent(LoadTimeDependencies.class)) {
-                        field.setAccessible(true);
-                        try {
-                            field.set(result, gson.fromJson(tree, field.getType()));
-                        }  catch (IllegalAccessException ignore) {}
+                if (result != null) {
+                    Class<?> type = result.getClass();
+                    for (Field field : type.getDeclaredFields()) {
+                        if (field.isAnnotationPresent(LoadTimeDependencies.class)) {
+                            field.setAccessible(true);
+                            try {
+                                field.set(result, gson.fromJson(tree, field.getType()));
+                            } catch (IllegalAccessException ignore) {}
+                        }
                     }
                 }
                 return result;

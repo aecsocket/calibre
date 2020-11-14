@@ -1,4 +1,4 @@
-package me.aecsocket.calibre.defaults.system.gun;
+package me.aecsocket.calibre.defaults.system.gun.projectile;
 
 import me.aecsocket.calibre.defaults.system.projectile.ProjectileProviderSystem;
 import org.bukkit.inventory.ItemStack;

@@ -38,6 +38,7 @@ public class MeleeSystem extends BaseSystem {
     public MeleeSystem(CalibrePlugin plugin) {
         super(plugin);
     }
+    public MeleeSystem() { this(null); }
 
     public boolean isUsable() { return usable; }
     public void setUsable(boolean usable) { this.usable = usable; }
@@ -46,7 +47,7 @@ public class MeleeSystem extends BaseSystem {
     public void initialize(CalibreComponent parent, ComponentTree tree) {
         super.initialize(parent, tree);
 
-        itemSystem = parent.getSystemService(ItemSystem.class);
+        itemSystem = parent.getService(ItemSystem.class);
 
         EventDispatcher events = tree.getEventDispatcher();
         events.registerListener(ItemEvents.Interact.class, this::onEvent, 0);
@@ -54,6 +55,7 @@ public class MeleeSystem extends BaseSystem {
     }
 
     @Override public Map<String, Stat<?>> getDefaultStats() { return STATS; }
+    @Override public Collection<String> getDependencies() { return Collections.singleton(ItemSystem.ID); }
 
     private void onEvent(ItemEvents.Interact event) {
         if (!usable) return;
@@ -73,7 +75,6 @@ public class MeleeSystem extends BaseSystem {
     }
 
     @Override public String getId() { return ID; }
-    @Override public Collection<String> getDependencies() { return Collections.emptyList(); }
     @Override public MeleeSystem clone() { return (MeleeSystem) super.clone(); }
     @Override public MeleeSystem copy() { return clone(); }
 

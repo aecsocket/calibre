@@ -113,10 +113,8 @@ public class CalibrePlayer implements Tickable {
 
     @Override
     public void tick(TickContext tickContext) {
-        if (animation != null) {
+        if (animation != null && !animation.isFinished()) {
             tickContext.tick(animation);
-            if (animation.isFinished())
-                animation = null;
         }
 
         if (tickContext.getLoop() instanceof SchedulerLoop) {

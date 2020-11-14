@@ -10,6 +10,7 @@ import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.loop.Tickable;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.json.JsonAdapter;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -39,17 +40,19 @@ public class ItemAnimation implements Cloneable, AcceptsCalibrePlugin {
                 String frameType = get(object, "type", new JsonPrimitive("simple")).getAsString();
                 switch (frameType) {
                     case "range":
-                        int from = get(object, "from", int.class);
                         long duration = get(object, "duration", long.class, 0L);
+                        int from = get(object, "from", int.class);
+                        int alt = get(object, "alt", int.class, null);
+
                         EquipmentSlot slot = context.deserialize(get(object, "slot", JsonNull.INSTANCE), EquipmentSlot.class);
                         int step = get(object, "step", int.class, 1);
-                        boolean useDamage = get(object, "use_damage", boolean.class, false);
+                        boolean useDamage = get(object, "use_damage", boolean.class, true);
 
                         for (int i = 0; i < get(object, "range", int.class); i++) {
                             frames.add(new Frame(
                                     duration, slot,
-                                    useDamage ? null : from + (i * step),
-                                    useDamage ? from + (i * step) : null
+                                    useDamage ? alt : from + (i * step),
+                                    useDamage ? from + (i * step) : alt
                             ));
                         }
                         break;
@@ -58,8 +61,8 @@ public class ItemAnimation implements Cloneable, AcceptsCalibrePlugin {
                                 get(object, "duration", long.class),
                                 get(object, "slot", context, EquipmentSlot.class, null),
                                 get(object, "item", context, ItemDescriptor.class, null),
-                                get(object, "model_data", context, Integer.class, 0),
-                                get(object, "damage", context, Integer.class, 0)
+                                get(object, "model_data", context, Integer.class, null),
+                                get(object, "damage", context, Integer.class, null)
                         ));
                         break;
                 }
@@ -130,12 +133,14 @@ public class ItemAnimation implements Cloneable, AcceptsCalibrePlugin {
         }
 
         public ItemAnimation getAnimation() { return ItemAnimation.this; }
+
+        @Override public String toString() { return index + "/" + frameTime + ": [" + frame + "]"; }
     }
 
     public static class Frame implements Cloneable {
         private long duration;
         private EquipmentSlot slot;
-        private ItemDescriptor item;
+        private ItemDescriptor item; // TODO use an "item delta" object, diff between items OR default real item22
         private Integer modelData;
         private Integer damage;
 
@@ -187,7 +192,8 @@ public class ItemAnimation implements Cloneable, AcceptsCalibrePlugin {
         public void setDamage(Integer damage) { this.damage = damage; }
 
         public ItemStack create(CalibrePlugin plugin, Player player, EquipmentSlot slot) {
-            ItemStack playerItem = CalibreComponent.setHidden(plugin, player.getEquipment().getItem(slot).clone(), false);
+            ItemStack playerItem = player.getEquipment().getItem(slot);
+            playerItem = playerItem == null ? new ItemStack(Material.AIR) : CalibreComponent.setHidden(plugin, playerItem.clone(), false);
             if (item != null) return item.apply(playerItem);
             return Utils.modMeta(playerItem, meta -> {
                 if (modelData != null) meta.setCustomModelData(modelData);
@@ -201,6 +207,8 @@ public class ItemAnimation implements Cloneable, AcceptsCalibrePlugin {
         }
 
         public Frame clone() { try { return (Frame) super.clone(); } catch (CloneNotSupportedException e) { return null; } }
+
+        @Override public String toString() { return duration + "ms: " + modelData + "/" + damage + " [" + slot + "]"; }
     }
 
     private transient CalibrePlugin plugin;
@@ -239,6 +247,5 @@ public class ItemAnimation implements Cloneable, AcceptsCalibrePlugin {
         return copy;
     }
 
-    @Override
-    public String toString() { return frames.toString(); }
+    @Override public String toString() { return frames.toString(); }
 }

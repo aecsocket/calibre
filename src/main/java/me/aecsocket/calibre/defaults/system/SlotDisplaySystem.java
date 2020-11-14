@@ -5,6 +5,7 @@ import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.CalibreComponentSlot;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.BaseSystem;
+import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import org.bukkit.entity.Player;
 
@@ -20,15 +21,19 @@ public class SlotDisplaySystem extends BaseSystem {
     public SlotDisplaySystem(CalibrePlugin plugin) {
         super(plugin);
     }
+    public SlotDisplaySystem() { this(null); }
 
     @Override
     public void initialize(CalibreComponent parent, ComponentTree tree) {
         super.initialize(parent, tree);
 
-        parent.registerSystemService(SlotDisplaySystem.class, this);
-
         EventDispatcher events = tree.getEventDispatcher();
         events.registerListener(ItemSystem.Events.SectionCreate.class, this::onEvent, LISTENER_PRIORITY);
+    }
+
+    @Override
+    public Collection<Class<? extends CalibreSystem>> getServiceTypes() {
+        return Collections.singleton(SlotDisplaySystem.class);
     }
 
     private void onEvent(ItemSystem.Events.SectionCreate event) {
@@ -63,7 +68,6 @@ public class SlotDisplaySystem extends BaseSystem {
     }
 
     @Override public String getId() { return ID; }
-    @Override public Collection<String> getDependencies() { return Collections.emptyList(); }
     @Override public SlotDisplaySystem clone() { return (SlotDisplaySystem) super.clone(); }
     @Override public SlotDisplaySystem copy() { return clone(); }
 }

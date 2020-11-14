@@ -22,6 +22,7 @@ public class CalibreProjectile extends Projectile {
         // TODO Possibly replace all of these with a System, and call #stat on that.
         // Less abstract but way cleaner.
         private CalibreParticleData[] trail;
+        private CalibreParticleData[] hit;
         private double trailStep;
         private int maxHits;
         private ItemUser damager;
@@ -29,9 +30,10 @@ public class CalibreProjectile extends Projectile {
         private double armorPenetration;
         private DamageCause damageCause;
 
-        public Data(Location location, Vector velocity, double bounce, double drag, double gravity, double expansion, CalibreParticleData[] trail, double trailStep, int maxHits, ItemUser damager, double damage, double armorPenetration, DamageCause damageCause) {
+        public Data(Location location, Vector velocity, double bounce, double drag, double gravity, double expansion, CalibreParticleData[] trail, CalibreParticleData[] hit, double trailStep, int maxHits, ItemUser damager, double damage, double armorPenetration, DamageCause damageCause) {
             super(location, velocity, bounce, drag, gravity, expansion);
             this.trail = trail;
+            this.hit = hit;
             this.trailStep = trailStep;
             this.maxHits = maxHits;
             this.damager = damager;
@@ -44,6 +46,9 @@ public class CalibreProjectile extends Projectile {
 
         public CalibreParticleData[] getTrail() { return trail; }
         public void setTrail(CalibreParticleData[] trail) { this.trail = trail; }
+
+        public CalibreParticleData[] getHit() { return hit; }
+        public void setHit(CalibreParticleData[] hit) { this.hit = hit; }
 
         public double getTrailStep() { return trailStep; }
         public void setTrailStep(double trailStep) { this.trailStep = trailStep; }
@@ -122,6 +127,17 @@ public class CalibreProjectile extends Projectile {
     }
 
     @Override
+    protected void successHit(TickContext tickContext, RayTraceResult ray) {
+        if (data.maxHits > 0 && getHits() >= data.maxHits) {
+            tickContext.remove();
+            return;
+        }
+        if (ray.getHitBlock() != null)
+            ParticleData.spawn(getLocation(), ray.getHitBlock().getBlockData(), data.getHit());
+        super.successHit(tickContext, ray);
+    }
+
+    @Override
     protected void hitEntity(TickContext tickContext, RayTraceResult ray, Entity entity) {
         if (damage > 0)
             Utils.useService(CalibreDamage.class, s -> {
@@ -132,14 +148,5 @@ public class CalibreProjectile extends Projectile {
                 });
                 s.damage(data.getDamager(), entity, ray.getHitPosition(), damage, data.getDamageCause());
             });
-    }
-
-    @Override
-    protected void successHit(TickContext tickContext, RayTraceResult ray) {
-        if (data.maxHits > 0 && getHits() >= data.maxHits) {
-            tickContext.remove();
-            return;
-        }
-        super.successHit(tickContext, ray);
     }
 }

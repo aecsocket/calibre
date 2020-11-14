@@ -1,15 +1,14 @@
 package me.aecsocket.calibre.defaults.system.projectile;
 
 import me.aecsocket.calibre.item.component.CalibreComponent;
-import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.unifiedframework.util.Projectile;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
 public interface ProjectileProviderSystem extends CalibreSystem {
-    @Override default void initialize(CalibreComponent parent, ComponentTree tree) {
-        parent.registerSystemService(ProjectileProviderSystem.class, this);
+    default void registerServices(CalibreComponent parent) {
+        parent.registerService(ProjectileProviderSystem.class, this);
     }
 
     default Projectile createProjectile(Data data) {

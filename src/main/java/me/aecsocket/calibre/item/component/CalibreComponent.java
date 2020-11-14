@@ -85,7 +85,7 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
     private transient OrderedStatMap stats = new OrderedStatMap();
     private transient OrderedStatMap completeStats = new OrderedStatMap();
 
-    private final transient Map<Class<? extends CalibreSystem>, String> systemServices = new HashMap<>();
+    private transient Map<Class<? extends CalibreSystem>, String> systemServices = new HashMap<>();
     private transient CalibreComponent parent;
     private transient String parentSlotName;
     private transient ComponentTree tree;
@@ -137,19 +137,23 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
         return null;
     }
 
-    public <T extends CalibreSystem> void registerSystemService(Class<T> type, String systemId) {
+    public <T extends CalibreSystem> void registerService(Class<T> type, String systemId) {
         systemServices.put(type, systemId);
     }
-    public <T extends CalibreSystem> void registerSystemService(Class<T> type, T system) {
+    public <T extends CalibreSystem> void registerService(Class<T> type, T system) {
         if (systems.containsKey(system.getId()))
-            registerSystemService(type, system.getId());
+            registerService(type, system.getId());
+    }
+    public <T extends CalibreSystem> T unregisterService(Class<T> type) {
+        CalibreSystem result = systems.get(systemServices.remove(type));
+        return result == null ? null : type.cast(result);
     }
     public Map<Class<? extends CalibreSystem>, CalibreSystem> getMappedServices() {
         Map<Class<? extends CalibreSystem>, CalibreSystem> result = new HashMap<>();
         systemServices.forEach((type, id) -> result.put(type, systems.get(id)));
         return result;
     }
-    public <T extends CalibreSystem> T getSystemService(Class<T> type) {
+    public <T extends CalibreSystem> T getService(Class<T> type) {
         return type.cast(systems.get(systemServices.get(type)));
     }
 
@@ -207,7 +211,27 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
         context.consumeResolve(dependencies.extend, CalibreComponent.class, this::extend);
 
         // Systems
-        dependencies.systems.forEach((id, data) -> systems.put(id, plugin.getGson().fromJson(data, context.getResolve(id, CalibreSystem.class).getClass())));
+        dependencies.systems.forEach((id, data) -> {
+            CalibreSystem base = context.getResolve(id, CalibreSystem.class);
+            CalibreSystem sys = plugin.getGson().fromJson(data, base.getClass());
+            if (sys == null)
+                throw new ResolutionException(TextUtils.format(
+                        "Could not create system {sys} for {id}",
+                        "sys", base.getId(),
+                        "id", id
+                ));
+            sys.getServiceTypes().forEach(type -> {
+                if (!type.isInstance(sys))
+                    throw new ResolutionException(TextUtils.format(
+                            "System {sys} is not of declared service type {type} on {id}",
+                            "sys", sys.getId(),
+                            "type", type.getName(),
+                            "id", sys.getId()
+                    ));
+                registerService(type, sys.getId());
+            });
+            systems.put(id, sys);
+        });
 
         // Stats
         Map<String, Stat<?>> stats = new HashMap<>(DEFAULT_STATS);
@@ -297,6 +321,7 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
                 stats.put(order, map.copy());
         });
         systems.putAll(parent.copySystems());
+        systemServices.putAll(parent.systemServices);
     }
 
     //region Utils
@@ -405,6 +430,7 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
         copy.stats = stats.copy();
         copy.completeStats = completeStats.copy();
         copy.systems = copySystems();
+        copy.systemServices = new HashMap<>(systemServices);
         return copy;
     }
 

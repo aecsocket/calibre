@@ -11,8 +11,6 @@ import me.aecsocket.calibre.item.system.SystemInitializationException;
 import me.aecsocket.calibre.item.util.LoadTimeDependencies;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 public class FireModeSystem extends BaseSystem {
@@ -31,6 +29,7 @@ public class FireModeSystem extends BaseSystem {
     public FireModeSystem(CalibrePlugin plugin) {
         super(plugin);
     }
+    public FireModeSystem() { this(null); }
 
     public List<FireMode> getModes() { return modes; }
     public void setModes(List<FireMode> modes) { this.modes = modes; }
@@ -47,7 +46,6 @@ public class FireModeSystem extends BaseSystem {
     }
 
     @Override public String getId() { return ID; }
-    @Override public Collection<String> getDependencies() { return Collections.emptyList(); }
     @Override public FireModeSystem clone() { return (FireModeSystem) super.clone(); }
     @Override public FireModeSystem copy() { return clone(); }
 }

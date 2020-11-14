@@ -8,6 +8,7 @@ import me.aecsocket.calibre.item.component.CalibreComponentSlot;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.BaseSystem;
 import me.aecsocket.calibre.item.system.CalibreSystem;
+import me.aecsocket.calibre.item.util.slot.EntityItemSlot;
 import me.aecsocket.calibre.item.util.slot.EquipmentItemSlot;
 import me.aecsocket.calibre.item.util.slot.ItemSlot;
 import me.aecsocket.calibre.item.util.user.*;
@@ -31,6 +32,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
@@ -50,6 +52,7 @@ public class ItemSystem extends BaseSystem {
     public static final Map<String, Stat<?>> STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init("lower", new BooleanStat(false))
             .init("fov_multiplier", new NumberStat.Double(0.1d))
+            .init("disable_sprint", new BooleanStat(false))
             .init("move_speed_multiplier", new NumberStat.Double(1d))
             .init("armor", new NumberStat.Double(0d))
 
@@ -63,7 +66,11 @@ public class ItemSystem extends BaseSystem {
     public static final UUID ARMOR_UUID = new UUID(69, 420);
     public static final UUID MOVE_SPEED_UUID = new UUID(420, 69);
     public static final AttributeModifier ATTACK_SPEED_ATTR = new AttributeModifier(new UUID(42069, 69420), "generic.attack_speed", -1, AttributeModifier.Operation.MULTIPLY_SCALAR_1, EquipmentSlot.HAND);
-    public static final PotionEffect LOWER_EFFECT = new PotionEffect(PotionEffectType.FAST_DIGGING, 3, 127, false, false, false);
+    public static final PotionEffect[] LOWER_EFFECTS = {
+            new PotionEffect(PotionEffectType.FAST_DIGGING, 3, 127, false, false, false),
+            new PotionEffect(PotionEffectType.SLOW_DIGGING, 3, 127, false, false, false),
+            new PotionEffect(PotionEffectType.WEAKNESS, 3, 127, false, false, false),
+    };
 
     private long nextAvailable;
     private List<Integer> tasks = new ArrayList<>();
@@ -71,6 +78,7 @@ public class ItemSystem extends BaseSystem {
     public ItemSystem(CalibrePlugin plugin) {
         super(plugin);
     }
+    public ItemSystem() { this(null); }
 
     public long getNextAvailable() { return nextAvailable; }
     public void setNextAvailable(long nextAvailable) { this.nextAvailable = nextAvailable; }
@@ -92,8 +100,7 @@ public class ItemSystem extends BaseSystem {
     public void initialize(CalibreComponent parent, ComponentTree tree) {
         super.initialize(parent, tree);
 
-        parent.registerSystemService(ItemSystem.class, this);
-
+        //todo convert to services not systems
         EventDispatcher events = tree.getEventDispatcher();
         events.registerListener(ItemEvents.Create.class, this::onEvent, 0);
         events.registerListener(ItemEvents.Update.class, this::onEvent, 0);
@@ -105,14 +112,28 @@ public class ItemSystem extends BaseSystem {
 
     @Override public Map<String, Stat<?>> getDefaultStats() { return STATS; }
 
-    public void updateFov(ItemUser user) {
-        if (user instanceof PlayerItemUser)
-            CalibreProtocol.fovMultiplier(((PlayerItemUser) user).getEntity(), stat("fov_multiplier"));
+    @Override
+    public Collection<Class<? extends CalibreSystem>> getServiceTypes() {
+        return Collections.singleton(ItemSystem.class);
     }
 
-    public void resetFov(ItemUser user) {
-        if (user instanceof PlayerItemUser)
-            CalibreProtocol.resetFov(((PlayerItemUser) user).getEntity());
+    public void update(ItemUser user) {
+        if (user instanceof PlayerItemUser) {
+            Player player = ((PlayerItemUser) user).getEntity();
+            CalibreProtocol.fovMultiplier(player, stat("fov_multiplier"));
+            if (stat("disable_sprint"))
+                CalibreProtocol.sendFood(player, 6);
+            else
+                CalibreProtocol.resetFood(player);
+        }
+    }
+
+    public void reset(ItemUser user) {
+        if (user instanceof PlayerItemUser) {
+            Player player = ((PlayerItemUser) user).getEntity();
+            CalibreProtocol.resetFov(player);
+            CalibreProtocol.resetFood(player);
+        }
     }
 
     private void onEvent(ItemEvents.Create event) {
@@ -123,9 +144,8 @@ public class ItemSystem extends BaseSystem {
         // Attributes
         meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(ARMOR_UUID, "generic.armor", stat("armor"), AttributeModifier.Operation.ADD_NUMBER));
         meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(MOVE_SPEED_UUID, "generic.movement_speed", (double) stat("move_speed_multiplier") - 1, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        if (stat("lower"))
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, ATTACK_SPEED_ATTR);
+        meta.setUnbreakable(true);
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
 
         // Lore
         List<String> sections = new ArrayList<>();
@@ -151,28 +171,47 @@ public class ItemSystem extends BaseSystem {
     }
 
     private void onEvent(ItemEvents.Update event) {
-        updateFov(event.getUser());
+        if (!parent.isRoot()) return;
+        update(event.getUser());
     }
 
     private void onEvent(ItemEvents.Equip event) {
         // the updateItem call in this somehow messes with delayed tasks
         if (!(event.getTickContext().getLoop() instanceof SchedulerLoop)) return;
-        if ((boolean) stat("lower") && event.getUser() instanceof LivingEntityItemUser)
-            ((LivingEntityItemUser) event.getUser()).getEntity().addPotionEffect(LOWER_EFFECT);
         if (tasks != null) {
             if (tasks.removeIf(id -> !Bukkit.getScheduler().isQueued(id)))
                 event.updateItem(this);
         }
+
+        if (parent.isRoot()) {
+            if ((boolean) stat("lower") && event.getUser() instanceof LivingEntityItemUser) {
+                LivingEntity entity = ((LivingEntityItemUser) event.getUser()).getEntity();
+                for (PotionEffect effect : LOWER_EFFECTS)
+                    entity.addPotionEffect(effect);
+            }
+        }
     }
 
     private void onEvent(ItemEvents.Draw event) {
-        updateFov(event.getUser());
-        doAction(this, "draw", event.getUser(), event.getSlot());
+        if (!parent.isRoot()) return;
+        update(event.getUser());
+        if (event.getUser() instanceof LivingEntityItemUser)
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            doAction(this, "draw", event.getUser(), new EntityItemSlot(((LivingEntityItemUser) event.getUser()).getEntity(), EquipmentSlot.HAND));
+        }, 1);
     }
 
     private void onEvent(ItemEvents.Holster event) {
-        resetFov(event.getUser());
+        if (!parent.isRoot()) return;
+        reset(event.getUser());
         cancelTasks();
+        CalibreProtocol.resetFood(((PlayerItemUser) event.getUser()).getEntity());
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            event.getSlot().set(parent.createItem(
+                    event.getUser() instanceof PlayerItemUser ? ((PlayerItemUser) event.getUser()).getEntity() : null,
+                    event.getSlot().get()
+            ));
+        }, 1);
     }
 
     private void onEvent(ItemEvents.Damage event) {
@@ -266,7 +305,6 @@ public class ItemSystem extends BaseSystem {
     public boolean isAvailable() { return System.currentTimeMillis() >= nextAvailable; }
 
     @Override public String getId() { return ID; }
-    @Override public Collection<String> getDependencies() { return Collections.emptyList(); }
     @Override public ItemSystem clone() { return (ItemSystem) super.clone(); }
     @Override public ItemSystem copy() { return clone(); }
 

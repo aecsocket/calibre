@@ -1,34 +1,26 @@
-package me.aecsocket.calibre.defaults.system.gun;
+package me.aecsocket.calibre.defaults.system.gun.ammo;
 
 import me.aecsocket.calibre.CalibrePlugin;
-import me.aecsocket.calibre.defaults.service.CalibreComponentSupplier;
 import me.aecsocket.calibre.defaults.system.ComponentStorageSystem;
 import me.aecsocket.calibre.defaults.system.ItemSystem;
 import me.aecsocket.calibre.item.component.CalibreComponent;
-import me.aecsocket.calibre.item.component.CalibreComponentSlot;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.LoadTimeOnly;
-import me.aecsocket.calibre.item.util.user.PlayerItemUser;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.util.TextUtils;
-import me.aecsocket.unifiedframework.util.Utils;
 import org.bukkit.entity.Player;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
-public class AmmoContainerSystem extends ComponentStorageSystem implements AmmoStorageSystem {
-    public static final String ID = "ammo_container";
-
+public abstract class AbstractAmmoStorageSystem extends ComponentStorageSystem implements AmmoStorageSystem {
     @LoadTimeOnly private int capacity;
     @LoadTimeOnly private String icon;
     @LoadTimeOnly private String emptyIcon;
-    private transient ItemSystem itemSystem;
 
-    public AmmoContainerSystem(CalibrePlugin plugin) {
+    public AbstractAmmoStorageSystem(CalibrePlugin plugin) {
         super(plugin);
     }
+    public AbstractAmmoStorageSystem() { this(null); }
 
     @Override public String getIcon() { return icon; }
     public void setIcon(String icon) { this.icon = icon; }
@@ -42,8 +34,6 @@ public class AmmoContainerSystem extends ComponentStorageSystem implements AmmoS
     @Override
     public void initialize(CalibreComponent parent, ComponentTree tree) {
         super.initialize(parent, tree);
-
-        itemSystem = parent.getSystemService(ItemSystem.class);
 
         EventDispatcher events = tree.getEventDispatcher();
         events.registerListener(ItemSystem.Events.SectionCreate.class, this::onEvent, 1);
@@ -64,23 +54,6 @@ public class AmmoContainerSystem extends ComponentStorageSystem implements AmmoS
         );
     }
 
-    @Override
-    public void reload(CalibreComponentSlot slot, GunSystem.Events.PreReload event) {
-        slot.set(null);
-        if (event.getUser() instanceof PlayerItemUser) {
-            Player player = ((PlayerItemUser) event.getUser()).getEntity();
-            Utils.giveItem(player, parent.withSimpleTree().createItem(player));
-        }
-
-        Utils.useService(CalibreComponentSupplier.class, s ->
-                slot.set(s.supply(slot, event.getUser(), this, true)));
-
-        itemSystem.doAction(this, "reload", event.getUser(), event.getSlot());
-        event.updateItem();
-    }
-
-    @Override public String getId() { return ID; }
-    @Override public Collection<String> getDependencies() { return Collections.emptyList(); }
-    @Override public AmmoContainerSystem clone() { return (AmmoContainerSystem) super.clone(); }
-    @Override public AmmoContainerSystem copy() { return (AmmoContainerSystem) super.copy(); }
+    @Override public AbstractAmmoStorageSystem clone() { return (AbstractAmmoStorageSystem) super.clone(); }
+    @Override public AbstractAmmoStorageSystem copy() { return (AbstractAmmoStorageSystem) super.copy(); }
 }

@@ -140,13 +140,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../defaults/system/gun/GunSystem.ProjectileData.html#%3Cinit%3E(org.bukkit.Location,org.bukkit.util.Vector,double,double,double,double,me.aecsocket.calibre.util.CalibreParticleData%5B%5D,double,int,me.aecsocket.calibre.item.util.user.ItemUser,double,me.aecsocket.calibre.item.util.damagecause.DamageCause,double,double,double,double,double,java.util.Set,me.aecsocket.calibre.defaults.system.gun.GunSystem.Events.FireOnce)">ProjectileData</a></span>&#8203;(org.bukkit.Location&nbsp;location,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../defaults/system/gun/GunSystem.ProjectileData.html#%3Cinit%3E(org.bukkit.Location,org.bukkit.util.Vector,double,double,double,double,me.aecsocket.calibre.util.CalibreParticleData%5B%5D,me.aecsocket.calibre.util.CalibreParticleData%5B%5D,double,int,me.aecsocket.calibre.item.util.user.ItemUser,double,me.aecsocket.calibre.item.util.damagecause.DamageCause,double,double,double,double,double,java.util.Set,me.aecsocket.calibre.defaults.system.gun.GunSystem.Events.FireOnce)">ProjectileData</a></span>&#8203;(org.bukkit.Location&nbsp;location,
               org.bukkit.util.Vector&nbsp;velocity,
               double&nbsp;bounce,
               double&nbsp;drag,
               double&nbsp;gravity,
               double&nbsp;expansion,
               <a href="../CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]&nbsp;trail,
+              <a href="../CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]&nbsp;hit,
               double&nbsp;trailStep,
               int&nbsp;maxHits,
               <a href="../../item/util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;damager,
@@ -180,6 +181,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">CalibreProjectile.Data.</span><code><span class="memberNameLink"><a href="../../defaults/system/projectile/CalibreProjectile.Data.html#getHit()">getHit</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]</code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">CalibreProjectile.Data.</span><code><span class="memberNameLink"><a href="../../defaults/system/projectile/CalibreProjectile.Data.html#getTrail()">getTrail</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -195,6 +201,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">CalibreProjectile.Data.</span><code><span class="memberNameLink"><a href="../../defaults/system/projectile/CalibreProjectile.Data.html#setHit(me.aecsocket.calibre.util.CalibreParticleData%5B%5D)">setHit</a></span>&#8203;(<a href="../CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]&nbsp;hit)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">CalibreProjectile.Data.</span><code><span class="memberNameLink"><a href="../../defaults/system/projectile/CalibreProjectile.Data.html#setTrail(me.aecsocket.calibre.util.CalibreParticleData%5B%5D)">setTrail</a></span>&#8203;(<a href="../CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]&nbsp;trail)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -208,13 +219,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../defaults/system/projectile/CalibreProjectile.Data.html#%3Cinit%3E(org.bukkit.Location,org.bukkit.util.Vector,double,double,double,double,me.aecsocket.calibre.util.CalibreParticleData%5B%5D,double,int,me.aecsocket.calibre.item.util.user.ItemUser,double,double,me.aecsocket.calibre.item.util.damagecause.DamageCause)">Data</a></span>&#8203;(org.bukkit.Location&nbsp;location,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../defaults/system/projectile/CalibreProjectile.Data.html#%3Cinit%3E(org.bukkit.Location,org.bukkit.util.Vector,double,double,double,double,me.aecsocket.calibre.util.CalibreParticleData%5B%5D,me.aecsocket.calibre.util.CalibreParticleData%5B%5D,double,int,me.aecsocket.calibre.item.util.user.ItemUser,double,double,me.aecsocket.calibre.item.util.damagecause.DamageCause)">Data</a></span>&#8203;(org.bukkit.Location&nbsp;location,
     org.bukkit.util.Vector&nbsp;velocity,
     double&nbsp;bounce,
     double&nbsp;drag,
     double&nbsp;gravity,
     double&nbsp;expansion,
     <a href="../CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]&nbsp;trail,
+    <a href="../CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]&nbsp;hit,
     double&nbsp;trailStep,
     int&nbsp;maxHits,
     <a href="../../item/util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;damager,

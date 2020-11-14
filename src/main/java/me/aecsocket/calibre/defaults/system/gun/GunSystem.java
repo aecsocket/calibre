@@ -6,9 +6,12 @@ import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.defaults.service.CalibreComponentSupplier;
 import me.aecsocket.calibre.defaults.service.CalibreSwayStabilization;
 import me.aecsocket.calibre.defaults.system.ItemSystem;
+import me.aecsocket.calibre.defaults.system.gun.ammo.AmmoStorageSystem;
 import me.aecsocket.calibre.defaults.system.gun.firemode.FireMode;
 import me.aecsocket.calibre.defaults.system.gun.firemode.FireModeReference;
 import me.aecsocket.calibre.defaults.system.gun.firemode.FireModeSystem;
+import me.aecsocket.calibre.defaults.system.gun.projectile.BulletSystem;
+import me.aecsocket.calibre.defaults.system.gun.projectile.GunProjectileProviderSystem;
 import me.aecsocket.calibre.defaults.system.gun.sight.Sight;
 import me.aecsocket.calibre.defaults.system.gun.sight.SightReference;
 import me.aecsocket.calibre.defaults.system.gun.sight.SightSystem;
@@ -94,8 +97,8 @@ public class GunSystem extends BaseSystem {
         private Set<Material> breakableBlocks;
         private Events.FireOnce event; // todo change?
 
-        public ProjectileData(Location location, Vector velocity, double bounce, double drag, double gravity, double expansion, CalibreParticleData[] trail, double trailStep, int maxHits, ItemUser damager, double damage, DamageCause damageCause, double blockPenetration, double entityPenetration, double armorPenetration, double dropoff, double range, Set<Material> breakableBlocks, Events.FireOnce event) {
-            super(location, velocity, bounce, drag, gravity, expansion, trail, trailStep, maxHits, damager, damage, armorPenetration, damageCause);
+        public ProjectileData(Location location, Vector velocity, double bounce, double drag, double gravity, double expansion, CalibreParticleData[] trail, CalibreParticleData[] hit, double trailStep, int maxHits, ItemUser damager, double damage, DamageCause damageCause, double blockPenetration, double entityPenetration, double armorPenetration, double dropoff, double range, Set<Material> breakableBlocks, Events.FireOnce event) {
+            super(location, velocity, bounce, drag, gravity, expansion, trail, hit, trailStep, maxHits, damager, damage, armorPenetration, damageCause);
             this.blockPenetration = blockPenetration;
             this.entityPenetration = entityPenetration;
             this.dropoff = dropoff;
@@ -172,6 +175,7 @@ public class GunSystem extends BaseSystem {
             .init("projectile_gravity", new NumberStat.Double(Projectile.GRAVITY))
             .init("projectile_expansion", new NumberStat.Double(0d))
             .init("projectile_trail", new ParticleStat())
+            .init("projectile_hit_particle", new ParticleStat())
             .init("projectile_trail_step", new NumberStat.Double(0.5d))
 
             .init("max_hits", new NumberStat.Int(0))
@@ -211,10 +215,6 @@ public class GunSystem extends BaseSystem {
             .init("change_fire_mode_after", new NumberStat.Long(0L))
             .init("change_fire_mode_sound", new SoundStat())
             .init("change_fire_mode_animation", new ItemAnimationStat())
-
-            .init("reload_delay", new NumberStat.Long(0L))
-            .init("reload_sound", new SoundStat())
-            .init("reload_animation", new ItemAnimationStat())
 
             .init("load_ammo_delay", new NumberStat.Long(0L))
             .init("load_ammo_sound", new SoundStat())
@@ -306,12 +306,13 @@ public class GunSystem extends BaseSystem {
         super.initialize(parent, tree);
         if (!usable) return;
 
-        itemSystem = parent.getSystemService(ItemSystem.class);
+        itemSystem = parent.getService(ItemSystem.class);
 
         EventDispatcher events = tree.getEventDispatcher();
         events.registerListener(ItemEvents.Equip.class, this::onEvent, 0);
         events.registerListener(ItemEvents.Holster.class, this::onEvent, 0);
         events.registerListener(ItemEvents.Interact.class, this::onEvent, 0);
+        events.registerListener(ItemEvents.BukkitInteract.class, this::onEvent, 0);
         events.registerListener(ItemEvents.SwapHand.class, this::onEvent, 0);
         events.registerListener(ItemEvents.BukkitSwapHand.class, this::onEvent, 0);
         events.registerListener(ItemEvents.Drop.class, this::onEvent, 0);
@@ -319,6 +320,7 @@ public class GunSystem extends BaseSystem {
     }
 
     @Override public Map<String, Stat<?>> getDefaultStats() { return STATS; }
+    @Override public Collection<String> getDependencies() { return Collections.singleton(ItemSystem.ID); }
 
     public boolean available() {
         return usable
@@ -590,6 +592,11 @@ public class GunSystem extends BaseSystem {
         }
     }
 
+    private void onEvent(ItemEvents.BukkitInteract event) {
+        if (!usable) return;
+        event.getEvent().setCancelled(true);
+    }
+
     private void onEvent(ItemEvents.SwapHand event) {
         if (!available()) return;
         changeFireMode(new Events.CycleFireMode(
@@ -719,7 +726,7 @@ public class GunSystem extends BaseSystem {
                     fLocation,
                     randomRotate(velocity.clone(), stat("projectile_spread")),
                     stat("projectile_bounce"), stat("projectile_drag"), gravity, stat("projectile_expansion"),
-                    stat("projectile_trail"), stat("projectile_trail_step"),
+                    stat("projectile_trail"), stat("projectile_hit_particle"), stat("projectile_trail_step"),
                     stat("max_hits"),
                     user, stat("damage"), GUN_DAMAGE_CAUSE,
                     stat("block_penetration"), stat("entity_penetration"), stat("armor_penetration"),
@@ -941,7 +948,6 @@ public class GunSystem extends BaseSystem {
     }
 
     @Override public String getId() { return ID; }
-    @Override public Collection<String> getDependencies() { return Collections.emptyList(); }
     @Override public GunSystem clone() { return (GunSystem) super.clone(); }
     @Override public GunSystem copy() { return clone(); }
 

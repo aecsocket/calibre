@@ -11,8 +11,6 @@ import me.aecsocket.calibre.item.system.SystemInitializationException;
 import me.aecsocket.calibre.item.util.LoadTimeDependencies;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 public class SightSystem extends BaseSystem {
@@ -31,6 +29,7 @@ public class SightSystem extends BaseSystem {
     public SightSystem(CalibrePlugin plugin) {
         super(plugin);
     }
+    public SightSystem() { this(null); }
 
     public List<Sight> getSights() { return sights; }
     public void setSights(List<Sight> sights) { this.sights = sights; }
@@ -47,7 +46,6 @@ public class SightSystem extends BaseSystem {
     }
 
     @Override public String getId() { return ID; }
-    @Override public Collection<String> getDependencies() { return Collections.emptyList(); }
     @Override public SightSystem clone() { return (SightSystem) super.clone(); }
     @Override public SightSystem copy() { return clone(); }
 

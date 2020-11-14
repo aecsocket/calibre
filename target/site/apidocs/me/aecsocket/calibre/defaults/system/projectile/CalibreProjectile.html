@@ -142,7 +142,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><code><a href="../gun/BulletSystem.Projectile.html" title="class in me.aecsocket.calibre.defaults.system.gun">BulletSystem.Projectile</a></code></dd>
+<dd><code><a href="../gun/projectile/BulletSystem.Projectile.html" title="class in me.aecsocket.calibre.defaults.system.gun.projectile">BulletSystem.Projectile</a></code></dd>
 </dl>
 <hr>
 <pre>public class <span class="typeNameLabel">CalibreProjectile</span>
@@ -473,10 +473,24 @@ extends me.aecsocket.unifiedframework.util.Projectile</pre>
 </dl>
 </li>
 </ul>
-<a id="hitEntity(me.aecsocket.unifiedframework.loop.TickContext,org.bukkit.util.RayTraceResult,org.bukkit.entity.Entity)">
+<a id="successHit(me.aecsocket.unifiedframework.loop.TickContext,org.bukkit.util.RayTraceResult)">
 <!--   -->
 </a>
 <ul class="blockList">
+<li class="blockList">
+<h4>successHit</h4>
+<pre class="methodSignature">protected&nbsp;void&nbsp;successHit&#8203;(me.aecsocket.unifiedframework.loop.TickContext&nbsp;tickContext,
+                          org.bukkit.util.RayTraceResult&nbsp;ray)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code>successHit</code>&nbsp;in class&nbsp;<code>me.aecsocket.unifiedframework.util.Projectile</code></dd>
+</dl>
+</li>
+</ul>
+<a id="hitEntity(me.aecsocket.unifiedframework.loop.TickContext,org.bukkit.util.RayTraceResult,org.bukkit.entity.Entity)">
+<!--   -->
+</a>
+<ul class="blockListLast">
 <li class="blockList">
 <h4>hitEntity</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;hitEntity&#8203;(me.aecsocket.unifiedframework.loop.TickContext&nbsp;tickContext,
@@ -485,20 +499,6 @@ extends me.aecsocket.unifiedframework.util.Projectile</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code>hitEntity</code>&nbsp;in class&nbsp;<code>me.aecsocket.unifiedframework.util.Projectile</code></dd>
-</dl>
-</li>
-</ul>
-<a id="successHit(me.aecsocket.unifiedframework.loop.TickContext,org.bukkit.util.RayTraceResult)">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>successHit</h4>
-<pre class="methodSignature">protected&nbsp;void&nbsp;successHit&#8203;(me.aecsocket.unifiedframework.loop.TickContext&nbsp;tickContext,
-                          org.bukkit.util.RayTraceResult&nbsp;ray)</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code>successHit</code>&nbsp;in class&nbsp;<code>me.aecsocket.unifiedframework.util.Projectile</code></dd>
 </dl>
 </li>
 </ul>

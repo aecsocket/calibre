@@ -1,7 +1,6 @@
 package me.aecsocket.calibre.defaults.system;
 
 import me.aecsocket.calibre.item.component.CalibreComponent;
-import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.unifiedframework.component.IncompatibleComponentException;
 import me.aecsocket.unifiedframework.util.Quantifier;
@@ -9,10 +8,6 @@ import me.aecsocket.unifiedframework.util.Quantifier;
 import java.util.LinkedList;
 
 public interface ComponentProviderSystem extends CalibreSystem {
-    @Override default void initialize(CalibreComponent parent, ComponentTree tree) {
-        parent.registerSystemService(ComponentProviderSystem.class, this);
-    }
-
     LinkedList<Quantifier<CalibreComponent>> getComponents();
 
     default Quantifier<CalibreComponent> peekRaw() { return getComponents().peekLast(); }

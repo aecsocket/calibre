@@ -3,7 +3,9 @@ me.aecsocket.calibre.defaults
 me.aecsocket.calibre.defaults.service
 me.aecsocket.calibre.defaults.system
 me.aecsocket.calibre.defaults.system.gun
+me.aecsocket.calibre.defaults.system.gun.ammo
 me.aecsocket.calibre.defaults.system.gun.firemode
+me.aecsocket.calibre.defaults.system.gun.projectile
 me.aecsocket.calibre.defaults.system.gun.sight
 me.aecsocket.calibre.defaults.system.melee
 me.aecsocket.calibre.defaults.system.projectile

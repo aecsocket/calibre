@@ -33,9 +33,7 @@ import me.aecsocket.unifiedframework.loop.PreciseLoop;
 import me.aecsocket.unifiedframework.loop.SchedulerLoop;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.loop.Tickable;
-import me.aecsocket.unifiedframework.registry.LinkingException;
 import me.aecsocket.unifiedframework.registry.Ref;
-import me.aecsocket.unifiedframework.registry.ResolutionException;
 import me.aecsocket.unifiedframework.resource.ResourceLoadException;
 import me.aecsocket.unifiedframework.resource.Settings;
 import me.aecsocket.unifiedframework.stat.StatMap;
@@ -410,7 +408,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                         "dtype", dep.getClass().getSimpleName(), "did", dep.getId())
                 );
             } else {
-                LinkingException e = (LinkingException) entry.getResult();
+                Exception e = (Exception) entry.getResult();
                 result.addFailureData(
                         LogLevel.WARN,
                         TextUtils.format("Could not link {type} {id}: {msg}",
@@ -429,7 +427,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                         "type", object.getClass().getSimpleName(), "id", object.getId())
                 );
             } else {
-                ResolutionException e = (ResolutionException) entry.getResult();
+                Exception e = (Exception) entry.getResult();
                 result.addFailureData(
                         LogLevel.WARN,
                         TextUtils.format("Could not resolve {type} {id}: {msg}",

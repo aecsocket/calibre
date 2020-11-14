@@ -49,6 +49,9 @@ public class EventHandle implements Listener {
         Player player = event.getPlayer();
         PlayerInventory inv = player.getInventory();
 
+        plugin.getPlayerData(player).setAnimation(null);
+        player.updateInventory();
+
         ItemStack item = inv.getItem(event.getPreviousSlot());
         callEvent(item, ItemEvents.BukkitHolster.of(plugin, event));
         item = inv.getItem(event.getNewSlot());

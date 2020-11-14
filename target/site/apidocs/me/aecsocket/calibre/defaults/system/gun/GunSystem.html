@@ -302,7 +302,7 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../../../item/component/search/SystemSearchOptions.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchOptions</a>&lt;<a href="AmmoStorageSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun">AmmoStorageSystem</a>&gt;</code></td>
+<td class="colFirst"><code><a href="../../../item/component/search/SystemSearchOptions.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchOptions</a>&lt;<a href="ammo/AmmoStorageSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun.ammo">AmmoStorageSystem</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ammoSystemSearch()">ammoSystemSearch</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -352,7 +352,7 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i11" class="rowColor">
-<td class="colFirst"><code><a href="../../../item/component/search/SystemSearchResult.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchResult</a>&lt;<a href="AmmoStorageSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun">AmmoStorageSystem</a>&gt;</code></td>
+<td class="colFirst"><code><a href="../../../item/component/search/SystemSearchResult.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchResult</a>&lt;<a href="ammo/AmmoStorageSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun.ammo">AmmoStorageSystem</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#collectAmmo()">collectAmmo</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -622,7 +622,7 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;me.aecsocket.calibre.item.system.<a href="../../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></h3>
-<code><a href="../../../item/system/CalibreSystem.html#getLongInfo(java.lang.String)">getLongInfo</a></code></li>
+<code><a href="../../../item/system/CalibreSystem.html#getLongInfo(java.lang.String)">getLongInfo</a>, <a href="../../../item/system/CalibreSystem.html#getServiceTypes()">getServiceTypes</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.me.aecsocket.unifiedframework.registry.Identifiable">
@@ -948,6 +948,15 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;me.aecsocket.unifiedframework.stat.Stat&lt;?&gt;&gt;&nbsp;getDefaultStats()</pre>
 </li>
 </ul>
+<a id="getDependencies()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDependencies</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Collection.html?is-external=true" title="class or interface in java.util" class="externalLink">Collection</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;getDependencies()</pre>
+</li>
+</ul>
 <a id="available()">
 <!--   -->
 </a>
@@ -1017,7 +1026,7 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <ul class="blockList">
 <li class="blockList">
 <h4>ammoSystemSearch</h4>
-<pre class="methodSignature">public&nbsp;<a href="../../../item/component/search/SystemSearchOptions.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchOptions</a>&lt;<a href="AmmoStorageSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun">AmmoStorageSystem</a>&gt;&nbsp;ammoSystemSearch()</pre>
+<pre class="methodSignature">public&nbsp;<a href="../../../item/component/search/SystemSearchOptions.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchOptions</a>&lt;<a href="ammo/AmmoStorageSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun.ammo">AmmoStorageSystem</a>&gt;&nbsp;ammoSystemSearch()</pre>
 </li>
 </ul>
 <a id="collectAmmo()">
@@ -1026,7 +1035,7 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <ul class="blockList">
 <li class="blockList">
 <h4>collectAmmo</h4>
-<pre class="methodSignature">public&nbsp;<a href="../../../item/component/search/SystemSearchResult.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchResult</a>&lt;<a href="AmmoStorageSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun">AmmoStorageSystem</a>&gt;&nbsp;collectAmmo()</pre>
+<pre class="methodSignature">public&nbsp;<a href="../../../item/component/search/SystemSearchResult.html" title="class in me.aecsocket.calibre.item.component.search">SystemSearchResult</a>&lt;<a href="ammo/AmmoStorageSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun.ammo">AmmoStorageSystem</a>&gt;&nbsp;collectAmmo()</pre>
 </li>
 </ul>
 <a id="collectSights()">
@@ -1208,15 +1217,6 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <li class="blockList">
 <h4>getId</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getId()</pre>
-</li>
-</ul>
-<a id="getDependencies()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getDependencies</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Collection.html?is-external=true" title="class or interface in java.util" class="externalLink">Collection</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;getDependencies()</pre>
 </li>
 </ul>
 <a id="clone()">

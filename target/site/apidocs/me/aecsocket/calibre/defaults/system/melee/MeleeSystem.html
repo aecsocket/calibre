@@ -235,6 +235,10 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">MeleeSystem</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(me.aecsocket.calibre.CalibrePlugin)">MeleeSystem</a></span>&#8203;(<a href="../../../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -324,7 +328,7 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;me.aecsocket.calibre.item.system.<a href="../../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></h3>
-<code><a href="../../../item/system/CalibreSystem.html#buildStats()">buildStats</a>, <a href="../../../item/system/CalibreSystem.html#getLongInfo(java.lang.String)">getLongInfo</a>, <a href="../../../item/system/CalibreSystem.html#systemInitialize(me.aecsocket.calibre.item.component.CalibreComponent)">systemInitialize</a></code></li>
+<code><a href="../../../item/system/CalibreSystem.html#buildStats()">buildStats</a>, <a href="../../../item/system/CalibreSystem.html#getLongInfo(java.lang.String)">getLongInfo</a>, <a href="../../../item/system/CalibreSystem.html#getServiceTypes()">getServiceTypes</a>, <a href="../../../item/system/CalibreSystem.html#systemInitialize(me.aecsocket.calibre.item.component.CalibreComponent)">systemInitialize</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.me.aecsocket.unifiedframework.registry.Identifiable">
@@ -384,10 +388,19 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <a id="&lt;init&gt;(me.aecsocket.calibre.CalibrePlugin)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>MeleeSystem</h4>
 <pre>public&nbsp;MeleeSystem&#8203;(<a href="../../../CalibrePlugin.html" title="class in me.aecsocket.calibre">CalibrePlugin</a>&nbsp;plugin)</pre>
+</li>
+</ul>
+<a id="&lt;init&gt;()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>MeleeSystem</h4>
+<pre>public&nbsp;MeleeSystem()</pre>
 </li>
 </ul>
 </li>
@@ -443,15 +456,6 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;me.aecsocket.unifiedframework.stat.Stat&lt;?&gt;&gt;&nbsp;getDefaultStats()</pre>
 </li>
 </ul>
-<a id="getId()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getId</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getId()</pre>
-</li>
-</ul>
 <a id="getDependencies()">
 <!--   -->
 </a>
@@ -459,6 +463,15 @@ extends <a href="../../../item/system/BaseSystem.html" title="class in me.aecsoc
 <li class="blockList">
 <h4>getDependencies</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Collection.html?is-external=true" title="class or interface in java.util" class="externalLink">Collection</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;getDependencies()</pre>
+</li>
+</ul>
+<a id="getId()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getId</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getId()</pre>
 </li>
 </ul>
 <a id="clone()">

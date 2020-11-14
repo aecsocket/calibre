@@ -1,7 +1,8 @@
-package me.aecsocket.calibre.defaults.system.gun;
+package me.aecsocket.calibre.defaults.system.gun.projectile;
 
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.defaults.service.CalibrePenetration;
+import me.aecsocket.calibre.defaults.system.gun.GunSystem;
 import me.aecsocket.calibre.defaults.system.projectile.CalibreProjectile;
 import me.aecsocket.calibre.defaults.system.projectile.ProjectileProviderSystem;
 import me.aecsocket.calibre.item.component.CalibreComponent;
@@ -13,15 +14,13 @@ import me.aecsocket.calibre.util.ItemDescriptor;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.Utils;
+import me.aecsocket.unifiedframework.util.data.ParticleData;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
-
-import java.util.Collection;
-import java.util.Collections;
 
 public class BulletSystem extends BaseSystem implements GunProjectileProviderSystem {
     public static class Projectile extends CalibreProjectile {
@@ -74,10 +73,13 @@ public class BulletSystem extends BaseSystem implements GunProjectileProviderSys
 
         @Override
         protected void successHit(TickContext tickContext, RayTraceResult ray) {
+            // todo clean up, use super method
             if (getData().getMaxHits() > 0 && getHits() >= getData().getMaxHits()) {
                 tickContext.remove();
                 return;
             }
+            if (ray.getHitBlock() != null)
+                ParticleData.spawn(getLocation(), ray.getHitBlock().getBlockData(), data.getHit());
             if (getBounce() > 0)
                 Utils.reflect(getVelocity(), ray.getHitBlockFace()).multiply(getBounce());
         }
@@ -97,6 +99,7 @@ public class BulletSystem extends BaseSystem implements GunProjectileProviderSys
     public BulletSystem(CalibrePlugin plugin) {
         super(plugin);
     }
+    public BulletSystem() { this(null); }
 
     @Override
     public String getPrefix() { return prefix; }
@@ -112,7 +115,7 @@ public class BulletSystem extends BaseSystem implements GunProjectileProviderSys
     @Override
     public void initialize(CalibreComponent parent, ComponentTree tree) {
         super.initialize(parent, tree);
-        GunProjectileProviderSystem.super.initialize(parent, tree);
+        registerServices(parent);
 
         prefix = prefix == null ? "" : TextUtils.translateColor(prefix);
         icon = icon == null ? "" : TextUtils.translateColor(icon);
@@ -131,7 +134,6 @@ public class BulletSystem extends BaseSystem implements GunProjectileProviderSys
     public ItemStack createEjection() { return ejection == null ? null : ejection.create(); }
 
     @Override public String getId() { return ID; }
-    @Override public Collection<String> getDependencies() { return Collections.emptyList(); }
     @Override public BulletSystem clone() { return (BulletSystem) super.clone(); }
     @Override public BulletSystem copy() { return clone(); }
 }

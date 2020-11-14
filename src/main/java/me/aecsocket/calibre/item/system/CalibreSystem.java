@@ -11,10 +11,12 @@ import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.util.CalibreIdentifiable;
 import me.aecsocket.calibre.util.OrderedStatMap;
 import me.aecsocket.unifiedframework.stat.Stat;
+import me.aecsocket.unifiedframework.util.Utils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
@@ -47,7 +49,7 @@ public interface CalibreSystem extends CalibreIdentifiable {
                         // of the value.
                         CalibreSystem sys = (CalibreSystem) result;
                         Class<? extends CalibreSystem> type = sys.getClass();
-                        for (Field field : type.getDeclaredFields()) {
+                        for (Field field : Utils.getAllModelFields(type)) {
                             if (field.isAnnotationPresent(LoadTimeOnly.class)) {
                                 CalibreSystem parentCopy = parent.getSystem(sys.getId());
                                 if (parentCopy != null) {
@@ -69,6 +71,7 @@ public interface CalibreSystem extends CalibreIdentifiable {
     default void systemInitialize(CalibreComponent parent) throws SystemInitializationException {}
     default void initialize(CalibreComponent parent, ComponentTree tree) throws SystemInitializationException {}
 
+    default Collection<Class<? extends CalibreSystem>> getServiceTypes() { return Collections.emptyList(); }
     default Map<String, Stat<?>> getDefaultStats() { return Collections.emptyMap(); }
     default OrderedStatMap buildStats() { return null; }
 

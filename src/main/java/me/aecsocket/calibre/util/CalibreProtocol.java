@@ -30,11 +30,11 @@ public final class CalibreProtocol {
 
     // https://wiki.vg/images/thumb/1/13/Inventory-slots.png/300px-Inventory-slots.png
     public static final EnumMap<EquipmentSlot, Integer> SLOT_MAPPING = MapInit.of(new EnumMap<EquipmentSlot, Integer>(EquipmentSlot.class))
-            .init(EquipmentSlot.OFF_HAND, 45)
-            .init(EquipmentSlot.HEAD, 5)
-            .init(EquipmentSlot.CHEST, 6)
-            .init(EquipmentSlot.LEGS, 7)
-            .init(EquipmentSlot.FEET, 8)
+            .init(EquipmentSlot.OFF_HAND, 40)
+            .init(EquipmentSlot.HEAD, 39)
+            .init(EquipmentSlot.CHEST, 38)
+            .init(EquipmentSlot.LEGS, 37)
+            .init(EquipmentSlot.FEET, 36)
             .get();
 
     public static final Set<PlayerTeleportFlag> POSITION_FLAGS = new HashSet<>(Arrays.asList(
@@ -137,5 +137,17 @@ public final class CalibreProtocol {
 
     public static void sendAir(Player player, double percentage) {
         sendAir(player, (int) (((Math.round(percentage * 10.0) / 10.0) - 0.05) * player.getMaximumAir()));
+    }
+
+    public static void sendFood(Player player, int food) {
+        PacketContainer packet = plugin.getProtocolManager().createPacket(PacketType.Play.Server.UPDATE_HEALTH);
+        packet.getFloat().write(0, (float) player.getHealth());
+        packet.getIntegers().write(0, food);
+        packet.getFloat().write(1, player.getSaturation());
+        plugin.sendPacket(player, packet);
+    }
+
+    public static void resetFood(Player player) {
+        sendFood(player, player.getFoodLevel());
     }
 }

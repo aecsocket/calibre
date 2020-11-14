@@ -129,11 +129,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <dl>
 <dt>All Known Subinterfaces:</dt>
-<dd><code><a href="../gun/GunProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun">GunProjectileProviderSystem</a></code></dd>
+<dd><code><a href="../gun/projectile/GunProjectileProviderSystem.html" title="interface in me.aecsocket.calibre.defaults.system.gun.projectile">GunProjectileProviderSystem</a></code></dd>
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="../gun/BulletSystem.html" title="class in me.aecsocket.calibre.defaults.system.gun">BulletSystem</a></code></dd>
+<dd><code><a href="../gun/projectile/BulletSystem.html" title="class in me.aecsocket.calibre.defaults.system.gun.projectile">BulletSystem</a></code></dd>
 </dl>
 <hr>
 <pre>public interface <span class="typeNameLabel">ProjectileProviderSystem</span>
@@ -212,8 +212,7 @@ extends <a href="../../../item/system/CalibreSystem.html" title="interface in me
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">initialize</a></span>&#8203;(<a href="../../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent,
-          <a href="../../../item/component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;tree)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerServices(me.aecsocket.calibre.item.component.CalibreComponent)">registerServices</a></span>&#8203;(<a href="../../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -236,7 +235,7 @@ extends <a href="../../../item/system/CalibreSystem.html" title="interface in me
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;me.aecsocket.calibre.item.system.<a href="../../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></h3>
-<code><a href="../../../item/system/CalibreSystem.html#buildStats()">buildStats</a>, <a href="../../../item/system/CalibreSystem.html#copy()">copy</a>, <a href="../../../item/system/CalibreSystem.html#getDefaultStats()">getDefaultStats</a>, <a href="../../../item/system/CalibreSystem.html#getLongInfo(java.lang.String)">getLongInfo</a>, <a href="../../../item/system/CalibreSystem.html#getNameKey()">getNameKey</a>, <a href="../../../item/system/CalibreSystem.html#getParent()">getParent</a>, <a href="../../../item/system/CalibreSystem.html#systemInitialize(me.aecsocket.calibre.item.component.CalibreComponent)">systemInitialize</a></code></li>
+<code><a href="../../../item/system/CalibreSystem.html#buildStats()">buildStats</a>, <a href="../../../item/system/CalibreSystem.html#copy()">copy</a>, <a href="../../../item/system/CalibreSystem.html#getDefaultStats()">getDefaultStats</a>, <a href="../../../item/system/CalibreSystem.html#getLongInfo(java.lang.String)">getLongInfo</a>, <a href="../../../item/system/CalibreSystem.html#getNameKey()">getNameKey</a>, <a href="../../../item/system/CalibreSystem.html#getParent()">getParent</a>, <a href="../../../item/system/CalibreSystem.html#getServiceTypes()">getServiceTypes</a>, <a href="../../../item/system/CalibreSystem.html#initialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">initialize</a>, <a href="../../../item/system/CalibreSystem.html#systemInitialize(me.aecsocket.calibre.item.component.CalibreComponent)">systemInitialize</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.me.aecsocket.unifiedframework.registry.Identifiable">
@@ -261,18 +260,13 @@ extends <a href="../../../item/system/CalibreSystem.html" title="interface in me
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="initialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">
+<a id="registerServices(me.aecsocket.calibre.item.component.CalibreComponent)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>initialize</h4>
-<pre class="methodSignature">default&nbsp;void&nbsp;initialize&#8203;(<a href="../../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent,
-                        <a href="../../../item/component/ComponentTree.html" title="class in me.aecsocket.calibre.item.component">ComponentTree</a>&nbsp;tree)</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../item/system/CalibreSystem.html#initialize(me.aecsocket.calibre.item.component.CalibreComponent,me.aecsocket.calibre.item.component.ComponentTree)">initialize</a></code>&nbsp;in interface&nbsp;<code><a href="../../../item/system/CalibreSystem.html" title="interface in me.aecsocket.calibre.item.system">CalibreSystem</a></code></dd>
-</dl>
+<h4>registerServices</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;registerServices&#8203;(<a href="../../../item/component/CalibreComponent.html" title="class in me.aecsocket.calibre.item.component">CalibreComponent</a>&nbsp;parent)</pre>
 </li>
 </ul>
 <a id="createProjectile(me.aecsocket.calibre.defaults.system.projectile.ProjectileProviderSystem.Data)">

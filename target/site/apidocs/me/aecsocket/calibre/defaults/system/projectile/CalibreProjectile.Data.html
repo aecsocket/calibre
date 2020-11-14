@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -171,13 +171,14 @@ extends <a href="ProjectileProviderSystem.Data.html" title="class in me.aecsocke
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.bukkit.Location,org.bukkit.util.Vector,double,double,double,double,me.aecsocket.calibre.util.CalibreParticleData%5B%5D,double,int,me.aecsocket.calibre.item.util.user.ItemUser,double,double,me.aecsocket.calibre.item.util.damagecause.DamageCause)">Data</a></span>&#8203;(org.bukkit.Location&nbsp;location,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.bukkit.Location,org.bukkit.util.Vector,double,double,double,double,me.aecsocket.calibre.util.CalibreParticleData%5B%5D,me.aecsocket.calibre.util.CalibreParticleData%5B%5D,double,int,me.aecsocket.calibre.item.util.user.ItemUser,double,double,me.aecsocket.calibre.item.util.damagecause.DamageCause)">Data</a></span>&#8203;(org.bukkit.Location&nbsp;location,
     org.bukkit.util.Vector&nbsp;velocity,
     double&nbsp;bounce,
     double&nbsp;drag,
     double&nbsp;gravity,
     double&nbsp;expansion,
     <a href="../../../util/CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]&nbsp;trail,
+    <a href="../../../util/CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]&nbsp;hit,
     double&nbsp;trailStep,
     int&nbsp;maxHits,
     <a href="../../../item/util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;damager,
@@ -225,51 +226,61 @@ extends <a href="ProjectileProviderSystem.Data.html" title="class in me.aecsocke
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="../../../util/CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getHit()">getHit</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMaxHits()">getMaxHits</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../../../util/CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrail()">getTrail</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>double</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrailStep()">getTrailStep</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setArmorPenetration(double)">setArmorPenetration</a></span>&#8203;(double&nbsp;armorPenetration)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDamage(double)">setDamage</a></span>&#8203;(double&nbsp;damage)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDamageCause(me.aecsocket.calibre.item.util.damagecause.DamageCause)">setDamageCause</a></span>&#8203;(<a href="../../../item/util/damagecause/DamageCause.html" title="interface in me.aecsocket.calibre.item.util.damagecause">DamageCause</a>&nbsp;damageCause)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDamager(me.aecsocket.calibre.item.util.user.ItemUser)">setDamager</a></span>&#8203;(<a href="../../../item/util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;damager)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setHit(me.aecsocket.calibre.util.CalibreParticleData%5B%5D)">setHit</a></span>&#8203;(<a href="../../../util/CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]&nbsp;hit)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMaxHits(int)">setMaxHits</a></span>&#8203;(int&nbsp;maxHits)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTrail(me.aecsocket.calibre.util.CalibreParticleData%5B%5D)">setTrail</a></span>&#8203;(<a href="../../../util/CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]&nbsp;trail)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTrailStep(double)">setTrailStep</a></span>&#8203;(double&nbsp;trailStep)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -305,7 +316,7 @@ extends <a href="ProjectileProviderSystem.Data.html" title="class in me.aecsocke
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(org.bukkit.Location,org.bukkit.util.Vector,double,double,double,double,me.aecsocket.calibre.util.CalibreParticleData[],double,int,me.aecsocket.calibre.item.util.user.ItemUser,double,double,me.aecsocket.calibre.item.util.damagecause.DamageCause)">
+<a id="&lt;init&gt;(org.bukkit.Location,org.bukkit.util.Vector,double,double,double,double,me.aecsocket.calibre.util.CalibreParticleData[],me.aecsocket.calibre.util.CalibreParticleData[],double,int,me.aecsocket.calibre.item.util.user.ItemUser,double,double,me.aecsocket.calibre.item.util.damagecause.DamageCause)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -318,6 +329,7 @@ extends <a href="ProjectileProviderSystem.Data.html" title="class in me.aecsocke
             double&nbsp;gravity,
             double&nbsp;expansion,
             <a href="../../../util/CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]&nbsp;trail,
+            <a href="../../../util/CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]&nbsp;hit,
             double&nbsp;trailStep,
             int&nbsp;maxHits,
             <a href="../../../item/util/user/ItemUser.html" title="interface in me.aecsocket.calibre.item.util.user">ItemUser</a>&nbsp;damager,
@@ -361,6 +373,24 @@ extends <a href="ProjectileProviderSystem.Data.html" title="class in me.aecsocke
 <li class="blockList">
 <h4>setTrail</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setTrail&#8203;(<a href="../../../util/CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]&nbsp;trail)</pre>
+</li>
+</ul>
+<a id="getHit()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getHit</h4>
+<pre class="methodSignature">public&nbsp;<a href="../../../util/CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]&nbsp;getHit()</pre>
+</li>
+</ul>
+<a id="setHit(me.aecsocket.calibre.util.CalibreParticleData[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setHit</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setHit&#8203;(<a href="../../../util/CalibreParticleData.html" title="class in me.aecsocket.calibre.util">CalibreParticleData</a>[]&nbsp;hit)</pre>
 </li>
 </ul>
 <a id="getTrailStep()">

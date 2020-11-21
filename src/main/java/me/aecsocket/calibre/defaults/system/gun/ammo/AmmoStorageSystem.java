@@ -1,6 +1,6 @@
 package me.aecsocket.calibre.defaults.system.gun.ammo;
 
-import me.aecsocket.calibre.defaults.system.ComponentProviderSystem;
+import me.aecsocket.calibre.defaults.system.core.ComponentProviderSystem;
 import me.aecsocket.calibre.defaults.system.gun.GunSystem;
 import me.aecsocket.calibre.item.component.CalibreComponentSlot;
 

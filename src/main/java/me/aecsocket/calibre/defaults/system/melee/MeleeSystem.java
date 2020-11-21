@@ -1,7 +1,7 @@
 package me.aecsocket.calibre.defaults.system.melee;
 
 import me.aecsocket.calibre.CalibrePlugin;
-import me.aecsocket.calibre.defaults.system.ItemSystem;
+import me.aecsocket.calibre.defaults.system.core.ItemSystem;
 import me.aecsocket.calibre.item.ItemEvents;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.ComponentTree;

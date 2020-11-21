@@ -41,12 +41,11 @@ import me.aecsocket.unifiedframework.stat.StatMapAdapter;
 import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.Vector2;
-import me.aecsocket.unifiedframework.util.json.GUIVectorAdapter;
-import me.aecsocket.unifiedframework.util.json.Vector2Adapter;
-import me.aecsocket.unifiedframework.util.json.VectorAdapter;
+import me.aecsocket.unifiedframework.util.json.*;
 import me.aecsocket.unifiedframework.util.log.LabelledLogger;
 import me.aecsocket.unifiedframework.util.log.LogLevel;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -143,11 +142,13 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                 .registerTypeAdapter(GUIVector.class, GUIVectorAdapter.INSTANCE)
                 .registerTypeAdapter(Vector.class, VectorAdapter.INSTANCE)
                 .registerTypeAdapter(Vector2.class, Vector2Adapter.INSTANCE)
+                .registerTypeAdapter(Color.class, ColorAdapter.INSTANCE)
                 .registerTypeAdapter(ComponentTree.class, new ComponentTree.Adapter(this))
                 .registerTypeAdapter(ItemAnimation.class, new ItemAnimation.Adapter(this))
                 .registerTypeAdapterFactory(systemAdapter)
                 .registerTypeAdapterFactory(new DependenciesAdapter())
-                .registerTypeAdapterFactory(new AcceptsCalibrePlugin.Adapter(this));
+                .registerTypeAdapterFactory(new AcceptsCalibrePlugin.Adapter(this))
+                .registerTypeAdapterFactory(ParticleDataAdapter.INSTANCE);
         hooks.forEach(hook -> hook.registerTypeAdapters(gsonBuilder));
         gson = gsonBuilder.create();
         settings.setGson(gson);

@@ -5,9 +5,10 @@ import com.google.gson.reflect.TypeToken;
 import me.aecsocket.calibre.CalibreHook;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.defaults.service.*;
-import me.aecsocket.calibre.defaults.system.ComponentStorageSystem;
-import me.aecsocket.calibre.defaults.system.ItemSystem;
-import me.aecsocket.calibre.defaults.system.SlotDisplaySystem;
+import me.aecsocket.calibre.defaults.system.LaserSystem;
+import me.aecsocket.calibre.defaults.system.core.ComponentStorageSystem;
+import me.aecsocket.calibre.defaults.system.core.ItemSystem;
+import me.aecsocket.calibre.defaults.system.core.SlotDisplaySystem;
 import me.aecsocket.calibre.defaults.system.gun.GunSystem;
 import me.aecsocket.calibre.defaults.system.gun.ammo.AmmoContainerSystem;
 import me.aecsocket.calibre.defaults.system.gun.firemode.FireModeReference;
@@ -83,6 +84,8 @@ public class DefaultCalibreHook implements CalibreHook {
                 .init(new AmmoContainerSystem(plugin))
                 .init(new FireModeSystem(plugin))
                 .init(new SightSystem(plugin))
+
+                .init(new LaserSystem(plugin))
                 .get();
     }
 }

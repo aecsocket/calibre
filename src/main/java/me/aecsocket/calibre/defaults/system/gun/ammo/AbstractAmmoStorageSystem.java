@@ -1,8 +1,8 @@
 package me.aecsocket.calibre.defaults.system.gun.ammo;
 
 import me.aecsocket.calibre.CalibrePlugin;
-import me.aecsocket.calibre.defaults.system.ComponentStorageSystem;
-import me.aecsocket.calibre.defaults.system.ItemSystem;
+import me.aecsocket.calibre.defaults.system.core.ComponentStorageSystem;
+import me.aecsocket.calibre.defaults.system.core.ItemSystem;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.item.system.LoadTimeOnly;

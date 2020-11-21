@@ -1,15 +1,18 @@
 package me.aecsocket.calibre.util;
 
 import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.EquivalentConverter;
 import com.comphenix.protocol.utility.MinecraftReflection;
 import com.comphenix.protocol.wrappers.EnumWrappers;
+import com.comphenix.protocol.wrappers.Pair;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.unifiedframework.util.MapInit;
 import org.bukkit.GameMode;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -149,5 +152,29 @@ public final class CalibreProtocol {
 
     public static void resetFood(Player player) {
         sendFood(player, player.getFoodLevel());
+    }
+
+    public static void showAiming(Entity target, ItemStack item) {
+        ProtocolManager protocol = plugin.getProtocolManager();
+        int eid = target.getEntityId();
+
+        PacketContainer metaPacket = protocol.createPacket(PacketType.Play.Server.ENTITY_METADATA);
+        metaPacket.getIntegers().write(0, eid);
+        metaPacket.getWatchableCollectionModifier().write(0, Collections.singletonList(
+                new WrappedWatchableObject(new WrappedDataWatcher.WrappedDataWatcherObject(7, WrappedDataWatcher.Registry.get(Byte.class)), (byte) 1) // Aiming bow
+        ));
+
+        PacketContainer equipmentPacket = protocol.createPacket(PacketType.Play.Server.ENTITY_EQUIPMENT);
+        equipmentPacket.getIntegers().write(0, eid);
+        equipmentPacket.getSlotStackPairLists().write(0, Collections.singletonList(
+                new Pair<>(EnumWrappers.ItemSlot.MAINHAND, item)
+        ));
+
+        for (Player player : target.getWorld().getPlayers()) {
+            if ((!(target instanceof Player) || player.canSee((Player) target)) && player != target) {
+                plugin.sendPacket(player, metaPacket);
+                plugin.sendPacket(player, equipmentPacket);
+            }
+        }
     }
 }

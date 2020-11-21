@@ -1,4 +1,4 @@
-package me.aecsocket.calibre.defaults.system;
+package me.aecsocket.calibre.defaults.system.core;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

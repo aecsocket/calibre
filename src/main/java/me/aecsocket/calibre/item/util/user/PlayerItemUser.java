@@ -24,6 +24,7 @@ public class PlayerItemUser extends LivingEntityItemUser implements AnimatableIt
     @Override
     public void applyRecoil(Vector2 recoil, double recoilSpeed, double recoilRecovery, long recoilRecoveryAfter, double recoilRecoverySpeed) {
         data.applyRecoil(recoil, recoilSpeed, recoilRecovery, recoilRecoveryAfter, recoilRecoverySpeed);
+        data.setShaderDataA(data.getShaderDataA() + 0.15f);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package me.aecsocket.calibre.defaults.system;
+package me.aecsocket.calibre.defaults.system.core;
 
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.item.ItemAnimation;

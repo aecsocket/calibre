@@ -203,10 +203,11 @@ implements <a href="CalibreRaytracing.html" title="interface in me.aecsocket.cal
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>org.bukkit.util.RayTraceResult</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#rayTrace(org.bukkit.Location,org.bukkit.util.Vector,double,double)">rayTrace</a></span>&#8203;(org.bukkit.Location&nbsp;location,
-        org.bukkit.util.Vector&nbsp;velocity,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#rayTrace(org.bukkit.Location,org.bukkit.util.Vector,double,double,org.bukkit.entity.Entity)">rayTrace</a></span>&#8203;(org.bukkit.Location&nbsp;location,
+        org.bukkit.util.Vector&nbsp;direction,
         double&nbsp;distance,
-        double&nbsp;expansion)</code></th>
+        double&nbsp;expansion,
+        org.bukkit.entity.Entity&nbsp;ignore)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -259,19 +260,20 @@ implements <a href="CalibreRaytracing.html" title="interface in me.aecsocket.cal
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="rayTrace(org.bukkit.Location,org.bukkit.util.Vector,double,double)">
+<a id="rayTrace(org.bukkit.Location,org.bukkit.util.Vector,double,double,org.bukkit.entity.Entity)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>rayTrace</h4>
 <pre class="methodSignature">public&nbsp;org.bukkit.util.RayTraceResult&nbsp;rayTrace&#8203;(org.bukkit.Location&nbsp;location,
-                                               org.bukkit.util.Vector&nbsp;velocity,
+                                               org.bukkit.util.Vector&nbsp;direction,
                                                double&nbsp;distance,
-                                               double&nbsp;expansion)</pre>
+                                               double&nbsp;expansion,
+                                               org.bukkit.entity.Entity&nbsp;ignore)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="CalibreRaytracing.html#rayTrace(org.bukkit.Location,org.bukkit.util.Vector,double,double)">rayTrace</a></code>&nbsp;in interface&nbsp;<code><a href="CalibreRaytracing.html" title="interface in me.aecsocket.calibre.defaults.service">CalibreRaytracing</a></code></dd>
+<dd><code><a href="CalibreRaytracing.html#rayTrace(org.bukkit.Location,org.bukkit.util.Vector,double,double,org.bukkit.entity.Entity)">rayTrace</a></code>&nbsp;in interface&nbsp;<code><a href="CalibreRaytracing.html" title="interface in me.aecsocket.calibre.defaults.service">CalibreRaytracing</a></code></dd>
 </dl>
 </li>
 </ul>

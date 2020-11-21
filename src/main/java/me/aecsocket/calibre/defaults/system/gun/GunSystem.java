@@ -5,7 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.defaults.service.CalibreComponentSupplier;
 import me.aecsocket.calibre.defaults.service.CalibreSwayStabilization;
-import me.aecsocket.calibre.defaults.system.ItemSystem;
+import me.aecsocket.calibre.defaults.system.core.ItemSystem;
 import me.aecsocket.calibre.defaults.system.gun.ammo.AmmoStorageSystem;
 import me.aecsocket.calibre.defaults.system.gun.firemode.FireMode;
 import me.aecsocket.calibre.defaults.system.gun.firemode.FireModeReference;
@@ -36,6 +36,7 @@ import me.aecsocket.calibre.item.util.user.LivingEntityItemUser;
 import me.aecsocket.calibre.item.util.user.PlayerItemUser;
 import me.aecsocket.calibre.util.CalibreParticleData;
 import me.aecsocket.calibre.item.util.LoadTimeDependencies;
+import me.aecsocket.calibre.util.CalibreProtocol;
 import me.aecsocket.calibre.util.OrderedStatMap;
 import me.aecsocket.calibre.util.stat.ItemAnimationStat;
 import me.aecsocket.calibre.util.stat.ParticleStat;
@@ -831,6 +832,11 @@ public class GunSystem extends BaseSystem {
         itemSystem.doAction(this, "aim_" + (aiming ? "out" : "in"), event.getUser(), event.getSlot(), sys -> {
             aiming = event.newAiming;
             event.updateItem();
+            if (aiming && event.getUser() instanceof EntityItemUser) {
+                ItemStack show = event.getStack().clone();
+                show.setType(Material.BOW);
+                CalibreProtocol.showAiming(((EntityItemUser) event.getUser()).getEntity(), show);
+            }
         });
         event.updateItem();
     }

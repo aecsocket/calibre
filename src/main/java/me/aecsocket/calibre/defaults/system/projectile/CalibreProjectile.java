@@ -98,7 +98,7 @@ public class CalibreProjectile extends Projectile {
 
     @Override
     protected RayTraceResult rayTrace(double distance) {
-        return raytracing == null ? super.rayTrace(distance) : raytracing.rayTrace(getLocation(), getVelocity(), distance, getExpansion());
+        return raytracing == null ? super.rayTrace(distance) : raytracing.rayTrace(getLocation(), getVelocity(), distance, getExpansion(), getInEntity());
     }
 
     @Override

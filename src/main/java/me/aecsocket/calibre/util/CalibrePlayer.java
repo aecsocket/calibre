@@ -1,5 +1,11 @@
 package me.aecsocket.calibre.util;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.wrappers.BukkitConverters;
+import com.comphenix.protocol.wrappers.WrappedDataWatcher;
+import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.gui.SlotViewGUI;
 import me.aecsocket.calibre.item.ItemAnimation;
@@ -14,16 +20,14 @@ import me.aecsocket.unifiedframework.loop.Tickable;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.Vector2;
 import me.aecsocket.unifiedframework.util.data.ParticleData;
-import org.bukkit.Color;
-import org.bukkit.Particle;
+import org.bukkit.*;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import java.util.AbstractMap;
-import java.util.EnumMap;
-import java.util.Map;
+import java.util.*;
 
 public class CalibrePlayer implements Tickable {
     public static final CalibreParticleData[] VIEW_OFFSET_PARTICLE = { new CalibreParticleData(Particle.REDSTONE, 0, new Vector(), 0, new Particle.DustOptions(Color.WHITE, 0.5f)) };
@@ -47,6 +51,10 @@ public class CalibrePlayer implements Tickable {
     private int maxStamina = -1;
     private long lastStaminaDrain;
     private boolean canUseStamina = true;
+
+    // TODO maybe dont have "shader data" as a native feature lol
+    private int shaderDataId = -1;
+    private float shaderDataA = 1f;
 
     public CalibrePlayer(CalibrePlugin plugin, Player player) {
         this.plugin = plugin;
@@ -94,6 +102,12 @@ public class CalibrePlayer implements Tickable {
     public boolean canUseStamina() { return canUseStamina; }
     public void setCanUseStamina(boolean canUseStamina) { this.canUseStamina = canUseStamina; }
 
+    public int getShaderDataId() { return shaderDataId; }
+    public void setShaderDataId(int shaderDataId) { this.shaderDataId = shaderDataId; }
+
+    public float getShaderDataA() { return shaderDataA; }
+    public void setShaderDataA(float shaderDataA) { this.shaderDataA = shaderDataA; }
+
     public ItemAnimation.Instance startAnimation(ItemAnimation animation, EquipmentSlot slot) {
         this.animation = animation.start(player, slot);
         return this.animation;
@@ -118,6 +132,52 @@ public class CalibrePlayer implements Tickable {
         }
 
         if (tickContext.getLoop() instanceof SchedulerLoop) {
+            //TODO testing
+            ProtocolManager protocol = plugin.getProtocolManager();
+            if (shaderDataId != -1) {
+                PacketContainer destroyPacket = protocol.createPacket(PacketType.Play.Server.ENTITY_DESTROY);
+                destroyPacket.getIntegerArrays().write(0, new int[] { shaderDataId });
+                plugin.sendPacket(player, destroyPacket);
+            }
+
+            shaderDataId = (int) (Math.random() * Integer.MAX_VALUE);
+
+            PacketContainer entityPacket = protocol.createPacket(PacketType.Play.Server.SPAWN_ENTITY);
+            entityPacket.getIntegers().write(0, shaderDataId); // Entity ID
+            entityPacket.getUUIDs().write(0, UUID.randomUUID()); // UUID
+            entityPacket.getEntityTypeModifier().write(0, EntityType.DROPPED_ITEM); // Entity type
+
+            Location eye = player.getEyeLocation();
+            entityPacket.getDoubles().write(0, eye.getX()); // X
+            entityPacket.getDoubles().write(1, eye.getY() - 0.5); // Y
+            entityPacket.getDoubles().write(2, eye.getZ()); // Z
+
+            entityPacket.getIntegers().write(1, 0); // Velocity X
+            entityPacket.getIntegers().write(2, 0); // Velocity Y
+            entityPacket.getIntegers().write(3, 0); // Velocity Z
+            entityPacket.getIntegers().write(4, 0); // Pitch
+            entityPacket.getIntegers().write(5, 0); // Yaw
+            entityPacket.getIntegers().write(6, 0); // Data
+
+            PacketContainer metaPacket = protocol.createPacket(PacketType.Play.Server.ENTITY_METADATA);
+            if (shaderDataA > 0)
+                shaderDataA *= 0.75;
+            ItemStack shaderItem = Utils.modMeta(new ItemStack(Material.WHITE_STAINED_GLASS), meta -> {
+                meta.setCustomModelData((int) Utils.clamp(shaderDataA * 255, 1, 255));
+            });
+            metaPacket.getIntegers().write(0, shaderDataId); // Entity ID
+            metaPacket.getWatchableCollectionModifier().write(0, Arrays.asList(
+                    new WrappedWatchableObject(
+                            new WrappedDataWatcher.WrappedDataWatcherObject(7, WrappedDataWatcher.Registry.getItemStackSerializer(false)),
+                            BukkitConverters.getItemStackConverter().getGeneric(shaderItem)
+                    )
+            ));
+
+            plugin.sendPacket(player, entityPacket);
+            plugin.sendPacket(player, metaPacket);
+
+            //END
+
             for (EquipmentSlot slot : EquipmentSlot.values()) {
                 ItemStack item = player.getEquipment().getItem(slot);
                 CalibreComponent component = plugin.fromItem(item);

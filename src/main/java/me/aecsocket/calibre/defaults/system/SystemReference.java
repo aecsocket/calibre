@@ -59,7 +59,8 @@ public abstract class SystemReference<S extends CalibreSystem, T> {
     public T getMapped(ComponentHolder<?> holder) {
         CalibreComponent component = fromPath(holder);
         if (component == null) return null;
-        return getMapped((S) component.getSystem(getSystemId()));
+        CalibreSystem sys = component.getSystem(getSystemId());
+        return sys == null ? null : getMapped((S) sys);
     }
 
     @Override

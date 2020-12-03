@@ -6,6 +6,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.google.gson.*;
+import io.leangen.geantyref.TypeToken;
 import me.aecsocket.calibre.defaults.DefaultCalibreHook;
 import me.aecsocket.calibre.handle.CalibreCommand;
 import me.aecsocket.calibre.handle.CalibrePacketAdapter;
@@ -25,27 +26,29 @@ import me.aecsocket.unifiedframework.gui.GUIManager;
 import me.aecsocket.unifiedframework.gui.GUIVector;
 import me.aecsocket.unifiedframework.item.ItemAdapter;
 import me.aecsocket.unifiedframework.item.ItemManager;
+import me.aecsocket.unifiedframework.locale.LocaleLoader;
 import me.aecsocket.unifiedframework.locale.LocaleManager;
 import me.aecsocket.unifiedframework.locale.Translation;
-import me.aecsocket.unifiedframework.locale.TranslationMap;
-import me.aecsocket.unifiedframework.locale.TranslationMapAdapter;
 import me.aecsocket.unifiedframework.loop.PreciseLoop;
 import me.aecsocket.unifiedframework.loop.SchedulerLoop;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.loop.Tickable;
 import me.aecsocket.unifiedframework.registry.Ref;
+import me.aecsocket.unifiedframework.resource.ConfigurateSettings;
 import me.aecsocket.unifiedframework.resource.ResourceLoadException;
-import me.aecsocket.unifiedframework.resource.Settings;
+import me.aecsocket.unifiedframework.serialization.hocon.*;
 import me.aecsocket.unifiedframework.stat.StatMap;
 import me.aecsocket.unifiedframework.stat.StatMapAdapter;
 import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.Vector2;
-import me.aecsocket.unifiedframework.util.json.*;
+import me.aecsocket.unifiedframework.util.data.ParticleData;
 import me.aecsocket.unifiedframework.util.log.LabelledLogger;
 import me.aecsocket.unifiedframework.util.log.LogLevel;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -57,7 +60,17 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.ConfigurationOptions;
+import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.ObjectMapper;
+import org.spongepowered.configurate.serialize.TypeSerializerCollection;
+import org.spongepowered.configurate.util.NamingSchemes;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -67,91 +80,99 @@ import java.util.stream.Collectors;
  * The main plugin class.
  */
 public class CalibrePlugin extends JavaPlugin implements Tickable {
+    /** The path to the settings file. */
+    public static final String SETTINGS_FILE = "settings.conf";
+    /** The file to be searched for which, if exists, disables the default hook */
+    public static final String DISABLE_DEFAULT_HOOK_FILE = ".disable_default_hook";
     /** A list of all resources in this JAR that will be automatically placed in if no data folder is found. */
     public static final List<String> DEFAULT_RESOURCES = Arrays.asList(
             "README.txt",
-            "settings.json",
-            "lang/default_en_us.json"
+            "settings.conf",
+            "lang/default_en_us.conf"
     );
 
-    /** The list of hooks active on this plugin. */
     private final List<CalibreHook> hooks = new ArrayList<>();
-    /** The plugin's custom logger. */
     private final LabelledLogger logger = new LabelledLogger(getLogger());
-    /** The central settings for the plugin. */
-    private final Settings settings = new Settings();
-    /** The central registry for the plugin. */
+    private final ConfigurationOptions loadOptions = ConfigurationOptions.defaults();
+    private final ConfigurateSettings settings = new ConfigurateSettings();
     private final CalibreRegistry registry = new CalibreRegistry();
-    /** The object used for translating messages. */
     private final LocaleManager localeManager = new LocaleManager();
-    /** The plugin's Bukkit scheduler loop. */
     private final SchedulerLoop schedulerLoop = new SchedulerLoop(this);
-     /** The plugin's thread-based loop. */
     private final PreciseLoop preciseLoop = new PreciseLoop(10);
-    /** The default hook which is registered as a hook. */
     private final DefaultCalibreHook defaultHook = new DefaultCalibreHook();
-    /** The configurable StatMapAdapter for this plugin's GSON. */
     private final StatMapAdapter statMapAdapter = new StatMapAdapter();
-    /** The configurable system adapter for this plugin's GSON. */
     private final CalibreSystem.Adapter systemAdapter = new CalibreSystem.Adapter();
-    /** The item manager for the plugin. */
     private final ItemManager itemManager = new ItemManager(this);
-    /** The map of names to plugin keys. */
     private final Map<String, NamespacedKey> keys = new HashMap<>();
-    /** The map of players to player data. */
     private final Map<Player, CalibrePlayer> players = new HashMap<>();
 
-    /** The central Gson instance. */
     private Gson gson;
-    /** The plugin's protocol manager instance. */
+    private ObjectMapper.Factory mapperFactory;
     private ProtocolManager protocolManager;
-    /** The plugin's command manager for ACF commands. */
     private PaperCommandManager commandManager;
-    /** The plugin's main command instance. */
     private CalibreCommand command;
-    /** The plugin's GUI manager. */
     private GUIManager guiManager;
+
+    private boolean disableDefaultHook;
 
     //region Plugin
 
     @Override
     public void onEnable() {
         // Hooks
-        hooks.add(defaultHook); // todo way to disable
         for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
             if (plugin instanceof CalibreHook) {
                 CalibreHook hook = (CalibreHook) plugin;
+                hook.acceptPlugin(this);
                 hooks.add(hook);
             }
         }
+        // Default hook disabler
+        if (!disableDefaultHook && !new File(getDataFolder(), DISABLE_DEFAULT_HOOK_FILE).exists()) {
+            defaultHook.acceptPlugin(this);
+            hooks.add(defaultHook);
+        }
         hooks.forEach(hook -> {
-            hook.acceptPlugin(this);
             hook.onEnable();
             hook.getPreRegisters().forEach(registry::addPreRegister);
         });
 
-        // GSON
+        // Serialization
+        mapperFactory = ObjectMapper.factoryBuilder()
+                .defaultNamingScheme(NamingSchemes.SNAKE_CASE)
+                .build();
+        TypeSerializerCollection.Builder serializers = TypeSerializerCollection.defaults().childBuilder()
+                .register(GUIVector.class, GUIVectorAdapter.INSTANCE)
+                .register(Vector.class, VectorAdapter.INSTANCE)
+                .register(Vector2.class, Vector2Adapter.INSTANCE)
+                .register(Color.class, ColorAdapter.INSTANCE)
+                .register(ItemStack.class, ItemStackAdapter.INSTANCE)
+                .register(Location.class, LocationAdapter.INSTANCE)
+                .register(ParticleData.class, ParticleDataAdapter.from(mapperFactory))
+                .registerAnnotatedObjects(mapperFactory);
+
         GsonBuilder gsonBuilder = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .addSerializationExclusionStrategy(new ExclusionStrategy() {
                     @Override public boolean shouldSkipField(FieldAttributes f) { return f.getAnnotation(LoadTimeOnly.class) != null; }
                     @Override public boolean shouldSkipClass(Class<?> clazz) { return false; }
                 })
-                .registerTypeAdapter(TranslationMap.class, new TranslationMapAdapter())
+                .registerTypeAdapter(Translation.class, new TranslationAdapter())
                 .registerTypeAdapter(StatMap.class, statMapAdapter)
-                .registerTypeAdapter(GUIVector.class, GUIVectorAdapter.INSTANCE)
-                .registerTypeAdapter(Vector.class, VectorAdapter.INSTANCE)
-                .registerTypeAdapter(Vector2.class, Vector2Adapter.INSTANCE)
-                .registerTypeAdapter(Color.class, ColorAdapter.INSTANCE)
+                .registerTypeAdapter(GUIVector.class, me.aecsocket.unifiedframework.serialization.json.GUIVectorAdapter.INSTANCE)
+                .registerTypeAdapter(Vector.class, me.aecsocket.unifiedframework.serialization.json.VectorAdapter.INSTANCE)
+                .registerTypeAdapter(Vector2.class, me.aecsocket.unifiedframework.serialization.json.Vector2Adapter.INSTANCE)
+                .registerTypeAdapter(Color.class, me.aecsocket.unifiedframework.serialization.json.ColorAdapter.INSTANCE)
                 .registerTypeAdapter(ComponentTree.class, new ComponentTree.Adapter(this))
                 .registerTypeAdapter(ItemAnimation.class, new ItemAnimation.Adapter(this))
                 .registerTypeAdapterFactory(systemAdapter)
                 .registerTypeAdapterFactory(new DependenciesAdapter())
                 .registerTypeAdapterFactory(new AcceptsCalibrePlugin.Adapter(this))
-                .registerTypeAdapterFactory(ParticleDataAdapter.INSTANCE);
-        hooks.forEach(hook -> hook.registerTypeAdapters(gsonBuilder));
+                .registerTypeAdapterFactory(me.aecsocket.unifiedframework.serialization.json.ParticleDataAdapter.INSTANCE);
+
+        hooks.forEach(hook -> hook.registerTypeSerializers(serializers, gsonBuilder));
+        loadOptions.serializers(serializers.build());
         gson = gsonBuilder.create();
-        settings.setGson(gson);
 
         // Commands
         commandManager = new PaperCommandManager(this);
@@ -185,8 +206,10 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
             CommandSender sender = context.getSender();
             String id = context.popFirstArg();
             Ref<?> result = registry.getRef(id);
-            if (result == null) throw new InvalidCommandArgument(gen(sender, "chat.command.not_found", "id", id));
-            if (type != null && !type.isInstance(result.get())) throw new InvalidCommandArgument(gen(sender, "chat.command.wrong_type", "id", id));
+            if (result == null)
+                throw new InvalidCommandArgument(BaseComponent.toLegacyText(gen(sender, "chat.command.not_found", "id", id)));
+            if (type != null && !type.isInstance(result.get()))
+                throw new InvalidCommandArgument(BaseComponent.toLegacyText(gen(sender, "chat.command.wrong_type", "id", id)));
             return result;
         });
         command = new CalibreCommand(this);
@@ -209,7 +232,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                     if (System.currentTimeMillis() >= nextError) {
                         elog(LogLevel.WARN, e, "Failed to parse item JSON: {msg}\n{json}",
                                 "msg", e.getMessage(), "json", prettyPrinter().toJson(gson.fromJson(json, JsonElement.class)));
-                        nextError = System.currentTimeMillis() + setting("repeat_error_delay", long.class, 60000L);
+                        nextError = System.currentTimeMillis() + setting(long.class, 60000L, "repeat_error_delay");
                     }
                     return null;
                 }
@@ -248,7 +271,8 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
 
     public List<CalibreHook> getHooks() { return hooks; }
     public LabelledLogger getLabelledLogger() { return logger; }
-    public Settings getSettings() { return settings; }
+    public ConfigurationOptions getLoadOptions() { return loadOptions; }
+    public ConfigurateSettings getSettings() { return settings; }
     public CalibreRegistry getRegistry() { return registry; }
     public LocaleManager getLocaleManager() { return localeManager; }
     public SchedulerLoop getSchedulerLoop() { return schedulerLoop; }
@@ -260,6 +284,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     public Map<Player, CalibrePlayer> getPlayers() { return players; }
 
     public Gson getGson() { return gson; }
+    public ObjectMapper.Factory getMapperFactory() { return mapperFactory; }
     public ProtocolManager getProtocolManager() { return protocolManager; }
     public PaperCommandManager getCommandManager() { return commandManager; }
     public CalibreCommand getCommand() { return command; }
@@ -267,13 +292,15 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
 
     //endregion
 
+    public void disableDefaultHook() { disableDefaultHook = true; }
+
     //region Loading
 
     /**
      * Unloads all loaded data.
      */
     public void unload() {
-        settings.clear();
+        settings.clearCache();
         registry.unregisterAll();
         localeManager.unregisterAll();
     }
@@ -308,7 +335,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
         LogMessageResult result = load();
         result.forEach(entry -> {
             LogMessageResult.Message msg = (LogMessageResult.Message) entry.getResult();
-            logger.rlog(msg.getLevel(), msg.getMessage() + (msg.getDetail() != null && setting("print_detailed", boolean.class, true) ? "\n" + msg.getDetail() : ""));
+            logger.rlog(msg.getLevel(), msg.getMessage() + (msg.getDetail() != null && setting(boolean.class, true, "print_detailed") ? "\n" + msg.getDetail() : ""));
         });
         return result;
     }
@@ -337,9 +364,12 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
      */
     public LogMessageResult loadSettings() {
         LogMessageResult result = new LogMessageResult();
+        HoconConfigurationLoader loader = HoconConfigurationLoader.builder()
+                .file(Utils.getRelative(this, SETTINGS_FILE))
+                .build();
         try {
-            settings.loadFrom(this);
-        } catch (ResourceLoadException e) {
+            settings.setRoot(loader.load(loadOptions));
+        } catch (ConfigurateException e) {
             result.addFailureData(
                     LogLevel.ERROR,
                     "Could not load settings: " + e.getMessage(),
@@ -347,11 +377,11 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
             );
         }
 
-        setting("log_level", String.class).ifPresent(level -> {
+        setting(String.class, (Object) "log_level").ifPresent(level -> {
             LogLevel level2 = LogLevel.valueOfDefault(level);
             if (level2 != null) logger.setLevel(level2);
         });
-        setting("default_locale", String.class).ifPresent(localeManager::setDefaultLocale);
+        setting(String.class, (Object) "default_locale").ifPresent(localeManager::setDefaultLocale);
 
         return result;
     }
@@ -447,31 +477,23 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
      */
     public LogMessageResult loadLocales() {
         LogMessageResult result = new LogMessageResult();
-        try {
-            localeManager.loadFrom(gson, this).forEach(entry -> {
-                if (entry.isSuccessful()) {
-                    result.addSuccessData(
-                            LogLevel.VERBOSE,
-                            TextUtils.format("Loaded locale {locale} from {path}",
-                            "locale", ((Translation) entry.getResult()).getLocale(), "path", entry.getKey())
-                    );
-                } else {
-                    Exception e = (Exception) entry.getResult();
-                    result.addFailureData(
-                            LogLevel.WARN,
-                            TextUtils.format("Could not load locale from {path}: {msg}",
-                            "path", entry.getKey(), "msg", e.getMessage()),
-                            getTrace(e)
-                    );
-                }
-            });
-        } catch (ResourceLoadException e) {
-            result.addFailureData(
-                    LogLevel.ERROR,
-                    TextUtils.format("trace"),
-                    getTrace(e)
-            );
-        }
+        LocaleLoader.hocon(localeManager, loadOptions, this).forEach(entry -> {
+            if (entry.isSuccessful()) {
+                result.addSuccessData(
+                        LogLevel.VERBOSE,
+                        TextUtils.format("Loaded locale {locale} from {path}",
+                        "locale", ((Translation) entry.getResult()).getLocale(), "path", entry.getKey())
+                );
+            } else {
+                Exception e = (Exception) entry.getResult();
+                result.addFailureData(
+                        LogLevel.WARN,
+                        TextUtils.format("Could not load locale from {path}: {msg}",
+                        "path", entry.getKey(), "msg", e.getMessage()),
+                        getTrace(e)
+                );
+            }
+        });
         return result;
     }
 
@@ -497,7 +519,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     public void log(LogLevel level, String text, Object... args) { logger.log(level, text, args); }
     public void elog(LogLevel level, Throwable e, String text, Object... args) {
         log(level, text, args);
-        if (setting("print_detailed", boolean.class, true)) {
+        if (setting(boolean.class, true, "print_detailed")) {
             for (String line : getTrace(e).split("\n"))
                 log(level, line);
         }
@@ -505,20 +527,22 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
 
     public NamespacedKey key(String key) { return keys.computeIfAbsent(key, __ -> new NamespacedKey(this, key)); }
 
-    public <T> T setting(String path, Type type, T defaultValue) { return settings.get(path, type, defaultValue); }
-    public <T> T setting(String path, Class<T> type, T defaultValue) { return settings.get(path, type, defaultValue); }
-    public <T> Optional<T> setting(String path, Type type) { return settings.get(path, type); }
-    public <T> Optional<T> setting(String path, Class<T> type) { return settings.get(path, type); }
+    public <T> Optional<T> setting(Type type, Object... path) { return settings.get(type, path); }
+    public <T> Optional<T> setting(Class<T> type, Object... path) { return setting((Type) type, path); }
+
+    @SuppressWarnings("unchecked")
+    public <T> T setting(Type type, T defaultValue, Object... path) { return (T) setting(type, path).orElse(defaultValue); }
+    public <T> T setting(Class<T> type, T defaultValue, Object... path) { return setting((Type) type, defaultValue, path); }
 
     public String locale(CommandSender sender) { return sender instanceof Player ? ((Player) sender).getLocale() : localeManager.getDefaultLocale(); }
 
-    public String gen(String locale, String key, Object... args) { return localeManager.gen(locale, key, args); }
-    public String gen(String key, Object... args) { return gen(localeManager.getDefaultLocale(), key, args); }
-    public String gen(CommandSender sender, String key, Object... args) { return gen(locale(sender), key, args); }
+    public BaseComponent[] gen(String locale, String key, Object... args) { return localeManager.gen(locale, key, args); }
+    public BaseComponent[] gen(String key, Object... args) { return gen(localeManager.getDefaultLocale(), key, args); }
+    public BaseComponent[] gen(CommandSender sender, String key, Object... args) { return gen(locale(sender), key, args); }
 
-    public Optional<String> rgen(String locale, String key, Object... args) { return localeManager.rgen(locale, key, args); }
-    public Optional<String> rgen(String key, Object... args) { return rgen(localeManager.getDefaultLocale(), key, args); }
-    public Optional<String> rgen(CommandSender sender, String key, Object... args) { return rgen(locale(sender), key, args); }
+    public Optional<BaseComponent[]> rgen(String locale, String key, Object... args) { return localeManager.rgen(locale, key, args); }
+    public Optional<BaseComponent[]> rgen(String key, Object... args) { return rgen(localeManager.getDefaultLocale(), key, args); }
+    public Optional<BaseComponent[]> rgen(CommandSender sender, String key, Object... args) { return rgen(locale(sender), key, args); }
 
     public <E extends CalibreIdentifiable> E fromRegistry(String id, Class<E> type) { return registry.get(id, type); }
     public CalibreComponent fromItem(ItemStack item) { return item == null ? null : itemManager.getItem(item, CalibreComponent.class); }
@@ -532,4 +556,72 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     }
 
     //endregion
+
+    @ConfigSerializable
+    public static class Bar {
+        String name;
+        double money;
+
+        @Override
+        public String toString() {
+            return "Bar{" +
+                    "name='" + name + '\'' +
+                    ", money=" + money +
+                    '}';
+        }
+    }
+
+    @ConfigSerializable
+    public static class Test {
+        int fieldOne;
+        int fieldTwo;
+        List<Bar> objects;
+        Map<Float, String> things;
+
+        @Override
+        public String toString() {
+            return "Test{" +
+                    "fieldOne=" + fieldOne +
+                    ", fieldTwo=" + fieldTwo +
+                    ", objects=" + objects +
+                    ", things=" + things +
+                    '}';
+        }
+    }
+
+    private void test() {
+        ObjectMapper.Factory mapperFactory = ObjectMapper.factoryBuilder().defaultNamingScheme(NamingSchemes.SNAKE_CASE).build();
+        TypeSerializerCollection serializers = TypeSerializerCollection.defaults().childBuilder()
+                .register(Color.class, me.aecsocket.unifiedframework.serialization.hocon.ColorAdapter.INSTANCE)
+                .register(GUIVector.class, me.aecsocket.unifiedframework.serialization.hocon.GUIVectorAdapter.INSTANCE)
+                .register(ItemStack.class, me.aecsocket.unifiedframework.serialization.hocon.ItemStackAdapter.INSTANCE)
+                .register(Location.class, me.aecsocket.unifiedframework.serialization.hocon.LocationAdapter.INSTANCE)
+                .register(Vector.class, me.aecsocket.unifiedframework.serialization.hocon.VectorAdapter.INSTANCE)
+                .register(ParticleData.class, me.aecsocket.unifiedframework.serialization.hocon.ParticleDataAdapter.from(mapperFactory))
+                .registerAnnotatedObjects(mapperFactory)
+                .build();
+
+        HoconConfigurationLoader loader = HoconConfigurationLoader.builder()
+                .path(getDataFolder().toPath().resolve("test.conf"))
+                .defaultOptions(ConfigurationOptions.defaults()
+                        .serializers(serializers)
+                )
+                .build();
+
+        System.out.println("A");
+        ConfigurationNode root;
+        try {
+            root = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        System.out.println("RUN");
+        try {
+            System.out.println(root.node("foo").get(new TypeToken<Map<String, String>>(){}));
+        } catch (ConfigurateException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -1,8 +1,0 @@
-{
-  "log_level": "VERBOSE",
-  "print_detailed": true,
-  "locale": "en_us",
-
-  "preserve_invalid_data": true,
-  "repeat_error_delay": 60000
-}

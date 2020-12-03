@@ -31,6 +31,7 @@ import me.aecsocket.unifiedframework.stat.StatMap;
 import me.aecsocket.unifiedframework.util.MapInit;
 import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.Utils;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -162,11 +163,11 @@ public class CalibreComponent implements CalibreIdentifiable, ComponentHolder<Ca
     @Override public String getNameKey() { return "component." + id; }
 
     @Override
-    public String getLongInfo(String locale) {
-        String none = plugin.gen(locale, "none");
-        String slotSeparator = plugin.gen(locale, "info.component.slot");
-        String systemSeparator = plugin.gen(locale, "info.component.system");
-        String statSeparator = plugin.gen(locale, "info.component.stat");
+    public BaseComponent[] getLongInfo(String locale) {
+        BaseComponent[] none = plugin.gen(locale, "none");
+        BaseComponent[] slotSeparator = plugin.gen(locale, "info.component.slot");
+        BaseComponent[] systemSeparator = plugin.gen(locale, "info.component.system");
+        BaseComponent[] statSeparator = plugin.gen(locale, "info.component.stat");
         return plugin.gen(locale, "info.component",
                 "localized_name", getLocalizedName(locale),
                 "categories", categories.size() == 0 ? none : String.join(", ", categories),

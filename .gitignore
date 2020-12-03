@@ -1,6 +1,5 @@
-.idea/
-.settings/
-*.iml
-target/*
-!target/*.jar
-!target/site
+/.*
+/*.iml
+/builds/
+/cache/
+/target/

@@ -16,8 +16,8 @@ import me.aecsocket.calibre.item.system.BaseSystem;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.calibre.item.system.LoadTimeOnly;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
+import me.aecsocket.unifiedframework.serialization.json.JsonAdapter;
 import me.aecsocket.unifiedframework.util.Quantifier;
-import me.aecsocket.unifiedframework.util.json.JsonAdapter;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;

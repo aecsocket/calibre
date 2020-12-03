@@ -2,6 +2,7 @@ package me.aecsocket.calibre;
 
 import com.google.gson.GsonBuilder;
 import me.aecsocket.calibre.util.CalibreIdentifiable;
+import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -33,8 +34,9 @@ public interface CalibreHook {
     default Collection<CalibreIdentifiable> getPreRegisters() { return Collections.emptySet(); }
 
     /**
-     * Called when extra type adapters can be registered on a {@link GsonBuilder}.
-     * @param builder The builder.
+     * Called when extra type serializers can be registered on a {@link TypeSerializerCollection} and {@link GsonBuilder}.
+     * @param serializers The serializers.
+     * @param builder The GSON builder.
      */
-    default void registerTypeAdapters(GsonBuilder builder) {}
+    default void registerTypeSerializers(TypeSerializerCollection.Builder serializers, GsonBuilder builder) {}
 }

@@ -1,7 +1,7 @@
 package me.aecsocket.calibre.defaults;
 
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
+import io.leangen.geantyref.TypeToken;
 import me.aecsocket.calibre.CalibreHook;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.defaults.service.*;
@@ -19,11 +19,12 @@ import me.aecsocket.calibre.defaults.system.gun.sight.SightSystem;
 import me.aecsocket.calibre.defaults.system.melee.MeleeSystem;
 import me.aecsocket.calibre.item.component.ComponentTree;
 import me.aecsocket.calibre.util.CalibreIdentifiable;
+import me.aecsocket.unifiedframework.serialization.hocon.QuantifierAdapter;
 import me.aecsocket.unifiedframework.util.CollectionInit;
 import me.aecsocket.unifiedframework.util.Quantifier;
-import me.aecsocket.unifiedframework.util.json.QuantifierAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.ServicePriority;
+import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -62,9 +63,11 @@ public class DefaultCalibreHook implements CalibreHook {
     }
 
     @Override
-    public void registerTypeAdapters(GsonBuilder builder) {
+    public void registerTypeSerializers(TypeSerializerCollection.Builder serializers, GsonBuilder builder) {
+        serializers
+                .register(new TypeToken<Quantifier<ComponentTree>>(){}, new QuantifierAdapter<>());
         builder
-                .registerTypeAdapter(new TypeToken<Quantifier<ComponentTree>>(){}.getType(), new QuantifierAdapter<ComponentTree>())
+                .registerTypeAdapter(new TypeToken<Quantifier<ComponentTree>>(){}.getType(), new me.aecsocket.unifiedframework.serialization.json.QuantifierAdapter<Quantifier<ComponentTree>>())
                 .registerTypeAdapter(FireModeReference.class, new FireModeReference.Adapter())
                 .registerTypeAdapter(SightReference.class, new SightReference.Adapter())
                 .registerTypeAdapterFactory(new ComponentStorageSystem.Adapter(plugin));

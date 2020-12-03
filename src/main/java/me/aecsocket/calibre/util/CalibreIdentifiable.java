@@ -3,6 +3,7 @@ package me.aecsocket.calibre.util;
 import me.aecsocket.unifiedframework.registry.Identifiable;
 import me.aecsocket.unifiedframework.registry.ValidationException;
 import me.aecsocket.unifiedframework.util.TextUtils;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.command.CommandSender;
 
 /**
@@ -33,26 +34,26 @@ public interface CalibreIdentifiable extends Identifiable, AcceptsCalibrePlugin 
      * @param locale The locale to create the name for.
      * @return The localized name.
      */
-    default String getLocalizedName(String locale) { return getPlugin().gen(locale, getNameKey()); }
+    default BaseComponent[] getLocalizedName(String locale) { return getPlugin().gen(locale, getNameKey()); }
 
     /**
      * Gets the localized, human-readable name of this object.
      * @param sender The command sender to create the name for.
      * @return The localized name.
      */
-    default String getLocalizedName(CommandSender sender) { return getPlugin().gen(sender, getNameKey()); }
+    default BaseComponent[] getLocalizedName(CommandSender sender) { return getPlugin().gen(sender, getNameKey()); }
 
     /**
      * Gets a short, one-line description of this object.
      * @param locale The locale to create the info for.
      * @return The short info string.
      */
-    default String getShortInfo(String locale) { return getLocalizedName(locale); }
+    default BaseComponent[] getShortInfo(String locale) { return getLocalizedName(locale); }
 
     /**
      * Gets a more extensive description of this object.
      * @param locale The locale to create the info for.
      * @return The long info string, with lines separated by {@code \n}.
      */
-    default String getLongInfo(String locale) { return getPlugin().gen(locale, "none"); }
+    default BaseComponent[] getLongInfo(String locale) { return getPlugin().gen(locale, "none"); }
 }

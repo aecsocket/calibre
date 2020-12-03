@@ -7,10 +7,10 @@ import me.aecsocket.calibre.item.system.SystemInitializationException;
 import me.aecsocket.calibre.util.OrderedStatMap;
 import me.aecsocket.unifiedframework.component.ComponentSlot;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
+import me.aecsocket.unifiedframework.serialization.json.JsonAdapter;
 import me.aecsocket.unifiedframework.stat.StatInstance;
 import me.aecsocket.unifiedframework.stat.StatMap;
 import me.aecsocket.unifiedframework.util.TextUtils;
-import me.aecsocket.unifiedframework.util.json.JsonAdapter;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

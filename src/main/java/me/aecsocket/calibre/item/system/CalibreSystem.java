@@ -12,6 +12,7 @@ import me.aecsocket.calibre.util.CalibreIdentifiable;
 import me.aecsocket.calibre.util.OrderedStatMap;
 import me.aecsocket.unifiedframework.stat.Stat;
 import me.aecsocket.unifiedframework.util.Utils;
+import net.md_5.bungee.api.chat.BaseComponent;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -85,7 +86,7 @@ public interface CalibreSystem extends CalibreIdentifiable {
 
     @Override default String getNameKey() { return "system." + getId(); }
 
-    @Override default String getLongInfo(String locale) {
+    @Override default BaseComponent[] getLongInfo(String locale) {
         return getPlugin().gen(locale, "info.system",
                 "localized_name", getLocalizedName(locale),
                 "fields", Stream.of(getClass().getDeclaredFields())
@@ -103,6 +104,7 @@ public interface CalibreSystem extends CalibreIdentifiable {
                             } catch (IllegalAccessException e) { return null; }
                         })
                         .filter(Objects::nonNull)
+                        .map(BaseComponent::toLegacyText)
                         .collect(Collectors.joining())
         );
     }

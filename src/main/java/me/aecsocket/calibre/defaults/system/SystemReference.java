@@ -1,11 +1,14 @@
 package me.aecsocket.calibre.defaults.system;
 
-import com.google.gson.*;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import me.aecsocket.calibre.item.component.CalibreComponent;
 import me.aecsocket.calibre.item.system.CalibreSystem;
 import me.aecsocket.unifiedframework.component.ComponentHolder;
 import me.aecsocket.unifiedframework.component.ComponentSlot;
-import me.aecsocket.unifiedframework.util.json.JsonAdapter;
+import me.aecsocket.unifiedframework.serialization.json.JsonAdapter;
 
 import java.lang.reflect.Type;
 import java.util.Objects;

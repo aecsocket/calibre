@@ -1,0 +1,10 @@
+me.aecsocket.calibre
+me.aecsocket.calibre.component
+me.aecsocket.calibre.gui
+me.aecsocket.calibre.system
+me.aecsocket.calibre.system.builtin
+me.aecsocket.calibre.system.gun
+me.aecsocket.calibre.util
+me.aecsocket.calibre.wrapper
+me.aecsocket.calibre.wrapper.slot
+me.aecsocket.calibre.wrapper.user

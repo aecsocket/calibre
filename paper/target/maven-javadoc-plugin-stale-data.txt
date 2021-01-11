@@ -1,0 +1,131 @@
+/usr/lib/jvm/java-11-openjdk/bin/javadoc
+@options
+@packages
+-classpath
+'/home/socket/.m2/repository/me/aecsocket/unified-framework-core/1.1/unified-framework-core-1.1.jar:/home/socket/.m2/repository/com/google/code/gson/gson/2.8.6/gson-2.8.6.jar:/home/socket/.m2/repository/com/google/guava/guava/30.1-jre/guava-30.1-jre.jar:/home/socket/.m2/repository/com/google/guava/failureaccess/1.0.1/failureaccess-1.0.1.jar:/home/socket/.m2/repository/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar:/home/socket/.m2/repository/com/google/errorprone/error_prone_annotations/2.3.4/error_prone_annotations-2.3.4.jar:/home/socket/.m2/repository/com/google/j2objc/j2objc-annotations/1.3/j2objc-annotations-1.3.jar:/home/socket/.m2/repository/net/kyori/adventure-text-minimessage/4.1.0-SNAPSHOT/adventure-text-minimessage-4.1.0-SNAPSHOT.jar:/home/socket/.m2/repository/org/jetbrains/annotations/18.0.0/annotations-18.0.0.jar:/home/socket/.m2/repository/org/spongepowered/configurate-hocon/4.0.0/configurate-hocon-4.0.0.jar:/home/socket/.m2/repository/org/spongepowered/configurate-core/4.0.0/configurate-core-4.0.0.jar:/home/socket/.m2/repository/io/leangen/geantyref/geantyref/1.3.11/geantyref-1.3.11.jar:/home/socket/.m2/repository/net/kyori/adventure-api/4.3.0/adventure-api-4.3.0.jar:/home/socket/.m2/repository/net/kyori/examination-api/1.0.0/examination-api-1.0.0.jar:/home/socket/.m2/repository/net/kyori/examination-string/1.0.0/examination-string-1.0.0.jar:/home/socket/.m2/repository/org/checkerframework/checker-qual/3.8.0/checker-qual-3.8.0.jar:/home/socket/projects/mc-plugins/calibre/core/target/calibre-core-1.0-SNAPSHOT.jar:/home/socket/.m2/repository/net/kyori/adventure-text-serializer-plain/4.3.0/adventure-text-serializer-plain-4.3.0.jar:/home/socket/.m2/repository/com/destroystokyo/paper/paper-api/1.15.2-R0.1-SNAPSHOT/paper-api-1.15.2-R0.1-SNAPSHOT.jar:/home/socket/.m2/repository/commons-lang/commons-lang/2.6/commons-lang-2.6.jar:/home/socket/.m2/repository/com/google/code/findbugs/jsr305/1.3.9/jsr305-1.3.9.jar:/home/socket/.m2/repository/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar:/home/socket/.m2/repository/junit/junit/4.10/junit-4.10.jar:/home/socket/.m2/repository/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar:/home/socket/.m2/repository/net/md-5/bungeecord-chat/1.15-SNAPSHOT/bungeecord-chat-1.15-SNAPSHOT.jar:/home/socket/.m2/repository/org/yaml/snakeyaml/1.25/snakeyaml-1.25.jar:/home/socket/.m2/repository/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar:/home/socket/.m2/repository/org/ow2/asm/asm/8.0.1/asm-8.0.1.jar:/home/socket/.m2/repository/org/ow2/asm/asm-commons/8.0.1/asm-commons-8.0.1.jar:/home/socket/.m2/repository/org/ow2/asm/asm-tree/8.0.1/asm-tree-8.0.1.jar:/home/socket/.m2/repository/org/ow2/asm/asm-analysis/8.0.1/asm-analysis-8.0.1.jar:/home/socket/.m2/repository/me/aecsocket/unified-framework-paper/1.1/unified-framework-paper-1.1.jar:/home/socket/.m2/repository/com/comphenix/protocol/ProtocolLib/4.6.0-SNAPSHOT/ProtocolLib-4.6.0-SNAPSHOT.jar:/home/socket/.m2/repository/cglib/cglib-nodep/3.2.5/cglib-nodep-3.2.5.jar:/home/socket/.m2/repository/co/aikar/acf-paper/0.5.0-SNAPSHOT/acf-paper-0.5.0-SNAPSHOT.jar:/home/socket/.m2/repository/net/kyori/adventure-platform-bukkit/4.0.0-SNAPSHOT/adventure-platform-bukkit-4.0.0-SNAPSHOT.jar:/home/socket/.m2/repository/net/kyori/adventure-platform-api/4.0.0-SNAPSHOT/adventure-platform-api-4.0.0-SNAPSHOT.jar:/home/socket/.m2/repository/net/kyori/adventure-text-serializer-craftbukkit/4.0.0-SNAPSHOT/adventure-text-serializer-craftbukkit-4.0.0-SNAPSHOT.jar:/home/socket/.m2/repository/net/kyori/adventure-text-serializer-bungeecord/4.0.0-SNAPSHOT/adventure-text-serializer-bungeecord-4.0.0-SNAPSHOT.jar:/home/socket/.m2/repository/net/kyori/adventure-text-serializer-legacy/4.3.0/adventure-text-serializer-legacy-4.3.0.jar:/home/socket/.m2/repository/net/kyori/adventure-nbt/4.3.0/adventure-nbt-4.3.0.jar:/home/socket/.m2/repository/net/kyori/adventure-text-serializer-gson/4.3.0/adventure-text-serializer-gson-4.3.0.jar:/home/socket/.m2/repository/org/spongepowered/configurate-gson/4.0.0/configurate-gson-4.0.0.jar'
+-encoding
+'UTF-8'
+-protected
+-sourcepath
+'/home/socket/projects/mc-plugins/calibre/paper/src/main/java:/home/socket/projects/mc-plugins/calibre/paper/target/generated-sources/annotations'
+-linksource --no-module-directories
+-author
+-bottom
+'Copyright &#169; 2021. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'Calibre Paper 1.0-SNAPSHOT API'
+-link
+'https://papermc.io/javadocs/paper/1.16'
+-link
+'https://jd.adventure.kyori.net/api/4.2.0'
+-link
+'https://configurate.aoeu.xyz/4.1.0-SNAPSHOT/apidocs'
+-link
+'https://javadoc.io/doc/com.google.code.gson/gson/2.8.0'
+-link
+'https://junit.org/junit4/javadoc/latest'
+-linkoffline
+'https://docs.oracle.com/en/java/javase/11/docs/api' '/home/socket/projects/mc-plugins/calibre/paper/target/javadoc-bundle-options'
+-linkoffline
+'https://aecsocket.gitlab.io/calibre/calibre-core/apidocs' '/home/socket/projects/mc-plugins/calibre/core/target/site/apidocs'
+-use
+-version
+-windowtitle
+'Calibre Paper 1.0-SNAPSHOT API'
+me.aecsocket.calibre.system.builtin
+me.aecsocket.calibre.system.builtin
+me.aecsocket.calibre.system.builtin
+me.aecsocket.calibre.system.builtin
+me.aecsocket.calibre.system.builtin
+me.aecsocket.calibre.system
+me.aecsocket.calibre.system.gun
+me.aecsocket.calibre.system.gun
+me.aecsocket.calibre.system.gun
+me.aecsocket.calibre.util
+me.aecsocket.calibre.util
+me.aecsocket.calibre.util
+me.aecsocket.calibre.wrapper
+me.aecsocket.calibre.wrapper.user
+me.aecsocket.calibre.wrapper.user
+me.aecsocket.calibre.wrapper.user
+me.aecsocket.calibre.wrapper.slot
+me.aecsocket.calibre.wrapper.slot
+me.aecsocket.calibre
+me.aecsocket.calibre
+me.aecsocket.calibre
+me.aecsocket.calibre.component
+me.aecsocket.calibre.component
+me.aecsocket.calibre
+me.aecsocket.calibre.gui
+me.aecsocket.calibre.gui
+/home/socket/.m2/repository/me/aecsocket/unified-framework-core/1.1/unified-framework-core-1.1.jar = 1610364877772
+/home/socket/.m2/repository/com/google/code/gson/gson/2.8.6/gson-2.8.6.jar = 1598203429780
+/home/socket/.m2/repository/com/google/guava/guava/30.1-jre/guava-30.1-jre.jar = 1608820189567
+/home/socket/.m2/repository/com/google/guava/failureaccess/1.0.1/failureaccess-1.0.1.jar = 1597412845037
+/home/socket/.m2/repository/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar = 1597412845070
+/home/socket/.m2/repository/com/google/errorprone/error_prone_annotations/2.3.4/error_prone_annotations-2.3.4.jar = 1597412845140
+/home/socket/.m2/repository/com/google/j2objc/j2objc-annotations/1.3/j2objc-annotations-1.3.jar = 1597412845163
+/home/socket/.m2/repository/net/kyori/adventure-text-minimessage/4.1.0-SNAPSHOT/adventure-text-minimessage-4.1.0-SNAPSHOT.jar = 1610196146240
+/home/socket/.m2/repository/org/jetbrains/annotations/18.0.0/annotations-18.0.0.jar = 1597331922906
+/home/socket/.m2/repository/org/spongepowered/configurate-hocon/4.0.0/configurate-hocon-4.0.0.jar = 1605991834145
+/home/socket/.m2/repository/org/spongepowered/configurate-core/4.0.0/configurate-core-4.0.0.jar = 1605991833998
+/home/socket/.m2/repository/io/leangen/geantyref/geantyref/1.3.11/geantyref-1.3.11.jar = 1605991833738
+/home/socket/.m2/repository/net/kyori/adventure-api/4.3.0/adventure-api-4.3.0.jar = 1607283680295
+/home/socket/.m2/repository/net/kyori/examination-api/1.0.0/examination-api-1.0.0.jar = 1603896997950
+/home/socket/.m2/repository/net/kyori/examination-string/1.0.0/examination-string-1.0.0.jar = 1603896997766
+/home/socket/.m2/repository/org/checkerframework/checker-qual/3.8.0/checker-qual-3.8.0.jar = 1608841492374
+/home/socket/projects/mc-plugins/calibre/core/target/calibre-core-1.0-SNAPSHOT.jar = 1610406306138
+/home/socket/.m2/repository/net/kyori/adventure-text-serializer-plain/4.3.0/adventure-text-serializer-plain-4.3.0.jar = 1609763210511
+/home/socket/.m2/repository/com/destroystokyo/paper/paper-api/1.15.2-R0.1-SNAPSHOT/paper-api-1.15.2-R0.1-SNAPSHOT.jar = 1608845648851
+/home/socket/.m2/repository/commons-lang/commons-lang/2.6/commons-lang-2.6.jar = 1597331920559
+/home/socket/.m2/repository/com/google/code/findbugs/jsr305/1.3.9/jsr305-1.3.9.jar = 1597331920413
+/home/socket/.m2/repository/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar = 1597331920443
+/home/socket/.m2/repository/junit/junit/4.10/junit-4.10.jar = 1597331920749
+/home/socket/.m2/repository/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar = 1597331920799
+/home/socket/.m2/repository/net/md-5/bungeecord-chat/1.15-SNAPSHOT/bungeecord-chat-1.15-SNAPSHOT.jar = 1608845648494
+/home/socket/.m2/repository/org/yaml/snakeyaml/1.25/snakeyaml-1.25.jar = 1608845648557
+/home/socket/.m2/repository/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar = 1597331921543
+/home/socket/.m2/repository/org/ow2/asm/asm/8.0.1/asm-8.0.1.jar = 1597401525253
+/home/socket/.m2/repository/org/ow2/asm/asm-commons/8.0.1/asm-commons-8.0.1.jar = 1597401524786
+/home/socket/.m2/repository/org/ow2/asm/asm-tree/8.0.1/asm-tree-8.0.1.jar = 1597401525523
+/home/socket/.m2/repository/org/ow2/asm/asm-analysis/8.0.1/asm-analysis-8.0.1.jar = 1597401525530
+/home/socket/.m2/repository/me/aecsocket/unified-framework-paper/1.1/unified-framework-paper-1.1.jar = 1610364896959
+/home/socket/.m2/repository/com/comphenix/protocol/ProtocolLib/4.6.0-SNAPSHOT/ProtocolLib-4.6.0-SNAPSHOT.jar = 1608903927285
+/home/socket/.m2/repository/cglib/cglib-nodep/3.2.5/cglib-nodep-3.2.5.jar = 1597331923216
+/home/socket/.m2/repository/co/aikar/acf-paper/0.5.0-SNAPSHOT/acf-paper-0.5.0-SNAPSHOT.jar = 1601069172209
+/home/socket/.m2/repository/net/kyori/adventure-platform-bukkit/4.0.0-SNAPSHOT/adventure-platform-bukkit-4.0.0-SNAPSHOT.jar = 1610196170987
+/home/socket/.m2/repository/net/kyori/adventure-platform-api/4.0.0-SNAPSHOT/adventure-platform-api-4.0.0-SNAPSHOT.jar = 1610196170937
+/home/socket/.m2/repository/net/kyori/adventure-text-serializer-craftbukkit/4.0.0-SNAPSHOT/adventure-text-serializer-craftbukkit-4.0.0-SNAPSHOT.jar = 1610196170957
+/home/socket/.m2/repository/net/kyori/adventure-text-serializer-bungeecord/4.0.0-SNAPSHOT/adventure-text-serializer-bungeecord-4.0.0-SNAPSHOT.jar = 1610196171247
+/home/socket/.m2/repository/net/kyori/adventure-text-serializer-legacy/4.3.0/adventure-text-serializer-legacy-4.3.0.jar = 1609083170754
+/home/socket/.m2/repository/net/kyori/adventure-nbt/4.3.0/adventure-nbt-4.3.0.jar = 1609083170858
+/home/socket/.m2/repository/net/kyori/adventure-text-serializer-gson/4.3.0/adventure-text-serializer-gson-4.3.0.jar = 1609083170808
+/home/socket/.m2/repository/org/spongepowered/configurate-gson/4.0.0/configurate-gson-4.0.0.jar = 1606767082556
+/home/socket/projects/mc-plugins/calibre/paper/src/main/java = 1608847564412
+/home/socket/projects/mc-plugins/calibre/paper/target/generated-sources/annotations = 1610406315018
+/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs/package-search-index.js = 1610406321451
+/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs/index-all.html = 1610406321458
+/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs/search.js = 1610406321478
+/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs/package-search-index.zip = 1610406321455
+/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs/allclasses-index.html = 1610406321461
+/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs/member-search-index.js = 1610406321455
+/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs/help-doc.html = 1610406321478
+/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs/allclasses.html = 1610406321471
+/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs/index.html = 1610406321475
+/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs/allpackages-index.html = 1610406321465
+/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs/type-search-index.zip = 1610406321455
+/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs/element-list = 1610406321141
+/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs/constant-values.html = 1610406321188
+/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs/overview-summary.html = 1610406321475
+/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs/member-search-index.zip = 1610406321455
+/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs/deprecated-list.html = 1610406321468
+/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs/script.js = 1610406321478
+/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs/stylesheet.css = 1610406321478
+/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs/overview-tree.html = 1610406321418
+/home/socket/projects/mc-plugins/calibre/paper/target/site/apidocs/type-search-index.js = 1610406321455

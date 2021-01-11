@@ -8,7 +8,7 @@ variables:
 build:
   image: "maven:3-jdk-11"
   script:
-    - "mvn clean install javadoc:javadoc site"
+    - "mvn clean install javadoc:javadoc site:site site:stage"
   artifacts:
     paths:
       - "target"
@@ -17,7 +17,7 @@ pages:
   stage: "deploy"
   script:
     - "mkdir public"
-    - "cp -r target/site/* public"
+    - "cp -r target/staging/* public"
   artifacts:
     paths:
       - "public"

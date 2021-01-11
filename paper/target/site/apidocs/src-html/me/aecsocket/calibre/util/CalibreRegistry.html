@@ -1,0 +1,94 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">package me.aecsocket.calibre.util;</a>
+<span class="sourceLineNo">002</span><a id="line.2"></a>
+<span class="sourceLineNo">003</span><a id="line.3">import me.aecsocket.unifiedframework.registry.Registry;</a>
+<span class="sourceLineNo">004</span><a id="line.4"></a>
+<span class="sourceLineNo">005</span><a id="line.5">import java.util.ArrayList;</a>
+<span class="sourceLineNo">006</span><a id="line.6">import java.util.List;</a>
+<span class="sourceLineNo">007</span><a id="line.7">import java.util.function.Consumer;</a>
+<span class="sourceLineNo">008</span><a id="line.8"></a>
+<span class="sourceLineNo">009</span><a id="line.9">public class CalibreRegistry extends Registry&lt;CalibreIdentifiable&gt; {</a>
+<span class="sourceLineNo">010</span><a id="line.10">    private final List&lt;Consumer&lt;CalibreRegistry&gt;&gt; onLoad = new ArrayList&lt;&gt;();</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    public List&lt;Consumer&lt;CalibreRegistry&gt;&gt; onLoad() { return onLoad; }</a>
+<span class="sourceLineNo">013</span><a id="line.13">    public void onLoad(Consumer&lt;CalibreRegistry&gt; supplier) { onLoad.add(supplier); }</a>
+<span class="sourceLineNo">014</span><a id="line.14"></a>
+<span class="sourceLineNo">015</span><a id="line.15">    @Override</a>
+<span class="sourceLineNo">016</span><a id="line.16">    public void unregisterAll() {</a>
+<span class="sourceLineNo">017</span><a id="line.17">        super.unregisterAll();</a>
+<span class="sourceLineNo">018</span><a id="line.18">        onLoad.forEach(consumer -&gt; consumer.accept(this));</a>
+<span class="sourceLineNo">019</span><a id="line.19">    }</a>
+<span class="sourceLineNo">020</span><a id="line.20">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>

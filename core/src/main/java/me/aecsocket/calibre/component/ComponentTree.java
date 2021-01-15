@@ -28,6 +28,7 @@ import java.util.*;
 public class ComponentTree {
     public static abstract class AbstractSerializer implements TypeSerializer<ComponentTree> {
         protected abstract <T extends CalibreIdentifiable> T byId(String id, Class<T> type);
+        protected abstract boolean preserveInvalidData();
 
         @Override
         public void serialize(Type type, @Nullable ComponentTree obj, ConfigurationNode node) throws SerializationException {
@@ -58,7 +59,7 @@ public class ComponentTree {
             }
         }
 
-        private <I extends Item> ComponentTree internalDeserialize(Type type, ConfigurationNode node) throws SerializationException {
+        private <I extends Item> ComponentTree internalDeserialize(Type type, ConfigurationNode node, boolean preserveInvalidData) throws SerializationException {
             String id;
             Map<String, ConfigurationNode> systems = null;
             Map<String, ConfigurationNode> slots = null;
@@ -71,20 +72,21 @@ public class ComponentTree {
 
             @SuppressWarnings("unchecked")
             CalibreComponent<I> root = byId(id, CalibreComponent.class);
-            if (root == null) {
+            if (root == null)
                 throw new SerializationException(node, type, "No component with ID [" + id + "]");
-            }
             root = root.copy();
 
             if (systems != null) {
                 for (Map.Entry<String, ConfigurationNode> entry : systems.entrySet()) {
                     id = entry.getKey();
                     CalibreSystem parentSystem = root.system(id);
-                    if (parentSystem == null)
-                        throw new SerializationException(node, type, "System [" + id + "] is not present on this component");
+                    if (parentSystem == null) {
+                        if (preserveInvalidData) throw new SerializationException(node, type, "System [" + id + "] is not present on this component");
+                        else continue;
+                    }
 
                     CalibreSystem system = entry.getValue().get(parentSystem.getClass());
-                    parentSystem.inherit(system);
+                    parentSystem.inherit(system, false);
                     root.system(system);
                 }
             }
@@ -92,22 +94,28 @@ public class ComponentTree {
             if (slots != null) {
                 for (Map.Entry<String, ConfigurationNode> entry : slots.entrySet()) {
                     String key = entry.getKey();
-                    if (root.slot(key) == null)
-                        throw new SerializationException(node, type, "Slot [" + key + "] is not present on this component");
+                    if (root.slot(key) == null) {
+                        if (preserveInvalidData) throw new SerializationException(node, type, "Slot [" + key + "] is not present on this component");
+                        else continue;
+                    }
 
                     ComponentTree childTree;
                     try {
-                        childTree = entry.getValue().get(ComponentTree.class);
+                        childTree = internalDeserialize(type, entry.getValue(), preserveInvalidData);
                     } catch (SerializationException e) {
-                        throw new SerializationException(node, type, "Could not create component for slot [" + key + "]", e);
+                        if (preserveInvalidData) throw new SerializationException(node, type, "Could not create component for slot [" + key + "]", e);
+                        else continue;
                     }
-                    if (childTree == null || childTree.root == null)
-                        throw new SerializationException(node, type, "Did not create component for slot [" + key + "]");
+                    if (childTree.root == null) {
+                        if (preserveInvalidData) throw new SerializationException(node, type, "Did not create component for slot [" + key + "]");
+                        else continue;
+                    }
 
                     try {
                         ((CalibreSlot) (root.slot(key))).set(childTree.root);
                     } catch (IncompatibleComponentException e) {
-                        throw new SerializationException(node, type, e);
+                        if (preserveInvalidData)
+                            throw new SerializationException(node, type, e);
                     }
                 }
             }
@@ -117,7 +125,8 @@ public class ComponentTree {
 
         @Override
         public ComponentTree deserialize(Type type, ConfigurationNode node) throws SerializationException {
-            return internalDeserialize(type, node).build();
+            boolean preserveInvalidData = preserveInvalidData();
+            return internalDeserialize(type, node, preserveInvalidData).build();
         }
     }
 
@@ -162,6 +171,7 @@ public class ComponentTree {
 
     public ComponentTree buildTree() {
         stats.clear();
+        events.unregisterAll();
         complete = root.canComplete;
         build(null, root);
         return this;
@@ -174,18 +184,23 @@ public class ComponentTree {
                 collectedStats.add(component.buildStats());
         });
 
+        Map<Integer, List<StatMap>> collected = new TreeMap<>(Comparator.comparingInt(i -> i));
+        collectedStats.forEach(collection -> collection.forEach((order, map) ->
+                collected.computeIfAbsent(order, __ -> new ArrayList<>()).add(map)));
         // grab the positive ordered stat maps, and combine them in order
-        collectedStats.forEach(collection -> collection.forEach((order, map) -> {
+        collected.forEach((order, collection) -> collection.forEach(map -> {
             if (order >= 0)
                 stats.modAll(map);
         }));
 
         // grab the negative ordered stat maps, and combine them in reverse order
-        Collections.reverse(collectedStats);
-        collectedStats.forEach(collection -> collection.forEach((order, map) -> {
-            if (order < 0)
-                stats.modAll(map);
-        }));
+        collected.forEach((order, collection) -> {
+            Collections.reverse(collection);
+            collection.forEach(map -> {
+                if (order < 0)
+                    stats.modAll(map);
+            });
+        });
         return this;
     }
 

@@ -1,7 +1,7 @@
 package me.aecsocket.calibre.system.builtin;
 
 import me.aecsocket.calibre.component.CalibreComponent;
-import me.aecsocket.calibre.system.CalibreSystem;
+import me.aecsocket.calibre.system.FromParent;
 import me.aecsocket.calibre.world.Item;
 import net.kyori.adventure.text.Component;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
@@ -11,6 +11,7 @@ import java.util.Objects;
 @ConfigSerializable
 public abstract class CapacityComponentContainerSystem<I extends Item> extends ComponentContainerSystem<I> {
     public static final String ID = "capacity_component_container";
+    @FromParent
     protected int capacity;
 
     public CapacityComponentContainerSystem() {}
@@ -45,22 +46,12 @@ public abstract class CapacityComponentContainerSystem<I extends Item> extends C
                 "capacity", Integer.toString(capacity));
     }
 
-    @Override protected boolean canInsert(I rawCursor, CalibreComponent<I> cursor) { return amount() < capacity; }
-
     @Override
-    protected int amountToInsert(I rawCursor, CalibreComponent<I> cursor) {
-        return Math.min(remaining(), super.amountToInsert(rawCursor, cursor));
+    protected int amountToInsert(I rawCursor, CalibreComponent<I> cursor, boolean shiftClick) {
+        return Math.min(remaining(), super.amountToInsert(rawCursor, cursor, shiftClick));
     }
 
     public abstract CapacityComponentContainerSystem<I> copy();
-
-    @Override
-    public void inherit(CalibreSystem child) {
-        if (!(child instanceof CapacityComponentContainerSystem)) return;
-        @SuppressWarnings("unchecked")
-        CapacityComponentContainerSystem<I> other = (CapacityComponentContainerSystem<I>) child;
-        other.capacity = capacity;
-    }
 
     @Override
     public boolean equals(Object o) {

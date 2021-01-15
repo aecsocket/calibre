@@ -14,6 +14,7 @@ import me.aecsocket.calibre.system.builtin.*;
 import me.aecsocket.calibre.system.gun.*;
 import me.aecsocket.calibre.util.CalibreIdentifiable;
 import me.aecsocket.calibre.util.CalibreRegistry;
+import me.aecsocket.calibre.util.ComponentCreationException;
 import me.aecsocket.calibre.util.StatCollection;
 import me.aecsocket.unifiedframework.gui.GUIManager;
 import me.aecsocket.unifiedframework.gui.GUIVector;
@@ -43,6 +44,7 @@ import me.aecsocket.unifiedframework.util.Quantifier;
 import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.data.ParticleData;
+import me.aecsocket.unifiedframework.util.data.SoundData;
 import me.aecsocket.unifiedframework.util.descriptor.DoubleDescriptor;
 import me.aecsocket.unifiedframework.util.descriptor.NumericalDescriptor;
 import me.aecsocket.unifiedframework.util.descriptor.Vector2DDescriptor;
@@ -54,10 +56,8 @@ import me.aecsocket.unifiedframework.util.vector.Vector3D;
 import me.aecsocket.unifiedframework.util.vector.Vector3I;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
@@ -112,6 +112,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     private ConfigurationNode settings;
     private StatMapSerializer statMapSerializer;
     private SchedulerLoop schedulerLoop;
+    private long nextInvalidDataError;
 
     @Override
     public void onEnable() {
@@ -130,6 +131,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                     statMapSerializer = new StatMapSerializer(Utils.serializer(StatMap.class, builder), key -> setting("stat_config", key));
                     builder
                             .register(Color.class, ColorSerializer.INSTANCE)
+                            .register(Particle.DustOptions.class, DustOptionsSerializer.INSTANCE)
                             .register(ItemStack.class, ItemStackSerializer.INSTANCE)
                             .register(Location.class, LocationSerializer.INSTANCE)
                             .register(NamespacedKey.class, NamespacedKeySerializer.INSTANCE)
@@ -142,6 +144,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                             .register(Vector2D.class, Vector2DSerializer.INSTANCE)
                             .register(Vector2I.class, Vector2ISerializer.INSTANCE)
                             .register(ParticleData.class, ParticleDataSerializer.INSTANCE)
+                            .register(SoundData.class, new SoundDataSerializer(this))
                             .register(StatMap.class, statMapSerializer)
                             .register(StatCollection.class, StatCollection.Serializer.INSTANCE)
 
@@ -154,6 +157,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                             .register(PaperComponent.class, new PaperComponent.Serializer(Utils.serializer(PaperComponent.class, builder)))
                             .register(ComponentTree.class, new ComponentTree.AbstractSerializer() {
                                 @Override protected <T extends CalibreIdentifiable> T byId(String id, Class<T> type) { return registry.get(id, type); }
+                                @Override protected boolean preserveInvalidData() { return setting("preserve_invalid_data").getBoolean(true); }
                             })
                             .registerAnnotatedObjects(mapperFactory);
                 });
@@ -237,22 +241,12 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
 
         Bukkit.getPluginManager().registerEvents(new CalibreListener(this), this);
 
-        hooks.forEach(hook -> hook.onRegistryLoad(registry));
         // Defaults
-        registry.onLoad(r -> {
-            r.register(new PaperGunSystem(this));
-            r.register(new PaperStatDisplaySystem(this));
-            r.register(new PaperSlotDisplaySystem(this));
-            r.register(new PaperSightSystem(this));
-            r.register(new PaperFireModeSystem(this));
-            r.register(new PaperComponentContainerSystem(this));
-            r.register(new PaperCapacityComponentContainerSystem(this));
-            r.register(new PaperNameFromChildSystem(this));
-        });
-
         StatDisplaySystem.renderer(DoubleDescriptor.class, (inst, locale, key) -> {
             DoubleDescriptor desc = (DoubleDescriptor) inst.raw();
             DoubleDescriptorStat stat = (DoubleDescriptorStat) inst.stat();
+            if (stat.hideIfNone() && stat.isNone(desc))
+                return null;
             Component bar = null;
             if (desc.operation() == NumericalDescriptor.Operation.SET && stat.min() != null && stat.max() != null) {
                 double min = stat.min();
@@ -270,6 +264,8 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
         StatDisplaySystem.renderer(Vector2DDescriptor.class, (inst, locale, key) -> {
             Vector2DDescriptor desc = (Vector2DDescriptor) inst.raw();
             Vector2DDescriptorStat stat = (Vector2DDescriptorStat) inst.stat();
+            if (stat.hideIfNone() && stat.isNone(desc))
+                return null;
             Component bar = null;
             if (desc.operation() == NumericalDescriptor.Operation.SET && stat.min() != null && stat.max() != null) {
                 double min = stat.min();
@@ -285,6 +281,20 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
             }
             Component value = Component.text(stat.valueToString(desc));
             return bar == null ? value : bar.append(value);
+        });
+
+        registry.onLoad(r -> {
+            PaperStatDisplaySystem statDisplay = new PaperStatDisplaySystem(this);
+            r.register(new PaperGunSystem(this));
+            r.register(statDisplay);
+            r.register(new PaperSlotDisplaySystem(this));
+            r.register(new PaperSightSystem(this, statDisplay));
+            r.register(new PaperFireModeSystem(this, statDisplay));
+            r.register(new PaperChamberSystem(this));
+            r.register(new PaperComponentContainerSystem(this));
+            r.register(new PaperCapacityComponentContainerSystem(this));
+            r.register(new PaperNameFromChildSystem(this));
+            r.register(new BulletSystem(this));
         });
 
         saveDefaults();
@@ -315,6 +325,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     public MapFont getFont() { return font; }
     public ConfigurationNode getSettings() { return settings; }
     public StatMapSerializer getStatMapSerializer() { return statMapSerializer; }
+    public SchedulerLoop getSchedulerLoop() { return schedulerLoop; }
 
     public void saveDefaults() {
         getDataFolder().mkdirs();
@@ -331,9 +342,12 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
 
     //region Load
     public LoggingResult load() {
-        return loadSettings()
+        hooks.forEach(CalibreHook::preLoad);
+        LoggingResult result = loadSettings()
                 .combine(loadLocales())
                 .combine(loadRegistry());
+        hooks.forEach(CalibreHook::postLoad);
+        return result;
     }
 
     private LoggingResult loadSettings() {
@@ -463,14 +477,18 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                 "empty", empty.repeat(emptyWidth));
     }
 
-    public PaperComponent getComponent(ItemStack item) throws ConfigurateException {
+    public PaperComponent getComponent(ItemStack item) throws ComponentCreationException {
         if (item == null || !item.hasItemMeta())
             return null;
         PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
-        String json = container.get(key("tree"), PersistentDataType.STRING);
-        if (json == null)
+        String tree = container.get(key("tree"), PersistentDataType.STRING);
+        if (tree == null)
             return null;
-        return ComponentTree.deserialize(json, configOptions).root();
+        try {
+            return ComponentTree.deserialize(tree, configOptions).root();
+        } catch (ConfigurateException e) {
+            throw new ComponentCreationException(e, tree);
+        }
     }
 
     public PaperComponent getComponentOrNull(ItemStack item) {
@@ -478,7 +496,12 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
             return null;
         try {
             return getComponent(item);
-        } catch (ConfigurateException e) {
+        } catch (ComponentCreationException e) {
+            long time = System.currentTimeMillis();
+            if (time >= nextInvalidDataError) {
+                log(LogLevel.WARN, e, "Could not get component from item %s x %d\nTree: %s", item.getType().name(), item.getAmount(), e.tree());
+                nextInvalidDataError = time + setting("invalid_data_error_delay").getLong(60000);
+            }
             return null;
         }
     }
@@ -490,12 +513,16 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
             log(LogLevel.WARN, e, "Could not send packet to %s (%s)", target.getName(), target.getUniqueId());
         }
     }
+
+    public double hardness(Block block) {
+        Material material = block.getType();
+        return setting("hardness", material.getKey().getKey()).getDouble(material.getBlastResistance());
+    }
     //endregion
 
     @Override
     public void tick(TickContext tickContext) {
         Bukkit.getOnlinePlayers().forEach(player -> tickPlayer(player, tickContext));
-        tickContext.reschedule(this);
     }
 
     public void tickPlayer(Player player, TickContext tickContext) {
@@ -509,8 +536,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
         GUIView view = guiManager.getView(player);
         if (view != null && view.getGUI() instanceof SlotViewGUI) {
             SlotViewGUI gui = (SlotViewGUI) view.getGUI();
-            if (!gui.check())
-                view.getView().close();
+            gui.update(view);
         }
     }
 }

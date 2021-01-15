@@ -23,7 +23,7 @@ public interface CalibreSystem extends CalibreIdentifiable {
     void parentTo(ComponentTree tree, CalibreComponent<?> parent);
 
     CalibreSystem copy();
-    default void inherit(CalibreSystem child) {}
+    default void inherit(CalibreSystem child, boolean fromDefault) {}
 
     static Map<String, CalibreSystem> copySystems(Map<String, CalibreSystem> existing) {
         Map<String, CalibreSystem> result = new HashMap<>();

@@ -5,7 +5,7 @@ import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.component.ComponentCompatibility;
 import me.aecsocket.calibre.component.ComponentTree;
 import me.aecsocket.calibre.system.AbstractSystem;
-import me.aecsocket.calibre.system.CalibreSystem;
+import me.aecsocket.calibre.system.FromParent;
 import me.aecsocket.calibre.system.ItemEvents;
 import me.aecsocket.calibre.system.SystemSetupException;
 import me.aecsocket.calibre.world.Item;
@@ -61,6 +61,7 @@ public abstract class ComponentContainerSystem<I extends Item> extends AbstractS
     public static final String ID = "component_container";
     protected transient final LinkedList<Quantifier<CalibreComponent<I>>> components;
     @Setting(nodeFromParent = true)
+    @FromParent
     protected ComponentCompatibility compatibility;
 
     public ComponentContainerSystem() {
@@ -144,52 +145,40 @@ public abstract class ComponentContainerSystem<I extends Item> extends AbstractS
         event.item().addInfo(info);
     }
 
-    protected boolean canInsert(I rawCursor, CalibreComponent<I> cursor) { return true; }
-
-    protected int amountToInsert(I rawCursor, CalibreComponent<I> cursor) {
-        return rawCursor.amount();
+    protected int amountToInsert(I rawCursor, CalibreComponent<I> cursor, boolean shiftClick) {
+        return shiftClick ? 1 : rawCursor.amount();
     }
+
+    protected void remove(ItemEvents.Click<I> event, Quantifier<CalibreComponent<I>> last) {}
+    protected void insert(ItemEvents.Click<I> event, int amount, I rawCursor, CalibreComponent<I> cursor) {}
 
     protected void onEvent(ItemEvents.Click<I> event) {
         if (event.slot().get().amount() > 1)
             return;
 
-        /*
-              right-click       : slots
-        sneak right-click       : take out stack
-              left-click  cursor: put in stack
-        sneak left-click  cursor: put in single
-
-         */
-
+        String locale = event.user().locale();
         I rawCursor = event.cursor().get();
         if (event.rightClick()) {
             if (!event.shiftClick() || rawCursor != null)
                 return;
             Quantifier<CalibreComponent<I>> last = components.peekLast();
             if (last != null) {
-                I contained = last.get().create(event.user().locale(), last.getAmount());
+                I contained = last.get().create(locale, last.getAmount());
                 event.cursor().set(contained);
                 components.removeLast();
+                remove(event, last);
             }
         } else {
             CalibreComponent<I> cursor = event.component().getComponent(rawCursor);
             if (cursor == null)
                 return;
             if (compatibility.applies(cursor)) {
-                if (canInsert(rawCursor, cursor)) {
-                    if (event.shiftClick()) {
-                        add(cursor);
-                        rawCursor.subtract();
-                        event.cursor().set(rawCursor);
-                    } else {
-                        int amount = amountToInsert(rawCursor, cursor);
-                        if (amount > 0) {
-                            add(cursor, amount);
-                            rawCursor.subtract(amount);
-                            event.cursor().set(rawCursor);
-                        }
-                    }
+                int amount = amountToInsert(rawCursor, cursor, event.shiftClick());
+                if (amount > 0) {
+                    add(cursor, amount);
+                    rawCursor.subtract(amount);
+                    event.cursor().set(rawCursor);
+                    insert(event, amount, rawCursor, cursor);
                 }
             }
         }
@@ -199,14 +188,6 @@ public abstract class ComponentContainerSystem<I extends Item> extends AbstractS
     }
 
     public abstract ComponentContainerSystem<I> copy();
-
-    @Override
-    public void inherit(CalibreSystem child) {
-        if (!(child instanceof ComponentContainerSystem)) return;
-        @SuppressWarnings("unchecked")
-        ComponentContainerSystem<I> other = (ComponentContainerSystem<I>) child;
-        other.compatibility = compatibility;
-    }
 
     @Override
     public boolean equals(Object o) {

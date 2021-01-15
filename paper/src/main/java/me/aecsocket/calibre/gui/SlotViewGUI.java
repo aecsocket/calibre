@@ -1,16 +1,15 @@
 package me.aecsocket.calibre.gui;
 
 import me.aecsocket.calibre.CalibrePlugin;
-import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.component.PaperComponent;
 import me.aecsocket.calibre.component.PaperSlot;
+import me.aecsocket.calibre.util.ComponentCreationException;
 import me.aecsocket.calibre.world.ItemSlot;
 import me.aecsocket.calibre.wrapper.BukkitItem;
 import me.aecsocket.unifiedframework.gui.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.HashMap;
@@ -84,16 +83,21 @@ public class SlotViewGUI extends GUI {
             addItems(map, entry.getKey(), entry.getValue(), offset);
     }
 
-    public boolean check() {
+    public void update(GUIView view) {
         if (slot == null)
-            return true;
+            return;
         try {
-            if (slot.get() == null)
-                return false;
-            CalibreComponent<?> realComponent = plugin.getComponent(slot.get().item());
-            return component.equals(realComponent);
-        } catch (ConfigurateException e) {
-            return false;
+            if (slot.get() == null) {
+                view.getView().close();
+                return;
+            }
+            PaperComponent realComponent = plugin.getComponent(slot.get().item());
+            if (!component.equals(realComponent)) {
+                component = realComponent;
+                notifyUpdate(view);
+            }
+        } catch (ComponentCreationException e) {
+            view.getView().close();
         }
     }
 

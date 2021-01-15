@@ -80,6 +80,21 @@ public final class ItemEvents {
         @Override public void cancel() { cancelled = true; }
     }
 
+    public static class SwapHand<I extends Item> extends ItemEvent<I> implements Cancellable {
+        private final ItemSlot<I> offhand;
+        private boolean cancelled;
+
+        public SwapHand(CalibreComponent<I> component, ItemUser user, ItemSlot<I> slot, ItemSlot<I> offhand) {
+            super(component, user, slot);
+            this.offhand = offhand;
+        }
+
+        public ItemSlot<I> offhand() { return offhand; }
+
+        @Override public boolean cancelled() { return cancelled; }
+        @Override public void cancel() { cancelled = true; }
+    }
+
     public static class Click<I extends Item> extends ItemEvent<I> implements Cancellable {
         private final ItemSlot<I> cursor;
         private final boolean leftClick;

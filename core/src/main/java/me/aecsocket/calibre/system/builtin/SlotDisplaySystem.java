@@ -8,8 +8,8 @@ import me.aecsocket.calibre.system.SystemSetupException;
 import me.aecsocket.calibre.world.Item;
 import me.aecsocket.unifiedframework.component.Slot;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
+import me.aecsocket.unifiedframework.util.Utils;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.ArrayList;
@@ -44,13 +44,6 @@ public abstract class SlotDisplaySystem extends AbstractSystem {
         return slot.required() ? "required" : "normal";
     }
 
-    private Component repeat(Component component, int amount) {
-        TextComponent.Builder result = Component.text();
-        for (int i = 0; i < amount; i++)
-            result.append(component);
-        return result.build();
-    }
-
     protected <I extends Item> void onEvent(CalibreComponent.Events.ItemCreate<I> event) {
         String locale = event.locale();
         List<Component> info = new ArrayList<>();
@@ -68,7 +61,7 @@ public abstract class SlotDisplaySystem extends AbstractSystem {
             int depth = data.depth();
             try {
                 info.add(localize(locale, "system." + ID + ".entry",
-                        "pad", depth == 0 ? Component.empty() : paddingStart.append(repeat(paddingMiddle, depth)).append(paddingEnd),
+                        "pad", depth == 0 ? Component.empty() : paddingStart.append(Utils.repeat(paddingMiddle, depth)).append(paddingEnd),
                         "key", localize(locale, "system." + ID + ".slot_type." + slotType,
                                 "key", generatedKeys.computeIfAbsent(data.path()[depth], k -> localize(locale, "slot." + k))),
                         "slot", slot.get() == null
@@ -89,4 +82,6 @@ public abstract class SlotDisplaySystem extends AbstractSystem {
         if (this == o) return true;
         return o != null && getClass() == o.getClass();
     }
+
+    @Override public int hashCode() { return 1; }
 }

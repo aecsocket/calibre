@@ -1,18 +1,20 @@
 package me.aecsocket.calibre.system.builtin;
 
 import me.aecsocket.calibre.CalibrePlugin;
+import me.aecsocket.calibre.system.FromParent;
 import net.kyori.adventure.text.Component;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
 public class PaperSlotDisplaySystem extends SlotDisplaySystem {
-    private transient final CalibrePlugin plugin;
+    @FromParent(fromDefaulted = true)
+    private transient CalibrePlugin plugin;
 
     public PaperSlotDisplaySystem(CalibrePlugin plugin) {
         this.plugin = plugin;
     }
 
-    public PaperSlotDisplaySystem() { this(CalibrePlugin.getInstance()); }
+    public PaperSlotDisplaySystem() {}
 
     public PaperSlotDisplaySystem(SlotDisplaySystem o, CalibrePlugin plugin) {
         super(o);

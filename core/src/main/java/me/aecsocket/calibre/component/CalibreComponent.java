@@ -2,6 +2,7 @@ package me.aecsocket.calibre.component;
 
 import me.aecsocket.calibre.system.CalibreSystem;
 import me.aecsocket.calibre.system.SystemSetupException;
+import me.aecsocket.calibre.system.builtin.ProjectileSystem;
 import me.aecsocket.calibre.util.CalibreIdentifiable;
 import me.aecsocket.calibre.util.ItemCreationException;
 import me.aecsocket.calibre.util.ItemSupplier;
@@ -128,7 +129,6 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
         if (tree.complete())
             result.combine(completeStats);
         systems.values().forEach(system -> result.combine(system.buildStats()));
-
         return result;
     }
 
@@ -185,6 +185,7 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
                 if (system == null)
                     throw new ResolutionException(String.format("System %s was not created for whatever reason (is it @ConfigSerializable?)", sysId));
 
+                registeredSystem.inherit(system, true);
                 systems.put(sysId, system);
 
                 Map<String, Stat<?>> sysDefaultStats = system.defaultStats();
@@ -261,6 +262,27 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
         if (candidate.get() == null)
             return null;
         return candidate.get().set(toAdd);
+    }
+
+    public List<CalibreSlot> collectSlots(String tag) {
+        List<CalibreSlot> result = new ArrayList<>();
+        walk(data -> {
+            CalibreSlot slot = data.slot();
+            if (!slot.tags.contains(tag))
+                return;
+            result.add(slot);
+        });
+        return result;
+    }
+
+    public <S extends CalibreSystem> List<S> fromSlots(List<CalibreSlot> slots, Class<S> type) {
+        List<S> result = new ArrayList<>();
+        slots.forEach(slot -> slot.<CalibreComponent<?>>getOpt().ifPresent(component -> {
+            S system = component.system(type);
+            if (system != null)
+                result.add(system);
+        }));
+        return result;
     }
 
     @Override

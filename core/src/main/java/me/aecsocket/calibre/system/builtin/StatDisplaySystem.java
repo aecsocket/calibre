@@ -26,7 +26,7 @@ public abstract class StatDisplaySystem extends AbstractSystem {
         super(o);
     }
 
-    public static Map<Class<?>, StatRenderer> renderers() { return new HashMap<>(renderers); }
+    public static Map<Class<?>, StatRenderer> renderers() { return renderers; }
     public static <T> StatRenderer renderer(Class<T> type) { return renderers.get(type); }
     public static <T> void renderer(Class<T> type, StatRenderer displayer) { renderers.put(type, displayer); }
 
@@ -45,15 +45,8 @@ public abstract class StatDisplaySystem extends AbstractSystem {
 
     protected abstract int listenerPriority();
 
-    protected <I extends Item> void onEvent(CalibreComponent.Events.ItemCreate<I> event) {
-        String locale = event.locale();
+    public List<Component> createInfo(String locale, Map<Integer, StatMap> stats) {
         List<Component> info = new ArrayList<>();
-
-        Map<Integer, StatMap> stats;
-        if (tree().complete())
-            stats = Map.of(0, tree().stats());
-        else
-            stats = parent.stats().ordered();
 
         // Generate key components and widths
         // Gets widest key in *all priorities*
@@ -103,19 +96,30 @@ public abstract class StatDisplaySystem extends AbstractSystem {
                 Component generatedKey = data.getA();
                 int keyWidth = data.getB();
 
-                section.add(localize(locale, "system." + ID + ".value." + key,
-                        "key", generatedKey,
-                        "pad", pad(locale, columnWidth.get() - keyWidth),
-                        "value", renderers.get(inst.get().getClass()).create(inst, locale, key)));
+                Object rendered = renderers.get(inst.get().getClass()).create(inst, locale, key);
+                if (rendered != null)
+                    section.add(localize(locale, "system." + ID + ".value." + key,
+                            "key", generatedKey,
+                            "pad", pad(locale, columnWidth.get() - keyWidth),
+                            "value", rendered));
             });
 
             // Add section header
-            if (section.size() > 0 && priority != 0)
+            if (stats.size() > 1 && section.size() > 0 && priority != 0)
                 section.add(0, localize(locale, "system." + ID + ".header",
                         "priority", Integer.toString(priority)));
 
             info.addAll(section);
         });
+        return info;
+    }
+
+    protected <I extends Item> void onEvent(CalibreComponent.Events.ItemCreate<I> event) {
+        List<Component> info = createInfo(event.locale(),
+                tree().complete()
+                        ? Map.of(0, tree().stats())
+                        : parent.stats().ordered()
+        );
 
         if (info.size() > 0)
             event.item().addInfo(info);
@@ -126,15 +130,11 @@ public abstract class StatDisplaySystem extends AbstractSystem {
 
     public abstract StatDisplaySystem copy();
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         return o != null && getClass() == o.getClass();
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(renderers);
-    }
+    @Override public int hashCode() { return 1; }
 }

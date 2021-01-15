@@ -1,6 +1,5 @@
 package me.aecsocket.calibre;
 
-import me.aecsocket.calibre.util.CalibreRegistry;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 
 public interface CalibreHook {
@@ -12,5 +11,7 @@ public interface CalibreHook {
 
     default void registerSerializers(TypeSerializerCollection.Builder builder) {}
 
-    default void onRegistryLoad(CalibreRegistry registry) {}
+    default void preLoad() {}
+
+    default void postLoad() {}
 }

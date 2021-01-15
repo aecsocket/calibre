@@ -4,7 +4,7 @@ import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.component.CalibreSlot;
 import me.aecsocket.calibre.component.ComponentTree;
 import me.aecsocket.calibre.system.AbstractSystem;
-import me.aecsocket.calibre.system.CalibreSystem;
+import me.aecsocket.calibre.system.FromParent;
 import me.aecsocket.calibre.system.SystemSetupException;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 
@@ -12,6 +12,7 @@ import java.util.Objects;
 
 public abstract class NameFromChildSystem extends AbstractSystem {
     public static final String ID = "name_from_child";
+    @FromParent
     private String child;
 
     public NameFromChildSystem() {}
@@ -28,7 +29,7 @@ public abstract class NameFromChildSystem extends AbstractSystem {
 
     @Override public void setup(CalibreComponent<?> parent) throws SystemSetupException {
         if (child == null)
-            throw new SystemSetupException("No child selected");
+            throw new SystemSetupException("No child specified");
     }
 
     @Override
@@ -51,13 +52,6 @@ public abstract class NameFromChildSystem extends AbstractSystem {
     }
 
     public abstract NameFromChildSystem copy();
-
-    @Override
-    public void inherit(CalibreSystem child) {
-        if (!(child instanceof NameFromChildSystem)) return;
-        NameFromChildSystem other = (NameFromChildSystem) child;
-        other.child = this.child;
-    }
 
     @Override
     public boolean equals(Object o) {

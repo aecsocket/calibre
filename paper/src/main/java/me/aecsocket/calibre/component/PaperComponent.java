@@ -6,6 +6,7 @@ import me.aecsocket.calibre.util.ItemCreationException;
 import me.aecsocket.calibre.util.ItemDescriptor;
 import me.aecsocket.calibre.wrapper.BukkitItem;
 import me.aecsocket.unifiedframework.stat.Stat;
+import me.aecsocket.unifiedframework.stat.impl.data.SoundDataStat;
 import me.aecsocket.unifiedframework.stat.impl.descriptor.DoubleDescriptorStat;
 import me.aecsocket.unifiedframework.util.BukkitUtils;
 import me.aecsocket.unifiedframework.util.MapInit;
@@ -52,7 +53,11 @@ public class PaperComponent extends CalibreComponent<BukkitItem> {
 
     public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init("item", new ItemDescriptor.Stat())
-            .init("fov_multiplier", new DoubleDescriptorStat(0.1d).hide())
+            .init("zoom", new DoubleDescriptorStat(0d))
+
+            .init("insert_sound", new SoundDataStat())
+            .init("remove_sound", new SoundDataStat())
+            .init("modify_sound", new SoundDataStat())
             .get();
 
     protected transient final CalibrePlugin plugin;

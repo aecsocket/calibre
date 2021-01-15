@@ -1,6 +1,7 @@
 package me.aecsocket.calibre.system.builtin;
 
 import me.aecsocket.calibre.CalibrePlugin;
+import me.aecsocket.calibre.system.FromParent;
 import net.kyori.adventure.text.Component;
 import org.bukkit.map.MapFont;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
@@ -10,14 +11,15 @@ import java.util.Map;
 
 @ConfigSerializable
 public class PaperStatDisplaySystem extends StatDisplaySystem {
-    private transient final CalibrePlugin plugin;
+    @FromParent(fromDefaulted = true)
+    private transient CalibrePlugin plugin;
     private static final Map<String, String> padding = new HashMap<>();
 
     public PaperStatDisplaySystem(CalibrePlugin plugin) {
         this.plugin = plugin;
     }
 
-    public PaperStatDisplaySystem() { this(CalibrePlugin.getInstance()); }
+    public PaperStatDisplaySystem() {}
 
     public PaperStatDisplaySystem(StatDisplaySystem o, CalibrePlugin plugin) {
         super(o);

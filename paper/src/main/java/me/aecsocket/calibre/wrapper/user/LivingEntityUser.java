@@ -8,4 +8,6 @@ public interface LivingEntityUser extends EntityUser {
     LivingEntity entity();
 
     @Override default Vector3D position() { return VectorUtils.toUF(entity().getEyeLocation().toVector()); }
+
+    static LivingEntityUser of(LivingEntity entity) { return () -> entity; }
 }

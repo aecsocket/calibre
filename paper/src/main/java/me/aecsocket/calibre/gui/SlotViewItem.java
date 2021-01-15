@@ -4,16 +4,17 @@ import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.component.ComponentTree;
 import me.aecsocket.calibre.component.PaperSlot;
+import me.aecsocket.calibre.util.ComponentCreationException;
 import me.aecsocket.calibre.wrapper.BukkitItem;
 import me.aecsocket.unifiedframework.gui.GUIItem;
 import me.aecsocket.unifiedframework.gui.GUIView;
 import me.aecsocket.unifiedframework.util.BukkitUtils;
+import me.aecsocket.unifiedframework.util.data.SoundData;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.ArrayList;
@@ -79,7 +80,7 @@ public class SlotViewItem implements GUIItem {
         CalibreComponent<BukkitItem> cursor = null;
         try {
             cursor = plugin.getComponent(view.getView().getCursor());
-        } catch (ConfigurateException e) {
+        } catch (ComponentCreationException e) {
             e.printStackTrace();
         }
 
@@ -129,18 +130,21 @@ public class SlotViewItem implements GUIItem {
                 return;
             }
 
-            view.setRawCursor(slot.<CalibreComponent<BukkitItem>>get().buildTree().create(locale).item());
+            CalibreComponent<BukkitItem> inSlot = slot.<CalibreComponent<BukkitItem>>get().buildTree();
+            SoundData.play(player::getLocation, inSlot.tree().stat("remove_sound"));
+            view.setRawCursor(inSlot.create(locale).item());
             slot.set(null);
         } else if (!BukkitUtils.empty(rawCursor)) {
             CalibreComponent<BukkitItem> component = null;
             try {
                 component = plugin.getComponent(rawCursor);
-            } catch (ConfigurateException e) {
+            } catch (ComponentCreationException e) {
                 e.printStackTrace();
             }
             if (component == null || !slot.isCompatible(component))
                 return;
 
+            SoundData.play(player::getLocation, component.tree().stat("insert_sound"));
             if (slot.get() == null)
                 view.setRawCursor(rawCursor.subtract());
             else if (rawCursor.getAmount() > 1)

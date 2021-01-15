@@ -1,7 +1,0 @@
-name: "Calibre"
-description: "Advanced, scalable and modular gun framework - Paper implementation"
-author: "aecsocket"
-version: "1.0-SNAPSHOT"
-api-version: "1.15"
-main: "me.aecsocket.calibre.CalibrePlugin"
-depend: [ "ProtocolLib" ]

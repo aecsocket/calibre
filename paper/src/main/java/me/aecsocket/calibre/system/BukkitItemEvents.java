@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
 public final class BukkitItemEvents {
@@ -67,6 +68,31 @@ public final class BukkitItemEvents {
                     PlayerUser.of(player),
                     EntityEquipmentSlot.of(player, slot),
                     type
+            );
+        }
+    }
+
+    public static class BukkitSwapHand extends ItemEvents.SwapHand<BukkitItem> {
+        private final PlayerSwapHandItemsEvent event;
+
+        public BukkitSwapHand(PlayerSwapHandItemsEvent event, CalibreComponent<BukkitItem> component, ItemUser user, ItemSlot<BukkitItem> slot, ItemSlot<BukkitItem> offhand) {
+            super(component, user, slot, offhand);
+            this.event = event;
+        }
+
+        public PlayerSwapHandItemsEvent event() { return event; }
+
+        @Override public boolean cancelled() { return event.isCancelled(); }
+        @Override public void cancel() { event.setCancelled(true); }
+
+        public static BukkitSwapHand of(PlayerSwapHandItemsEvent event, PaperComponent component, EquipmentSlot slot) {
+            Player player = event.getPlayer();
+            return new BukkitSwapHand(
+                    event,
+                    component,
+                    PlayerUser.of(player),
+                    EntityEquipmentSlot.of(player, slot),
+                    EntityEquipmentSlot.of(player, slot == EquipmentSlot.HAND ? EquipmentSlot.OFF_HAND : EquipmentSlot.HAND)
             );
         }
     }

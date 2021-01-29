@@ -4,9 +4,9 @@ import io.leangen.geantyref.TypeToken;
 import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.component.ComponentTree;
 import me.aecsocket.calibre.system.AbstractSystem;
-import me.aecsocket.calibre.system.FromParent;
+import me.aecsocket.calibre.system.FromMaster;
+import me.aecsocket.calibre.system.StatRenderer;
 import me.aecsocket.calibre.system.SystemSetupException;
-import me.aecsocket.calibre.system.builtin.StatDisplaySystem;
 import me.aecsocket.calibre.world.Item;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import net.kyori.adventure.text.Component;
@@ -29,37 +29,36 @@ public abstract class SightSystem extends AbstractSystem {
     @Setting(nodeFromParent = true)
     protected Dependencies dependencies;
 
-    @FromParent
+    @FromMaster
     protected transient List<Sight> sights;
-    @FromParent(fromDefaulted = true)
-    protected transient StatDisplaySystem statDisplay;
+    protected transient StatRenderer statRenderer;
 
-    public SightSystem() {
-        sights = new ArrayList<>();
-    }
+    /**
+     * Used for registration + deserialization.
+     */
+    public SightSystem() {}
 
-    public SightSystem(StatDisplaySystem statDisplay) {
-        this();
-        this.statDisplay = statDisplay;
-    }
-
+    /**
+     * Used for copying.
+     * @param o The other instance.
+     */
     public SightSystem(SightSystem o) {
         super(o);
-        sights = o.sights == null ? null : new ArrayList<>(o.sights);
+        sights = new ArrayList<>(o.sights);
     }
 
     public List<Sight> sights() { return sights; }
 
     @Override public String id() { return ID; }
 
-    public StatDisplaySystem statDisplay() { return statDisplay; }
-    public void statDisplay(StatDisplaySystem statDisplay) { this.statDisplay = statDisplay; }
+    public StatRenderer statRenderer() { return statRenderer; }
 
     @Override public void setup(CalibreComponent<?> parent) throws SystemSetupException {
         if (dependencies != null) {
             sights = deserialize(dependencies.sights, new TypeToken<>(){}, "sights");
             dependencies = null;
-        }}
+        }
+    }
 
     @Override
     public void parentTo(ComponentTree tree, CalibreComponent<?> parent) {
@@ -67,30 +66,34 @@ public abstract class SightSystem extends AbstractSystem {
         if (!parent.isRoot()) return;
 
         EventDispatcher events = tree.events();
-        events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, listenerPriority());
-    }
+        int priority = setting("listener_priority").getInt(1060);
+        events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, priority);
 
-    protected abstract int listenerPriority();
+        statRenderer = parent.system(StatRenderer.class);
+    }
 
     protected <I extends Item> void onEvent(CalibreComponent.Events.ItemCreate<I> event) {
         String locale = event.locale();
         List<Component> info = new ArrayList<>();
         for (Sight sight : sights) {
-            info.add(localize(locale, "system." + ID + ".header",
-                    "name", localize(locale, "sight.full." + sight.id)));
+            info.add(gen(locale, "system." + ID + ".header",
+                    "name", gen(locale, "sight.full." + sight.id)));
 
-            if (sight.activeStats != null) {
-                List<Component> toAdd = statDisplay.createInfo(locale, sight.activeStats);
-                if (toAdd.size() > 0)
-                    toAdd.add(0, localize(locale, "system." + ID + ".active"));
-                info.addAll(toAdd);
-            }
+            if (statRenderer != null) {
+                Component prefix = gen(locale, "system." + ID + ".stat_prefix");
+                if (sight.activeStats != null) {
+                    List<Component> toAdd = statRenderer.createInfo(locale, sight.activeStats, prefix);
+                    if (toAdd.size() > 0)
+                        toAdd.add(0, gen(locale, "system." + ID + ".active"));
+                    info.addAll(toAdd);
+                }
 
-            if (sight.aimingStats != null) {
-                List<Component> toAdd = statDisplay.createInfo(locale, sight.aimingStats);
-                if (toAdd.size() > 0)
-                    toAdd.add(0, localize(locale, "system." + ID + ".aiming"));
-                info.addAll(toAdd);
+                if (sight.aimingStats != null) {
+                    List<Component> toAdd = statRenderer.createInfo(locale, sight.aimingStats, prefix);
+                    if (toAdd.size() > 0)
+                        toAdd.add(0, gen(locale, "system." + ID + ".aiming"));
+                    info.addAll(toAdd);
+                }
             }
         }
 

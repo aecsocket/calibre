@@ -1,40 +1,40 @@
 package me.aecsocket.calibre.system.gun;
 
 import me.aecsocket.calibre.CalibrePlugin;
-import me.aecsocket.calibre.system.FromParent;
-import me.aecsocket.calibre.system.builtin.StatDisplaySystem;
-import net.kyori.adventure.text.Component;
+import me.aecsocket.calibre.system.FromMaster;
+import me.aecsocket.calibre.system.PaperSystem;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
-public class PaperSightSystem extends SightSystem {
-    @FromParent(fromDefaulted = true)
+public class PaperSightSystem extends SightSystem implements PaperSystem {
+    @FromMaster(fromDefault = true)
     private transient CalibrePlugin plugin;
 
-    public PaperSightSystem(CalibrePlugin plugin, StatDisplaySystem statDisplay) {
-        super(statDisplay);
+    /**
+     * Used for registration.
+     * @param plugin The plugin.
+     */
+    public PaperSightSystem(CalibrePlugin plugin) {
         this.plugin = plugin;
     }
 
-    public PaperSightSystem() {}
-
-    public PaperSightSystem(SightSystem o, CalibrePlugin plugin, StatDisplaySystem statDisplay) {
-        super(o);
-        this.plugin = plugin;
-        this.statDisplay = statDisplay;
+    /**
+     * Used for deserialization.
+     */
+    public PaperSightSystem() {
+        plugin = null;
     }
 
+    /**
+     * Used for copying.
+     * @param o The other instance.
+     */
     public PaperSightSystem(PaperSightSystem o) {
-        this(o, o.plugin, o.statDisplay);
+        super(o);
+        plugin = o.plugin;
     }
 
-    public CalibrePlugin plugin() { return plugin; }
-    @Override public Component localize(String locale, String key, Object... args) { return plugin.gen(locale, key, args); }
-
-    @Override
-    protected int listenerPriority() {
-        return plugin.setting("system", ID, "listener_priority").getInt(1300);
-    }
+    @Override public CalibrePlugin plugin() { return plugin; }
 
     @Override public PaperSightSystem copy() { return new PaperSightSystem(this); }
 }

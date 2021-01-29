@@ -5,17 +5,17 @@ import org.spongepowered.configurate.ConfigurationNode;
 
 import java.lang.reflect.Type;
 
-public class FireModeRef extends ContainerRef<FireMode> {
-    public static class Serializer extends ContainerRef.Serializer {
+public class FireModePath extends ContainerPath<FireMode> {
+    public static class Serializer extends ContainerPath.Serializer {
         public static final Serializer INSTANCE = new Serializer();
 
         @Override
-        protected FireModeRef provide(String[] path, int index, Type type, ConfigurationNode node) {
-            return new FireModeRef(path, index);
+        protected FireModePath provide(String[] path, int index, Type type, ConfigurationNode node) {
+            return new FireModePath(path, index);
         }
     }
 
-    public FireModeRef(String[] path, int index) {
+    public FireModePath(String[] path, int index) {
         super(path, index);
     }
 

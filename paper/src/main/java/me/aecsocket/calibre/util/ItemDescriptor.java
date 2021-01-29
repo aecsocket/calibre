@@ -1,5 +1,6 @@
 package me.aecsocket.calibre.util;
 
+import io.leangen.geantyref.TypeToken;
 import me.aecsocket.unifiedframework.stat.AbstractStat;
 import me.aecsocket.unifiedframework.stat.serialization.ConfigurateStat;
 import me.aecsocket.unifiedframework.stat.serialization.FunctionCreationException;
@@ -9,12 +10,10 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.serialize.SerializationException;
 
-import java.lang.reflect.Type;
 import java.util.function.Function;
 
 @ConfigSerializable
@@ -22,8 +21,7 @@ public class ItemDescriptor {
     public static class Stat extends AbstractStat<ItemDescriptor> implements ConfigurateStat<ItemDescriptor> {
         public Stat(ItemDescriptor defaultValue) { super(defaultValue); }
         public Stat() {}
-        @Override public Type getValueType() { return ItemDescriptor.class; }
-        @Override public ItemDescriptor copy(@NotNull ItemDescriptor obj) { return obj; }
+        @Override public TypeToken<ItemDescriptor> valueType() { return new TypeToken<>(){}; }
 
         @Override
         public Function<ItemDescriptor, ItemDescriptor> getModFunction(ConfigurationNode node) throws FunctionCreationException {
@@ -35,8 +33,6 @@ public class ItemDescriptor {
             }
             return b -> value;
         }
-
-        @Override protected Stat createNew() { return new Stat(); }
     }
 
     private final NamespacedKey id;
@@ -63,7 +59,7 @@ public class ItemDescriptor {
     public ItemStack apply(ItemStack item) {
         Material material = Registry.MATERIAL.get(id);
         if (material == null)
-            throw new IllegalArgumentException("Invalid item key " + id);
+            throw new IllegalArgumentException("Invalid item key [" + id + "]");
         item.setType(material);
         return BukkitUtils.modMeta(item, meta -> {
             if (modelData != null)

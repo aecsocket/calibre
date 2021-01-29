@@ -17,23 +17,20 @@ public interface EntityUser extends ItemUser, SenderUser, BukkitItemUser {
 
     @Override
     default void sendMessage(Component component) {
-        CalibrePlugin.getInstance().getAudiences()
+        CalibrePlugin.getInstance().audiences()
                 .sender(entity())
                 .sendMessage(component);
     }
 
     @Override
     default void sendInfo(Component component) {
-        CalibrePlugin.getInstance().getAudiences()
+        CalibrePlugin.getInstance().audiences()
                 .sender(entity())
                 .sendActionBar(component);
     }
 
     @Override
     default String locale() { return CalibrePlugin.getInstance().getDefaultLocale(); }
-
-    @Override
-    default boolean sneaking() { return false; }
 
     @Override default Vector3D position() { return VectorUtils.toUF(entity().getLocation().toVector()); }
     @Override default Vector3D direction() { return VectorUtils.toUF(entity().getLocation().getDirection()); }

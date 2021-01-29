@@ -19,7 +19,7 @@ public class CalibreComponentImpl extends CalibreComponent<Item> {
     }
 
     @Override
-    public net.kyori.adventure.text.Component localize(String locale, String key, Object... args) {
+    public net.kyori.adventure.text.Component gen(String locale, String key, Object... args) {
         return net.kyori.adventure.text.Component.text("");
     }
 

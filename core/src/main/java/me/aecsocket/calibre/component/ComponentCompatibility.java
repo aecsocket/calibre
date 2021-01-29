@@ -4,7 +4,6 @@ import me.aecsocket.calibre.system.CalibreSystem;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @ConfigSerializable
 public class ComponentCompatibility {
@@ -30,14 +29,14 @@ public class ComponentCompatibility {
         if (id != null && !component.id.equals(id)) return false;
         if (!categories.isEmpty() && (Collections.disjoint(component.categories, categories))) return false;
         if (systemType != null) {
-            AtomicBoolean foundSystem = new AtomicBoolean();
+            boolean foundSystem = false;
             for (CalibreSystem system : component.systems.values()) {
                 if (systemType.isInstance(system)) {
-                    foundSystem.set(true);
+                    foundSystem = true;
                     break;
                 }
             }
-            if (!foundSystem.get())
+            if (!foundSystem)
                 return false;
         }
 

@@ -47,7 +47,7 @@ public class SlotViewGUI extends GUI {
     public ItemSlot<BukkitItem> slot() { return slot; }
     public void slot(ItemSlot<BukkitItem> slot) { this.slot = slot; }
 
-    @Override public GUIManager getGUIManager() { return plugin().getGUIManager(); }
+    @Override public GUIManager getGUIManager() { return plugin().guiManager(); }
     @Override public InventorySize getSize(Player player) { return SIZE; }
     @Override public net.kyori.adventure.text.Component getTitle(Player player) {
         return plugin.gen(player.getLocale(), "slot_view.title",
@@ -91,7 +91,7 @@ public class SlotViewGUI extends GUI {
                 view.getView().close();
                 return;
             }
-            PaperComponent realComponent = plugin.getComponent(slot.get().item());
+            PaperComponent realComponent = plugin.itemManager().component(slot.get().item());
             if (!component.equals(realComponent)) {
                 component = realComponent;
                 notifyUpdate(view);

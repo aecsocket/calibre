@@ -8,17 +8,12 @@ import com.comphenix.protocol.events.PacketContainer;
 import io.leangen.geantyref.TypeToken;
 import me.aecsocket.calibre.component.ComponentTree;
 import me.aecsocket.calibre.component.PaperComponent;
-import me.aecsocket.calibre.gui.SlotViewGUI;
-import me.aecsocket.calibre.system.BukkitItemEvents;
+import me.aecsocket.calibre.system.builtin.Formatter;
 import me.aecsocket.calibre.system.builtin.*;
 import me.aecsocket.calibre.system.gun.*;
-import me.aecsocket.calibre.util.CalibreIdentifiable;
-import me.aecsocket.calibre.util.CalibreRegistry;
-import me.aecsocket.calibre.util.ComponentCreationException;
-import me.aecsocket.calibre.util.StatCollection;
+import me.aecsocket.calibre.util.*;
 import me.aecsocket.unifiedframework.gui.GUIManager;
 import me.aecsocket.unifiedframework.gui.GUIVector;
-import me.aecsocket.unifiedframework.gui.GUIView;
 import me.aecsocket.unifiedframework.locale.LocaleLoader;
 import me.aecsocket.unifiedframework.locale.LocaleManager;
 import me.aecsocket.unifiedframework.locale.Translation;
@@ -30,24 +25,23 @@ import me.aecsocket.unifiedframework.registry.Ref;
 import me.aecsocket.unifiedframework.registry.loader.ConfigurateRegistryLoader;
 import me.aecsocket.unifiedframework.resource.result.LoggingResult;
 import me.aecsocket.unifiedframework.serialization.configurate.*;
-import me.aecsocket.unifiedframework.serialization.configurate.descriptor.DoubleDescriptorSerializer;
+import me.aecsocket.unifiedframework.serialization.configurate.descriptor.NumberDescriptorSerializer;
 import me.aecsocket.unifiedframework.serialization.configurate.descriptor.Vector2DDescriptorSerializer;
+import me.aecsocket.unifiedframework.serialization.configurate.descriptor.Vector3DDescriptorSerializer;
 import me.aecsocket.unifiedframework.serialization.configurate.vector.Vector2DSerializer;
 import me.aecsocket.unifiedframework.serialization.configurate.vector.Vector2ISerializer;
 import me.aecsocket.unifiedframework.serialization.configurate.vector.Vector3DSerializer;
 import me.aecsocket.unifiedframework.serialization.configurate.vector.Vector3ISerializer;
 import me.aecsocket.unifiedframework.stat.StatMap;
-import me.aecsocket.unifiedframework.stat.impl.descriptor.DoubleDescriptorStat;
-import me.aecsocket.unifiedframework.stat.impl.descriptor.Vector2DDescriptorStat;
 import me.aecsocket.unifiedframework.util.BukkitUtils;
 import me.aecsocket.unifiedframework.util.Quantifier;
 import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.data.ParticleData;
 import me.aecsocket.unifiedframework.util.data.SoundData;
-import me.aecsocket.unifiedframework.util.descriptor.DoubleDescriptor;
-import me.aecsocket.unifiedframework.util.descriptor.NumericalDescriptor;
+import me.aecsocket.unifiedframework.util.descriptor.NumberDescriptor;
 import me.aecsocket.unifiedframework.util.descriptor.Vector2DDescriptor;
+import me.aecsocket.unifiedframework.util.descriptor.Vector3DDescriptor;
 import me.aecsocket.unifiedframework.util.log.LabelledLogger;
 import me.aecsocket.unifiedframework.util.log.LogLevel;
 import me.aecsocket.unifiedframework.util.vector.Vector2D;
@@ -60,13 +54,9 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapFont;
 import org.bukkit.map.MinecraftFont;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
@@ -76,6 +66,7 @@ import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.ConfigurationOptions;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
 import org.spongepowered.configurate.objectmapping.ObjectMapper;
+import org.spongepowered.configurate.util.NamingSchemes;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -97,11 +88,14 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     public static CalibrePlugin getInstance() { return instance; }
 
     private final List<CalibreHook> hooks = new ArrayList<>();
+    private final Map<Player, CalibrePlayer> players = new HashMap<>();
     private final LabelledLogger logger = new LabelledLogger(getLogger());
     private final LocaleManager localeManager = new LocaleManager();
+    private final ItemManager itemManager = new ItemManager(this);
     private final CalibreRegistry registry = new CalibreRegistry();
-    private final Map<String, NamespacedKey> keys = new HashMap<>();
+    private final Map<Class<?>, Formatter<?>> statFormatters = new HashMap<>();
     private final ObjectMapper.Factory mapperFactory = ObjectMapper.factoryBuilder()
+            .defaultNamingScheme(NamingSchemes.SNAKE_CASE)
             .build();
     private ConfigurationOptions configOptions;
     private PaperCommandManager commandManager;
@@ -111,8 +105,10 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     private MapFont font;
     private ConfigurationNode settings;
     private StatMapSerializer statMapSerializer;
+    private SchedulerSystem.Scheduler systemScheduler;
     private SchedulerLoop schedulerLoop;
-    private long nextInvalidDataError;
+
+    private final Map<String, NamespacedKey> keys = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -125,43 +121,157 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
 
         hooks.forEach(hook -> hook.onEnable(this));
 
+        guiManager = new GUIManager(this);
+        audiences = BukkitAudiences.create(this);
+        protocol = ProtocolLibrary.getProtocolManager();
+        font = new MinecraftFont();
+
+        schedulerLoop = new SchedulerLoop(this);
+        schedulerLoop.register(this);
+        schedulerLoop.start();
+
+        createConfigOptions();
+        createCommandManager();
+        registerDefaults();
+
+        saveDefaults();
+        logAll(load());
+
+        hooks.forEach(CalibreHook::postEnable);
+    }
+
+    @Override
+    public void onDisable() {
+        hooks.forEach(CalibreHook::onDisable);
+    }
+
+    public List<CalibreHook> hooks() { return hooks; }
+    public Map<Player, CalibrePlayer> players() { return players; }
+    public LabelledLogger pluginLogger() { return logger; }
+    public LocaleManager localeManager() { return localeManager; }
+    public ItemManager itemManager() { return itemManager; }
+    public CalibreRegistry registry() { return registry; }
+    public Map<Class<?>, Formatter<?>> statFormatters() { return statFormatters; }
+    public ObjectMapper.Factory mapperFactory() { return mapperFactory; }
+    public ConfigurationOptions configOptions() { return configOptions; }
+    public PaperCommandManager commandManager() { return commandManager; }
+    public GUIManager guiManager() { return guiManager; }
+    public BukkitAudiences audiences() { return audiences; }
+    public ProtocolManager protocol() { return protocol; }
+    public MapFont font() { return font; }
+    public ConfigurationNode settings() { return settings; }
+    public StatMapSerializer statMapSerializer() { return statMapSerializer; }
+    public SchedulerLoop schedulerLoop() { return schedulerLoop; }
+
+    @SuppressWarnings("unchecked")
+    public <T> Formatter<T> statFormatter(Class<T> type) { return (Formatter<T>) statFormatters.get(type); }
+    public <T> CalibrePlugin statFormatter(Class<T> type, Formatter<T> formatter) { statFormatters.put(type, formatter); return this; }
+
+    public CalibrePlayer playerData(Player player) {
+        return players.computeIfAbsent(player, __ -> new CalibrePlayer(this, player));
+    }
+
+    protected void createConfigOptions() {
         configOptions = ConfigurationOptions.defaults()
                 .serializers(builder -> {
                     hooks.forEach(hook -> hook.registerSerializers(builder));
-                    statMapSerializer = new StatMapSerializer(Utils.serializer(StatMap.class, builder), key -> setting("stat_config", key));
+                    statMapSerializer = new StatMapSerializer(Utils.serializer(mapperFactory));
                     builder
                             .register(Color.class, ColorSerializer.INSTANCE)
                             .register(Particle.DustOptions.class, DustOptionsSerializer.INSTANCE)
                             .register(ItemStack.class, ItemStackSerializer.INSTANCE)
                             .register(Location.class, LocationSerializer.INSTANCE)
                             .register(NamespacedKey.class, NamespacedKeySerializer.INSTANCE)
-                            .register(DoubleDescriptor.class, DoubleDescriptorSerializer.INSTANCE)
+
+                            .register(NumberDescriptor.Byte.class, NumberDescriptorSerializer.Byte.INSTANCE)
+                            .register(NumberDescriptor.Short.class, NumberDescriptorSerializer.Short.INSTANCE)
+                            .register(NumberDescriptor.Integer.class, NumberDescriptorSerializer.Integer.INSTANCE)
+                            .register(NumberDescriptor.Long.class, NumberDescriptorSerializer.Long.INSTANCE)
+                            .register(NumberDescriptor.Float.class, NumberDescriptorSerializer.Float.INSTANCE)
+                            .register(NumberDescriptor.Double.class, NumberDescriptorSerializer.Double.INSTANCE)
                             .register(Vector2DDescriptor.class, Vector2DDescriptorSerializer.INSTANCE)
+                            .register(Vector3DDescriptor.class, Vector3DDescriptorSerializer.INSTANCE)
+
                             .register(Vector.class, VectorSerializer.INSTANCE)
                             .register(GUIVector.class, GUIVectorSerializer.INSTANCE)
                             .register(Vector3D.class, Vector3DSerializer.INSTANCE)
                             .register(Vector3I.class, Vector3ISerializer.INSTANCE)
                             .register(Vector2D.class, Vector2DSerializer.INSTANCE)
                             .register(Vector2I.class, Vector2ISerializer.INSTANCE)
+
                             .register(ParticleData.class, ParticleDataSerializer.INSTANCE)
                             .register(SoundData.class, new SoundDataSerializer(this))
+
                             .register(StatMap.class, statMapSerializer)
                             .register(StatCollection.class, StatCollection.Serializer.INSTANCE)
 
-                            // DO NOT TOUCH THIS LINE
-                            // java compiler will get pissy at you if you do
-                            .register(new TypeToken<ComponentContainerSystem<?>>(){}, new ComponentContainerSystem.Serializer(builder.build().get(new TypeToken<ComponentContainerSystem<?>>(){})))
+                            .register(ComponentContainerSystem.class, new ComponentContainerSystem.Serializer(builder.build().get(ComponentContainerSystem.class)))
                             .register(new TypeToken<Quantifier<ComponentTree>>(){}, new QuantifierSerializer<>())
-                            .register(SightRef.class, SightRef.Serializer.INSTANCE)
-                            .register(FireModeRef.class, FireModeRef.Serializer.INSTANCE)
-                            .register(PaperComponent.class, new PaperComponent.Serializer(Utils.serializer(PaperComponent.class, builder)))
+                            .register(SightPath.class, SightPath.Serializer.INSTANCE)
+                            .register(FireModePath.class, FireModePath.Serializer.INSTANCE)
+                            .register(PaperComponent.class, new PaperComponent.Serializer(Utils.serializer(mapperFactory)))
                             .register(ComponentTree.class, new ComponentTree.AbstractSerializer() {
                                 @Override protected <T extends CalibreIdentifiable> T byId(String id, Class<T> type) { return registry.get(id, type); }
                                 @Override protected boolean preserveInvalidData() { return setting("preserve_invalid_data").getBoolean(true); }
                             })
                             .registerAnnotatedObjects(mapperFactory);
                 });
+    }
 
+    protected void registerDefaults() {
+        Bukkit.getPluginManager().registerEvents(new CalibreListener(this), this);
+        protocol.addPacketListener(new CalibrePacketAdapter(this));
+
+        statFormatters.put(NumberDescriptor.Byte.class, new PaperFormatter.NumberDescriptorFormatter<Byte, NumberDescriptor.Byte>(this));
+        statFormatters.put(NumberDescriptor.Short.class, new PaperFormatter.NumberDescriptorFormatter<Short, NumberDescriptor.Short>(this));
+        statFormatters.put(NumberDescriptor.Integer.class, new PaperFormatter.NumberDescriptorFormatter<Integer, NumberDescriptor.Integer>(this));
+        statFormatters.put(NumberDescriptor.Long.class, new PaperFormatter.NumberDescriptorFormatter<Long, NumberDescriptor.Long>(this));
+        statFormatters.put(NumberDescriptor.Float.class, new PaperFormatter.NumberDescriptorFormatter<Float, NumberDescriptor.Float>(this));
+        statFormatters.put(NumberDescriptor.Double.class, new PaperFormatter.NumberDescriptorFormatter<Double, NumberDescriptor.Double>(this));
+        statFormatters.put(Vector2DDescriptor.class, new PaperFormatter.Vector2DDescriptorFormatter(this));
+        // Defaults
+        /* TODO
+
+
+        statRenderers.put(Vector2DDescriptor.class, (inst, locale, key) -> {
+            Vector2DDescriptor desc = (Vector2DDescriptor) inst.raw();
+            Vector2DDescriptorStat stat = (Vector2DDescriptorStat) inst.stat();
+            Component bar = null;
+            if (desc.operation() == NumericalDescriptor.Operation.SET && stat.min() != null && stat.max() != null) {
+                double min = stat.min();
+                double max = stat.max();
+                double x = desc.value().x();
+                double y = desc.value().y();
+
+                int barLength = setting("system", StatDisplaySystem.ID, "bar_lengths").node(1).getInt();
+                bar = Component.text()
+                        .append(bar(locale, "system.stat_display.bar." + key, (x - min) / (max - min), 0, barLength))
+                        .append(bar(locale, "system.stat_display.bar." + key, (y - min) / (max - min), 0, barLength))
+                        .build();
+            }
+            Component value = Component.text(stat.valueToString(desc));
+            return bar == null ? value : bar.append(value);
+        });*/
+
+        registry.onLoad(r -> {
+            PaperStatDisplaySystem statDisplay = new PaperStatDisplaySystem(this, this::statFormatter);
+            r.register(statDisplay);
+            r.register(new PaperSlotDisplaySystem(this));
+            r.register(new PaperComponentContainerSystem(this));
+            r.register(new PaperCapacityComponentContainerSystem(this));
+            r.register(new PaperNameFromChildSystem(this));
+            r.register(new PaperSchedulerSystem(this, systemScheduler));
+
+            r.register(new PaperGunSystem(this));
+            r.register(new PaperSightSystem(this));
+            r.register(new PaperFireModeSystem(this));
+            r.register(new PaperChamberSystem(this));
+            r.register(new BulletSystem(this));
+            r.register(new GenericStatsSystem(this));
+        });
+    }
+
+    protected void createCommandManager() {
         commandManager = new PaperCommandManager(this);
         commandManager.enableUnstableAPI("help");
         commandManager.getCommandCompletions().registerCompletion("registry", ctx -> {
@@ -230,102 +340,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
             return tree;
         });
         commandManager.registerCommand(new CalibreCommand(this));
-
-        guiManager = new GUIManager(this);
-
-        audiences = BukkitAudiences.create(this);
-
-        protocol = ProtocolLibrary.getProtocolManager();
-
-        font = new MinecraftFont();
-
-        Bukkit.getPluginManager().registerEvents(new CalibreListener(this), this);
-
-        // Defaults
-        StatDisplaySystem.renderer(DoubleDescriptor.class, (inst, locale, key) -> {
-            DoubleDescriptor desc = (DoubleDescriptor) inst.raw();
-            DoubleDescriptorStat stat = (DoubleDescriptorStat) inst.stat();
-            if (stat.hideIfNone() && stat.isNone(desc))
-                return null;
-            Component bar = null;
-            if (desc.operation() == NumericalDescriptor.Operation.SET && stat.min() != null && stat.max() != null) {
-                double min = stat.min();
-                double max = stat.max();
-                double value = desc.value();
-                bar = bar(
-                        locale, "system.stat_display.bar." + key,
-                        (value - min) / (max - min), 0,
-                        setting("system", StatDisplaySystem.ID, "bar_lengths").node(0).getInt()
-                );
-            }
-            Component value = Component.text(stat.valueToString(desc));
-            return bar == null ? value : bar.append(value);
-        });
-        StatDisplaySystem.renderer(Vector2DDescriptor.class, (inst, locale, key) -> {
-            Vector2DDescriptor desc = (Vector2DDescriptor) inst.raw();
-            Vector2DDescriptorStat stat = (Vector2DDescriptorStat) inst.stat();
-            if (stat.hideIfNone() && stat.isNone(desc))
-                return null;
-            Component bar = null;
-            if (desc.operation() == NumericalDescriptor.Operation.SET && stat.min() != null && stat.max() != null) {
-                double min = stat.min();
-                double max = stat.max();
-                double x = desc.value().x();
-                double y = desc.value().y();
-
-                int barLength = setting("system", StatDisplaySystem.ID, "bar_lengths").node(1).getInt();
-                bar = Component.text()
-                        .append(bar(locale, "system.stat_display.bar." + key, (x - min) / (max - min), 0, barLength))
-                        .append(bar(locale, "system.stat_display.bar." + key, (y - min) / (max - min), 0, barLength))
-                        .build();
-            }
-            Component value = Component.text(stat.valueToString(desc));
-            return bar == null ? value : bar.append(value);
-        });
-
-        registry.onLoad(r -> {
-            PaperStatDisplaySystem statDisplay = new PaperStatDisplaySystem(this);
-            r.register(new PaperGunSystem(this));
-            r.register(statDisplay);
-            r.register(new PaperSlotDisplaySystem(this));
-            r.register(new PaperSightSystem(this, statDisplay));
-            r.register(new PaperFireModeSystem(this, statDisplay));
-            r.register(new PaperChamberSystem(this));
-            r.register(new PaperComponentContainerSystem(this));
-            r.register(new PaperCapacityComponentContainerSystem(this));
-            r.register(new PaperNameFromChildSystem(this));
-            r.register(new BulletSystem(this));
-        });
-
-        saveDefaults();
-        logAll(load());
-
-        hooks.forEach(CalibreHook::postEnable);
-
-        schedulerLoop = new SchedulerLoop(this);
-        schedulerLoop.nextTick(this);
-        schedulerLoop.start();
     }
-
-    @Override
-    public void onDisable() {
-        hooks.forEach(CalibreHook::onDisable);
-    }
-
-    public List<CalibreHook> getHooks() { return hooks; }
-    public LabelledLogger getPluginLogger() { return logger; }
-    public LocaleManager getLocaleManager() { return localeManager; }
-    public CalibreRegistry getRegistry() { return registry; }
-    public ObjectMapper.Factory getMapperFactory() { return mapperFactory; }
-    public ConfigurationOptions getConfigOptions() { return configOptions; }
-    public PaperCommandManager getCommandManager() { return commandManager; }
-    public GUIManager getGUIManager() { return guiManager; }
-    public BukkitAudiences getAudiences() { return audiences; }
-    public ProtocolManager getProtocol() { return protocol; }
-    public MapFont getFont() { return font; }
-    public ConfigurationNode getSettings() { return settings; }
-    public StatMapSerializer getStatMapSerializer() { return statMapSerializer; }
-    public SchedulerLoop getSchedulerLoop() { return schedulerLoop; }
 
     public void saveDefaults() {
         getDataFolder().mkdirs();
@@ -367,6 +382,13 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
 
         settings.node("font_map").childrenMap().forEach((key, node) ->
                 font.setChar(key.toString().charAt(0), new MapFont.CharacterSprite(node.getInt(), 0, new boolean[0])));
+        if (systemScheduler != null)
+            schedulerLoop.unregister(systemScheduler);
+        systemScheduler = new SchedulerSystem.Scheduler(
+                setting("scheduler", "clean_delay").getLong(),
+                setting("scheduler", "clean_threshold").getLong()
+        );
+        schedulerLoop.register(systemScheduler);
 
         return new LoggingResult()
                 .addSuccess(LogLevel.INFO, "Loaded settings from " + SETTINGS_FILE);
@@ -477,35 +499,6 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                 "empty", empty.repeat(emptyWidth));
     }
 
-    public PaperComponent getComponent(ItemStack item) throws ComponentCreationException {
-        if (item == null || !item.hasItemMeta())
-            return null;
-        PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
-        String tree = container.get(key("tree"), PersistentDataType.STRING);
-        if (tree == null)
-            return null;
-        try {
-            return ComponentTree.deserialize(tree, configOptions).root();
-        } catch (ConfigurateException e) {
-            throw new ComponentCreationException(e, tree);
-        }
-    }
-
-    public PaperComponent getComponentOrNull(ItemStack item) {
-        if (item == null)
-            return null;
-        try {
-            return getComponent(item);
-        } catch (ComponentCreationException e) {
-            long time = System.currentTimeMillis();
-            if (time >= nextInvalidDataError) {
-                log(LogLevel.WARN, e, "Could not get component from item %s x %d\nTree: %s", item.getType().name(), item.getAmount(), e.tree());
-                nextInvalidDataError = time + setting("invalid_data_error_delay").getLong(60000);
-            }
-            return null;
-        }
-    }
-
     public void sendPacket(PacketContainer packet, Player target) {
         try {
             protocol.sendServerPacket(target, packet);
@@ -522,21 +515,6 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
 
     @Override
     public void tick(TickContext tickContext) {
-        Bukkit.getOnlinePlayers().forEach(player -> tickPlayer(player, tickContext));
-    }
-
-    public void tickPlayer(Player player, TickContext tickContext) {
-        EntityEquipment equipment = player.getEquipment();
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
-            PaperComponent component = getComponentOrNull(equipment.getItem(slot));
-            if (component != null)
-                component.tree().call(BukkitItemEvents.BukkitEquipped.of(component, player, slot, tickContext));
-        }
-
-        GUIView view = guiManager.getView(player);
-        if (view != null && view.getGUI() instanceof SlotViewGUI) {
-            SlotViewGUI gui = (SlotViewGUI) view.getGUI();
-            gui.update(view);
-        }
+        Bukkit.getOnlinePlayers().forEach(player -> tickContext.tick(playerData(player)));
     }
 }

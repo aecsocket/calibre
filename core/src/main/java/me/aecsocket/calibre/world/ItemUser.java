@@ -6,6 +6,4 @@ public interface ItemUser {
     Vector3D position();
     Vector3D direction();
     String locale();
-
-    boolean sneaking();
 }

@@ -3,6 +3,8 @@ package me.aecsocket.calibre;
 import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.component.ComponentTree;
 import me.aecsocket.calibre.system.AbstractSystem;
+import org.spongepowered.configurate.BasicConfigurationNode;
+import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
@@ -26,7 +28,8 @@ public class TestSystem extends AbstractSystem {
     public String lastData() { return lastData; }
     public void lastData(String lastData) { this.lastData = lastData; }
 
-    @Override public net.kyori.adventure.text.Component localize(String locale, String key, Object... args) { return net.kyori.adventure.text.Component.text(""); }
+    @Override public net.kyori.adventure.text.Component gen(String locale, String key, Object... args) { return net.kyori.adventure.text.Component.text(""); }
+    @Override public ConfigurationNode setting(Object... path) { return BasicConfigurationNode.root(); }
 
     @Override
     public void setup(CalibreComponent<?> parent) {}

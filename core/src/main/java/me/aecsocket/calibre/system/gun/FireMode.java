@@ -11,12 +11,6 @@ public class FireMode {
     protected StatCollection activeStats;
     protected StatCollection notActiveStats;
 
-    public FireMode(String id, StatCollection activeStats, StatCollection notActiveStats) {
-        this.id = id;
-        this.activeStats = activeStats;
-        this.notActiveStats = notActiveStats;
-    }
-
     public FireMode() {}
 
     public String id() { return id; }
@@ -41,5 +35,6 @@ public class FireMode {
         return Objects.hash(id, activeStats, notActiveStats);
     }
 
-    @Override public String toString() { return "FireMode{" + id + "}"; }
+    @Override
+    public String toString() { return "FireMode{" + id + '}'; }
 }

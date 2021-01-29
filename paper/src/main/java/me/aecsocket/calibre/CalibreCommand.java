@@ -5,14 +5,13 @@ import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.*;
 import me.aecsocket.calibre.component.ComponentTree;
 import me.aecsocket.calibre.component.PaperComponent;
-import me.aecsocket.calibre.util.CalibreIdentifiable;
-import me.aecsocket.calibre.util.ItemCreationException;
-import me.aecsocket.calibre.util.ItemSupplier;
+import me.aecsocket.calibre.util.*;
 import me.aecsocket.calibre.wrapper.BukkitItem;
 import me.aecsocket.unifiedframework.registry.Ref;
 import me.aecsocket.unifiedframework.util.BukkitUtils;
 import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.log.LogLevel;
+import me.aecsocket.unifiedframework.util.vector.Vector3D;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import org.bukkit.Bukkit;
@@ -42,7 +41,7 @@ public class CalibreCommand extends BaseCommand {
     private String locale(CommandSender sender) { return plugin.locale(sender); }
 
     private void send(CommandSender sender, String key, Object... args) {
-        plugin.getAudiences().sender(sender).sendMessage(plugin.gen(locale(sender), key, args));
+        plugin.audiences().sender(sender).sendMessage(plugin.gen(locale(sender), key, args));
     }
 
     private void sendError(CommandSender sender, Throwable e, String key, Object... args) {
@@ -118,7 +117,7 @@ public class CalibreCommand extends BaseCommand {
 
         String locale = locale(sender);
         int results = 0;
-        for (Ref<CalibreIdentifiable> ref : plugin.getRegistry().getRegistry().values()) {
+        for (Ref<CalibreIdentifiable> ref : plugin.registry().getRegistry().values()) {
             CalibreIdentifiable object = ref.get();
             Class<? extends CalibreIdentifiable> type = object.getClass();
             if (idFilter != null && !object.id().toLowerCase(Locale.ROOT).contains(idFilter)) continue;
@@ -251,8 +250,8 @@ public class CalibreCommand extends BaseCommand {
 
         String locale = locale(sender);
         try {
-            PaperComponent component = plugin.getComponent(((Player) sender).getInventory().getItemInMainHand());
-            String[] lines = component.tree().serialize(plugin.getConfigOptions(), true).split("\n");
+            PaperComponent component = plugin.itemManager().component(((Player) sender).getInventory().getItemInMainHand());
+            String[] lines = component.tree().serialize(plugin.configOptions(), true).split("\n");
             send(sender, "command.object",
                     "type", component.getClass().getSimpleName(),
                     "id", component.id(),
@@ -260,9 +259,41 @@ public class CalibreCommand extends BaseCommand {
             for (String line : lines)
                 send(sender, "command.tree.line",
                         "line", line);
-        } catch (ConfigurateException e) {
+        } catch (ComponentCreationException | ConfigurateException e) {
             sendError(sender, e, "command.error.get_item",
                     "error", TextUtils.combineMessages(e));
         }
+    }
+
+    @Subcommand("zoom")
+    @Description("Sets your FOV zoom using Minecraft's formula")
+    @CommandPermission("calibre.command.zoom")
+    @CommandCompletion("<zoom>")
+    @Syntax("<zoom>")
+    public void zoom(CommandSender sender, double zoom) {
+        if (!(sender instanceof Player)) {
+            send(sender, "command.error.sender_not_player");
+            return;
+        }
+
+        CalibreProtocol.fov((Player) sender, zoom);
+    }
+
+    @Subcommand("offset")
+    @Description("Shows an offset from your camera, helpful for finding barrel offsets")
+    @CommandPermission("calibre.command.offset")
+    @CommandCompletion("<x> <y> <z>")
+    @Syntax("<x> <y> <z>")
+    public void offset(CommandSender sender, @Optional Double x, @Optional Double y, @Optional Double z) {
+        if (!(sender instanceof Player)) {
+            send(sender, "command.error.sender_not_player");
+            return;
+        }
+
+        Player player = (Player) sender;
+        if (x == null || y == null || z == null)
+            plugin.playerData(player).offset(null);
+        else
+            plugin.playerData(player).offset(new Vector3D(x, y, z));
     }
 }

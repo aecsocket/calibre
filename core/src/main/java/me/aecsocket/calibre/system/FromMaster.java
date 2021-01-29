@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface FromParent {
-    boolean fromDefaulted() default false;
+public @interface FromMaster {
+    boolean fromDefault() default false;
 }

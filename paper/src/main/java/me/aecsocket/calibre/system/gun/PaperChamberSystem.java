@@ -1,13 +1,13 @@
 package me.aecsocket.calibre.system.gun;
 
 import me.aecsocket.calibre.CalibrePlugin;
-import me.aecsocket.calibre.system.FromParent;
-import net.kyori.adventure.text.Component;
+import me.aecsocket.calibre.system.FromMaster;
+import me.aecsocket.calibre.system.PaperSystem;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
-public class PaperChamberSystem extends ChamberSystem {
-    @FromParent(fromDefaulted = true)
+public class PaperChamberSystem extends ChamberSystem implements PaperSystem {
+    @FromMaster(fromDefault = true)
     private transient CalibrePlugin plugin;
 
     public PaperChamberSystem(CalibrePlugin plugin) {
@@ -25,8 +25,7 @@ public class PaperChamberSystem extends ChamberSystem {
         this(o, o.plugin);
     }
 
-    public CalibrePlugin plugin() { return plugin; }
-    @Override public Component localize(String locale, String key, Object... args) { return plugin.gen(locale, key, args); }
+    @Override public CalibrePlugin plugin() { return plugin; }
 
     @Override public PaperChamberSystem copy() { return new PaperChamberSystem(this); }
 }

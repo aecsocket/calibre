@@ -25,7 +25,7 @@ public interface BukkitItem extends Item {
             PersistentDataContainer container = meta.getPersistentDataContainer();
             CalibrePlugin plugin = CalibrePlugin.getInstance();
             try {
-                container.set(plugin.key("tree"), PersistentDataType.STRING, tree.serialize(plugin.getConfigOptions(), false));
+                container.set(plugin.key("tree"), PersistentDataType.STRING, tree.serialize(plugin.configOptions(), false));
             } catch (ConfigurateException e) {
                 throw new ItemCreationException("Could not serialize tree", e);
             }

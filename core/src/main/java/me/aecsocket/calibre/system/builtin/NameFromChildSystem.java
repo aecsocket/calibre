@@ -4,7 +4,7 @@ import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.component.CalibreSlot;
 import me.aecsocket.calibre.component.ComponentTree;
 import me.aecsocket.calibre.system.AbstractSystem;
-import me.aecsocket.calibre.system.FromParent;
+import me.aecsocket.calibre.system.FromMaster;
 import me.aecsocket.calibre.system.SystemSetupException;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 
@@ -12,11 +12,18 @@ import java.util.Objects;
 
 public abstract class NameFromChildSystem extends AbstractSystem {
     public static final String ID = "name_from_child";
-    @FromParent
+    @FromMaster
     private String child;
 
+    /**
+     * Used for registration + deserialization.
+     */
     public NameFromChildSystem() {}
 
+    /**
+     * Used for copying.
+     * @param o The other instance.
+     */
     public NameFromChildSystem(NameFromChildSystem o) {
         super(o);
         child = o.child;
@@ -36,10 +43,9 @@ public abstract class NameFromChildSystem extends AbstractSystem {
     public void parentTo(ComponentTree tree, CalibreComponent<?> parent) {
         super.parentTo(tree, parent);
         EventDispatcher events = tree.events();
-        events.registerListener(CalibreComponent.Events.NameCreate.class, this::onEvent, listenerPriority());
+        int priority = setting("listener_priority").getInt(100000);
+        events.registerListener(CalibreComponent.Events.NameCreate.class, this::onEvent, priority);
     }
-
-    protected abstract int listenerPriority();
 
     protected void onEvent(CalibreComponent.Events.NameCreate<?> event) {
         if (parent != event.component()) return;

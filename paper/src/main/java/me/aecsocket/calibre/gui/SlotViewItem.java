@@ -4,7 +4,6 @@ import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.component.ComponentTree;
 import me.aecsocket.calibre.component.PaperSlot;
-import me.aecsocket.calibre.util.ComponentCreationException;
 import me.aecsocket.calibre.wrapper.BukkitItem;
 import me.aecsocket.unifiedframework.gui.GUIItem;
 import me.aecsocket.unifiedframework.gui.GUIView;
@@ -77,12 +76,7 @@ public class SlotViewItem implements GUIItem {
                 component = slot.get();
         }
 
-        CalibreComponent<BukkitItem> cursor = null;
-        try {
-            cursor = plugin.getComponent(view.getView().getCursor());
-        } catch (ComponentCreationException e) {
-            e.printStackTrace();
-        }
+        CalibreComponent<BukkitItem> cursor = plugin.itemManager().component(view.getView().getCursor());
 
         String locale = view.getPlayer().getLocale();
         ItemStack item = null;
@@ -135,12 +129,7 @@ public class SlotViewItem implements GUIItem {
             view.setRawCursor(inSlot.create(locale).item());
             slot.set(null);
         } else if (!BukkitUtils.empty(rawCursor)) {
-            CalibreComponent<BukkitItem> component = null;
-            try {
-                component = plugin.getComponent(rawCursor);
-            } catch (ComponentCreationException e) {
-                e.printStackTrace();
-            }
+            CalibreComponent<BukkitItem> component = plugin.itemManager().component(rawCursor);
             if (component == null || !slot.isCompatible(component))
                 return;
 

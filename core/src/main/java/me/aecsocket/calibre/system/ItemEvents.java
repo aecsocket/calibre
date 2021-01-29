@@ -5,29 +5,37 @@ import me.aecsocket.calibre.world.Item;
 import me.aecsocket.calibre.world.ItemSlot;
 import me.aecsocket.calibre.world.ItemUser;
 import me.aecsocket.unifiedframework.event.Cancellable;
+import me.aecsocket.unifiedframework.util.vector.Vector3I;
 
 public final class ItemEvents {
     private ItemEvents() {}
 
-    public interface AbstractItemEvent<I extends Item> {
+    public enum Result {
+        SUCCESS,
+        FAILURE,
+        NONE
+    }
+
+    public interface ItemEvent<I extends Item> {
         CalibreComponent<I> component();
         ItemUser user();
         ItemSlot<I> slot();
-
-        default void updateItem(CalibreComponent<I> component) {
-            slot().set(component.<CalibreComponent<I>>root().create(user().locale(), slot().get().amount()));
-        }
-
-        @SuppressWarnings("unchecked")
-        default void updateItem(CalibreSystem system) { updateItem((CalibreComponent<I>) system.parent()); }
     }
 
-    public static class ItemEvent<I extends Item> implements AbstractItemEvent<I> {
+    public interface SystemEvent<I extends Item, S extends CalibreSystem> extends ItemEvent<I> {
+        S system();
+
+        default void updateItem() {
+            system().update(user(), slot(), this);
+        }
+    }
+
+    public static class Base<I extends Item> implements ItemEvent<I> {
         private final CalibreComponent<I> component;
         private final ItemUser user;
         private final ItemSlot<I> slot;
 
-        public ItemEvent(CalibreComponent<I> component, ItemUser user, ItemSlot<I> slot) {
+        public Base(CalibreComponent<I> component, ItemUser user, ItemSlot<I> slot) {
             this.component = component;
             this.user = user;
             this.slot = slot;
@@ -38,84 +46,49 @@ public final class ItemEvents {
         @Override public ItemSlot<I> slot() { return slot; }
     }
 
-    public interface SystemEvent<I extends Item, S extends CalibreSystem> extends AbstractItemEvent<I> {
-        S system();
+    // implementations
 
-        default void updateItem() { updateItem(system()); }
+    public interface UpdateItem<I extends Item> extends ItemEvent<I> {
+        Object cause();
+        I item();
     }
 
-    public static class SystemItemEvent<I extends Item, S extends CalibreSystem> extends ItemEvent<I> implements SystemEvent<I, S> {
-        private final S system;
+    public interface Equipped<I extends Item> extends ItemEvent<I> {}
 
-        public SystemItemEvent(CalibreComponent<I> component, ItemUser user, ItemSlot<I> slot, S system) {
-            super(component, user, slot);
-            this.system = system;
-        }
+    public interface Jump<I extends Item> extends ItemEvent<I>, Cancellable {}
 
-        @Override public S system() { return system; }
+    public interface Scroll<I extends Item> extends ItemEvent<I> {
+        int length();
     }
 
+    public interface Switch<I extends Item> extends ItemEvent<I>, Cancellable {
+        int FROM = 0;
+        int TO = 1;
 
-    public static class Equipped<I extends Item> extends ItemEvent<I> {
-        public Equipped(CalibreComponent<I> component, ItemUser user, ItemSlot<I> slot) {
-            super(component, user, slot);
-        }
+        int position();
     }
 
-    public static class Interact<I extends Item> extends ItemEvent<I> implements Cancellable {
-        public static final int LEFT = 0;
-        public static final int RIGHT = 1;
+    public interface Interact<I extends Item> extends ItemEvent<I>, Cancellable {
+        int LEFT = 0;
+        int RIGHT = 1;
 
-        private final int type;
-        private boolean cancelled;
-
-        public Interact(CalibreComponent<I> component, ItemUser user, ItemSlot<I> slot, int type) {
-            super(component, user, slot);
-            this.type = type;
-        }
-
-        public int type() { return type; }
-
-        @Override public boolean cancelled() { return cancelled; }
-        @Override public void cancel() { cancelled = true; }
+        int type();
     }
 
-    public static class SwapHand<I extends Item> extends ItemEvent<I> implements Cancellable {
-        private final ItemSlot<I> offhand;
-        private boolean cancelled;
-
-        public SwapHand(CalibreComponent<I> component, ItemUser user, ItemSlot<I> slot, ItemSlot<I> offhand) {
-            super(component, user, slot);
-            this.offhand = offhand;
-        }
-
-        public ItemSlot<I> offhand() { return offhand; }
-
-        @Override public boolean cancelled() { return cancelled; }
-        @Override public void cancel() { cancelled = true; }
+    public interface SwapHand<I extends Item> extends ItemEvent<I>, Cancellable {
+        ItemSlot<I> offhand();
     }
 
-    public static class Click<I extends Item> extends ItemEvent<I> implements Cancellable {
-        private final ItemSlot<I> cursor;
-        private final boolean leftClick;
-        private final boolean rightClick;
-        private final boolean shiftClick;
-        private boolean cancelled;
-
-        public Click(CalibreComponent<I> component, ItemUser user, ItemSlot<I> slot, ItemSlot<I> cursor, boolean leftClick, boolean rightClick, boolean shiftClick) {
-            super(component, user, slot);
-            this.cursor = cursor;
-            this.leftClick = leftClick;
-            this.rightClick = rightClick;
-            this.shiftClick = shiftClick;
-        }
-
-        public ItemSlot<I> cursor() { return cursor; }
-        public boolean leftClick() { return leftClick; }
-        public boolean rightClick() { return rightClick; }
-        public boolean shiftClick() { return shiftClick; }
-
-        @Override public boolean cancelled() { return cancelled; }
-        @Override public void cancel() { cancelled = true; }
+    public interface Click<I extends Item> extends ItemEvent<I>, Cancellable {
+        ItemSlot<I> cursor();
+        boolean leftClick();
+        boolean rightClick();
+        boolean shiftClick();
     }
+
+    public interface BreakBlock<I extends Item> extends ItemEvent<I>, Cancellable {
+        Vector3I blockPosition();
+    }
+
+    public interface PlaceBlock<I extends Item> extends ItemEvent<I>, Cancellable {}
 }

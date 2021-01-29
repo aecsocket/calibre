@@ -22,7 +22,7 @@ public class CalibreComponentTest {
     }
 
     @Test
-    public void testNavigation() {
+    void testNavigation() {
         CalibreComponent<?> root = createRoot();
 
         assertEquals((Object) root.slot("a"), root.component("a").parent());
@@ -31,7 +31,7 @@ public class CalibreComponentTest {
     }
 
     @Test
-    public void testTree() {
+    void testTree() {
         CalibreComponent<?> root = createRoot();
         ComponentTree tree = root.buildTree().tree;
 
@@ -43,7 +43,7 @@ public class CalibreComponentTest {
     }
 
     @Test
-    public void testEvents() {
+    void testEvents() {
         CalibreSystem system = new TestSystem();
         CalibreComponent<Item> root = createRoot().system(system);
         ComponentTree tree = root.buildTree().tree;
@@ -54,7 +54,7 @@ public class CalibreComponentTest {
     }
 
     @Test
-    public void testCopy() throws SerializationException {
+    void testCopy() throws SerializationException {
         CalibreComponent<?> one = createRoot();
         CalibreComponent<?> two = one.copy().buildTree();
         two.<CalibreSlot>slot("a", "b").set(new CalibreComponentImpl("alt_comp_c"));

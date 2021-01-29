@@ -12,10 +12,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class ContainerRef<T> {
-    public static abstract class Serializer implements TypeSerializer<ContainerRef<?>>, ConfigurateSerializer {
+public abstract class ContainerPath<T> {
+    public static abstract class Serializer implements TypeSerializer<ContainerPath<?>>, ConfigurateSerializer {
         @Override
-        public void serialize(Type type, @Nullable ContainerRef<?> obj, ConfigurationNode node) throws SerializationException {
+        public void serialize(Type type, @Nullable ContainerPath<?> obj, ConfigurationNode node) throws SerializationException {
             if (obj == null) node.set(null);
             else {
                 node.appendListNode().set(obj.path);
@@ -23,10 +23,10 @@ public abstract class ContainerRef<T> {
             }
         }
 
-        protected abstract ContainerRef<?> provide(String[] path, int index, Type type, ConfigurationNode node);
+        protected abstract ContainerPath<?> provide(String[] path, int index, Type type, ConfigurationNode node);
 
         @Override
-        public ContainerRef<?> deserialize(Type type, ConfigurationNode node) throws SerializationException {
+        public ContainerPath<?> deserialize(Type type, ConfigurationNode node) throws SerializationException {
             List<? extends ConfigurationNode> nodes = asList(node, type, "path", "index");
             return provide(
                     nodes.get(0).get(String[].class),
@@ -39,7 +39,7 @@ public abstract class ContainerRef<T> {
     protected final String[] path;
     protected final int index;
 
-    public ContainerRef(String[] path, int index) {
+    public ContainerPath(String[] path, int index) {
         this.path = path;
         this.index = index;
     }
@@ -60,7 +60,7 @@ public abstract class ContainerRef<T> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ContainerRef<?> that = (ContainerRef<?>) o;
+        ContainerPath<?> that = (ContainerPath<?>) o;
         return index == that.index && Arrays.equals(path, that.path);
     }
 

@@ -7,7 +7,6 @@ import me.aecsocket.calibre.util.ItemDescriptor;
 import me.aecsocket.calibre.wrapper.BukkitItem;
 import me.aecsocket.unifiedframework.stat.Stat;
 import me.aecsocket.unifiedframework.stat.impl.data.SoundDataStat;
-import me.aecsocket.unifiedframework.stat.impl.descriptor.DoubleDescriptorStat;
 import me.aecsocket.unifiedframework.util.BukkitUtils;
 import me.aecsocket.unifiedframework.util.MapInit;
 import org.bukkit.inventory.ItemFlag;
@@ -53,7 +52,6 @@ public class PaperComponent extends CalibreComponent<BukkitItem> {
 
     public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init("item", new ItemDescriptor.Stat())
-            .init("zoom", new DoubleDescriptorStat(0d))
 
             .init("insert_sound", new SoundDataStat())
             .init("remove_sound", new SoundDataStat())
@@ -78,18 +76,18 @@ public class PaperComponent extends CalibreComponent<BukkitItem> {
         this(o, o.plugin);
     }
 
-    @Override public net.kyori.adventure.text.Component localize(String locale, String key, Object... args) { return plugin.gen(locale, key, args); }
+    @Override public net.kyori.adventure.text.Component gen(String locale, String key, Object... args) { return plugin.gen(locale, key, args); }
     @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }
     @Override
     protected void prepareStatDeserialization(Map<String, Stat<?>> originals) {
-        plugin.getStatMapSerializer().originals(originals);
+        plugin.statMapSerializer().originals(originals);
     }
 
     @Override
     public CalibreComponent<BukkitItem> getComponent(BukkitItem item) {
         if (item == null)
             return null;
-        return plugin.getComponentOrNull(item.item());
+        return plugin.itemManager().component(item.item());
     }
 
     @Override

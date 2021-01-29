@@ -5,7 +5,7 @@ import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.component.ComponentCompatibility;
 import me.aecsocket.calibre.component.ComponentTree;
 import me.aecsocket.calibre.system.AbstractSystem;
-import me.aecsocket.calibre.system.FromParent;
+import me.aecsocket.calibre.system.FromMaster;
 import me.aecsocket.calibre.system.ItemEvents;
 import me.aecsocket.calibre.system.SystemSetupException;
 import me.aecsocket.calibre.world.Item;
@@ -27,30 +27,30 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @ConfigSerializable
-public abstract class ComponentContainerSystem<I extends Item> extends AbstractSystem {
-    public static class Serializer implements TypeSerializer<ComponentContainerSystem<?>> {
-        private final TypeSerializer<ComponentContainerSystem<?>> delegate;
+public abstract class ComponentContainerSystem extends AbstractSystem {
+    public static class Serializer implements TypeSerializer<ComponentContainerSystem> {
+        private final TypeSerializer<ComponentContainerSystem> delegate;
 
-        public Serializer(TypeSerializer<ComponentContainerSystem<?>> delegate) {
+        public Serializer(TypeSerializer<ComponentContainerSystem> delegate) {
             this.delegate = delegate;
         }
 
-        public TypeSerializer<ComponentContainerSystem<?>> delegate() { return delegate; }
+        public TypeSerializer<ComponentContainerSystem> delegate() { return delegate; }
 
         @Override
-        public void serialize(Type type, @Nullable ComponentContainerSystem<?> obj, ConfigurationNode node) throws SerializationException {
+        public void serialize(Type type, @Nullable ComponentContainerSystem obj, ConfigurationNode node) throws SerializationException {
             delegate.serialize(type, obj, node);
             if (obj == null)
                 return;
             List<Quantifier<ComponentTree>> trees = obj.components.stream()
-                    .map(quantifier -> new Quantifier<>(quantifier.get().tree(), quantifier.getAmount()))
+                    .map(quantifier -> new Quantifier<>(quantifier.get().buildTree().tree(), quantifier.getAmount()))
                     .collect(Collectors.toList());
             node.node("components").set(new TypeToken<>(){}, trees);
         }
 
         @Override
-        public ComponentContainerSystem<?> deserialize(Type type, ConfigurationNode node) throws SerializationException {
-            ComponentContainerSystem<?> obj = delegate.deserialize(type, node);
+        public ComponentContainerSystem deserialize(Type type, ConfigurationNode node) throws SerializationException {
+            ComponentContainerSystem obj = delegate.deserialize(type, node);
             List<Quantifier<ComponentTree>> trees = node.node("components").getList(new TypeToken<>(){});
             if (trees != null)
                 trees.forEach(quantifier -> obj.components.add(new Quantifier<>(quantifier.get().root(), quantifier.getAmount())));
@@ -59,46 +59,59 @@ public abstract class ComponentContainerSystem<I extends Item> extends AbstractS
     }
 
     public static final String ID = "component_container";
-    protected transient final LinkedList<Quantifier<CalibreComponent<I>>> components;
+    protected transient final LinkedList<Quantifier<CalibreComponent<?>>> components;
     @Setting(nodeFromParent = true)
-    @FromParent
+    @FromMaster
     protected ComponentCompatibility compatibility;
 
+    /**
+     * Used for registration + deserialization.
+     */
     public ComponentContainerSystem() {
         components = new LinkedList<>();
     }
 
-    public ComponentContainerSystem(ComponentContainerSystem<I> o) {
+    /**
+     * Used for copying.
+     * @param o The other instance.
+     */
+    public ComponentContainerSystem(ComponentContainerSystem o) {
         super(o);
-        components = o.components == null ? null : new LinkedList<>(o.components);
+        components = new LinkedList<>(o.components);
         compatibility = o.compatibility;
     }
 
-    public LinkedList<Quantifier<CalibreComponent<I>>> components() { return new LinkedList<>(components); }
+    public LinkedList<Quantifier<CalibreComponent<?>>> components() { return new LinkedList<>(components); }
 
     public ComponentCompatibility compatibility() { return compatibility; }
     public void compatibility(ComponentCompatibility compatibility) { this.compatibility = compatibility; }
 
-    public void add(Quantifier<CalibreComponent<I>> quantifier) {
-        Quantifier<CalibreComponent<I>> last = components.peekLast();
+    public void push(Quantifier<CalibreComponent<?>> quantifier) {
+        Quantifier<CalibreComponent<?>> last = components.peekLast();
         if (last != null && last.get().equals(quantifier.get()))
             last.add(quantifier.getAmount());
         else
             components.add(quantifier);
     }
-    public void add(CalibreComponent<I> component, int amount) { add(new Quantifier<>(component, amount)); }
-    public void add(CalibreComponent<I> component) { add(component, 1); }
+    public void push(CalibreComponent<?> component, int amount) { push(new Quantifier<>(component, amount)); }
+    public void push(CalibreComponent<?> component) { push(component, 1); }
 
-    public int amount() { return Quantifier.amount(components); }
-
-    public void removeLast() {
-        Quantifier<CalibreComponent<I>> last = components.peekLast();
+    public CalibreComponent<?> pop() {
+        Quantifier<CalibreComponent<?>> last = components.peekLast();
         if (last == null)
-            return;
+            return null;
         last.add(-1);
         if (last.getAmount() <= 0)
             components.removeLast();
+        return last.get();
     }
+
+    public CalibreComponent<?> peek() {
+        Quantifier<CalibreComponent<?>> last = components.peekLast();
+        return last == null ? null : last.get();
+    }
+
+    public int amount() { return Quantifier.amount(components); }
 
     @Override public String id() { return ID; }
 
@@ -110,22 +123,20 @@ public abstract class ComponentContainerSystem<I extends Item> extends AbstractS
         if (!parent.isRoot()) return;
 
         EventDispatcher events = tree.events();
-        int priority = listenerPriority();
+        int priority = setting("listener_priority").getInt(1200);
         events.registerListener(CalibreComponent.Events.NameCreate.class, this::onEvent, priority);
         events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, priority);
         events.registerListener(ItemEvents.Click.class, this::onEvent, priority);
     }
 
-    protected abstract int listenerPriority();
-
     protected void onEvent(CalibreComponent.Events.NameCreate<?> event) {
-        event.result(localize(event.locale(), "system." + ID + ".component_name",
+        event.result(gen(event.locale(), "system." + ID + ".component_name",
                 "name", event.result(),
                 "amount", Integer.toString(amount())));
     }
 
     protected Component writeTotal(String locale, int total) {
-        return localize(locale, "system.component_container.total",
+        return gen(locale, "system." + ID + ".total",
                 "total", Integer.toString(total));
     }
 
@@ -134,9 +145,9 @@ public abstract class ComponentContainerSystem<I extends Item> extends AbstractS
         String locale = event.locale();
 
         int total = 0;
-        for (Quantifier<CalibreComponent<I>> quantifier : components) {
+        for (Quantifier<CalibreComponent<?>> quantifier : components) {
             total += quantifier.getAmount();
-            info.add(localize(locale, "system.component_container.entry",
+            info.add(gen(locale, "system." + ID + ".entry",
                     "name", quantifier.get().name(locale),
                     "amount", Integer.toString(quantifier.getAmount())));
         }
@@ -145,14 +156,14 @@ public abstract class ComponentContainerSystem<I extends Item> extends AbstractS
         event.item().addInfo(info);
     }
 
-    protected int amountToInsert(I rawCursor, CalibreComponent<I> cursor, boolean shiftClick) {
+    protected <I extends Item> int amountToInsert(I rawCursor, CalibreComponent<I> cursor, boolean shiftClick) {
         return shiftClick ? 1 : rawCursor.amount();
     }
 
-    protected void remove(ItemEvents.Click<I> event, Quantifier<CalibreComponent<I>> last) {}
-    protected void insert(ItemEvents.Click<I> event, int amount, I rawCursor, CalibreComponent<I> cursor) {}
+    protected <I extends Item> void remove(ItemEvents.Click<I> event, Quantifier<CalibreComponent<I>> last) {}
+    protected <I extends Item> void insert(ItemEvents.Click<I> event, int amount, I rawCursor, CalibreComponent<I> cursor) {}
 
-    protected void onEvent(ItemEvents.Click<I> event) {
+    protected <I extends Item> void onEvent(ItemEvents.Click<I> event) {
         if (event.slot().get().amount() > 1)
             return;
 
@@ -161,7 +172,8 @@ public abstract class ComponentContainerSystem<I extends Item> extends AbstractS
         if (event.rightClick()) {
             if (!event.shiftClick() || rawCursor != null)
                 return;
-            Quantifier<CalibreComponent<I>> last = components.peekLast();
+            @SuppressWarnings("unchecked")
+            Quantifier<CalibreComponent<I>> last = (Quantifier<CalibreComponent<I>>) (Quantifier<?>) components.peekLast();
             if (last != null) {
                 I contained = last.get().create(locale, last.getAmount());
                 event.cursor().set(contained);
@@ -172,28 +184,28 @@ public abstract class ComponentContainerSystem<I extends Item> extends AbstractS
             CalibreComponent<I> cursor = event.component().getComponent(rawCursor);
             if (cursor == null)
                 return;
-            if (compatibility.applies(cursor)) {
-                int amount = amountToInsert(rawCursor, cursor, event.shiftClick());
-                if (amount > 0) {
-                    add(cursor, amount);
-                    rawCursor.subtract(amount);
-                    event.cursor().set(rawCursor);
-                    insert(event, amount, rawCursor, cursor);
-                }
+            if (!compatibility.applies(cursor))
+                return;
+            int amount = amountToInsert(rawCursor, cursor, event.shiftClick());
+            if (amount > 0) {
+                push(cursor, amount);
+                rawCursor.subtract(amount);
+                event.cursor().set(rawCursor);
+                insert(event, amount, rawCursor, cursor);
             }
         }
 
         event.cancel();
-        event.updateItem(this);
+        update(event);
     }
 
-    public abstract ComponentContainerSystem<I> copy();
+    public abstract ComponentContainerSystem copy();
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ComponentContainerSystem<?> that = (ComponentContainerSystem<?>) o;
+        ComponentContainerSystem that = (ComponentContainerSystem) o;
         return components.equals(that.components) && compatibility.equals(that.compatibility);
     }
 

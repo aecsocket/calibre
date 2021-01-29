@@ -78,15 +78,19 @@ public class ComponentTree {
 
             if (systems != null) {
                 for (Map.Entry<String, ConfigurationNode> entry : systems.entrySet()) {
-                    id = entry.getKey();
-                    CalibreSystem parentSystem = root.system(id);
+                    String sysId = entry.getKey();
+                    CalibreSystem parentSystem = root.system(sysId);
                     if (parentSystem == null) {
-                        if (preserveInvalidData) throw new SerializationException(node, type, "System [" + id + "] is not present on this component");
+                        if (preserveInvalidData) throw new SerializationException(node, type, "System [" + sysId + "] is not present on this component");
                         else continue;
                     }
 
                     CalibreSystem system = entry.getValue().get(parentSystem.getClass());
-                    parentSystem.inherit(system, false);
+                    if (system == null) {
+                        if (preserveInvalidData) throw new SerializationException(node, type, "Could not create system [" + sysId + "]");
+                        else continue;
+                    }
+                    system.inherit(parentSystem, false);
                     root.system(system);
                 }
             }
@@ -188,19 +192,24 @@ public class ComponentTree {
         collectedStats.forEach(collection -> collection.forEach((order, map) ->
                 collected.computeIfAbsent(order, __ -> new ArrayList<>()).add(map)));
         // grab the positive ordered stat maps, and combine them in order
-        collected.forEach((order, collection) -> collection.forEach(map -> {
-            if (order >= 0)
+        collected.forEach((priority, collection) -> collection.forEach(map -> {
+            if (priority >= 0) {
                 stats.modAll(map);
+            }
         }));
 
         // grab the negative ordered stat maps, and combine them in reverse order
-        collected.forEach((order, collection) -> {
+        Map<Integer, List<StatMap>> reverseCollected = new TreeMap<>((a, b) -> b - a);
+        reverseCollected.putAll(collected);
+        reverseCollected.forEach((priority, collection) -> {
             Collections.reverse(collection);
             collection.forEach(map -> {
-                if (order < 0)
+                if (priority < 0) {
                     stats.modAll(map);
+                }
             });
         });
+
         return this;
     }
 

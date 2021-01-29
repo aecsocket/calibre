@@ -13,14 +13,6 @@ public class Sight {
     protected StatCollection aimingStats;
     protected StatCollection notAimingStats;
 
-    public Sight(String id, StatCollection activeStats, StatCollection notActiveStats, StatCollection aimingStats, StatCollection notAimingStats) {
-        this.id = id;
-        this.activeStats = activeStats;
-        this.notActiveStats = notActiveStats;
-        this.aimingStats = aimingStats;
-        this.notAimingStats = notAimingStats;
-    }
-
     public Sight() {}
 
     public String id() { return id; }
@@ -51,5 +43,17 @@ public class Sight {
         return Objects.hash(id, activeStats, notActiveStats, aimingStats, notAimingStats);
     }
 
-    @Override public String toString() { return "Sight{" + id + "}"; }
+    /*
+    @Override public String toString() { return "Sight{" + id + "}"; }*/
+
+    @Override
+    public String toString() {
+        return "Sight{" +
+                "id='" + id + '\'' +
+                ", activeStats=" + activeStats +
+                ", notActiveStats=" + notActiveStats +
+                ", aimingStats=" + aimingStats +
+                ", notAimingStats=" + notAimingStats +
+                '}';
+    }
 }

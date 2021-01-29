@@ -2,7 +2,6 @@ package me.aecsocket.calibre.component;
 
 import me.aecsocket.calibre.system.CalibreSystem;
 import me.aecsocket.calibre.system.SystemSetupException;
-import me.aecsocket.calibre.system.builtin.ProjectileSystem;
 import me.aecsocket.calibre.util.CalibreIdentifiable;
 import me.aecsocket.calibre.util.ItemCreationException;
 import me.aecsocket.calibre.util.ItemSupplier;
@@ -22,13 +21,6 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-
-/*
-TODO: possibly migrate to a system where the registry
-doesn't contain Components/Systems itself, but Component/SystemType's,
-which can create the Components. This means we can deserialize Components directly
-without going through a tree
- */
 
 @ConfigSerializable
 public abstract class CalibreComponent<I extends Item> implements Component, CalibreIdentifiable, ItemSupplier<I> {
@@ -106,7 +98,7 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
         T system = (T) systems.get(id);
         return system;
     }
-    public <T extends CalibreSystem> T system(Class<T> type) {
+    public <T> T system(Class<T> type) {
         for (CalibreSystem system : systems.values()) {
             if (type.isInstance(system)) {
                 @SuppressWarnings("unchecked")
@@ -185,7 +177,7 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
                 if (system == null)
                     throw new ResolutionException(String.format("System %s was not created for whatever reason (is it @ConfigSerializable?)", sysId));
 
-                registeredSystem.inherit(system, true);
+                system.inherit(registeredSystem, true);
                 systems.put(sysId, system);
 
                 Map<String, Stat<?>> sysDefaultStats = system.defaultStats();

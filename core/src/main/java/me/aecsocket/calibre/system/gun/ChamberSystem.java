@@ -1,9 +1,9 @@
 package me.aecsocket.calibre.system.gun;
 
 import me.aecsocket.calibre.component.CalibreComponent;
+import me.aecsocket.calibre.component.CalibreSlot;
 import me.aecsocket.calibre.system.AbstractSystem;
-import me.aecsocket.calibre.system.FromParent;
-import me.aecsocket.calibre.system.builtin.ProjectileSystem;
+import me.aecsocket.calibre.system.FromMaster;
 import me.aecsocket.calibre.system.SystemSetupException;
 
 import java.util.Arrays;
@@ -11,28 +11,32 @@ import java.util.Arrays;
 public abstract class ChamberSystem extends AbstractSystem {
     public static final String ID = "chamber";
 
-    @FromParent
-    protected String[] projectilePath;
+    @FromMaster
+    protected String[] loadPath;
 
+    /**
+     * Used for registration + deserialization.
+     */
     public ChamberSystem() {}
 
+    /**
+     * Used for copying.
+     * @param o The other instance.
+     */
     public ChamberSystem(ChamberSystem o) {
         super(o);
-        projectilePath = o.projectilePath;
+        loadPath = o.loadPath.clone();
     }
 
     @Override public String id() { return ID; }
 
-    public String[] projectilePath() { return projectilePath; }
-    public void projectilePath(String[] projectilePath) { this.projectilePath = projectilePath; }
+    public String[] loadPath() { return loadPath; }
+    public void loadPath(String[] loadPath) { this.loadPath = loadPath; }
 
     @Override public void setup(CalibreComponent<?> parent) throws SystemSetupException {}
 
-    public ProjectileSystem getProjectile() {
-        CalibreComponent<?> atPath = parent.component(projectilePath);
-        if (atPath == null)
-            return null;
-        return atPath.system(ProjectileSystem.class);
+    public CalibreSlot getLoadSlot() {
+        return parent.slot(loadPath);
     }
 
     public abstract ChamberSystem copy();
@@ -42,11 +46,11 @@ public abstract class ChamberSystem extends AbstractSystem {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChamberSystem that = (ChamberSystem) o;
-        return Arrays.equals(projectilePath, that.projectilePath);
+        return Arrays.equals(loadPath, that.loadPath);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(projectilePath);
+        return Arrays.hashCode(loadPath);
     }
 }

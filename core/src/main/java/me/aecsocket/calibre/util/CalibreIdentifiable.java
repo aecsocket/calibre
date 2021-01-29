@@ -12,12 +12,12 @@ public interface CalibreIdentifiable extends Identifiable {
         id().chars().forEach(i -> {
             String c = Character.toString(i);
             if (!VALID_CHARS.contains(c))
-                throw new ValidationException("ID contains illegal character '" + c + "', valid characters: [" + VALID_CHARS + "]");
+                throw new ValidationException(String.format("ID [%s] contains illegal character '%s', valid characters: [%s]", id(), c, VALID_CHARS));
         });
     }
 
-    Component localize(String locale, String key, Object... args);
+    Component gen(String locale, String key, Object... args);
 
-    default Component name(String locale) { return localize(locale, "object." + id()); }
+    default Component name(String locale) { return gen(locale, "object." + id()); }
     default Component[] info(String locale) { return null; }
 }

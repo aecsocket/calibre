@@ -3,27 +3,31 @@ package me.aecsocket.calibre.system.gun;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.system.AbstractSystem;
-import me.aecsocket.calibre.system.FromParent;
+import me.aecsocket.calibre.system.FromMaster;
+import me.aecsocket.calibre.system.PaperSystem;
 import me.aecsocket.calibre.system.SystemSetupException;
 import me.aecsocket.calibre.system.builtin.ProjectileSystem;
 import me.aecsocket.calibre.world.ItemUser;
 import me.aecsocket.calibre.wrapper.user.BukkitItemUser;
 import me.aecsocket.calibre.wrapper.user.EntityUser;
+import me.aecsocket.unifiedframework.loop.SchedulerLoop;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.stat.Stat;
 import me.aecsocket.unifiedframework.stat.StatMap;
 import me.aecsocket.unifiedframework.stat.impl.data.ParticleDataStat;
-import me.aecsocket.unifiedframework.stat.impl.descriptor.DoubleDescriptorStat;
+import me.aecsocket.unifiedframework.stat.impl.descriptor.NumberDescriptorStat;
+import me.aecsocket.unifiedframework.stat.impl.descriptor.Vector2DDescriptorStat;
 import me.aecsocket.unifiedframework.util.MapInit;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.VectorUtils;
 import me.aecsocket.unifiedframework.util.data.ParticleData;
-import me.aecsocket.unifiedframework.util.descriptor.DoubleDescriptor;
+import me.aecsocket.unifiedframework.util.descriptor.NumberDescriptor;
+import me.aecsocket.unifiedframework.util.descriptor.Vector2DDescriptor;
 import me.aecsocket.unifiedframework.util.projectile.BukkitCollidable;
 import me.aecsocket.unifiedframework.util.projectile.BukkitProjectile;
 import me.aecsocket.unifiedframework.util.projectile.BukkitRayTrace;
+import me.aecsocket.unifiedframework.util.vector.Vector2D;
 import me.aecsocket.unifiedframework.util.vector.Vector3D;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -40,7 +44,7 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 @ConfigSerializable
-public class BulletSystem extends AbstractSystem implements ProjectileSystem {
+public class BulletSystem extends AbstractSystem implements ProjectileSystem, PaperSystem {
     public static class Projectile extends BukkitProjectile {
         public enum HitResult {
             STOP,
@@ -74,22 +78,23 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem {
             this.stats = stats;
 
             trail = stats.val("trail_particle");
-            trailDistance = stats.<DoubleDescriptor>val("trail_distance").apply(0d);
+            trailDistance = stats.<NumberDescriptor.Double>val("trail_distance").apply();
             hitBlock = stats.val("hit_block_particle");
             hitEntity = stats.val("hit_entity_particle");
 
-            originalDamage = stats.<DoubleDescriptor>val("damage").apply(0d);
+            originalDamage = stats.<NumberDescriptor.Double>val("damage").apply();
             damage = originalDamage;
-            armorPenetration = stats.<DoubleDescriptor>val("armor_penetration").apply(0d);
-            blockPenetration = stats.<DoubleDescriptor>val("block_penetration").apply(0d);
+            armorPenetration = stats.<NumberDescriptor.Double>val("armor_penetration").apply();
+            blockPenetration = stats.<NumberDescriptor.Double>val("block_penetration").apply();
+            entityPenetration = stats.<NumberDescriptor.Double>val("entity_penetration").apply();
 
-            ricochetChance = stats.<DoubleDescriptor>val("ricochet_chance").apply(0d);
-            ricochetAngle = stats.<DoubleDescriptor>val("ricochet_angle").apply(0d);
-            ricochetMultiplier = stats.<DoubleDescriptor>val("ricochet_multiplier").apply(0d);
+            ricochetChance = stats.<NumberDescriptor.Double>val("ricochet_chance").apply();
+            ricochetAngle = stats.<NumberDescriptor.Double>val("ricochet_angle").apply() + 90;
+            ricochetMultiplier = stats.<NumberDescriptor.Double>val("ricochet_multiplier").apply();
 
-            entityPenetration = stats.<DoubleDescriptor>val("entity_penetration").apply(0d);
-            dropoff = stats.<DoubleDescriptor>val("dropoff").apply(0d);
-            range = stats.<DoubleDescriptor>val("range").apply(0d);
+            Vector2D rangeStat = stats.<Vector2DDescriptor>val("range").apply(new Vector2D());
+            dropoff = rangeStat.x();
+            range = rangeStat.y();
         }
 
         public CalibrePlugin plugin() { return plugin; }
@@ -153,7 +158,7 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem {
                 result = collideEntity(tickContext, ray, location, collided.entity());
 
             if (damage <= 0 || result == HitResult.STOP) {
-                tickContext.cancel();
+                tickContext.remove();
                 return;
             }
 
@@ -219,44 +224,52 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem {
     public static final String ID = "bullet";
     public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init(BukkitProjectiles.STATS)
-            .init("damage", new DoubleDescriptorStat(0).min(0d).max(20d).format("0.0"))
-            .init("armor_penetration", new DoubleDescriptorStat(0).min(0d).format("0.0"))
-            .init("block_penetration", new DoubleDescriptorStat(1).min(1d).format("0.0"))
-            .init("entity_penetration", new DoubleDescriptorStat(0).min(0d).max(1d).format("0.00"))
+            .init("damage", NumberDescriptorStat.of(0d))
+            .init("armor_penetration", NumberDescriptorStat.of(0d))
+            .init("block_penetration", NumberDescriptorStat.of(0d))
+            .init("entity_penetration", NumberDescriptorStat.of(0d))
 
-            .init("ricochet_chance", new DoubleDescriptorStat(0).min(0d).max(1d).format("0.00").hide())
-            .init("ricochet_angle", new DoubleDescriptorStat(90).min(90d).max(180d).format("0").hide())
-            .init("ricochet_multiplier", new DoubleDescriptorStat(1).min(0d).max(1d).format("0.00").hide())
+            .init("ricochet_chance", NumberDescriptorStat.of(0d))
+            .init("ricochet_angle", NumberDescriptorStat.of(0d))
+            .init("ricochet_multiplier", NumberDescriptorStat.of(0d))
 
-            .init("dropoff", new DoubleDescriptorStat(0).min(0d).format("0"))
-            .init("range", new DoubleDescriptorStat(0).min(0d).format("0"))
+            .init("raycast_distance", NumberDescriptorStat.of(0d))
+            .init("range", new Vector2DDescriptorStat(new Vector2D()))
 
             .init("trail_particle", new ParticleDataStat())
-            .init("trail_distance", new DoubleDescriptorStat(1d).hide())
+            .init("trail_distance", NumberDescriptorStat.of(1d))
             .init("hit_block_particle", new ParticleDataStat())
             .init("hit_entity_particle", new ParticleDataStat())
             .get();
 
-    @FromParent(fromDefaulted = true)
+    @FromMaster(fromDefault = true)
     private transient CalibrePlugin plugin;
 
+    /**
+     * Used for registration.
+     * @param plugin The plugin.
+     */
     public BulletSystem(CalibrePlugin plugin) {
         this.plugin = plugin;
     }
 
-    public BulletSystem() {}
-
-    public BulletSystem(BulletSystem o, CalibrePlugin plugin) {
-        super(o);
-        this.plugin = plugin;
+    /**
+     * Used for deserialization.
+     */
+    public BulletSystem() {
+        plugin = null;
     }
 
+    /**
+     * Used for copying.
+     * @param o The other instance.
+     */
     public BulletSystem(BulletSystem o) {
-        this(o, o.plugin);
+        super(o);
+        plugin = o.plugin;
     }
 
-    public CalibrePlugin plugin() { return plugin; }
-    @Override public Component localize(String locale, String key, Object... args) { return plugin.gen(locale, key, args); }
+    @Override public CalibrePlugin plugin() { return plugin; }
 
     @Override public String id() { return ID; }
     @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }
@@ -274,8 +287,18 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem {
         BukkitProjectiles.applyTo(projectile, tree().stats());
         projectile.source(user instanceof EntityUser ? ((EntityUser) user).entity() : null);
 
-        plugin.getSchedulerLoop().tick(projectile);
-        plugin.getSchedulerLoop().nextTick(projectile);
+        // raycast the first specified amount metres
+        SchedulerLoop loop = plugin.schedulerLoop();
+        long period = loop.period();
+
+        double raycastDistance = tree().<NumberDescriptor.Double>stat("raycast_distance").apply();
+        while (projectile.travelled() < raycastDistance) {
+            TickContext context = loop.context(projectile, period);
+            projectile.tick(context);
+            if (context.removed())
+                return;
+        }
+        loop.register(projectile);
     }
 
     @Override public BulletSystem copy() { return new BulletSystem(this); }

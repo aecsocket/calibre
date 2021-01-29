@@ -42,17 +42,17 @@ public abstract class AbstractSystem implements CalibreSystem {
     }
 
     @Override
-    public void inherit(CalibreSystem child, boolean fromDefault) {
-        if (!child.getClass().equals(getClass())) return;
+    public void inherit(CalibreSystem master, boolean fromDefault) {
+        if (!master.getClass().equals(getClass())) return;
         for (Field field : Utils.getAllModelFields(getClass())) {
-            if (!field.isAnnotationPresent(FromParent.class))
+            if (!field.isAnnotationPresent(FromMaster.class))
                 continue;
-            FromParent annotation = field.getAnnotation(FromParent.class);
-            if (fromDefault && !annotation.fromDefaulted())
+            FromMaster annotation = field.getAnnotation(FromMaster.class);
+            if (fromDefault && !annotation.fromDefault())
                 continue;
             field.setAccessible(true);
             try {
-                field.set(child, field.get(this));
+                field.set(this, field.get(master));
             } catch (IllegalAccessException ignore) {}
         }
     }

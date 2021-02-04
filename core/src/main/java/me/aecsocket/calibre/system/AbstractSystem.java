@@ -3,6 +3,7 @@ package me.aecsocket.calibre.system;
 import io.leangen.geantyref.TypeToken;
 import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.component.ComponentTree;
+import me.aecsocket.calibre.util.StatCollection;
 import me.aecsocket.unifiedframework.util.Utils;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
@@ -27,6 +28,8 @@ public abstract class AbstractSystem implements CalibreSystem {
         this.parent = parent;
     }
 
+    protected int listenerPriority(int defaultValue) { return setting("listener_priority").getInt(defaultValue); }
+
     protected <T> T deserialize(ConfigurationNode node, TypeToken<T> type, String fieldName) {
         if (node == null)
             return null;
@@ -37,8 +40,14 @@ public abstract class AbstractSystem implements CalibreSystem {
         }
     }
 
+
     protected <T> T deserialize(ConfigurationNode node, Class<T> type, String fieldName) {
         return deserialize(node, TypeToken.get(type), fieldName);
+    }
+
+    protected void combine(StatCollection base, StatCollection add) {
+        if (add != null)
+            base.combine(add);
     }
 
     @Override
@@ -53,7 +62,7 @@ public abstract class AbstractSystem implements CalibreSystem {
             field.setAccessible(true);
             try {
                 field.set(this, field.get(master));
-            } catch (IllegalAccessException ignore) {}
+            } catch (IllegalAccessException e) { e.printStackTrace(); }
         }
     }
 

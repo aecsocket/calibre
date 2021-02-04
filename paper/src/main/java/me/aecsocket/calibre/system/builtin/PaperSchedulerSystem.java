@@ -52,8 +52,9 @@ public class PaperSchedulerSystem extends SchedulerSystem implements PaperSystem
     }
 
     protected <I extends Item> void onEvent(ItemEvents.UpdateItem<I> event) {
-        if (event.cause() instanceof ItemEvents.Equipped && event.item() instanceof BukkitItem)
+        if (event.cause() instanceof ItemEvents.Equipped && event.item() instanceof BukkitItem) {
             plugin.itemManager().hide(((BukkitItem) event.item()).item(), true);
+        }
     }
 
     @Override public PaperSchedulerSystem copy() { return new PaperSchedulerSystem(this); }

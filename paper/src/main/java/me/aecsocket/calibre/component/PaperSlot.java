@@ -47,7 +47,7 @@ public class PaperSlot extends CalibreSlot {
         plugin = CalibrePlugin.getInstance();
     }
 
-    public PaperSlot(CalibreSlot o, CalibrePlugin plugin, GUIVector offset) throws SerializationException {
+    public PaperSlot(CalibreSlot o, CalibrePlugin plugin, GUIVector offset) {
         super(o);
         this.plugin = plugin;
         this.offset = offset;
@@ -71,14 +71,14 @@ public class PaperSlot extends CalibreSlot {
         }
 
         return BukkitUtils.modMeta(item, meta -> {
-            // TODO
+            // TODO wait for Paper to update
             meta.setDisplayName(LegacyComponentSerializer.legacySection().serialize(plugin.gen(locale, "slot_view.slot",
                     "key", plugin.gen(locale, "slot." + slotKey))));
         });
     }
 
     @Override
-    public CalibreSlot copy() throws SerializationException {
+    public CalibreSlot copy() {
         return new PaperSlot(super.copy(), plugin, offset);
     }
 }

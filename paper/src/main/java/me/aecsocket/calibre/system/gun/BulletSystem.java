@@ -7,7 +7,7 @@ import me.aecsocket.calibre.system.FromMaster;
 import me.aecsocket.calibre.system.PaperSystem;
 import me.aecsocket.calibre.system.SystemSetupException;
 import me.aecsocket.calibre.system.builtin.ProjectileSystem;
-import me.aecsocket.calibre.world.ItemUser;
+import me.aecsocket.calibre.world.user.ItemUser;
 import me.aecsocket.calibre.wrapper.user.BukkitItemUser;
 import me.aecsocket.calibre.wrapper.user.EntityUser;
 import me.aecsocket.unifiedframework.loop.SchedulerLoop;
@@ -15,12 +15,14 @@ import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.stat.Stat;
 import me.aecsocket.unifiedframework.stat.StatMap;
 import me.aecsocket.unifiedframework.stat.impl.data.ParticleDataStat;
+import me.aecsocket.unifiedframework.stat.impl.data.SoundDataStat;
 import me.aecsocket.unifiedframework.stat.impl.descriptor.NumberDescriptorStat;
 import me.aecsocket.unifiedframework.stat.impl.descriptor.Vector2DDescriptorStat;
 import me.aecsocket.unifiedframework.util.MapInit;
 import me.aecsocket.unifiedframework.util.Utils;
 import me.aecsocket.unifiedframework.util.VectorUtils;
 import me.aecsocket.unifiedframework.util.data.ParticleData;
+import me.aecsocket.unifiedframework.util.data.SoundData;
 import me.aecsocket.unifiedframework.util.descriptor.NumberDescriptor;
 import me.aecsocket.unifiedframework.util.descriptor.Vector2DDescriptor;
 import me.aecsocket.unifiedframework.util.projectile.BukkitCollidable;
@@ -54,10 +56,17 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
 
         private final CalibrePlugin plugin;
         private final StatMap stats;
-        private ParticleData[] trail;
+        private ParticleData[] trailParticle;
         private double trailDistance;
-        private ParticleData[] hitBlock;
-        private ParticleData[] hitEntity;
+
+        private ParticleData[] hitParticle;
+        private SoundData[] hitSound;
+
+        private ParticleData[] hitBlockParticle;
+        private SoundData[] hitBlockSound;
+
+        private ParticleData[] hitEntityParticle;
+        private SoundData[] hitEntitySound;
 
         protected final double originalDamage;
         protected double damage;
@@ -77,10 +86,17 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
             this.plugin = plugin;
             this.stats = stats;
 
-            trail = stats.val("trail_particle");
+            trailParticle = stats.val("trail_particle");
             trailDistance = stats.<NumberDescriptor.Double>val("trail_distance").apply();
-            hitBlock = stats.val("hit_block_particle");
-            hitEntity = stats.val("hit_entity_particle");
+
+            hitParticle = stats.val("hit_particle");
+            hitSound = stats.val("hit_sound");
+
+            hitBlockParticle = stats.val("hit_block_particle");
+            hitBlockSound = stats.val("hit_block_sound");
+
+            hitEntityParticle = stats.val("hit_entity_particle");
+            hitEntitySound = stats.val("hit_entity_sound");
 
             originalDamage = stats.<NumberDescriptor.Double>val("damage").apply();
             damage = originalDamage;
@@ -100,10 +116,18 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
         public CalibrePlugin plugin() { return plugin; }
         public StatMap stats() { return stats; }
 
-        public ParticleData[] trail() { return trail; }
+        public ParticleData[] trailParticle() { return trailParticle; }
         public double trailDistance() { return trailDistance; }
-        public ParticleData[] hitBlock() { return hitBlock; }
-        public ParticleData[] hitEntity() { return hitEntity; }
+
+        public ParticleData[] hitParticle() { return hitParticle; }
+        public SoundData[] hitSound() { return hitSound; }
+
+        public ParticleData[] hitBlockParticle() { return hitBlockParticle; }
+        public SoundData[] hitBlockSound() { return hitBlockSound; }
+
+        public ParticleData[] hitEntityParticle() { return hitEntityParticle; }
+        public SoundData[] hitEntitySound() { return hitEntitySound; }
+
         public double originalDamage() { return originalDamage; }
 
         public double damage() { return damage; }
@@ -127,8 +151,9 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
         public double ricochetAngle() { return ricochetAngle; }
         public void ricochetAngle(double ricochetAngle) { this.ricochetAngle = ricochetAngle; }
 
-        public double ricochetSpeed() { return ricochetMultiplier; }
-        public void ricochetSpeed(double ricochetSpeed) { this.ricochetMultiplier = ricochetSpeed; }
+        public double ricochetMultiplier() { return ricochetMultiplier; }
+        public void ricochetMultiplier(double ricochetSpeed) { this.ricochetMultiplier = ricochetSpeed; }
+
 
         public double dropoff() { return dropoff; }
         public void dropoff(double dropoff) { this.dropoff = dropoff; }
@@ -142,7 +167,7 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
             Vector step = VectorUtils.toBukkit(delta.normalize().multiply(trailDistance));
             Location current = VectorUtils.toBukkit(from).toLocation(world);
             for (double d = 0; d < deltaLength; d += trailDistance) {
-                ParticleData.spawn(current, trail);
+                ParticleData.spawn(current, trailParticle);
                 current.add(step);
             }
         }
@@ -150,6 +175,9 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
         @Override
         protected void collide(TickContext tickContext, BukkitRayTrace ray, BukkitCollidable collided) {
             Location location = VectorUtils.toBukkit(ray.position()).toLocation(world);
+
+            ParticleData.spawn(location, hitParticle);
+            SoundData.play(() -> location, hitSound);
 
             HitResult result;
             if (collided.isBlock())
@@ -178,7 +206,8 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
         }
 
         protected HitResult collideBlock(TickContext tickContext, BukkitRayTrace ray, Location location, Block block) {
-            ParticleData.spawn(location, block.getBlockData(), hitBlock);
+            ParticleData.spawn(location, block.getBlockData(), hitBlockParticle);
+            SoundData.play(() -> location, hitBlockSound);
             if (bounce > 0)
                 return HitResult.CONTINUE;
 
@@ -199,7 +228,8 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
 
         protected HitResult collideEntity(TickContext tickContext, BukkitRayTrace ray, Location location, Entity entity) {
             if (entity instanceof LivingEntity) {
-                ParticleData.spawn(location, hitEntity);
+                ParticleData.spawn(location, hitEntityParticle);
+                SoundData.play(() -> location, hitEntitySound);
                 damage((LivingEntity) entity);
             } else if (entity instanceof Hanging) {
                 if (new HangingBreakByEntityEvent((Hanging) entity, source, HangingBreakEvent.RemoveCause.ENTITY).callEvent())
@@ -238,8 +268,15 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
 
             .init("trail_particle", new ParticleDataStat())
             .init("trail_distance", NumberDescriptorStat.of(1d))
+
+            .init("hit_particle", new ParticleDataStat())
+            .init("hit_sound", new SoundDataStat())
+
             .init("hit_block_particle", new ParticleDataStat())
+            .init("hit_block_sound", new SoundDataStat())
+
             .init("hit_entity_particle", new ParticleDataStat())
+            .init("hit_entity_sound", new SoundDataStat())
             .get();
 
     @FromMaster(fromDefault = true)

@@ -3,26 +3,29 @@ package me.aecsocket.calibre.system;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.component.PaperComponent;
-import me.aecsocket.calibre.world.ItemSlot;
-import me.aecsocket.calibre.world.ItemUser;
+import me.aecsocket.calibre.world.slot.ItemSlot;
+import me.aecsocket.calibre.world.user.ItemUser;
 import me.aecsocket.calibre.wrapper.BukkitItem;
 import me.aecsocket.calibre.wrapper.slot.BukkitSlot;
 import me.aecsocket.calibre.wrapper.slot.EntityEquipmentSlot;
 import me.aecsocket.calibre.wrapper.slot.InventorySlot;
 import me.aecsocket.calibre.wrapper.user.PlayerUser;
+import me.aecsocket.unifiedframework.event.Cancellable;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.util.BukkitUtils;
 import me.aecsocket.unifiedframework.util.vector.Vector3I;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 
 public final class BukkitItemEvents {
     private BukkitItemEvents() {}
@@ -41,7 +44,7 @@ public final class BukkitItemEvents {
             this.tickContext = tickContext;
         }
 
-        public TickContext tickContext() { return tickContext; }
+        @Override public TickContext tickContext() { return tickContext; }
 
         public static BukkitEquipped of(PaperComponent component, Player player, EquipmentSlot slot, TickContext tickContext) {
             return new BukkitEquipped(component, PlayerUser.of(player), EntityEquipmentSlot.of(player, slot), tickContext);
@@ -68,6 +71,31 @@ public final class BukkitItemEvents {
                     component,
                     PlayerUser.of(player),
                     EntityEquipmentSlot.of(player, slot)
+            );
+        }
+    }
+
+    public static class BukkitToggleSprint extends Base implements ItemEvents.ToggleSprint<BukkitItem> {
+        private final PlayerToggleSprintEvent event;
+        private final boolean sprinting;
+
+        public BukkitToggleSprint(PlayerToggleSprintEvent event, CalibreComponent<BukkitItem> component, ItemUser user, ItemSlot<BukkitItem> slot, boolean sprinting) {
+            super(component, user, slot);
+            this.event = event;
+            this.sprinting = sprinting;
+        }
+
+        public PlayerToggleSprintEvent event() { return event; }
+        @Override public boolean sprinting() { return sprinting; }
+
+        public static BukkitToggleSprint of(PlayerToggleSprintEvent event, PaperComponent component, EquipmentSlot slot) {
+            Player player = event.getPlayer();
+            return new BukkitToggleSprint(
+                    event,
+                    component,
+                    PlayerUser.of(player),
+                    EntityEquipmentSlot.of(player, slot),
+                    event.isSprinting()
             );
         }
     }
@@ -177,6 +205,31 @@ public final class BukkitItemEvents {
         }
     }
 
+    public static class BukkitDrop extends Base implements ItemEvents.Drop<BukkitItem> {
+        private final PlayerDropItemEvent event;
+
+        public BukkitDrop(PlayerDropItemEvent event, CalibreComponent<BukkitItem> component, ItemUser user, ItemSlot<BukkitItem> slot) {
+            super(component, user, slot);
+            this.event = event;
+        }
+
+        public PlayerDropItemEvent event() { return event; }
+
+        @Override public boolean cancelled() { return event.isCancelled(); }
+        @Override public void cancel() { event.setCancelled(true); }
+
+        public static BukkitDrop of(PlayerDropItemEvent event, PaperComponent component) {
+            Player player = event.getPlayer();
+            Item drop = event.getItemDrop();
+            return new BukkitDrop(
+                    event,
+                    component,
+                    PlayerUser.of(player),
+                    BukkitSlot.of(drop::getItemStack, drop::setItemStack)
+            );
+        }
+    }
+
     public static class BukkitClick extends Base implements ItemEvents.Click<BukkitItem> {
         private final InventoryClickEvent event;
         private final ItemSlot<BukkitItem> cursor;
@@ -263,5 +316,47 @@ public final class BukkitItemEvents {
                     EntityEquipmentSlot.of(player, slot)
             );
         }
+    }
+
+    public static class PacketEvent implements Cancellable {
+        private final ItemStack item;
+        private final PaperComponent component;
+        private final Player viewer;
+        private boolean cancelled;
+
+        public PacketEvent(ItemStack item, PaperComponent component, Player viewer) {
+            this.item = item;
+            this.component = component;
+            this.viewer = viewer;
+        }
+
+        public ItemStack item() { return item; }
+        public CalibreComponent<BukkitItem> component() { return component; }
+        public Player viewer() { return viewer; }
+
+        @Override public boolean cancelled() { return cancelled; }
+        @Override public void cancel() { cancelled = true; }
+    }
+
+    public static class ShowItem extends PacketEvent {
+        private final Entity holder;
+
+        public ShowItem(ItemStack item, PaperComponent component, Player viewer, Entity holder) {
+            super(item, component, viewer);
+            this.holder = holder;
+        }
+
+        public Entity holder() { return holder; }
+    }
+
+    public static class Swing extends PacketEvent {
+        private final LivingEntity holder;
+
+        public Swing(ItemStack item, PaperComponent component, Player viewer, LivingEntity holder) {
+            super(item, component, viewer);
+            this.holder = holder;
+        }
+
+        public LivingEntity holder() { return holder; }
     }
 }

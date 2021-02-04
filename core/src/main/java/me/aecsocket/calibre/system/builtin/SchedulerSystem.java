@@ -8,11 +8,40 @@ import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.loop.Tickable;
 import me.aecsocket.unifiedframework.util.data.Tuple2;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Consumer;
 
 public abstract class SchedulerSystem extends AbstractSystem {
+    public static class Serializer implements TypeSerializer<SchedulerSystem> {
+        private final TypeSerializer<SchedulerSystem> delegate;
+
+        public Serializer(TypeSerializer<SchedulerSystem> delegate) {
+            this.delegate = delegate;
+        }
+
+        public TypeSerializer<SchedulerSystem> delegate() { return delegate; }
+
+        @Override
+        public void serialize(Type type, @Nullable SchedulerSystem obj, ConfigurationNode node) throws SerializationException {
+            delegate.serialize(type, obj, node);
+            if (System.currentTimeMillis() > obj.availableAt)
+                node.removeChild("available_at");
+            if (obj.tasks.size() == 0)
+                node.removeChild("tasks");
+        }
+
+        @Override
+        public SchedulerSystem deserialize(Type type, ConfigurationNode node) throws SerializationException {
+            return delegate.deserialize(type, node);
+        }
+    }
+
     public static class Scheduler implements Tickable {
         protected final Map<Integer, Task<?>> tasks = new HashMap<>();
         protected int taskId;
@@ -78,6 +107,7 @@ public abstract class SchedulerSystem extends AbstractSystem {
     @FromMaster(fromDefault = true)
     private final transient Scheduler scheduler;
     private final List<Integer> tasks = new ArrayList<>();
+    private long availableAt;
 
     /**
      * Used for registration.
@@ -107,6 +137,12 @@ public abstract class SchedulerSystem extends AbstractSystem {
 
     public List<Integer> tasks() { return tasks; }
 
+    public long availableAt() { return availableAt; }
+    public void availableAt(long availableAt) { this.availableAt = availableAt; }
+
+    public boolean available() { return System.currentTimeMillis() >= availableAt; }
+    public void delay(long ms) { availableAt = System.currentTimeMillis() + ms; }
+
     public <S extends CalibreSystem> Tuple2<Integer, Task<S>> schedule(S system, long delay, Consumer<S> function) {
         Tuple2<Integer, Task<S>> result = scheduler.schedule(system, delay, function);
         tasks.add(result.a());
@@ -121,7 +157,7 @@ public abstract class SchedulerSystem extends AbstractSystem {
         if (!parent.isRoot()) return;
 
         EventDispatcher events = tree.events();
-        int priority = setting("listener_priority").getInt(100000);
+        int priority = listenerPriority(100000);
         events.registerListener(ItemEvents.Equipped.class, this::onEvent, priority);
         events.registerListener(ItemEvents.Switch.class, this::onEvent, priority);
     }

@@ -67,12 +67,12 @@ public class PaperComponent extends CalibreComponent<BukkitItem> {
 
     public PaperComponent() { this(CalibrePlugin.getInstance(), null); }
 
-    public PaperComponent(CalibreComponent<BukkitItem> o, CalibrePlugin plugin) throws SerializationException {
+    public PaperComponent(CalibreComponent<BukkitItem> o, CalibrePlugin plugin) {
         super(o);
         this.plugin = plugin;
     }
 
-    public PaperComponent(PaperComponent o) throws SerializationException {
+    public PaperComponent(PaperComponent o) {
         this(o, o.plugin);
     }
 
@@ -96,8 +96,10 @@ public class PaperComponent extends CalibreComponent<BukkitItem> {
         if (descriptor == null)
             throw new ItemCreationException("No item descriptor");
         try {
-            return BukkitItem.of(BukkitUtils.modMeta(descriptor.create(amount), meta ->
-                    meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE)));
+            return BukkitItem.of(BukkitUtils.modMeta(descriptor.create(amount), meta -> {
+                meta.setUnbreakable(true);
+                meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+            }));
         } catch (IllegalArgumentException e) {
             throw new ItemCreationException(e);
         }
@@ -108,5 +110,5 @@ public class PaperComponent extends CalibreComponent<BukkitItem> {
         return result == null ? null : result.item();
     }
 
-    @Override public PaperComponent copy() throws SerializationException { return new PaperComponent(this); }
+    @Override public PaperComponent copy() { return new PaperComponent(this); }
 }

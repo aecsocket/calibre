@@ -66,7 +66,7 @@ public abstract class SightSystem extends AbstractSystem {
         if (!parent.isRoot()) return;
 
         EventDispatcher events = tree.events();
-        int priority = setting("listener_priority").getInt(1060);
+        int priority = listenerPriority(1060);
         events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, priority);
 
         statRenderer = parent.system(StatRenderer.class);

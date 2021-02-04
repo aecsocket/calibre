@@ -1,7 +1,7 @@
 package me.aecsocket.calibre.system.builtin;
 
 import me.aecsocket.calibre.system.CalibreSystem;
-import me.aecsocket.calibre.world.ItemUser;
+import me.aecsocket.calibre.world.user.ItemUser;
 import me.aecsocket.unifiedframework.util.vector.Vector3D;
 
 public interface ProjectileSystem extends CalibreSystem {

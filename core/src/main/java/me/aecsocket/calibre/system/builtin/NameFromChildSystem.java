@@ -43,7 +43,7 @@ public abstract class NameFromChildSystem extends AbstractSystem {
     public void parentTo(ComponentTree tree, CalibreComponent<?> parent) {
         super.parentTo(tree, parent);
         EventDispatcher events = tree.events();
-        int priority = setting("listener_priority").getInt(100000);
+        int priority = listenerPriority(100000);
         events.registerListener(CalibreComponent.Events.NameCreate.class, this::onEvent, priority);
     }
 

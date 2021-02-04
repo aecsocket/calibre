@@ -1,6 +1,6 @@
 package me.aecsocket.calibre.wrapper.user;
 
-import me.aecsocket.calibre.world.ItemUser;
+import me.aecsocket.calibre.world.user.ItemUser;
 import me.aecsocket.unifiedframework.util.VectorUtils;
 import org.bukkit.Location;
 import org.bukkit.World;

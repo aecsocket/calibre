@@ -11,10 +11,8 @@ import me.aecsocket.unifiedframework.util.BukkitUtils;
 import me.aecsocket.unifiedframework.util.data.SoundData;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,20 +77,16 @@ public class SlotViewItem implements GUIItem {
         CalibreComponent<BukkitItem> cursor = plugin.itemManager().component(view.getView().getCursor());
 
         String locale = view.getPlayer().getLocale();
-        ItemStack item = null;
+        ItemStack item;
         if (component == null) {
             item = slot.createViewItem(locale, slotKey, cursor);
         } else {
-            try {
-                CalibreComponent<BukkitItem> copy = component.copy();
-                copy.slots().clear();
-                ComponentTree tree = new ComponentTree(copy).buildTree();
-                tree.complete(false);
-                tree.buildStats();
-                item = copy.create(locale).item();
-            } catch (SerializationException e) {
-                e.printStackTrace();
-            }
+            CalibreComponent<BukkitItem> copy = component.copy();
+            copy.slots().clear();
+            ComponentTree tree = new ComponentTree(copy).buildTree();
+            tree.complete(false);
+            tree.buildStats();
+            item = copy.create(locale).item();
         }
 
         if (item != null && slot != null && slot.fieldModifiable())
@@ -119,11 +113,6 @@ public class SlotViewItem implements GUIItem {
         String locale = player.getLocale();
         ItemStack rawCursor = view.getRawCursor();
         if (BukkitUtils.empty(rawCursor) && slot.get() != null) {
-            if (event.getClick() == ClickType.RIGHT) {
-                // TODO component editing menu
-                return;
-            }
-
             CalibreComponent<BukkitItem> inSlot = slot.<CalibreComponent<BukkitItem>>get().buildTree();
             SoundData.play(player::getLocation, inSlot.tree().stat("remove_sound"));
             view.setRawCursor(inSlot.create(locale).item());

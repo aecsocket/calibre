@@ -36,7 +36,7 @@ public class ComponentTree {
             else {
                 CalibreComponent<?> root = obj.root;
 
-                node.node("id").set(root.id());
+                node.node("id").set(root.id);
 
                 for (CalibreSystem system : root.systems().values()) {
                     ConfigurationNode settings = BasicConfigurationNode.root(node.options()).set(system);
@@ -56,6 +56,9 @@ public class ComponentTree {
                         continue;
                     node.node("slots", key).set(child.copy().buildTree().tree);
                 }
+
+                if (node.childrenMap().size() == 1)
+                    node.set(root.id);
             }
         }
 
@@ -237,7 +240,12 @@ public class ComponentTree {
                 .sink(() -> new BufferedWriter(writer))
                 .prettyPrinting(prettyPrinting)
                 .build();
-        loader.save(BasicConfigurationNode.root(options).set(this));
+        ConfigurationNode node = BasicConfigurationNode.root(options).set(this);
+        // HOCON can only write nodes in map format
+        // TODO maybe remove after hocon rewrite
+        if (!node.isMap())
+            node.node("id").set(root.id);
+        loader.save(node);
         return writer.toString();
     }
 

@@ -65,8 +65,6 @@ public interface Formatter<T> {
 
             // `function`
             String function = config.node("function").getString();
-            // TODO make it so if add negative, or subtract positive, the sign chanegs accordingly in unified
-            // so u can do functions which change visible sign
             if (function != null) {
                 MathExpressionNode expr = MathParser.parses(function);
                 expr.setVariable("n", value);

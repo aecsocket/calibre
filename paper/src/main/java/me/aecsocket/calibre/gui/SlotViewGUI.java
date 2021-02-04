@@ -4,7 +4,7 @@ import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.component.PaperComponent;
 import me.aecsocket.calibre.component.PaperSlot;
 import me.aecsocket.calibre.util.ComponentCreationException;
-import me.aecsocket.calibre.world.ItemSlot;
+import me.aecsocket.calibre.world.slot.ItemSlot;
 import me.aecsocket.calibre.wrapper.BukkitItem;
 import me.aecsocket.unifiedframework.gui.*;
 import org.bukkit.Bukkit;
@@ -81,6 +81,12 @@ public class SlotViewGUI extends GUI {
 
         for (Map.Entry<String, PaperSlot> entry : slot.get().<PaperSlot>slots().entrySet())
             addItems(map, entry.getKey(), entry.getValue(), offset);
+    }
+
+    @Override
+    public GUIView createView(Player player) {
+        slot.set(component.create(player.getLocale(), slot.get().amount()));
+        return super.createView(player);
     }
 
     public void update(GUIView view) {

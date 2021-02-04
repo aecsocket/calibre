@@ -34,20 +34,19 @@ public interface BukkitItem extends Item {
 
     @Override
     default Component name() {
-        // TODO
+        // TODO wait for Paper to update
         return LegacyComponentSerializer.legacySection().deserialize(item().getItemMeta().getDisplayName());
     }
 
     @Override
     default void name(Component component) {
-        // TODO
+        // TODO wait for Paper to update
         BukkitUtils.modMeta(item(), meta -> meta.setDisplayName(LegacyComponentSerializer.legacySection().serialize(component)));
     }
 
     @Override
     default void addInfo(Collection<Component> components) {
         BukkitUtils.modMeta(item(), meta -> {
-            // TODO
             List<String> lore = meta.getLore();
             if (lore == null)
                 lore = new ArrayList<>();
@@ -55,6 +54,7 @@ public interface BukkitItem extends Item {
                 lore.add("");
 
             for (Component line : components)
+                // TODO wait for Paper to update
                 lore.add(LegacyComponentSerializer.legacySection().serialize(line));
             meta.setLore(lore);
         });

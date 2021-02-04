@@ -12,21 +12,29 @@ import me.aecsocket.unifiedframework.util.VectorUtils;
 import me.aecsocket.unifiedframework.util.data.ParticleData;
 import me.aecsocket.unifiedframework.util.vector.Vector2D;
 import me.aecsocket.unifiedframework.util.vector.Vector3D;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.spongepowered.configurate.serialize.SerializationException;
 
 public class CalibrePlayer implements Tickable {
     public static final ParticleData[] OFFSET_PARTICLE = {
             new ParticleData().particle(Particle.FIREWORKS_SPARK)
     };
+    public static final PotionEffect EFFECT_MINING_FATIGUE = new PotionEffect(PotionEffectType.SLOW_DIGGING, 2, 127, false, false, false);
 
     private final CalibrePlugin plugin;
     private final Player player;
     private Vector3D offset;
+    private ItemAnimation.Instance animation;
+
+    private int cancelInteractTick;
+    private double inaccuracy;
 
     private Vector2D recoil = new Vector2D();
     private double recoilSpeed;
@@ -45,6 +53,16 @@ public class CalibrePlayer implements Tickable {
 
     public Vector3D offset() { return offset; }
     public void offset(Vector3D offset) { this.offset = offset; }
+
+    public ItemAnimation.Instance animation() { return animation; }
+    public void animation(ItemAnimation.Instance animation) { this.animation = animation; }
+
+    public int cancelInteractTick() { return cancelInteractTick; }
+    public boolean cancelledInteract() { return Bukkit.getCurrentTick() <= cancelInteractTick + 3; }
+    public void cancelInteract() { cancelInteractTick = Bukkit.getCurrentTick(); }
+
+    public double inaccuracy() { return inaccuracy; }
+    public void inaccuracy(double inaccuracy) { this.inaccuracy = inaccuracy; }
 
     public Vector2D recoil() { return recoil; }
     public void recoil(Vector2D recoil) { this.recoil = recoil; }
@@ -101,6 +119,11 @@ public class CalibrePlayer implements Tickable {
             gui.update(view);
         }
 
+        // inaccuracy
+        inaccuracy -= tickContext.delta() / 1000d;
+        if (inaccuracy < 0)
+            inaccuracy = 0;
+
         // recoil
         if (recoil.manhattanLength() > 0.01) {
             Vector2D rotation = recoil.multiply(recoilSpeed);
@@ -113,6 +136,13 @@ public class CalibrePlayer implements Tickable {
             Vector2D rotation = recoilToRecover.multiply(recoilRecoverySpeed);
             CalibreProtocol.rotate(player, rotation.x(), rotation.y());
             recoilToRecover = recoilToRecover.multiply(1 - recoilRecoverySpeed);
+        }
+
+        // animation
+        if (animation != null) {
+            tickContext.tick(animation);
+            if (!animation.finished())
+                player.addPotionEffect(EFFECT_MINING_FATIGUE);
         }
     }
 }

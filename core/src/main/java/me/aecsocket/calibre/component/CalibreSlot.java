@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
-import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.*;
 
@@ -20,6 +19,7 @@ public class CalibreSlot implements Slot {
     protected ComponentCompatibility compatibility = new ComponentCompatibility();
     protected boolean required;
     protected boolean fieldModifiable;
+    protected int type;
     protected final List<String> tags;
 
     public CalibreSlot(boolean required, boolean fieldModifiable) {
@@ -37,7 +37,7 @@ public class CalibreSlot implements Slot {
         tags = new ArrayList<>();
     }
 
-    public CalibreSlot(CalibreSlot o) throws SerializationException {
+    public CalibreSlot(CalibreSlot o) {
         component = o.component == null ? null : o.component.copy();
         parent = o.parent;
         compatibility = o.compatibility;
@@ -54,6 +54,9 @@ public class CalibreSlot implements Slot {
 
     public boolean fieldModifiable() { return fieldModifiable; }
     public void fieldModifiable(boolean fieldModifiable) { this.fieldModifiable = fieldModifiable; }
+
+    public int type() { return type; }
+    public void type(int type) { this.type = type; }
 
     public List<String> tags() { return tags; }
 
@@ -99,9 +102,9 @@ public class CalibreSlot implements Slot {
 
     @Override public String toString() { return "<" + component + ">"; }
 
-    public CalibreSlot copy() throws SerializationException { return new CalibreSlot(this); }
+    public CalibreSlot copy() { return new CalibreSlot(this); }
 
-    public static LinkedHashMap<String, CalibreSlot> copySlots(Map<String, CalibreSlot> existing) throws SerializationException {
+    public static LinkedHashMap<String, CalibreSlot> copySlots(Map<String, CalibreSlot> existing) {
         LinkedHashMap<String, CalibreSlot> result = new LinkedHashMap<>();
         for (Map.Entry<String, CalibreSlot> entry : existing.entrySet())
             result.put(entry.getKey(), entry.getValue().copy());

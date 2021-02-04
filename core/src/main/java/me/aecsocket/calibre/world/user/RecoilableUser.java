@@ -1,4 +1,4 @@
-package me.aecsocket.calibre.world;
+package me.aecsocket.calibre.world.user;
 
 import me.aecsocket.unifiedframework.util.vector.Vector2D;
 

@@ -54,7 +54,7 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
         completeStats = new StatCollection();
     }
 
-    public CalibreComponent(CalibreComponent<I> o) throws SerializationException {
+    public CalibreComponent(CalibreComponent<I> o) {
         id = o.id;
         canComplete = o.canComplete;
         categories = new ArrayList<>(o.categories);
@@ -152,8 +152,6 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
     private void addToDefaults(Map<String, Stat<?>> toAdd, Map<String, Stat<?>> defaultStats) {
         for (Map.Entry<String, Stat<?>> statEntry : toAdd.entrySet()) {
             String key = statEntry.getKey();
-            if (defaultStats.containsKey(key))
-                throw new ResolutionException(String.format("Duplicate stat %s", key));
             defaultStats.put(key, statEntry.getValue());
         }
     }
@@ -256,11 +254,13 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
         return candidate.get().set(toAdd);
     }
 
-    public List<CalibreSlot> collectSlots(String tag) {
+    public List<CalibreSlot> collectSlots(String tag, Integer type) {
         List<CalibreSlot> result = new ArrayList<>();
         walk(data -> {
             CalibreSlot slot = data.slot();
-            if (!slot.tags.contains(tag))
+            if (tag != null && !slot.tags.contains(tag))
+                return;
+            if (type != null && slot.type != type)
                 return;
             result.add(slot);
         });
@@ -292,7 +292,7 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
 
     @Override public String toString() { return id + slots.toString(); }
 
-    public abstract CalibreComponent<I> copy() throws SerializationException;
+    public abstract CalibreComponent<I> copy();
 
     public static final class Events {
         private Events() {}

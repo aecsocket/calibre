@@ -10,7 +10,6 @@ import me.aecsocket.unifiedframework.component.Slot;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.util.Utils;
 import net.kyori.adventure.text.Component;
-import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,7 +42,7 @@ public abstract class SlotDisplaySystem extends AbstractSystem {
         if (!parent.isRoot()) return;
 
         EventDispatcher events = tree.events();
-        int priority = setting("listener_priority").getInt(1100);
+        int priority = listenerPriority(1100);
         events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, priority);
     }
 
@@ -66,16 +65,14 @@ public abstract class SlotDisplaySystem extends AbstractSystem {
             CalibreSlot slot = (CalibreSlot) raw;
             String slotType = slotType(slot);
             int depth = data.depth();
-            try {
-                info.add(gen(locale, "system." + ID + ".entry",
-                        "pad", depth == 0 ? Component.empty() : paddingStart.append(Utils.repeat(paddingMiddle, depth)).append(paddingEnd),
-                        "key", gen(locale, "system." + ID + ".slot_type." + slotType,
-                                "key", generatedKeys.computeIfAbsent(data.path()[depth], k -> gen(locale, "slot." + k))),
-                        "slot", slot.get() == null
-                                ? gen(locale, "system." + ID + ".empty")
-                                // use `.copy().buildTree()` so that the component pretends it's the root
-                                : slot.<CalibreComponent<?>>get().copy().buildTree().name(locale)));
-            } catch (SerializationException ignore) {}
+            info.add(gen(locale, "system." + ID + ".entry",
+                    "pad", depth == 0 ? Component.empty() : paddingStart.append(Utils.repeat(paddingMiddle, depth)).append(paddingEnd),
+                    "key", gen(locale, "system." + ID + ".slot_type." + slotType,
+                            "key", generatedKeys.computeIfAbsent(data.path()[depth], k -> gen(locale, "slot." + k))),
+                    "slot", slot.get() == null
+                            ? gen(locale, "system." + ID + ".empty")
+                            // use `.copy().buildTree()` so that the component pretends it's the root
+                            : slot.<CalibreComponent<?>>get().copy().buildTree().name(locale)));
         });
 
         if (info.size() > 0)

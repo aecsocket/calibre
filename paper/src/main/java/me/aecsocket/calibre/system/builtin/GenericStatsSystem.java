@@ -5,18 +5,25 @@ import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.component.ComponentTree;
 import me.aecsocket.calibre.system.*;
 import me.aecsocket.calibre.util.CalibreProtocol;
+import me.aecsocket.calibre.util.ItemAnimation;
 import me.aecsocket.calibre.world.Item;
-import me.aecsocket.calibre.world.ItemUser;
-import me.aecsocket.calibre.world.ZoomableUser;
+import me.aecsocket.calibre.world.slot.EquippableSlot;
+import me.aecsocket.calibre.world.user.ItemUser;
+import me.aecsocket.calibre.world.user.MovementUser;
+import me.aecsocket.calibre.world.user.CameraUser;
 import me.aecsocket.calibre.wrapper.BukkitItem;
+import me.aecsocket.calibre.wrapper.user.BukkitItemUser;
 import me.aecsocket.calibre.wrapper.user.PlayerUser;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.stat.Stat;
 import me.aecsocket.unifiedframework.stat.impl.BooleanStat;
+import me.aecsocket.unifiedframework.stat.impl.data.SoundDataStat;
 import me.aecsocket.unifiedframework.stat.impl.descriptor.NumberDescriptorStat;
 import me.aecsocket.unifiedframework.util.BukkitUtils;
 import me.aecsocket.unifiedframework.util.MapInit;
+import me.aecsocket.unifiedframework.util.data.SoundData;
 import me.aecsocket.unifiedframework.util.descriptor.NumberDescriptor;
+import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
@@ -36,6 +43,15 @@ public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
             .init("attack_damage", NumberDescriptorStat.of(0d))
             .init("allow_sprint", new BooleanStat(true))
             .init("allow_jump", new BooleanStat(true))
+
+            .init("switch_to_sound", new SoundDataStat())
+            .init("switch_to_animation", new ItemAnimation.Stat())
+
+            .init("sprint_start_sound", new SoundDataStat())
+            .init("sprint_start_animation", new ItemAnimation.Stat())
+
+            .init("sprint_stop_sound", new SoundDataStat())
+            .init("sprint_stop_animation", new ItemAnimation.Stat())
             .get();
 
     @FromMaster(fromDefault = true)
@@ -82,19 +98,20 @@ public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
         events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, priority);
         events.registerListener(ItemEvents.UpdateItem.class, this::onEvent, priority);
         events.registerListener(ItemEvents.Jump.class, this::onEvent, priority);
+        events.registerListener(ItemEvents.ToggleSprint.class, this::onEvent, priority);
         events.registerListener(ItemEvents.Switch.class, this::onEvent, priority);
     }
 
     private void update(ItemUser user) {
-        if (user instanceof ZoomableUser)
-            ((ZoomableUser) user).zoom(tree().<NumberDescriptor.Double>stat("zoom").apply());
+        if (user instanceof CameraUser)
+            ((CameraUser) user).zoom(tree().<NumberDescriptor.Double>stat("zoom").apply());
         if (user instanceof PlayerUser)
             CalibreProtocol.allowSprint(((PlayerUser) user).entity(), tree().<Boolean>stat("allow_sprint"));
     }
 
     private void reset(ItemUser user) {
-        if (user instanceof ZoomableUser)
-            ((ZoomableUser) user).zoom(0.1 /* todo update to defaults */);
+        if (user instanceof CameraUser)
+            ((CameraUser) user).zoom(0.1);
         if (user instanceof PlayerUser)
             CalibreProtocol.allowSprint(((PlayerUser) user).entity(), true);
     }
@@ -112,6 +129,12 @@ public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
 
     public <I extends Item> void onEvent(ItemEvents.UpdateItem<I> event) {
         update(event.user());
+        if (
+                event.slot() instanceof EquippableSlot && ((EquippableSlot<I>) event.slot()).equipped()
+                && event.user() instanceof PlayerUser && plugin.playerData(((PlayerUser) event.user()).entity()).animation() != null
+        ) {
+            plugin.itemManager().hide(((BukkitItem) event.item()).item(), true);
+        }
     }
 
     public <I extends Item> void onEvent(ItemEvents.Jump<I> event) {
@@ -119,13 +142,31 @@ public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
             event.cancel();
     }
 
+    public <I extends Item> void onEvent(ItemEvents.ToggleSprint<I> event) {
+        String infix = event.sprinting() ? "start" : "stop";
+        ItemUser user = event.user();
+        if (event.user() instanceof BukkitItemUser)
+            SoundData.play(((BukkitItemUser) user)::location, tree().stat("sprint_" + infix + "_sound"));
+        ItemAnimation.start(user, event.slot(), tree().stat("sprint_" + infix + "_animation"));
+    }
+
     public <I extends Item> void onEvent(ItemEvents.Switch<I> event) {
         if (event.cancelled())
             return;
-        if (event.position() == ItemEvents.Switch.TO)
-            update(event.user());
-        else
-            reset(event.user());
+        ItemUser user = event.user();
+        if (event.position() == ItemEvents.Switch.TO) {
+            update(user);
+            String prefix = user instanceof MovementUser && ((MovementUser) user).sprinting() ? "sprint_start" : "switch_to";
+            if (user instanceof BukkitItemUser)
+                SoundData.play(((BukkitItemUser) user)::location, tree().stat(prefix + "_sound"));
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin,
+                    () -> ItemAnimation.start(user, event.slot(), tree().stat(prefix + "_animation")), 1);
+        } else {
+            if (user instanceof PlayerUser)
+                plugin.playerData(((PlayerUser) user).entity()).animation(null);
+            reset(user);
+            update(event);
+        }
     }
 
     @Override public GenericStatsSystem copy() { return new GenericStatsSystem(this); }

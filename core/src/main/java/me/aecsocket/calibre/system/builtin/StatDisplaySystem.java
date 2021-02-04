@@ -90,7 +90,7 @@ public abstract class StatDisplaySystem extends AbstractSystem implements StatRe
         if (!parent.isRoot()) return;
 
         EventDispatcher events = tree.events();
-        int priority = setting("listener_priority").getInt(100);
+        int priority = listenerPriority(100);
         events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, priority);
     }
 

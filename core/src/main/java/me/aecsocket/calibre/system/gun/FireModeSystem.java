@@ -62,7 +62,7 @@ public abstract class FireModeSystem extends AbstractSystem {
         if (!parent.isRoot()) return;
 
         EventDispatcher events = tree.events();
-        int priority = setting("listener_priority").getInt(1030);
+        int priority = listenerPriority(1030);
         events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, priority);
 
         statRenderer = parent.system(StatRenderer.class);

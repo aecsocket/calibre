@@ -1,6 +1,6 @@
 package me.aecsocket.calibre.wrapper.slot;
 
-import me.aecsocket.calibre.world.ItemSlot;
+import me.aecsocket.calibre.world.slot.ItemSlot;
 import me.aecsocket.calibre.wrapper.BukkitItem;
 import me.aecsocket.unifiedframework.util.BukkitUtils;
 import org.bukkit.inventory.ItemStack;

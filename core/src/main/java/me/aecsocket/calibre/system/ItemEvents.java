@@ -2,9 +2,10 @@ package me.aecsocket.calibre.system;
 
 import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.world.Item;
-import me.aecsocket.calibre.world.ItemSlot;
-import me.aecsocket.calibre.world.ItemUser;
+import me.aecsocket.calibre.world.slot.ItemSlot;
+import me.aecsocket.calibre.world.user.ItemUser;
 import me.aecsocket.unifiedframework.event.Cancellable;
+import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.util.vector.Vector3I;
 
 public final class ItemEvents {
@@ -53,9 +54,15 @@ public final class ItemEvents {
         I item();
     }
 
-    public interface Equipped<I extends Item> extends ItemEvent<I> {}
+    public interface Equipped<I extends Item> extends ItemEvent<I> {
+        TickContext tickContext();
+    }
 
     public interface Jump<I extends Item> extends ItemEvent<I>, Cancellable {}
+
+    public interface ToggleSprint<I extends Item> extends ItemEvent<I> {
+        boolean sprinting();
+    }
 
     public interface Scroll<I extends Item> extends ItemEvent<I> {
         int length();
@@ -78,6 +85,8 @@ public final class ItemEvents {
     public interface SwapHand<I extends Item> extends ItemEvent<I>, Cancellable {
         ItemSlot<I> offhand();
     }
+
+    public interface Drop<I extends Item> extends ItemEvent<I>, Cancellable {}
 
     public interface Click<I extends Item> extends ItemEvent<I>, Cancellable {
         ItemSlot<I> cursor();

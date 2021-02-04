@@ -103,7 +103,7 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
         last.add(-1);
         if (last.getAmount() <= 0)
             components.removeLast();
-        return last.get();
+        return last.get().copy().buildTree();
     }
 
     public CalibreComponent<?> peek() {
@@ -123,7 +123,7 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
         if (!parent.isRoot()) return;
 
         EventDispatcher events = tree.events();
-        int priority = setting("listener_priority").getInt(1200);
+        int priority = listenerPriority(1200);
         events.registerListener(CalibreComponent.Events.NameCreate.class, this::onEvent, priority);
         events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, priority);
         events.registerListener(ItemEvents.Click.class, this::onEvent, priority);
@@ -177,7 +177,9 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
             if (last != null) {
                 I contained = last.get().create(locale, last.getAmount());
                 event.cursor().set(contained);
-                components.removeLast();
+                last.add(-contained.amount());
+                if (last.getAmount() <= 0)
+                    components.removeLast();
                 remove(event, last);
             }
         } else {

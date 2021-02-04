@@ -1,8 +1,8 @@
 package me.aecsocket.calibre.wrapper.user;
 
 import me.aecsocket.calibre.CalibrePlugin;
-import me.aecsocket.calibre.world.ItemUser;
-import me.aecsocket.calibre.world.SenderUser;
+import me.aecsocket.calibre.world.user.ItemUser;
+import me.aecsocket.calibre.world.user.SenderUser;
 import me.aecsocket.unifiedframework.util.VectorUtils;
 import me.aecsocket.unifiedframework.util.vector.Vector3D;
 import net.kyori.adventure.text.Component;

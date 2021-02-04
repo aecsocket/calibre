@@ -1,4 +1,4 @@
-package me.aecsocket.calibre.world;
+package me.aecsocket.calibre.world.user;
 
 import net.kyori.adventure.text.Component;
 

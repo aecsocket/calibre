@@ -53,7 +53,10 @@ public class ItemManager {
     public ItemStack hide(ItemStack item, boolean hidden) {
         return BukkitUtils.modMeta(item, meta -> {
             PersistentDataContainer data = meta.getPersistentDataContainer();
-            data.set(plugin.key("hidden"), PersistentDataType.BYTE, (byte) (hidden ? 1 : 0));
+            if (hidden)
+                data.set(plugin.key("hidden"), PersistentDataType.BYTE, (byte) 1);
+            else
+                data.remove(plugin.key("hidden"));
         });
     }
 

@@ -14,7 +14,7 @@ public class CalibreComponentImpl extends CalibreComponent<Item> {
         super(id);
     }
 
-    public CalibreComponentImpl(CalibreComponent<Item> o) throws SerializationException {
+    public CalibreComponentImpl(CalibreComponent<Item> o) {
         super(o);
     }
 
@@ -27,7 +27,7 @@ public class CalibreComponentImpl extends CalibreComponent<Item> {
     @Override protected void prepareStatDeserialization(Map<String, Stat<?>> originals) {}
     @Override public CalibreComponent<Item> getComponent(Item item) { return null; }
 
-    @Override public CalibreComponent<Item> copy() throws SerializationException { return new CalibreComponentImpl(this); }
+    @Override public CalibreComponent<Item> copy() { return new CalibreComponentImpl(this); }
 
     @Override
     public Item createInitial(int amount) throws ItemCreationException { return null; }

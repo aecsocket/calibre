@@ -2,12 +2,15 @@ package me.aecsocket.calibre;
 
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.PaperCommandManager;
+import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import io.leangen.geantyref.TypeToken;
+import me.aecsocket.calibre.blueprint.PaperBlueprint;
 import me.aecsocket.calibre.component.ComponentTree;
 import me.aecsocket.calibre.component.PaperComponent;
+import me.aecsocket.calibre.system.CalibreSystem;
 import me.aecsocket.calibre.system.builtin.Formatter;
 import me.aecsocket.calibre.system.builtin.*;
 import me.aecsocket.calibre.system.gun.*;
@@ -33,10 +36,7 @@ import me.aecsocket.unifiedframework.serialization.configurate.vector.Vector2ISe
 import me.aecsocket.unifiedframework.serialization.configurate.vector.Vector3DSerializer;
 import me.aecsocket.unifiedframework.serialization.configurate.vector.Vector3ISerializer;
 import me.aecsocket.unifiedframework.stat.StatMap;
-import me.aecsocket.unifiedframework.util.BukkitUtils;
-import me.aecsocket.unifiedframework.util.Quantifier;
-import me.aecsocket.unifiedframework.util.TextUtils;
-import me.aecsocket.unifiedframework.util.Utils;
+import me.aecsocket.unifiedframework.util.*;
 import me.aecsocket.unifiedframework.util.data.ParticleData;
 import me.aecsocket.unifiedframework.util.data.SoundData;
 import me.aecsocket.unifiedframework.util.descriptor.NumberDescriptor;
@@ -66,11 +66,13 @@ import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.ConfigurationOptions;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
 import org.spongepowered.configurate.objectmapping.ObjectMapper;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 import org.spongepowered.configurate.util.NamingSchemes;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -92,11 +94,9 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     private final LabelledLogger logger = new LabelledLogger(getLogger());
     private final LocaleManager localeManager = new LocaleManager();
     private final ItemManager itemManager = new ItemManager(this);
+    private final VelocityTracker velocityTracker = new VelocityTracker();
     private final CalibreRegistry registry = new CalibreRegistry();
     private final Map<Class<?>, Formatter<?>> statFormatters = new HashMap<>();
-    private final ObjectMapper.Factory mapperFactory = ObjectMapper.factoryBuilder()
-            .defaultNamingScheme(NamingSchemes.SNAKE_CASE)
-            .build();
     private ConfigurationOptions configOptions;
     private PaperCommandManager commandManager;
     private GUIManager guiManager;
@@ -128,6 +128,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
 
         schedulerLoop = new SchedulerLoop(this);
         schedulerLoop.register(this);
+        schedulerLoop.register(velocityTracker);
         schedulerLoop.start();
 
         createConfigOptions();
@@ -150,9 +151,9 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     public LabelledLogger pluginLogger() { return logger; }
     public LocaleManager localeManager() { return localeManager; }
     public ItemManager itemManager() { return itemManager; }
+    public VelocityTracker velocityTracker() { return velocityTracker; }
     public CalibreRegistry registry() { return registry; }
     public Map<Class<?>, Formatter<?>> statFormatters() { return statFormatters; }
-    public ObjectMapper.Factory mapperFactory() { return mapperFactory; }
     public ConfigurationOptions configOptions() { return configOptions; }
     public PaperCommandManager commandManager() { return commandManager; }
     public GUIManager guiManager() { return guiManager; }
@@ -171,11 +172,16 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
         return players.computeIfAbsent(player, __ -> new CalibrePlayer(this, player));
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     protected void createConfigOptions() {
         configOptions = ConfigurationOptions.defaults()
                 .serializers(builder -> {
                     hooks.forEach(hook -> hook.registerSerializers(builder));
-                    statMapSerializer = new StatMapSerializer(Utils.serializer(mapperFactory));
+                    statMapSerializer = new StatMapSerializer();
+                    ObjectMapper.Factory mapper = ObjectMapper.factoryBuilder()
+                            .defaultNamingScheme(NamingSchemes.SNAKE_CASE)
+                            .build();
+                    TypeSerializer systemSerializer = new CalibreSystem.Serializer(Utils.delegate(CalibreSystem.class, builder, mapper), NamingSchemes.SNAKE_CASE);
                     builder
                             .register(Color.class, ColorSerializer.INSTANCE)
                             .register(Particle.DustOptions.class, DustOptionsSerializer.INSTANCE)
@@ -205,16 +211,20 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                             .register(StatMap.class, statMapSerializer)
                             .register(StatCollection.class, StatCollection.Serializer.INSTANCE)
 
-                            .register(ComponentContainerSystem.class, new ComponentContainerSystem.Serializer(builder.build().get(ComponentContainerSystem.class)))
+                            .register(ComponentContainerSystem.class, new ComponentContainerSystem.Serializer((TypeSerializer<ComponentContainerSystem>) systemSerializer))
+                            .register(SchedulerSystem.class, new SchedulerSystem.Serializer((TypeSerializer<SchedulerSystem>) systemSerializer))
+                            .register(CalibreSystem.class, systemSerializer)
+
                             .register(new TypeToken<Quantifier<ComponentTree>>(){}, new QuantifierSerializer<>())
+                            .register(ItemAnimation.class, new ItemAnimation.Serializer(this))
                             .register(SightPath.class, SightPath.Serializer.INSTANCE)
                             .register(FireModePath.class, FireModePath.Serializer.INSTANCE)
-                            .register(PaperComponent.class, new PaperComponent.Serializer(Utils.serializer(mapperFactory)))
+                            .register(PaperComponent.class, new PaperComponent.Serializer(Utils.delegate(PaperComponent.class, builder, mapper)))
                             .register(ComponentTree.class, new ComponentTree.AbstractSerializer() {
                                 @Override protected <T extends CalibreIdentifiable> T byId(String id, Class<T> type) { return registry.get(id, type); }
                                 @Override protected boolean preserveInvalidData() { return setting("preserve_invalid_data").getBoolean(true); }
                             })
-                            .registerAnnotatedObjects(mapperFactory);
+                            .registerAnnotatedObjects(mapper);
                 });
     }
 
@@ -229,29 +239,6 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
         statFormatters.put(NumberDescriptor.Float.class, new PaperFormatter.NumberDescriptorFormatter<Float, NumberDescriptor.Float>(this));
         statFormatters.put(NumberDescriptor.Double.class, new PaperFormatter.NumberDescriptorFormatter<Double, NumberDescriptor.Double>(this));
         statFormatters.put(Vector2DDescriptor.class, new PaperFormatter.Vector2DDescriptorFormatter(this));
-        // Defaults
-        /* TODO
-
-
-        statRenderers.put(Vector2DDescriptor.class, (inst, locale, key) -> {
-            Vector2DDescriptor desc = (Vector2DDescriptor) inst.raw();
-            Vector2DDescriptorStat stat = (Vector2DDescriptorStat) inst.stat();
-            Component bar = null;
-            if (desc.operation() == NumericalDescriptor.Operation.SET && stat.min() != null && stat.max() != null) {
-                double min = stat.min();
-                double max = stat.max();
-                double x = desc.value().x();
-                double y = desc.value().y();
-
-                int barLength = setting("system", StatDisplaySystem.ID, "bar_lengths").node(1).getInt();
-                bar = Component.text()
-                        .append(bar(locale, "system.stat_display.bar." + key, (x - min) / (max - min), 0, barLength))
-                        .append(bar(locale, "system.stat_display.bar." + key, (y - min) / (max - min), 0, barLength))
-                        .build();
-            }
-            Component value = Component.text(stat.valueToString(desc));
-            return bar == null ? value : bar.append(value);
-        });*/
 
         registry.onLoad(r -> {
             PaperStatDisplaySystem statDisplay = new PaperStatDisplaySystem(this, this::statFormatter);
@@ -416,7 +403,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
         new ConfigurateRegistryLoader.Hocon<CalibreIdentifiable>(getDataFolder())
                 .options(configOptions)
                 .with("component", PaperComponent.class)
-                //.with("blueprint", Blueprint.class)
+                .with("blueprint", PaperBlueprint.class)
                 .load(registry).forEach(entry -> {
             if (entry.isSuccessful()) {
                 Identifiable id = ((Ref<?>) entry.getResult()).get();
@@ -505,6 +492,12 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
         } catch (InvocationTargetException e) {
             log(LogLevel.WARN, e, "Could not send packet to %s (%s)", target.getName(), target.getUniqueId());
         }
+    }
+
+    public void sendPacket(Player target, PacketType type, Consumer<PacketContainer> builder) {
+        PacketContainer packet = new PacketContainer(type);
+        builder.accept(packet);
+        sendPacket(packet, target);
     }
 
     public double hardness(Block block) {

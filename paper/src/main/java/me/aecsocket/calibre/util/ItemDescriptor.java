@@ -21,6 +21,7 @@ public class ItemDescriptor {
     public static class Stat extends AbstractStat<ItemDescriptor> implements ConfigurateStat<ItemDescriptor> {
         public Stat(ItemDescriptor defaultValue) { super(defaultValue); }
         public Stat() {}
+        public Stat(AbstractStat<ItemDescriptor> o) { super(o); }
         @Override public TypeToken<ItemDescriptor> valueType() { return new TypeToken<>(){}; }
 
         @Override
@@ -31,7 +32,7 @@ public class ItemDescriptor {
             } catch (SerializationException e) {
                 throw new FunctionCreationException(e);
             }
-            return b -> value;
+            return base -> value;
         }
     }
 

@@ -2,6 +2,7 @@ package me.aecsocket.calibre.component;
 
 import io.leangen.geantyref.TypeToken;
 import me.aecsocket.calibre.system.CalibreSystem;
+import me.aecsocket.calibre.system.SystemSetupException;
 import me.aecsocket.calibre.util.CalibreIdentifiable;
 import me.aecsocket.calibre.util.StatCollection;
 import me.aecsocket.calibre.world.Item;
@@ -157,7 +158,13 @@ public class ComponentTree {
     private <I extends Item> void build(Slot parent, CalibreComponent<I> component) {
         component.tree(this);
         component.parent(parent);
-        component.systems().values().forEach(system -> system.parentTo(this, component));
+        for (CalibreSystem system : component.systems.values()) {
+            try {
+                system.parentTo(this, component);
+            } catch (SystemSetupException e) {
+                throw new TreeBuildException(e);
+            }
+        }
         component.slots.forEach((key, slot) -> {
             slot.parent(component, key);
             CalibreComponent<I> child = slot.get();

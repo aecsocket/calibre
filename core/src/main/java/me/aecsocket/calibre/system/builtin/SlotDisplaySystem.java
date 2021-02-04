@@ -34,8 +34,6 @@ public abstract class SlotDisplaySystem extends AbstractSystem {
 
     @Override public String id() { return ID; }
 
-    @Override public void setup(CalibreComponent<?> parent) throws SystemSetupException {}
-
     @Override
     public void parentTo(ComponentTree tree, CalibreComponent<?> parent) {
         super.parentTo(tree, parent);

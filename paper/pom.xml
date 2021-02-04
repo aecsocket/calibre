@@ -139,14 +139,6 @@
                             <pattern>co.aikar.locales</pattern>
                             <shadedPattern>${project.groupId}.locales</shadedPattern>
                         </relocation>
-                        <relocation>
-                            <pattern>me.aecsocket.unifiedframework</pattern>
-                            <shadedPattern>${project.groupId}.unifiedframework</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>org.spongepowered.configurate</pattern>
-                            <shadedPattern>${project.groupId}.configurate</shadedPattern>
-                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>

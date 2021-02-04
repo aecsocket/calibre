@@ -250,6 +250,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
             r.register(new PaperSchedulerSystem(this, systemScheduler));
 
             r.register(new PaperGunSystem(this));
+            r.register(new PaperGunInfoSystem(this));
             r.register(new PaperSightSystem(this));
             r.register(new PaperFireModeSystem(this));
             r.register(new PaperChamberSystem(this));

@@ -149,8 +149,6 @@ public abstract class SchedulerSystem extends AbstractSystem {
         return result;
     }
 
-    @Override public void setup(CalibreComponent<?> parent) throws SystemSetupException {}
-
     @Override
     public void parentTo(ComponentTree tree, CalibreComponent<?> parent) {
         super.parentTo(tree, parent);

@@ -7,7 +7,6 @@ import me.aecsocket.calibre.system.AbstractSystem;
 import me.aecsocket.calibre.system.CalibreSystem;
 import me.aecsocket.calibre.system.FromMaster;
 import me.aecsocket.calibre.system.ItemEvents;
-import me.aecsocket.calibre.system.builtin.CapacityComponentContainerSystem;
 import me.aecsocket.calibre.system.builtin.ComponentContainerSystem;
 import me.aecsocket.calibre.system.builtin.ProjectileSystem;
 import me.aecsocket.calibre.system.builtin.SchedulerSystem;
@@ -44,17 +43,18 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public abstract class GunSystem extends AbstractSystem {
     /*
     GUN TODO:
-    * toggles
+    DONE toggles
     DONE zeroing
     DONE priorities
     - reloading
     - action bar
     DONE real animations (aiming)
+    - sway stabilize system
+    - casings + casing sounds
      */
     /** Handles how to fire a gun if there is already a chamber loaded before firing. */
     public enum ChamberHandling {
@@ -276,11 +276,13 @@ public abstract class GunSystem extends AbstractSystem {
 
     @Override
     public void setup(CalibreComponent<?> parent) {
+        super.setup(parent);
         if (dependencies != null) {
             aimingStats = deserialize(dependencies.aimingStats, StatCollection.class, "aimingStats");
             notAimingStats = deserialize(dependencies.notAimingStats, StatCollection.class, "notAimingStats");
             dependencies = null;
         }
+        require(SchedulerSystem.class);
     }
 
     @Override
@@ -288,7 +290,7 @@ public abstract class GunSystem extends AbstractSystem {
         super.parentTo(tree, parent);
         if (!parent.isRoot()) return;
 
-        scheduler = parent.system(SchedulerSystem.class);
+        scheduler = require(SchedulerSystem.class);
         EventDispatcher events = tree.events();
         int priority = listenerPriority(0);
         events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, priority);
@@ -351,20 +353,8 @@ public abstract class GunSystem extends AbstractSystem {
     protected <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {
         String locale = event.user().locale();
         ItemUser user = event.user();
-        if (user instanceof SenderUser)
-            ((SenderUser) user).sendInfo(Component.text()
-                    .append(getFireMode() == null ? Component.text("") : gen(locale, "fire_mode.short." + getFireMode().id))
-                    .append(Component.text(" "))
-                    .append(getSight() == null ? Component.text("") : gen(locale, "sight.short." + getSight().id))
-                    .append(Component.text(" "))
-                    .append(
-                            collectAmmo(collectAmmoSlots()).stream().map(sys -> Component.text(
-                                    "(" + (sys.amount() + (sys instanceof CapacityComponentContainerSystem ? " / " + ((CapacityComponentContainerSystem) sys).capacity() : "")) + ")"
-                            )).collect(Collectors.toList())
-                    )
-                    .append(Component.text(" + " + collectChambers(collectChamberSlots()).stream().count()))
-                    .build());
 
+        boolean update = false;
         if (user instanceof CameraUser) {
             TickContext ctx = event.tickContext();
             Vector2D sway = tree().<Vector2DDescriptor>stat("sway").apply()
@@ -387,14 +377,23 @@ public abstract class GunSystem extends AbstractSystem {
             }
         }
 
+        if (aiming && getSight() == null) {
+            aiming = false;
+            update = true;
+        }
+
         if (event.slot() instanceof HandSlot) {
             HandSlot<I> handSlot = (HandSlot<I>) event.slot();
             HandSlot<I> opposite = handSlot.opposite();
             if (aiming && (!handSlot.main() || (opposite != null && opposite.get() != null))) {
                 aiming = false;
-                tree().build();
-                update(event);
+                update = true;
             }
+        }
+
+        if (update) {
+            tree().build();
+            update(event);
         }
     }
 
@@ -773,7 +772,7 @@ public abstract class GunSystem extends AbstractSystem {
     public <I extends Item> void aim(Events.Aim<I> event) {
         if (tree().call(event).cancelled) return;
 
-        if (sight == null || aiming == event.aim) {
+        if (getSight() == null || aiming == event.aim) {
             event.result = ItemEvents.Result.FAILURE;
             return;
         }

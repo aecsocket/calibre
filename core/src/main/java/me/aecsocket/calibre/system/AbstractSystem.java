@@ -24,11 +24,23 @@ public abstract class AbstractSystem implements CalibreSystem {
     @Override public CalibreComponent<?> parent() { return parent; }
 
     @Override
+    public void setup(CalibreComponent<?> parent) throws SystemSetupException {
+        this.parent = parent;
+    }
+
+    @Override
     public void parentTo(ComponentTree tree, CalibreComponent<?> parent) {
         this.parent = parent;
     }
 
     protected int listenerPriority(int defaultValue) { return setting("listener_priority").getInt(defaultValue); }
+
+    protected <S> S require(Class<S> type) {
+        S system = parent.system(type);
+        if (system == null)
+            throw new SystemSetupException("System [" + id() + "] depends on system of type [" + type.getName() + "]");
+        return system;
+    }
 
     protected <T> T deserialize(ConfigurationNode node, TypeToken<T> type, String fieldName) {
         if (node == null)

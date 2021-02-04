@@ -54,6 +54,7 @@ public abstract class SightSystem extends AbstractSystem {
     public StatRenderer statRenderer() { return statRenderer; }
 
     @Override public void setup(CalibreComponent<?> parent) throws SystemSetupException {
+        super.setup(parent);
         if (dependencies != null) {
             sights = deserialize(dependencies.sights, new TypeToken<>(){}, "sights");
             dependencies = null;

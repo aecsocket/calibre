@@ -86,8 +86,6 @@ public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
     @Override public String id() { return ID; }
     @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }
 
-    @Override public void setup(CalibreComponent<?> parent) throws SystemSetupException {}
-
     @Override
     public void parentTo(ComponentTree tree, CalibreComponent<?> parent) {
         super.parentTo(tree, parent);

@@ -35,6 +35,7 @@ public abstract class NameFromChildSystem extends AbstractSystem {
     public void child(String child) { this.child = child; }
 
     @Override public void setup(CalibreComponent<?> parent) throws SystemSetupException {
+        super.setup(parent);
         if (child == null)
             throw new SystemSetupException("No child specified");
     }

@@ -5,7 +5,6 @@ import me.aecsocket.calibre.component.ComponentTree;
 import me.aecsocket.calibre.system.AbstractSystem;
 import me.aecsocket.calibre.system.FromMaster;
 import me.aecsocket.calibre.system.StatRenderer;
-import me.aecsocket.calibre.system.SystemSetupException;
 import me.aecsocket.calibre.world.Item;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.stat.StatInstance;
@@ -81,8 +80,6 @@ public abstract class StatDisplaySystem extends AbstractSystem implements StatRe
     public void formatSupplier(Function<Class<?>, Formatter<?>> formatSupplier) { this.formatSupplier = formatSupplier; }
     @SuppressWarnings("unchecked")
     public <T> Formatter<T> formatter(Class<T> type) { return (Formatter<T>) formatSupplier.apply(type); }
-
-    @Override public void setup(CalibreComponent<?> parent) throws SystemSetupException {}
 
     @Override
     public void parentTo(ComponentTree tree, CalibreComponent<?> parent) {

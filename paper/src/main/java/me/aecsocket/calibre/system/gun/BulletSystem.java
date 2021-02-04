@@ -1,11 +1,9 @@
 package me.aecsocket.calibre.system.gun;
 
 import me.aecsocket.calibre.CalibrePlugin;
-import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.system.AbstractSystem;
 import me.aecsocket.calibre.system.FromMaster;
 import me.aecsocket.calibre.system.PaperSystem;
-import me.aecsocket.calibre.system.SystemSetupException;
 import me.aecsocket.calibre.system.builtin.ProjectileSystem;
 import me.aecsocket.calibre.world.user.ItemUser;
 import me.aecsocket.calibre.wrapper.user.BukkitItemUser;
@@ -310,9 +308,6 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
 
     @Override public String id() { return ID; }
     @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }
-
-    @Override
-    public void setup(CalibreComponent<?> parent) throws SystemSetupException {}
 
     @Override
     public void createProjectile(ItemUser user, Vector3D position, Vector3D velocity) {

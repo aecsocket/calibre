@@ -1,10 +1,8 @@
 package me.aecsocket.calibre.system.gun;
 
-import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.component.CalibreSlot;
 import me.aecsocket.calibre.system.AbstractSystem;
 import me.aecsocket.calibre.system.FromMaster;
-import me.aecsocket.calibre.system.SystemSetupException;
 
 import java.util.Arrays;
 
@@ -32,8 +30,6 @@ public abstract class ChamberSystem extends AbstractSystem {
 
     public String[] loadPath() { return loadPath; }
     public void loadPath(String[] loadPath) { this.loadPath = loadPath; }
-
-    @Override public void setup(CalibreComponent<?> parent) throws SystemSetupException {}
 
     public CalibreSlot getLoadSlot() {
         return parent.slot(loadPath);

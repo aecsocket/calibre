@@ -5,10 +5,16 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 import java.util.*;
 
+/**
+ * Determines conditions for a component to fulfil.
+ */
 @ConfigSerializable
 public class ComponentCompatibility {
+    /** The ID required. Can be null. */
     private String id;
+    /** A list of categories required. The component must fulfil at least one. Can be empty or null. */
     private final List<String> categories;
+    /** A system that the component must hold. Can be null. */
     private transient Class<? extends CalibreSystem> systemType;
 
     public ComponentCompatibility() {
@@ -25,6 +31,11 @@ public class ComponentCompatibility {
     public Class<? extends CalibreSystem> systemType() { return systemType; }
     public void systemType(Class<? extends CalibreSystem> systemType) { this.systemType = systemType; }
 
+    /**
+     * If the conditions apply to the specified component.
+     * @param component The component.
+     * @return The result.
+     */
     public boolean applies(CalibreComponent<?> component) {
         if (id != null && !component.id.equals(id)) return false;
         if (!categories.isEmpty() && (Collections.disjoint(component.categories, categories))) return false;

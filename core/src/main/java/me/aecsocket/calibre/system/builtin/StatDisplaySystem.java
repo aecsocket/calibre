@@ -43,8 +43,7 @@ public abstract class StatDisplaySystem extends AbstractSystem implements StatRe
     }
 
     public static final String ID = "stat_display";
-    @FromMaster
-    private List<List<Element>> sections;
+    @FromMaster private List<List<Element>> sections;
     @FromMaster(fromDefault = true)
     private transient Function<Class<?>, Formatter<?>> formatSupplier;
 

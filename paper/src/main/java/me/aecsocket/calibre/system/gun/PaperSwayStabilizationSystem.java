@@ -3,11 +3,10 @@ package me.aecsocket.calibre.system.gun;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.system.FromMaster;
 import me.aecsocket.calibre.system.PaperSystem;
-import net.kyori.adventure.text.Component;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
-public class PaperGunInfoSystem extends GunInfoSystem implements PaperSystem {
+public class PaperSwayStabilizationSystem extends SwayStabilizationSystem implements PaperSystem {
     @FromMaster(fromDefault = true)
     private transient CalibrePlugin plugin;
 
@@ -15,14 +14,14 @@ public class PaperGunInfoSystem extends GunInfoSystem implements PaperSystem {
      * Used for registration.
      * @param plugin The plugin.
      */
-    public PaperGunInfoSystem(CalibrePlugin plugin) {
+    public PaperSwayStabilizationSystem(CalibrePlugin plugin) {
         this.plugin = plugin;
     }
 
     /**
      * Used for deserialization.
      */
-    public PaperGunInfoSystem() {
+    public PaperSwayStabilizationSystem() {
         plugin = null;
     }
 
@@ -30,17 +29,12 @@ public class PaperGunInfoSystem extends GunInfoSystem implements PaperSystem {
      * Used for copying.
      * @param o The other instance.
      */
-    public PaperGunInfoSystem(PaperGunInfoSystem o) {
+    public PaperSwayStabilizationSystem(PaperSwayStabilizationSystem o) {
         super(o);
         plugin = o.plugin;
     }
 
     @Override public CalibrePlugin plugin() { return plugin; }
 
-    @Override
-    protected Component bar(String locale, String key, double percent) {
-        return plugin.bar(locale, key, percent, 0d, setting("stamina_bar_width").getInt(50));
-    }
-
-    @Override public PaperGunInfoSystem copy() { return new PaperGunInfoSystem(this); }
+    @Override public PaperSwayStabilizationSystem copy() { return new PaperSwayStabilizationSystem(this); }
 }

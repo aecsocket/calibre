@@ -11,15 +11,26 @@ import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 import java.util.*;
 
+/**
+ * A part of a component tree which holds child {@link CalibreComponent}s.
+ */
 @ConfigSerializable
 public class CalibreSlot implements Slot {
+    /** The held component. */
     protected transient CalibreComponent<?> component;
+    /** The parent component this is held inside. */
     protected transient SlotRef<?> parent;
+    /** Settings on what components are compatible with this slot. */
     @Setting(nodeFromParent = true)
     protected ComponentCompatibility compatibility = new ComponentCompatibility();
+    /** If this slot is required to be filled to complete the component tree. */
     protected boolean required;
+    /** If this slot can be modified in the field. This is implementation detail. */
     protected boolean fieldModifiable;
+    /** The integer type of this slot, used to switch between different slots for different functions at runtime. */
     protected int type;
+    /** List of tags that this slot holds. This is implementation detail, but is mainly used for determining
+     * for what a slot can be used for. */
     protected final List<String> tags;
 
     public CalibreSlot(boolean required, boolean fieldModifiable) {
@@ -102,6 +113,10 @@ public class CalibreSlot implements Slot {
 
     @Override public String toString() { return "<" + component + ">"; }
 
+    /**
+     * Deep copies this slot, including deep cloning its held component.
+     * @return The copy.
+     */
     public CalibreSlot copy() { return new CalibreSlot(this); }
 
     public static LinkedHashMap<String, CalibreSlot> copySlots(Map<String, CalibreSlot> existing) {

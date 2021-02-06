@@ -17,6 +17,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * A prebuit tree of components which can be used as a givable item.
+ * @param <I> The item type.
+ */
 @ConfigSerializable
 public abstract class Blueprint<I extends Item> implements CalibreIdentifiable, ItemSupplier<I> {
     @ConfigSerializable
@@ -28,7 +32,9 @@ public abstract class Blueprint<I extends Item> implements CalibreIdentifiable, 
     @Setting(nodeFromParent = true)
     protected Dependencies dependencies;
 
+    /** This object's ID. */
     protected String id;
+    /** The tree this blueprint holds and builds. */
     protected transient ComponentTree tree;
 
     public Blueprint(String id) {

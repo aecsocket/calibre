@@ -9,8 +9,7 @@ import java.util.Arrays;
 public abstract class ChamberSystem extends AbstractSystem {
     public static final String ID = "chamber";
 
-    @FromMaster
-    protected String[] loadPath;
+    @FromMaster protected String[] loadPath;
 
     /**
      * Used for registration + deserialization.

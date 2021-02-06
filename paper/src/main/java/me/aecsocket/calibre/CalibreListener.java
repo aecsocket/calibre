@@ -9,6 +9,7 @@ import me.aecsocket.calibre.system.ItemEvents;
 import me.aecsocket.calibre.world.slot.ItemSlot;
 import me.aecsocket.calibre.wrapper.BukkitItem;
 import me.aecsocket.calibre.wrapper.slot.BukkitSlot;
+import me.aecsocket.calibre.wrapper.slot.EntityEquipmentSlot;
 import me.aecsocket.calibre.wrapper.slot.InventorySlot;
 import me.aecsocket.calibre.wrapper.user.PlayerUser;
 import me.aecsocket.unifiedframework.gui.GUIView;
@@ -63,6 +64,13 @@ public class CalibreListener implements Listener {
         Player player = event.getPlayer();
         plugin.players().remove(player);
         blockInteractCancel.remove(player);
+    }
+
+    @EventHandler
+    public void onEvent(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        callOn(player, EquipmentSlot.HAND, (comp, slot) -> comp.tree().call(new BukkitItemEvents.BukkitSwitch(
+                comp, PlayerUser.of(player), EntityEquipmentSlot.of(player, slot), ItemEvents.Switch.TO)));
     }
 
     @EventHandler

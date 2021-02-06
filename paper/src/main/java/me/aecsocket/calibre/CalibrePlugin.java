@@ -94,6 +94,8 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     private final LabelledLogger logger = new LabelledLogger(getLogger());
     private final LocaleManager localeManager = new LocaleManager();
     private final ItemManager itemManager = new ItemManager(this);
+    private final SchedulerSystem.Scheduler systemScheduler = new SchedulerSystem.Scheduler(10000, 100);
+    private final CasingManager casingManager = new CasingManager(this);
     private final VelocityTracker velocityTracker = new VelocityTracker();
     private final CalibreRegistry registry = new CalibreRegistry();
     private final Map<Class<?>, Formatter<?>> statFormatters = new HashMap<>();
@@ -105,7 +107,6 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     private MapFont font;
     private ConfigurationNode settings;
     private StatMapSerializer statMapSerializer;
-    private SchedulerSystem.Scheduler systemScheduler;
     private SchedulerLoop schedulerLoop;
 
     private final Map<String, NamespacedKey> keys = new HashMap<>();
@@ -128,6 +129,8 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
 
         schedulerLoop = new SchedulerLoop(this);
         schedulerLoop.register(this);
+        schedulerLoop.register(systemScheduler);
+        schedulerLoop.register(casingManager);
         schedulerLoop.register(velocityTracker);
         schedulerLoop.start();
 
@@ -151,6 +154,8 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     public LabelledLogger pluginLogger() { return logger; }
     public LocaleManager localeManager() { return localeManager; }
     public ItemManager itemManager() { return itemManager; }
+    public SchedulerSystem.Scheduler systemScheduler() { return systemScheduler; }
+    public CasingManager casingManager() { return casingManager; }
     public VelocityTracker velocityTracker() { return velocityTracker; }
     public CalibreRegistry registry() { return registry; }
     public Map<Class<?>, Formatter<?>> statFormatters() { return statFormatters; }
@@ -210,6 +215,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
 
                             .register(StatMap.class, statMapSerializer)
                             .register(StatCollection.class, StatCollection.Serializer.INSTANCE)
+                            .register(CasingManager.Category.class, new CasingManager.Category.Serializer(this, Utils.delegate(CasingManager.Category.class, builder, mapper)))
 
                             .register(ComponentContainerSystem.class, new ComponentContainerSystem.Serializer((TypeSerializer<ComponentContainerSystem>) systemSerializer))
                             .register(SchedulerSystem.class, new SchedulerSystem.Serializer((TypeSerializer<SchedulerSystem>) systemSerializer))
@@ -251,6 +257,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
 
             r.register(new PaperGunSystem(this));
             r.register(new PaperGunInfoSystem(this));
+            r.register(new PaperSwayStabilizationSystem(this));
             r.register(new PaperSightSystem(this));
             r.register(new PaperFireModeSystem(this));
             r.register(new PaperChamberSystem(this));
@@ -370,13 +377,11 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
 
         settings.node("font_map").childrenMap().forEach((key, node) ->
                 font.setChar(key.toString().charAt(0), new MapFont.CharacterSprite(node.getInt(), 0, new boolean[0])));
-        if (systemScheduler != null)
-            schedulerLoop.unregister(systemScheduler);
-        systemScheduler = new SchedulerSystem.Scheduler(
-                setting("scheduler", "clean_delay").getLong(),
-                setting("scheduler", "clean_threshold").getLong()
-        );
-        schedulerLoop.register(systemScheduler);
+
+        systemScheduler.cleanDelay(setting("scheduler", "clean_delay").getLong(10000));
+        systemScheduler.cleanThreshold(setting("scheduler", "clean_threshold").getLong(100));
+
+        casingManager.load();
 
         return new LoggingResult()
                 .addSuccess(LogLevel.INFO, "Loaded settings from " + SETTINGS_FILE);

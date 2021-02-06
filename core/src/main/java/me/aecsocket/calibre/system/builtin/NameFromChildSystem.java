@@ -12,8 +12,7 @@ import java.util.Objects;
 
 public abstract class NameFromChildSystem extends AbstractSystem {
     public static final String ID = "name_from_child";
-    @FromMaster
-    private String child;
+    @FromMaster private String child;
 
     /**
      * Used for registration + deserialization.

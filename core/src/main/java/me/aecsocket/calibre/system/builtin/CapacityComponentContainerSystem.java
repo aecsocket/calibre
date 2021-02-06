@@ -11,8 +11,7 @@ import java.util.Objects;
 @ConfigSerializable
 public abstract class CapacityComponentContainerSystem extends ComponentContainerSystem {
     public static final String ID = "capacity_component_container";
-    @FromMaster
-    protected int capacity;
+    @FromMaster protected int capacity;
 
     /**
      * Used for registration + deserialization.

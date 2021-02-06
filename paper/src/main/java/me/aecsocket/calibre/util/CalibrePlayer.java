@@ -22,7 +22,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.spongepowered.configurate.serialize.SerializationException;
 
-public class CalibrePlayer implements Tickable {
+public final class CalibrePlayer implements Tickable {
     public static final ParticleData[] OFFSET_PARTICLE = {
             new ParticleData().particle(Particle.FIREWORKS_SPARK)
     };
@@ -36,16 +36,23 @@ public class CalibrePlayer implements Tickable {
     private int cancelInteractTick;
     private double inaccuracy;
 
+    private double stamina;
+    private double maxStamina;
+    private long staminaRecoverAt;
+    private boolean stabilizeBlocked;
+
     private Vector2D recoil = new Vector2D();
     private double recoilSpeed;
     private double recoilRecovery;
     private double recoilRecoverySpeed;
-    private long recoilRecoveryAfter;
+    private long recoilRecoveryAt;
     private Vector2D recoilToRecover = new Vector2D();
 
     public CalibrePlayer(CalibrePlugin plugin, Player player) {
         this.plugin = plugin;
         this.player = player;
+        maxStamina = plugin.setting("stamina", "max").getDouble(5000);
+        stamina = maxStamina;
     }
 
     public CalibrePlugin plugin() { return plugin; }
@@ -64,6 +71,18 @@ public class CalibrePlayer implements Tickable {
     public double inaccuracy() { return inaccuracy; }
     public void inaccuracy(double inaccuracy) { this.inaccuracy = inaccuracy; }
 
+    public double stamina() { return stamina; }
+    public void stamina(double stamina) { this.stamina = stamina; }
+
+    public double maxStamina() { return maxStamina; }
+    public void maxStamina(double maxStamina) { this.maxStamina = maxStamina; }
+
+    public long staminaRecoverAt() { return staminaRecoverAt; }
+    public void staminaRecoverAt(long staminaRecoverAt) { this.staminaRecoverAt = staminaRecoverAt; }
+
+    public boolean stabilizeBlocked() { return stabilizeBlocked; }
+    public void stabilizeBlocked(boolean stabilizeBlocked) { this.stabilizeBlocked = stabilizeBlocked; }
+
     public Vector2D recoil() { return recoil; }
     public void recoil(Vector2D recoil) { this.recoil = recoil; }
 
@@ -76,8 +95,8 @@ public class CalibrePlayer implements Tickable {
     public double recoilRecoverySpeed() { return recoilRecoverySpeed; }
     public void recoilRecoverySpeed(double recoilRecoverySpeed) { this.recoilRecoverySpeed = recoilRecoverySpeed; }
 
-    public long recoilRecoveryAfter() { return recoilRecoveryAfter; }
-    public void recoilRecoveryAfter(long recoilRecoveryAfter) { this.recoilRecoveryAfter = recoilRecoveryAfter; }
+    public long recoilRecoveryAt() { return recoilRecoveryAt; }
+    public void recoilRecoveryAt(long recoilRecoveryAfter) { this.recoilRecoveryAt = recoilRecoveryAfter; }
 
     public Vector2D recoilToRecover() { return recoilToRecover; }
     public void recoilToRecover(Vector2D recoilRecoveryRemaining) { this.recoilToRecover = recoilRecoveryRemaining; }
@@ -87,7 +106,20 @@ public class CalibrePlayer implements Tickable {
         this.recoilSpeed = recoilSpeed;
         this.recoilRecovery = recoilRecovery;
         this.recoilRecoverySpeed = recoilRecoverySpeed;
-        this.recoilRecoveryAfter = System.currentTimeMillis() + recoilRecoveryAfter;
+        recoilRecoveryAt = System.currentTimeMillis() + recoilRecoveryAfter;
+    }
+
+    public void reduceStamina(double amount) {
+        stamina -= amount;
+        if (stamina <= 0) {
+            stamina = 0;
+            stabilizeBlocked = true;
+        }
+        staminaRecoverAt = System.currentTimeMillis() + plugin.setting("stamina", "recover_after").getLong(2000);
+    }
+
+    public boolean stabilize() {
+        return player.isSneaking() && !stabilizeBlocked;
     }
 
     @Override
@@ -132,10 +164,25 @@ public class CalibrePlayer implements Tickable {
             recoilToRecover = recoilToRecover.add(rotation.multiply(-recoilRecovery));
         }
 
-        if (System.currentTimeMillis() >= recoilRecoveryAfter && recoilToRecover.manhattanLength() > 0.01) {
+        if (System.currentTimeMillis() >= recoilRecoveryAt && recoilToRecover.manhattanLength() > 0.01) {
             Vector2D rotation = recoilToRecover.multiply(recoilRecoverySpeed);
             CalibreProtocol.rotate(player, rotation.x(), rotation.y());
             recoilToRecover = recoilToRecover.multiply(1 - recoilRecoverySpeed);
+        }
+
+        // stamina
+        if (!player.isSneaking())
+            stabilizeBlocked = false;
+
+        if (stamina < maxStamina) {
+            if (System.currentTimeMillis() >= staminaRecoverAt) {
+                stamina += plugin.setting("stamina", "recover").getDouble(1000) * (tickContext.delta() / 1000d);
+                if (stamina > maxStamina)
+                    stamina = maxStamina;
+            }
+
+            if (plugin.setting("stamina", "show_in_air_bar").getBoolean(true))
+                CalibreProtocol.air(player, stamina / maxStamina);
         }
 
         // animation

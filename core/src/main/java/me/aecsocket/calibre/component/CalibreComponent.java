@@ -22,6 +22,10 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+/**
+ * A component which can be placed in a {@link CalibreSlot} and take part in a {@link ComponentTree}.
+ * @param <I> The item type.
+ */
 @ConfigSerializable
 public abstract class CalibreComponent<I extends Item> implements Component, CalibreIdentifiable, ItemSupplier<I> {
     @ConfigSerializable
@@ -34,15 +38,24 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
 
     @Setting(nodeFromParent = true)
     protected Dependencies dependencies;
+    /** This object's ID. */
     protected String id;
+    /** If this component is capable of being considered "complete" by a tree. */
     protected boolean canComplete;
+    /** The categories this component falls under. */
     protected final List<String> categories;
+    /** A map of this component's slots. */
     protected final Map<String, CalibreSlot> slots;
+    /** A map of the systems this component stores, linked to their IDs. */
     protected transient final Map<String, CalibreSystem> systems;
+    /** This component's stats that it provides during stat building. */
     protected transient final StatCollection stats;
+    /** This component's stats that it provides during stat building <b>only if the tree is complete.</b> */
     protected transient final StatCollection completeStats;
 
+    /** The tree this component is a part of. */
     protected transient ComponentTree tree;
+    /** The parent slot of this component. */
     protected transient Slot parent;
 
     public CalibreComponent(String id) {
@@ -98,6 +111,15 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
         T system = (T) systems.get(id);
         return system;
     }
+
+    /**
+     * Gets a system on this component by its type.
+     * The type does not have to extend {@link CalibreSystem}, however only systems can be stored
+     * on a component.
+     * @param type The type.
+     * @param <T> The type.
+     * @return The system, or null.
+     */
     public <T> T system(Class<T> type) {
         for (CalibreSystem system : systems.values()) {
             if (type.isInstance(system)) {
@@ -108,12 +130,22 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
         }
         return null;
     }
+
+    /**
+     * Associated a system with this component.
+     * @param system The system.
+     * @return This instance.
+     */
     public CalibreComponent<I> system(CalibreSystem system) { systems.put(system.id(), system); return this; }
 
     public StatCollection stats() { return stats; }
 
     public StatCollection completeStats() { return completeStats; }
 
+    /**
+     * Builds this component's stats, also considering complete stats and systems.
+     * @return The stats.
+     */
     public StatCollection buildStats() {
         StatCollection result = new StatCollection();
 
@@ -126,6 +158,11 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
 
     public ComponentTree tree() { return tree; }
     public CalibreComponent<I> tree(ComponentTree tree) { this.tree = tree; return this; }
+
+    /**
+     * Builds a new tree for this component.
+     * @return This instance.
+     */
     public CalibreComponent<I> buildTree() {
         tree = new ComponentTree(this).build();
         return this;
@@ -134,9 +171,28 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
     @Override @SuppressWarnings("unchecked") public <S extends Slot> S parent() { return (S) parent; }
     @Override public CalibreComponent<I> parent(Slot parent) { this.parent = parent; return this; }
 
+    /**
+     * Provides the default stats that this component provides to configurations.
+     * @return The stats.
+     */
     public abstract Map<String, Stat<?>> defaultStats();
+
+    /**
+     * Prepares the stat deserializer used to deserialize the specified map of stat originals.
+     * <p>
+     * If using a {@link me.aecsocket.unifiedframework.serialization.configurate.StatMapSerializer}, the
+     * {@link me.aecsocket.unifiedframework.serialization.configurate.StatMapSerializer#originals(Map)} method should
+     * be used.
+     * @param originals The originals.
+     */
     protected abstract void prepareStatDeserialization(Map<String, Stat<?>> originals);
 
+    /**
+     * Deserializes some stats and runs a function on them.
+     * @param node The node to deserialize.
+     * @param fieldName The name of the object's field that this deserializes. Is used in displaying errors.
+     * @param consumer The function to run if the stats are deserialized.
+     */
     protected void deserializeStats(ConfigurationNode node, String fieldName, Consumer<StatCollection> consumer) {
         if (node == null)
             return;
@@ -149,6 +205,11 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
         }
     }
 
+    /**
+     * Adds the specified originals map to an existing originals map.
+     * @param toAdd The originals to add.
+     * @param defaultStats The existing originals map.
+     */
     private void addToDefaults(Map<String, Stat<?>> toAdd, Map<String, Stat<?>> defaultStats) {
         for (Map.Entry<String, Stat<?>> statEntry : toAdd.entrySet()) {
             String key = statEntry.getKey();
@@ -220,8 +281,19 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
         return tree.call(new Events.NameCreate<>(this, locale, result)).result;
     }
 
+    /**
+     * Gets a component from an {@link I}.
+     * @param item The {@link I}.
+     * @return The component, or null if it is not a valid component.
+     */
     public abstract CalibreComponent<I> getComponent(I item);
 
+    /**
+     * Creates the initial {@link I} for {@link #create(String, int)}.
+     * @param amount The amount of items.
+     * @return The initial {@link I}.
+     * @throws ItemCreationException If the item could not be created.
+     */
     protected abstract I createInitial(int amount) throws ItemCreationException;
 
     @Override
@@ -233,6 +305,19 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
         return result;
     }
 
+    /**
+     * Combines another component with this tree, as long as it is possible.
+     * <p>
+     * This walks through slots and only places if:
+     * <ul>
+     *     <li>the slot is empty</li>
+     *     <li>the component is compatible with the slot</li>
+     *     <li>the slot is field modifiable OR the {@code limited} parameter is false</li>
+     * </ul>
+     * @param toAdd The component to add to this tree.
+     * @param limited If modification should be limited to {@link CalibreSlot#fieldModifiable()} slots.
+     * @return The slot that was modified, or null if the component could not be placed.
+     */
     public CalibreSlot combine(CalibreComponent<I> toAdd, boolean limited) {
         AtomicReference<CalibreSlot> candidate = new AtomicReference<>();
         walk(data -> {
@@ -254,6 +339,12 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
         return candidate.get().set(toAdd);
     }
 
+    /**
+     * Collects a list of slots which meet the criteria provided.
+     * @param tag The tag that the slot requires. Can be null.
+     * @param type The type that the slot requires. Can be null.
+     * @return The slots.
+     */
     public List<CalibreSlot> collectSlots(String tag, Integer type) {
         List<CalibreSlot> result = new ArrayList<>();
         walk(data -> {
@@ -267,6 +358,13 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
         return result;
     }
 
+    /**
+     * Gets systems from the components inside a list of slots.
+     * @param slots The slots.
+     * @param type The system type.
+     * @param <S> The system type.
+     * @return The list of systems.
+     */
     public <S extends CalibreSystem> List<S> fromSlots(List<CalibreSlot> slots, Class<S> type) {
         List<S> result = new ArrayList<>();
         slots.forEach(slot -> slot.<CalibreComponent<?>>getOpt().ifPresent(component -> {
@@ -292,14 +390,28 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
 
     @Override public String toString() { return id + slots.toString(); }
 
+    /**
+     * Deep copies this component, including all systems, slots, and stats.
+     * @return The copy.
+     */
     public abstract CalibreComponent<I> copy();
 
+    /**
+     * Component events.
+     */
     public static final class Events {
         private Events() {}
 
+        /**
+         * Runs when the name for a component is created.
+         * @param <I> The item type.
+         */
         public static class NameCreate<I extends Item> {
+            /** The component that is being affected. */
             private final CalibreComponent<I> component;
+            /** The locale the name is being generated for. */
             private final String locale;
+            /** The currently chosen name. */
             private net.kyori.adventure.text.Component result;
 
             public NameCreate(CalibreComponent<I> component, String locale, net.kyori.adventure.text.Component result) {
@@ -315,9 +427,16 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
             public void result(net.kyori.adventure.text.Component result) { this.result = result; }
         }
 
+        /**
+         * Runs when an item is being created for a component.
+         * @param <I> The item type.
+         */
         public static class ItemCreate<I extends Item> {
+            /** The component that is being affected. */
             private final CalibreComponent<I> component;
+            /** The locale the name is being generated for. */
             private final String locale;
+            /** The currently chosen item. */
             private final I item;
 
             public ItemCreate(CalibreComponent<I> component, String locale, I item) {

@@ -29,8 +29,7 @@ public abstract class SightSystem extends AbstractSystem {
     @Setting(nodeFromParent = true)
     protected Dependencies dependencies;
 
-    @FromMaster
-    protected transient List<Sight> sights;
+    @FromMaster protected transient List<Sight> sights;
     protected transient StatRenderer statRenderer;
 
     /**

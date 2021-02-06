@@ -324,7 +324,8 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
         long period = loop.period();
 
         double raycastDistance = tree().<NumberDescriptor.Double>stat("raycast_distance").apply();
-        while (projectile.travelled() < raycastDistance) {
+        long end = System.currentTimeMillis() + 1000;
+        while (projectile.travelled() < raycastDistance && System.currentTimeMillis() >= end) {
             TickContext context = loop.context(projectile, period);
             projectile.tick(context);
             if (context.removed())

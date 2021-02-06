@@ -27,8 +27,7 @@ public abstract class FireModeSystem extends AbstractSystem {
     @Setting(nodeFromParent = true)
     protected Dependencies dependencies;
 
-    @FromMaster
-    protected transient List<FireMode> fireModes;
+    @FromMaster protected transient List<FireMode> fireModes;
     protected transient StatRenderer statRenderer;
 
     /**

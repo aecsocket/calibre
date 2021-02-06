@@ -22,8 +22,9 @@ import me.aecsocket.calibre.wrapper.user.LivingEntityUser;
 import me.aecsocket.calibre.wrapper.user.PlayerUser;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.loop.BukkitSyncLoop;
-import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.stat.Stat;
+import me.aecsocket.unifiedframework.stat.impl.BooleanStat;
+import me.aecsocket.unifiedframework.stat.impl.StringStat;
 import me.aecsocket.unifiedframework.stat.impl.data.ParticleDataStat;
 import me.aecsocket.unifiedframework.stat.impl.data.SoundDataStat;
 import me.aecsocket.unifiedframework.stat.impl.descriptor.NumberDescriptorStat;
@@ -53,11 +54,16 @@ import java.util.Map;
 @ConfigSerializable
 public class PaperGunSystem extends GunSystem implements PaperSystem {
     public static final PotionEffect EFFECT_HASTE = new PotionEffect(PotionEffectType.FAST_DIGGING, 5, 127, false, false, false);
+    public static final int ITEM_DESPAWN = 5 * 60 * 20;
     public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init(GunSystem.DEFAULT_STATS)
             .init("aim_item", new ItemDescriptor.Stat())
             .init("entity_aware_radius", NumberDescriptorStat.of(0d))
             .init("inaccuracy_velocity", NumberDescriptorStat.of(0d))
+
+            .init("casing_can_pick_up", new BooleanStat(false))
+            .init("casing_lifetime", NumberDescriptorStat.of(0d))
+            .init("casing_category", new StringStat())
 
             .init("fire_particle", new ParticleDataStat())
             .init("fire_sound", new SoundDataStat())
@@ -83,8 +89,6 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
     @FromMaster(fromDefault = true)
     private transient CalibrePlugin plugin;
     private int ignoreSwitch;
-    @FromMaster
-    private boolean canPickupCasings;
 
     /**
      * Used for registration.
@@ -153,16 +157,6 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
     }
 
     @Override
-    protected boolean stabilizes(TickContext tickContext, ItemUser user) {
-        if (!(user instanceof PlayerUser))
-            return false;
-        Player player = ((PlayerUser) user).entity();
-        if (!player.isSneaking())
-            return false;
-        return true;
-    }
-
-    @Override
     protected <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {
         super.onEvent(event);
 
@@ -205,14 +199,12 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
                 ((BukkitItem) created).item()
         );
         entity.setVelocity(VectorUtils.toBukkit(velocity));
-        if (canPickupCasings) {
-            entity.setPickupDelay(20);
-        } else {
+        entity.setTicksLived(ITEM_DESPAWN - (int) (tree().<NumberDescriptor.Double>stat("casing_lifetime").apply() * BukkitSyncLoop.TICKS_PER_SECOND));
+        entity.setCanMobPickup(false);
+        if (!tree().<Boolean>stat("casing_can_pick_up"))
             entity.setPickupDelay(Integer.MAX_VALUE);
-            entity.setCanMobPickup(false);
-            // todo
-            entity.setTicksLived((5 * 60 * 20) - (1 * 20));
-        }
+
+        plugin.casingManager().register(entity, tree().stat("casing_category"));
     }
 
     @Override

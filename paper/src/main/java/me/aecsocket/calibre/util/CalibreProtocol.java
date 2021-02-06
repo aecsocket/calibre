@@ -109,6 +109,20 @@ public final class CalibreProtocol {
         item(player, item, slotOf(player, slot));
     }
 
+    public static void air(Player target, int air) {
+        plugin().sendPacket(target, PacketType.Play.Server.ENTITY_METADATA, packet -> {
+            packet.getIntegers().write(0, target.getEntityId());
+            packet.getWatchableCollectionModifier().write(0, Collections.singletonList(
+                    new WrappedWatchableObject(new WrappedDataWatcher.WrappedDataWatcherObject(1, WrappedDataWatcher.Registry.get(Integer.class)), air)
+            ));
+        });
+    }
+
+    public static void air(Player target, double percent) {
+        air(target, (int) (((Math.round(percent * 10d) / 10d) - 0.05) * target.getMaximumAir()));
+    }
+
+
     public static void aimAnimation(Player target, ItemStack item, EquipmentSlot slot) {
         PacketContainer packetEquipment = new PacketContainer(PacketType.Play.Server.ENTITY_EQUIPMENT);
         packetEquipment.getIntegers().write(0, target.getEntityId());

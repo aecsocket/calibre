@@ -51,10 +51,12 @@ public abstract class GunSystem extends AbstractSystem {
     DONE zeroing
     DONE priorities
     - reloading
-    - action bar
+    DONE action bar
     DONE real animations (aiming)
-    - sway stabilize system
+    DONE sway stabilize system
     - casings + casing sounds
+
+    - proper bullet damage
      */
     /** Handles how to fire a gun if there is already a chamber loaded before firing. */
     public enum ChamberHandling {
@@ -95,10 +97,10 @@ public abstract class GunSystem extends AbstractSystem {
             // Inaccuracy
             .init("inaccuracy_jump", NumberDescriptorStat.of(0d))
             .init("inaccuracy_shot", NumberDescriptorStat.of(0d))
-            .init("inaccuracy_decay", NumberDescriptorStat.of(0d))
 
             // Recoil
             .init("recoil", new Vector2DDescriptorStat(new Vector2D()))
+            .init("recoil_random", new Vector2DDescriptorStat(new Vector2D()))
             .init("recoil_speed", NumberDescriptorStat.of(0d))
             .init("recoil_recovery", NumberDescriptorStat.of(0d))
             .init("recoil_recovery_speed", NumberDescriptorStat.of(0d))
@@ -141,10 +143,9 @@ public abstract class GunSystem extends AbstractSystem {
     @Setting(nodeFromParent = true)
     protected Dependencies dependencies;
     protected transient SchedulerSystem scheduler;
-    @FromMaster
-    protected transient StatCollection aimingStats;
-    @FromMaster
-    protected transient StatCollection notAimingStats;
+    protected transient SwayStabilization stabilization;
+    @FromMaster protected transient StatCollection aimingStats;
+    @FromMaster protected transient StatCollection notAimingStats;
 
     protected boolean aiming;
     protected SightPath sight;
@@ -162,6 +163,7 @@ public abstract class GunSystem extends AbstractSystem {
     public GunSystem(GunSystem o) {
         super(o);
         scheduler = o.scheduler;
+        stabilization = o.stabilization;
         aimingStats = o.aimingStats == null ? null : new StatCollection(o.aimingStats);
         notAimingStats = o.notAimingStats == null ? null : new StatCollection(o.notAimingStats);
 
@@ -237,12 +239,11 @@ public abstract class GunSystem extends AbstractSystem {
         return parent.fromSlots(slots, ChamberSystem.class);
     }
 
-    protected Tuple3<ChamberSystem, CalibreSlot, ProjectileSystem> getProjectile(CalibreSlot chamberSlot) {
-        CalibreComponent<?> component = chamberSlot.get();
+    protected Tuple3<ChamberSystem, CalibreSlot, ProjectileSystem> getProjectile(CalibreComponent<?> component) {
         ChamberSystem chamberSystem;
         if (
                 component == null
-                || (chamberSystem = component.system(ChamberSystem.class)) == null
+                        || (chamberSystem = component.system(ChamberSystem.class)) == null
         ) return Tuple3.of(null, null, null);
 
         CalibreSlot loadSlot = chamberSystem.getLoadSlot();
@@ -253,10 +254,14 @@ public abstract class GunSystem extends AbstractSystem {
         ProjectileSystem projectileSystem;
         if (
                 loadComponent == null
-                || (projectileSystem = loadComponent.system(ProjectileSystem.class)) == null
+                        || (projectileSystem = loadComponent.system(ProjectileSystem.class)) == null
         ) return Tuple3.of(chamberSystem, loadSlot, null);
 
         return Tuple3.of(chamberSystem, loadSlot, projectileSystem);
+    }
+
+    protected Tuple3<ChamberSystem, CalibreSlot, ProjectileSystem> getProjectile(CalibreSlot chamberSlot) {
+        return getProjectile(chamberSlot.<CalibreComponent<?>>get());
     }
 
     protected Tuple4<CalibreSlot, ChamberSystem, CalibreSlot, ProjectileSystem> collectChamber(List<CalibreSlot> slots) {
@@ -283,6 +288,7 @@ public abstract class GunSystem extends AbstractSystem {
             dependencies = null;
         }
         require(SchedulerSystem.class);
+        require(SwayStabilization.class);
     }
 
     @Override
@@ -291,6 +297,7 @@ public abstract class GunSystem extends AbstractSystem {
         if (!parent.isRoot()) return;
 
         scheduler = require(SchedulerSystem.class);
+        stabilization = require(SwayStabilization.class);
         EventDispatcher events = tree.events();
         int priority = listenerPriority(0);
         events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, priority);
@@ -348,8 +355,6 @@ public abstract class GunSystem extends AbstractSystem {
         event.item().addInfo(info);
     }
 
-    protected abstract boolean stabilizes(TickContext tickContext, ItemUser user);
-
     protected <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {
         String locale = event.user().locale();
         ItemUser user = event.user();
@@ -371,7 +376,7 @@ public abstract class GunSystem extends AbstractSystem {
                         Math.cos(angle) * sway.x(),
                         Math.sin(angle) * sway.y()
                 );
-                if (stabilizes(ctx, user))
+                if (stabilization.stabilizes(ctx, user))
                     rotation = rotation.multiply(tree().<Vector2DDescriptor>stat("sway_stabilization").apply());
                 ((CameraUser) user).rotate(rotation);
             }
@@ -675,14 +680,25 @@ public abstract class GunSystem extends AbstractSystem {
         }
 
         // apply recoil
-        if (user instanceof RecoilableUser)
+        if (user instanceof RecoilableUser) {
+            Vector2D random = tree().<Vector2DDescriptor>stat("recoil_random").apply();
+            Vector2D recoil = tree().<Vector2DDescriptor>stat("recoil").apply()
+                    .add(
+                            (ThreadLocalRandom.current().nextDouble() - 0.5) * 2 * random.x(),
+                            (ThreadLocalRandom.current().nextDouble() - 0.5) * 2 * random.y()
+                    );
             ((RecoilableUser) user).applyRecoil(
-                    tree().<Vector2DDescriptor>stat("recoil").apply(),
+                    recoil,
                     tree().<NumberDescriptor.Double>stat("recoil_speed").apply(),
                     tree().<NumberDescriptor.Double>stat("recoil_recovery").apply(),
                     tree().<NumberDescriptor.Double>stat("recoil_recovery_speed").apply(),
                     tree().<NumberDescriptor.Long>stat("recoil_recovery_after").apply()
             );
+        }
+
+        // apply inaccuracy
+        if (user instanceof InaccuracyUser)
+            ((InaccuracyUser) user).addInaccuracy(tree().<NumberDescriptor.Double>stat("inaccuracy_shot").apply());
 
         // remove load - we've just shot it
         event.loadSlot.set(null);
@@ -695,11 +711,12 @@ public abstract class GunSystem extends AbstractSystem {
         // if we auto-chamber, load new chamber from ammo
         if (tree().stat("auto_chamber")) {
             List<ComponentContainerSystem> allAmmo = collectAmmo(collectAmmoSlots());
-            if (allAmmo.size() > 0) {
-                ComponentContainerSystem ammo = allAmmo.get(0);
+            for (ComponentContainerSystem ammo : allAmmo) {
                 CalibreComponent<?> peek = ammo.peek();
-                if (peek != null && chamberSlot.get() == null && chamberSlot.isCompatible(peek))
+                if (peek != null && chamberSlot.get() == null && chamberSlot.isCompatible(peek)) {
                     chamberSlot.set(ammo.pop());
+                    break;
+                }
             }
         }
 

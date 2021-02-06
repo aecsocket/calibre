@@ -58,8 +58,12 @@ public abstract class SchedulerSystem extends AbstractSystem {
         public Map<Integer, Task<?>> tasks() { return tasks; }
         public int taskId() { return taskId; }
         public int nextTaskId() { return ++taskId; }
+
         public long cleanDelay() { return cleanDelay; }
+        public void cleanDelay(long cleanDelay) { this.cleanDelay = cleanDelay; }
+
         public long cleanThreshold() { return cleanThreshold; }
+        public void cleanThreshold(long cleanThreshold) { this.cleanThreshold = cleanThreshold; }
 
         public <S extends CalibreSystem> Tuple2<Integer, Task<S>> schedule(S system, long delay, Consumer<S> function) {
             Task<S> task = new Task<>(system.parent().path(), system.id(), System.currentTimeMillis() + delay, function);

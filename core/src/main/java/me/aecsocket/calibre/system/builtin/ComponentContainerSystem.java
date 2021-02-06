@@ -7,7 +7,6 @@ import me.aecsocket.calibre.component.ComponentTree;
 import me.aecsocket.calibre.system.AbstractSystem;
 import me.aecsocket.calibre.system.FromMaster;
 import me.aecsocket.calibre.system.ItemEvents;
-import me.aecsocket.calibre.system.SystemSetupException;
 import me.aecsocket.calibre.world.Item;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.util.Quantifier;
@@ -61,8 +60,7 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
     public static final String ID = "component_container";
     protected transient final LinkedList<Quantifier<CalibreComponent<?>>> components;
     @Setting(nodeFromParent = true)
-    @FromMaster
-    protected ComponentCompatibility compatibility;
+    @FromMaster protected ComponentCompatibility compatibility;
 
     /**
      * Used for registration + deserialization.

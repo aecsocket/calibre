@@ -4,7 +4,6 @@ import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.component.CalibreSlot;
 import me.aecsocket.calibre.component.ComponentTree;
 import me.aecsocket.calibre.system.AbstractSystem;
-import me.aecsocket.calibre.system.SystemSetupException;
 import me.aecsocket.calibre.world.Item;
 import me.aecsocket.unifiedframework.component.Slot;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
@@ -18,11 +17,12 @@ import java.util.Map;
 
 public abstract class SlotDisplaySystem extends AbstractSystem {
     public static final String ID = "slot_display";
+    public static final int LISTENER_PRIORITY = 1100;
 
     /**
      * Used for registration + deserialization.
      */
-    public SlotDisplaySystem() {}
+    public SlotDisplaySystem() { super(LISTENER_PRIORITY); }
 
     /**
      * Used for copying.
@@ -40,8 +40,7 @@ public abstract class SlotDisplaySystem extends AbstractSystem {
         if (!parent.isRoot()) return;
 
         EventDispatcher events = tree.events();
-        int priority = listenerPriority(1100);
-        events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, priority);
+        events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, listenerPriority);
     }
 
     protected String slotType(CalibreSlot slot) {

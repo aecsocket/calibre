@@ -10,6 +10,7 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 public class PaperGunInfoSystem extends GunInfoSystem implements PaperSystem {
     @FromMaster(fromDefault = true)
     private transient CalibrePlugin plugin;
+    private final int staminaBarWidth;
 
     /**
      * Used for registration.
@@ -17,6 +18,7 @@ public class PaperGunInfoSystem extends GunInfoSystem implements PaperSystem {
      */
     public PaperGunInfoSystem(CalibrePlugin plugin) {
         this.plugin = plugin;
+        staminaBarWidth = 50;
     }
 
     /**
@@ -24,6 +26,7 @@ public class PaperGunInfoSystem extends GunInfoSystem implements PaperSystem {
      */
     public PaperGunInfoSystem() {
         plugin = null;
+        staminaBarWidth = 50;
     }
 
     /**
@@ -33,13 +36,14 @@ public class PaperGunInfoSystem extends GunInfoSystem implements PaperSystem {
     public PaperGunInfoSystem(PaperGunInfoSystem o) {
         super(o);
         plugin = o.plugin;
+        staminaBarWidth = o.staminaBarWidth;
     }
 
     @Override public CalibrePlugin plugin() { return plugin; }
 
     @Override
     protected Component bar(String locale, String key, double percent) {
-        return plugin.bar(locale, key, percent, 0d, setting("stamina_bar_width").getInt(50));
+        return plugin.bar(locale, key, percent, 0d, staminaBarWidth);
     }
 
     @Override public PaperGunInfoSystem copy() { return new PaperGunInfoSystem(this); }

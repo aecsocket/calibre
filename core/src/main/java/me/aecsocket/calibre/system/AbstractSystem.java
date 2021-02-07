@@ -12,14 +12,21 @@ import java.lang.reflect.Field;
 
 public abstract class AbstractSystem implements CalibreSystem {
     protected transient CalibreComponent<?> parent;
+    @FromMaster
+    protected final int listenerPriority;
 
-    public AbstractSystem() {}
+    public AbstractSystem(int listenerPriority) {
+        this.listenerPriority = listenerPriority;
+    }
 
     public AbstractSystem(AbstractSystem o) {
         parent = o.parent;
+        listenerPriority = o.listenerPriority;
     }
 
     @Override public void id(String s) {}
+
+    public int listenerPriority() { return listenerPriority; }
 
     @Override public CalibreComponent<?> parent() { return parent; }
 
@@ -32,8 +39,6 @@ public abstract class AbstractSystem implements CalibreSystem {
     public void parentTo(ComponentTree tree, CalibreComponent<?> parent) {
         this.parent = parent;
     }
-
-    protected int listenerPriority(int defaultValue) { return setting("listener_priority").getInt(defaultValue); }
 
     protected <S> S require(Class<S> type) {
         S system = parent.system(type);

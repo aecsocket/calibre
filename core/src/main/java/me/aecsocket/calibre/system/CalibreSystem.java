@@ -64,7 +64,6 @@ public interface CalibreSystem extends CalibreIdentifiable {
 
     CalibreComponent<?> parent();
     default ComponentTree tree() { return parent().tree(); }
-    ConfigurationNode setting(Object... path);
 
     void setup(CalibreComponent<?> parent) throws SystemSetupException;
     void parentTo(ComponentTree tree, CalibreComponent<?> parent);
@@ -91,7 +90,7 @@ public interface CalibreSystem extends CalibreIdentifiable {
 
     static Map<String, CalibreSystem> copySystems(Map<String, CalibreSystem> existing) {
         Map<String, CalibreSystem> result = new HashMap<>();
-        for (Map.Entry<String, CalibreSystem> entry : existing.entrySet())
+        for (var entry : existing.entrySet())
             result.put(entry.getKey(), entry.getValue().copy());
         return result;
     }

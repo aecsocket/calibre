@@ -121,7 +121,7 @@ public class CalibreSlot implements Slot {
 
     public static LinkedHashMap<String, CalibreSlot> copySlots(Map<String, CalibreSlot> existing) {
         LinkedHashMap<String, CalibreSlot> result = new LinkedHashMap<>();
-        for (Map.Entry<String, CalibreSlot> entry : existing.entrySet())
+        for (var entry : existing.entrySet())
             result.put(entry.getKey(), entry.getValue().copy());
         return result;
     }

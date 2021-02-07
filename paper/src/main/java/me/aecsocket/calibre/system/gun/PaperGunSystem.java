@@ -123,11 +123,10 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
         super.parentTo(tree, parent);
         if (!parent.isRoot()) return;
 
-        int priority = listenerPriority(0);
         EventDispatcher events = tree.events();
-        events.registerListener(ItemEvents.UpdateItem.class, this::onEvent, priority);
-        events.registerListener(BukkitItemEvents.ShowItem.class, this::onEvent, priority);
-        events.registerListener(BukkitItemEvents.Swing.class, this::onEvent, priority);
+        events.registerListener(ItemEvents.UpdateItem.class, this::onEvent, listenerPriority);
+        events.registerListener(BukkitItemEvents.ShowItem.class, this::onEvent, listenerPriority);
+        events.registerListener(BukkitItemEvents.Swing.class, this::onEvent, listenerPriority);
     }
 
     protected <I extends Item> void onEvent(ItemEvents.UpdateItem<I> event) {
@@ -220,14 +219,12 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
     }
 
     @Override
-    public <I extends Item> void fire(Events.Fire<I> event) {
-        super.fire(event);
-        if (event.projectileSystem() == null)
-            return;
-
+    public <I extends Item> void fireSuccess(Events.FireSuccess<I> event) {
         ItemUser user = event.user();
+
         if (user instanceof BukkitItemUser) {
             SoundData.play(((BukkitItemUser) user)::location, tree().stat("fire_sound"));
+            ParticleData.spawn(VectorUtils.toBukkit(event.position()).toLocation(((BukkitItemUser) user).world()), tree().stat("fire_particle"));
 
             if (user instanceof PlayerUser) {
                 Player player = ((PlayerUser) user).entity();
@@ -243,13 +240,6 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
                 });
             }
         }
-    }
-
-    @Override
-    public <I extends Item> void fireSuccess(Events.FireSuccess<I> event) {
-        World world = event.user() instanceof BukkitItemUser ? ((BukkitItemUser) event.user()).world() : null;
-        if (world != null)
-            ParticleData.spawn(VectorUtils.toBukkit(event.position()).toLocation(world), tree().stat("fire_particle"));
         super.fireSuccess(event);
     }
 

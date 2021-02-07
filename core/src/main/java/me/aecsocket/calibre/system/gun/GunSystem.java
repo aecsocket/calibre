@@ -69,6 +69,7 @@ public abstract class GunSystem extends AbstractSystem {
     }
 
     public static final String ID = "gun";
+    public static final int LISTENER_PRIORITY = 0;
     public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init(Projectiles.STATS)
             // Basic stats about projectiles
@@ -80,6 +81,7 @@ public abstract class GunSystem extends AbstractSystem {
             .init("zero_range", NumberDescriptorStat.of(0d))
             .init("eject_offset", new Vector3DDescriptorStat(new Vector3D()))
             .init("eject_velocity", new Vector3DDescriptorStat(new Vector3D()))
+            .init("resting_offset", new Vector3DDescriptorStat(new Vector3D()))
 
             // Target slot types
             .init("slot_type_chamber", NumberDescriptorStat.of(0))
@@ -106,17 +108,20 @@ public abstract class GunSystem extends AbstractSystem {
             .init("recoil_recovery_speed", NumberDescriptorStat.of(0d))
             .init("recoil_recovery_after", NumberDescriptorStat.of(0L))
             .init("recoil_inaccuracy_coefficient", NumberDescriptorStat.of(0d))
+            .init("recoil_resting_multiplier", NumberDescriptorStat.of(1d))
 
             // Spread
             .init("spread", new Vector2DDescriptorStat(new Vector2D()))
             .init("spread_projectile", new Vector2DDescriptorStat(new Vector2D()))
             .init("spread_inaccuracy_coefficient", NumberDescriptorStat.of(0d))
+            .init("spread_resting_multiplier", NumberDescriptorStat.of(1d))
 
             // Sway
             .init("sway", new Vector2DDescriptorStat(new Vector2D()))
             .init("sway_cycle", NumberDescriptorStat.of(0L))
             .init("sway_stabilization", new Vector2DDescriptorStat(new Vector2D(1)))
             .init("sway_inaccuracy_coefficient", NumberDescriptorStat.of(0d))
+            .init("sway_resting_multiplier", NumberDescriptorStat.of(1d))
 
             // Actions
             .init("start_shot_delay", NumberDescriptorStat.of(0L))
@@ -154,7 +159,7 @@ public abstract class GunSystem extends AbstractSystem {
     /**
      * Used for registration + deserialization.
      */
-    public GunSystem() {}
+    public GunSystem() { super(LISTENER_PRIORITY); }
 
     /**
      * Used for copying.
@@ -299,17 +304,16 @@ public abstract class GunSystem extends AbstractSystem {
         scheduler = require(SchedulerSystem.class);
         stabilization = require(SwayStabilization.class);
         EventDispatcher events = tree.events();
-        int priority = listenerPriority(0);
-        events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, priority);
-        events.registerListener(ItemEvents.Equipped.class, this::onEvent, priority);
-        events.registerListener(ItemEvents.Jump.class, this::onEvent, priority);
-        events.registerListener(ItemEvents.Scroll.class, this::onEvent, priority);
-        events.registerListener(ItemEvents.Switch.class, this::onEvent, priority);
-        events.registerListener(ItemEvents.Interact.class, this::onEvent, priority);
-        events.registerListener(ItemEvents.SwapHand.class, this::onEvent, priority);
-        events.registerListener(ItemEvents.Drop.class, this::onEvent, priority);
-        events.registerListener(ItemEvents.BreakBlock.class, this::onEvent, priority);
-        events.registerListener(ItemEvents.PlaceBlock.class, this::onEvent, priority);
+        events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.Equipped.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.Jump.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.Scroll.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.Switch.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.Interact.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.SwapHand.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.Drop.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.BreakBlock.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.PlaceBlock.class, this::onEvent, listenerPriority);
 
         if (getSight() == null) {
             List<SightPath> found = collectSights();
@@ -344,6 +348,10 @@ public abstract class GunSystem extends AbstractSystem {
         return values.size() == 0 ? gen(locale, "system." + ID + ".sights.none") : Utils.join(separator, values);
     }
 
+    public boolean resting(RestableUser user, ItemSlot<?> slot) {
+        return user.restsOn(offset(user, slot, tree().<Vector3DDescriptor>stat("resting_offset").apply()));
+    }
+
     protected <I extends Item> void onEvent(CalibreComponent.Events.ItemCreate<I> event) {
         List<Component> info = new ArrayList<>();
         String locale = event.locale();
@@ -356,8 +364,9 @@ public abstract class GunSystem extends AbstractSystem {
     }
 
     protected <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {
-        String locale = event.user().locale();
         ItemUser user = event.user();
+
+        boolean resting = user instanceof RestableUser && resting((RestableUser) user, event.slot());
 
         boolean update = false;
         if (user instanceof CameraUser) {
@@ -365,11 +374,15 @@ public abstract class GunSystem extends AbstractSystem {
             Vector2D sway = tree().<Vector2DDescriptor>stat("sway").apply()
                     .multiply(ctx.delta() / 1000d);
             long cycle = tree().<NumberDescriptor.Long>stat("sway_cycle").apply();
+
             if (user instanceof InaccuracyUser) {
                 sway = sway.multiply(1 + (
                         calculateInaccuracy((InaccuracyUser) user) * tree().<NumberDescriptor.Double>stat("sway_inaccuracy_coefficient").apply()
                 ));
             }
+            if (resting)
+                sway = sway.multiply(tree().<NumberDescriptor.Double>stat("sway_resting_multiplier").apply());
+
             if (sway.manhattanLength() > 0 && cycle > 0) {
                 double angle = ((double) ctx.elapsed() / (cycle / 2d /* so it is a full ellipse of sway, not half of one */)) * Math.PI;
                 Vector2D rotation = new Vector2D(
@@ -578,13 +591,16 @@ public abstract class GunSystem extends AbstractSystem {
     }
 
     public <I extends Item> Vector2D calculateSpread(Events.Fire<I> event) {
-        Vector2D result = tree().<Vector2DDescriptor>stat("spread").apply(new Vector2D());
-        if (event.user() instanceof InaccuracyUser) {
-            result = result.multiply(1 + (
-                    calculateInaccuracy((InaccuracyUser) event.user()) * tree().<NumberDescriptor.Double>stat("spread_inaccuracy_coefficient").apply()
+        Vector2D spread = tree().<Vector2DDescriptor>stat("spread").apply(new Vector2D());
+        ItemUser user = event.user();
+        if (user instanceof InaccuracyUser) {
+            spread = spread.multiply(1 + (
+                    calculateInaccuracy((InaccuracyUser) user) * tree().<NumberDescriptor.Double>stat("spread_inaccuracy_coefficient").apply()
             ));
         }
-        return result;
+        if (user instanceof RestableUser && resting((RestableUser) user, event.slot()))
+            spread = spread.multiply(tree().<NumberDescriptor.Double>stat("spread_resting_multiplier").apply());
+        return spread;
     }
 
     public <I extends Item> void fire(Events.Fire<I> event) {
@@ -687,6 +703,14 @@ public abstract class GunSystem extends AbstractSystem {
                             (ThreadLocalRandom.current().nextDouble() - 0.5) * 2 * random.x(),
                             (ThreadLocalRandom.current().nextDouble() - 0.5) * 2 * random.y()
                     );
+            if (user instanceof InaccuracyUser)
+                recoil = recoil.multiply(1 + (
+                        calculateInaccuracy((InaccuracyUser) event.user()) * tree().<NumberDescriptor.Double>stat("recoil_inaccuracy_coefficient").apply()
+                ));
+
+            if (user instanceof RestableUser && resting((RestableUser) user, event.slot()))
+                recoil = recoil.multiply(tree().<NumberDescriptor.Double>stat("recoil_resting_multiplier").apply());
+
             ((RecoilableUser) user).applyRecoil(
                     recoil,
                     tree().<NumberDescriptor.Double>stat("recoil_speed").apply(),

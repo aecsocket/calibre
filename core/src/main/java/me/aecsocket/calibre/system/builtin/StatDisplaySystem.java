@@ -43,6 +43,8 @@ public abstract class StatDisplaySystem extends AbstractSystem implements StatRe
     }
 
     public static final String ID = "stat_display";
+    public static final int LISTENER_PRIORITY = 100;
+
     @FromMaster private List<List<Element>> sections;
     @FromMaster(fromDefault = true)
     private transient Function<Class<?>, Formatter<?>> formatSupplier;
@@ -52,13 +54,14 @@ public abstract class StatDisplaySystem extends AbstractSystem implements StatRe
      * @param formatSupplier The function which generates formatters for specific stat types.
      */
     public StatDisplaySystem(Function<Class<?>, Formatter<?>> formatSupplier) {
+        super(LISTENER_PRIORITY);
         this.formatSupplier = formatSupplier;
     }
 
     /**
      * Used for deserialization.
      */
-    public StatDisplaySystem() {}
+    public StatDisplaySystem() { super(LISTENER_PRIORITY); }
 
     /**
      * Used for copying.
@@ -86,8 +89,7 @@ public abstract class StatDisplaySystem extends AbstractSystem implements StatRe
         if (!parent.isRoot()) return;
 
         EventDispatcher events = tree.events();
-        int priority = listenerPriority(100);
-        events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, priority);
+        events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, listenerPriority);
     }
 
     protected abstract int getWidth(String text);
@@ -113,8 +115,8 @@ public abstract class StatDisplaySystem extends AbstractSystem implements StatRe
         // Gets widest key in *all priorities*
         int columnWidth = 0;
         Map<String, Tuple2<Component, Integer>> generatedKeys = new LinkedHashMap<>();
-        for (Map.Entry<Integer, StatMap> entry : stats.entrySet()) {
-            for (Map.Entry<String, StatInstance<?>> entry2 : entry.getValue().entrySet()) {
+        for (var entry : stats.entrySet()) {
+            for (var entry2 : entry.getValue().entrySet()) {
                 String key = entry2.getKey();
                 StatInstance<?> inst = entry2.getValue();
 
@@ -151,7 +153,7 @@ public abstract class StatDisplaySystem extends AbstractSystem implements StatRe
 
         Component sectionSeparator = gen(locale, "system." + ID + ".section_separator");
         int i = 0;
-        for (Map.Entry<Integer, StatMap> entry : stats.entrySet()) {
+        for (var entry : stats.entrySet()) {
             int priority = entry.getKey();
             StatMap priorityStats = entry.getValue();
 

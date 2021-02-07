@@ -67,7 +67,7 @@ public class SlotViewGUI extends GUI {
                 vec.slot(),
                 new SlotViewItem(plugin, component, modification, limited)
         );
-        for (Map.Entry<String, PaperSlot> entry : component.<PaperSlot>slots().entrySet())
+        for (var entry : component.<PaperSlot>slots().entrySet())
             addItems(result, entry.getKey(), entry.getValue(), vec);
         return result;
     }
@@ -79,7 +79,7 @@ public class SlotViewGUI extends GUI {
         if (slot.get() == null)
             return;
 
-        for (Map.Entry<String, PaperSlot> entry : slot.get().<PaperSlot>slots().entrySet())
+        for (var entry : slot.get().<PaperSlot>slots().entrySet())
             addItems(map, entry.getKey(), entry.getValue(), offset);
     }
 

@@ -15,7 +15,7 @@ import org.spongepowered.configurate.BasicConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.ConfigurationOptions;
-import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
+import org.spongepowered.configurate.gson.GsonConfigurationLoader;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
@@ -49,7 +49,7 @@ public class ComponentTree {
                 }
 
                 Map<String, CalibreSlot> slots = root.slots;
-                for (Map.Entry<String, CalibreSlot> entry : slots.entrySet()) {
+                for (var entry : slots.entrySet()) {
                     String key = entry.getKey();
                     CalibreSlot slot = entry.getValue();
                     CalibreComponent<?> child = slot.get();
@@ -81,7 +81,7 @@ public class ComponentTree {
             root = root.copy();
 
             if (systems != null) {
-                for (Map.Entry<String, ConfigurationNode> entry : systems.entrySet()) {
+                for (var entry : systems.entrySet()) {
                     String sysId = entry.getKey();
                     CalibreSystem parentSystem = root.system(sysId);
                     if (parentSystem == null) {
@@ -100,7 +100,7 @@ public class ComponentTree {
             }
 
             if (slots != null) {
-                for (Map.Entry<String, ConfigurationNode> entry : slots.entrySet()) {
+                for (var entry : slots.entrySet()) {
                     String key = entry.getKey();
                     if (root.slot(key) == null) {
                         if (preserveInvalidData) throw new SerializationException(node, type, "Slot [" + key + "] is not present on this component");
@@ -241,24 +241,21 @@ public class ComponentTree {
 
     @Override public String toString() { return "tree<" + root + ">"; }
 
-    public String serialize(ConfigurationOptions options, boolean prettyPrinting) throws ConfigurateException {
+    public String serialize(ConfigurationOptions options) throws ConfigurateException {
         StringWriter writer = new StringWriter();
-        HoconConfigurationLoader loader = HoconConfigurationLoader.builder()
+        // We use GSON because it is so so much more performant than HOCON
+        // Performance really matters.
+        GsonConfigurationLoader loader = GsonConfigurationLoader.builder()
                 .sink(() -> new BufferedWriter(writer))
-                .prettyPrinting(prettyPrinting)
                 .build();
         ConfigurationNode node = BasicConfigurationNode.root(options).set(this);
-        // HOCON can only write nodes in map format
-        // TODO maybe remove after hocon rewrite
-        if (!node.isMap())
-            node.node("id").set(root.id);
         loader.save(node);
         return writer.toString();
     }
 
-    public static ComponentTree deserialize(String json, ConfigurationOptions options) throws ConfigurateException {
-        HoconConfigurationLoader loader = HoconConfigurationLoader.builder()
-                .source(() -> new BufferedReader(new StringReader(json)))
+    public static ComponentTree deserialize(String input, ConfigurationOptions options) throws ConfigurateException {
+        GsonConfigurationLoader loader = GsonConfigurationLoader.builder()
+                .source(() -> new BufferedReader(new StringReader(input)))
                 .build();
         return loader.load(options).get(ComponentTree.class);
     }

@@ -20,6 +20,7 @@ import java.util.Objects;
 
 public abstract class SightSystem extends AbstractSystem {
     public static final String ID = "sight";
+    public static final int LISTENER_PRIORITY = 1060;
 
     @ConfigSerializable
     protected static class Dependencies {
@@ -35,7 +36,7 @@ public abstract class SightSystem extends AbstractSystem {
     /**
      * Used for registration + deserialization.
      */
-    public SightSystem() {}
+    public SightSystem() { super(LISTENER_PRIORITY); }
 
     /**
      * Used for copying.
@@ -66,8 +67,7 @@ public abstract class SightSystem extends AbstractSystem {
         if (!parent.isRoot()) return;
 
         EventDispatcher events = tree.events();
-        int priority = listenerPriority(1060);
-        events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, priority);
+        events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, listenerPriority);
 
         statRenderer = parent.system(StatRenderer.class);
     }

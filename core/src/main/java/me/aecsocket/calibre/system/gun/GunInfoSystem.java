@@ -28,6 +28,7 @@ public abstract class GunInfoSystem extends AbstractSystem {
     }
 
     public static final String ID = "gun_info";
+    public static final int LISTENER_PRIORITY = 100;
 
     @FromMaster protected Style ammoStyle;
     @FromMaster protected Style chamberStyle;
@@ -40,7 +41,7 @@ public abstract class GunInfoSystem extends AbstractSystem {
     /**
      * Used for registration + deserialization.
      */
-    public GunInfoSystem() {}
+    public GunInfoSystem() { super(LISTENER_PRIORITY); }
 
     /**
      * Used for copying.
@@ -91,9 +92,8 @@ public abstract class GunInfoSystem extends AbstractSystem {
         if (!parent.isRoot()) return;
 
         EventDispatcher events = tree.events();
-        int priority = listenerPriority(100);
-        events.registerListener(ItemEvents.Equipped.class, this::onEvent, priority);
-        events.registerListener(ItemEvents.Switch.class, this::onEvent, priority);
+        events.registerListener(ItemEvents.Equipped.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.Switch.class, this::onEvent, listenerPriority);
 
         gun = require(GunSystem.class);
     }

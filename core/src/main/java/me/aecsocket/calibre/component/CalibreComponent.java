@@ -211,7 +211,7 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
      * @param defaultStats The existing originals map.
      */
     private void addToDefaults(Map<String, Stat<?>> toAdd, Map<String, Stat<?>> defaultStats) {
-        for (Map.Entry<String, Stat<?>> statEntry : toAdd.entrySet()) {
+        for (var statEntry : toAdd.entrySet()) {
             String key = statEntry.getKey();
             defaultStats.put(key, statEntry.getValue());
         }
@@ -222,7 +222,7 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
         Map<String, Stat<?>> defaultStats = new LinkedHashMap<>(defaultStats());
         systems.clear();
         if (dependencies.systems != null) {
-            for (Map.Entry<String, ConfigurationNode> entry : dependencies.systems.entrySet()) {
+            for (var entry : dependencies.systems.entrySet()) {
                 String sysId = entry.getKey();
                 ConfigurationNode options = entry.getValue();
 

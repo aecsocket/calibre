@@ -285,6 +285,7 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
      * @param plugin The plugin.
      */
     public BulletSystem(CalibrePlugin plugin) {
+        super(0);
         this.plugin = plugin;
     }
 
@@ -292,6 +293,7 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
      * Used for deserialization.
      */
     public BulletSystem() {
+        super(0);
         plugin = null;
     }
 

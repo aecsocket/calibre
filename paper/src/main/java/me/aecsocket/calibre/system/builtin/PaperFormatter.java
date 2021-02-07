@@ -18,7 +18,7 @@ public final class PaperFormatter {
 
         @Override
         protected Component bar(String locale, String key, double percent) {
-            return plugin.bar(locale, key, percent, 0, plugin.setting("system", StatDisplaySystem.ID, "bar_widths").node(0).getInt());
+            return plugin.bar(locale, key, percent, 0, plugin.setting("stat_formatter", "bar_widths").node(0).getInt());
         }
 
         @Override
@@ -38,7 +38,7 @@ public final class PaperFormatter {
 
         @Override
         protected Component bar(String locale, String key, double percent) {
-            return plugin.bar(locale, key, percent, 0, plugin.setting("system", StatDisplaySystem.ID, "bar_widths").node(1).getInt());
+            return plugin.bar(locale, key, percent, 0, plugin.setting("stat_formatter", "bar_widths").node(1).getInt());
         }
 
         @Override

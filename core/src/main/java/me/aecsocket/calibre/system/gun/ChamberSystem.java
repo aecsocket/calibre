@@ -14,7 +14,7 @@ public abstract class ChamberSystem extends AbstractSystem {
     /**
      * Used for registration + deserialization.
      */
-    public ChamberSystem() {}
+    public ChamberSystem() { super(0); }
 
     /**
      * Used for copying.

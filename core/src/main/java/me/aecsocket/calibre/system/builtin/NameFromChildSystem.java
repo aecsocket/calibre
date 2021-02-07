@@ -12,12 +12,13 @@ import java.util.Objects;
 
 public abstract class NameFromChildSystem extends AbstractSystem {
     public static final String ID = "name_from_child";
+    public static final int LISTENER_PRIORITY = 100000;
     @FromMaster private String child;
 
     /**
      * Used for registration + deserialization.
      */
-    public NameFromChildSystem() {}
+    public NameFromChildSystem() { super(LISTENER_PRIORITY); }
 
     /**
      * Used for copying.
@@ -42,9 +43,10 @@ public abstract class NameFromChildSystem extends AbstractSystem {
     @Override
     public void parentTo(ComponentTree tree, CalibreComponent<?> parent) {
         super.parentTo(tree, parent);
+        if (!parent.isRoot()) return;
+
         EventDispatcher events = tree.events();
-        int priority = listenerPriority(100000);
-        events.registerListener(CalibreComponent.Events.NameCreate.class, this::onEvent, priority);
+        events.registerListener(CalibreComponent.Events.NameCreate.class, this::onEvent, listenerPriority);
     }
 
     protected void onEvent(CalibreComponent.Events.NameCreate<?> event) {

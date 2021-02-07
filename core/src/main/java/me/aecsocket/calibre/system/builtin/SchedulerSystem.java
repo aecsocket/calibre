@@ -108,6 +108,8 @@ public abstract class SchedulerSystem extends AbstractSystem {
     }
 
     public static final String ID = "scheduler";
+    public static final int LISTENER_PRIORITY = 100000;
+
     @FromMaster(fromDefault = true)
     private final transient Scheduler scheduler;
     private final List<Integer> tasks = new ArrayList<>();
@@ -118,6 +120,7 @@ public abstract class SchedulerSystem extends AbstractSystem {
      * @param scheduler The scheduler to use.
      */
     public SchedulerSystem(Scheduler scheduler) {
+        super(LISTENER_PRIORITY);
         this.scheduler = scheduler;
     }
 
@@ -125,6 +128,7 @@ public abstract class SchedulerSystem extends AbstractSystem {
      * Used for deserialization.
      */
     public SchedulerSystem() {
+        super(LISTENER_PRIORITY);
         scheduler = null;
     }
 
@@ -159,9 +163,8 @@ public abstract class SchedulerSystem extends AbstractSystem {
         if (!parent.isRoot()) return;
 
         EventDispatcher events = tree.events();
-        int priority = listenerPriority(100000);
-        events.registerListener(ItemEvents.Equipped.class, this::onEvent, priority);
-        events.registerListener(ItemEvents.Switch.class, this::onEvent, priority);
+        events.registerListener(ItemEvents.Equipped.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.Switch.class, this::onEvent, listenerPriority);
     }
 
     public boolean checkTasks() {

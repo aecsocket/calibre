@@ -21,7 +21,7 @@ public abstract class SwayStabilizationSystem extends AbstractSystem implements 
     /**
      * Used for registration + deserialization.
      */
-    public SwayStabilizationSystem() {}
+    public SwayStabilizationSystem() { super(0); }
 
     /**
      * Used for copying.

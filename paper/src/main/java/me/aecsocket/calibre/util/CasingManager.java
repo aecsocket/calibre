@@ -90,7 +90,7 @@ public class CasingManager implements Tickable {
             @Override
             public Category deserialize(Type type, ConfigurationNode node) throws SerializationException {
                 Map<Material, MaterialData> materialData = new HashMap<>();
-                for (Map.Entry<?, ? extends ConfigurationNode> entry : asMap(node.node("material_data"), type).entrySet()) {
+                for (var entry : asMap(node.node("material_data"), type).entrySet()) {
                     String key = entry.getKey().toString();
                     MaterialData value = entry.getValue().get(MaterialData.class);
                     if (key.equals(DEFAULT_MATERIAL))
@@ -167,9 +167,9 @@ public class CasingManager implements Tickable {
 
     @Override
     public void tick(TickContext tickContext) {
-        Iterator<Map.Entry<UUID, Casing>> iter = casings.entrySet().iterator();
+        var iter = casings.entrySet().iterator();
         while (iter.hasNext()) {
-            Map.Entry<UUID, Casing> entry = iter.next();
+            var entry = iter.next();
             UUID uuid = entry.getKey();
             Casing casing = entry.getValue();
             Entity entity = Bukkit.getEntity(uuid);

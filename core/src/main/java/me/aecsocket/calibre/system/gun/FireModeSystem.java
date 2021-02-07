@@ -18,6 +18,7 @@ import java.util.*;
 
 public abstract class FireModeSystem extends AbstractSystem {
     public static final String ID = "fire_mode";
+    public static final int LISTENER_PRIORITY = 1030;
 
     @ConfigSerializable
     protected static class Dependencies {
@@ -33,7 +34,7 @@ public abstract class FireModeSystem extends AbstractSystem {
     /**
      * Used for registration + deserialization.
      */
-    public FireModeSystem() {}
+    public FireModeSystem() { super(LISTENER_PRIORITY); }
 
     /**
      * Used for copying.
@@ -62,8 +63,7 @@ public abstract class FireModeSystem extends AbstractSystem {
         if (!parent.isRoot()) return;
 
         EventDispatcher events = tree.events();
-        int priority = listenerPriority(1030);
-        events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, priority);
+        events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, listenerPriority);
 
         statRenderer = parent.system(StatRenderer.class);
     }

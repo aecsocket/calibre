@@ -58,6 +58,7 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
     }
 
     public static final String ID = "component_container";
+    public static final int LISTENER_PRIORITY = 1200;
     protected transient final LinkedList<Quantifier<CalibreComponent<?>>> components;
     @Setting(nodeFromParent = true)
     @FromMaster protected ComponentCompatibility compatibility;
@@ -66,6 +67,7 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
      * Used for registration + deserialization.
      */
     public ComponentContainerSystem() {
+        super(LISTENER_PRIORITY);
         components = new LinkedList<>();
     }
 
@@ -119,10 +121,9 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
         if (!parent.isRoot()) return;
 
         EventDispatcher events = tree.events();
-        int priority = listenerPriority(1200);
-        events.registerListener(CalibreComponent.Events.NameCreate.class, this::onEvent, priority);
-        events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, priority);
-        events.registerListener(ItemEvents.Click.class, this::onEvent, priority);
+        events.registerListener(CalibreComponent.Events.NameCreate.class, this::onEvent, listenerPriority);
+        events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.Click.class, this::onEvent, listenerPriority);
     }
 
     protected void onEvent(CalibreComponent.Events.NameCreate<?> event) {

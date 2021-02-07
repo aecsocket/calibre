@@ -35,6 +35,7 @@ import java.util.UUID;
 @ConfigSerializable
 public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
     public static final String ID = "generic_stats";
+    public static final int LISTENER_PRIORITY = 100000;
     public static final UUID ATTR_MOVE_SPEED = new UUID(3871, 4920);
     public static final UUID ATTR_ATTACK_DAMAGE = new UUID(3894, 1859);
     public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
@@ -62,6 +63,7 @@ public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
      * @param plugin The plugin.
      */
     public GenericStatsSystem(CalibrePlugin plugin) {
+        super(LISTENER_PRIORITY);
         this.plugin = plugin;
     }
 
@@ -69,6 +71,7 @@ public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
      * Used for deserialization.
      */
     public GenericStatsSystem() {
+        super(LISTENER_PRIORITY);
         plugin = null;
     }
 
@@ -92,12 +95,11 @@ public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
         if (!parent.isRoot()) return;
 
         EventDispatcher events = tree.events();
-        int priority = setting("listener_priority").getInt(100000);
-        events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, priority);
-        events.registerListener(ItemEvents.UpdateItem.class, this::onEvent, priority);
-        events.registerListener(ItemEvents.Jump.class, this::onEvent, priority);
-        events.registerListener(ItemEvents.ToggleSprint.class, this::onEvent, priority);
-        events.registerListener(ItemEvents.Switch.class, this::onEvent, priority);
+        events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.UpdateItem.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.Jump.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.ToggleSprint.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.Switch.class, this::onEvent, listenerPriority);
     }
 
     private void update(ItemUser user) {

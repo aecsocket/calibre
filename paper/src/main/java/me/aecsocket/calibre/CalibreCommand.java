@@ -20,8 +20,13 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
+import org.spongepowered.configurate.BasicConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
 
+import java.io.BufferedWriter;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -250,8 +255,22 @@ public class CalibreCommand extends BaseCommand {
 
         String locale = locale(sender);
         try {
-            PaperComponent component = plugin.itemManager().component(((Player) sender).getInventory().getItemInMainHand());
-            String[] lines = component.tree().serialize(plugin.configOptions(), true).split("\n");
+            PaperComponent component = plugin.itemManager().get(((Player) sender).getInventory().getItemInMainHand());
+            ComponentTree tree = component.tree();
+
+            // Save into pretty printed HOCON
+            StringWriter writer = new StringWriter();
+            HoconConfigurationLoader loader = HoconConfigurationLoader.builder()
+                    .sink(() -> new BufferedWriter(writer))
+                    .prettyPrinting(true)
+                    .build();
+            ConfigurationNode node = BasicConfigurationNode.root(plugin.configOptions()).set(tree);
+            if (!node.isMap())
+                node.node("id").set(component.id());
+            loader.save(node);
+
+            // Print
+            String[] lines = writer.toString().split("\n");
             send(sender, "command.object",
                     "type", component.getClass().getSimpleName(),
                     "id", component.id(),

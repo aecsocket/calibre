@@ -19,7 +19,9 @@ public interface PlayerUser extends LivingEntityUser, MovementUser, CameraUser, 
     @Override default boolean sprinting() { return entity().isSprinting(); }
 
     @Override default void zoom(double zoom) { CalibreProtocol.fov(entity(), zoom); }
-    @Override default void rotate(Vector2D vector) { CalibreProtocol.rotate(entity(), vector.x(), -vector.y()); }
+    @Override default void applyRotation(Vector2D vector) {
+        playerData().applyRotation(vector);
+    }
 
     @Override default void applyRecoil(Vector2D recoil, double recoilSpeed, double recoilRecovery, double recoilRecoverySpeed, long recoilRecoveryAfter) {
         playerData().applyRecoil(recoil, recoilSpeed, recoilRecovery, recoilRecoverySpeed, recoilRecoveryAfter);

@@ -5,6 +5,7 @@ import me.aecsocket.calibre.component.PaperComponent;
 import me.aecsocket.calibre.gui.SlotViewGUI;
 import me.aecsocket.calibre.system.BukkitItemEvents;
 import me.aecsocket.unifiedframework.gui.GUIView;
+import me.aecsocket.unifiedframework.loop.MinecraftSyncLoop;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.loop.Tickable;
 import me.aecsocket.unifiedframework.util.Utils;
@@ -22,6 +23,9 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.spongepowered.configurate.serialize.SerializationException;
 
+import java.util.Collections;
+import java.util.EnumMap;
+
 public final class CalibrePlayer implements Tickable {
     public static final ParticleData[] OFFSET_PARTICLE = {
             new ParticleData().particle(Particle.FIREWORKS_SPARK)
@@ -30,6 +34,8 @@ public final class CalibrePlayer implements Tickable {
 
     private final CalibrePlugin plugin;
     private final Player player;
+    private final EnumMap<EquipmentSlot, PaperComponent> componentCache = new EnumMap<>(EquipmentSlot.class);
+
     private Vector3D offset;
     private ItemAnimation.Instance animation;
 
@@ -109,6 +115,10 @@ public final class CalibrePlayer implements Tickable {
         recoilRecoveryAt = System.currentTimeMillis() + recoilRecoveryAfter;
     }
 
+    public void applyRotation(Vector2D vector) {
+        CalibreProtocol.rotate(player, vector.x(), vector.y());
+    }
+
     public void reduceStamina(double amount) {
         stamina -= amount;
         if (stamina <= 0) {
@@ -122,10 +132,17 @@ public final class CalibrePlayer implements Tickable {
         return player.isSneaking() && !stabilizeBlocked;
     }
 
-    @Override
-    public void tick(TickContext tickContext) {
-        if (player.isDead())
-            return;
+    public void bukkitSyncTick(TickContext tickContext) {
+        // equipped
+        EntityEquipment equipment = player.getEquipment();
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            PaperComponent component = plugin.itemManager().get(equipment.getItem(slot));
+            componentCache.put(slot, null);
+            if (component != null) {
+                component.tree().call(BukkitItemEvents.BukkitEquipped.of(component, player, slot, tickContext));
+                componentCache.put(slot, component);
+            }
+        }
 
         // offset
         if (offset != null) {
@@ -134,14 +151,6 @@ public final class CalibrePlayer implements Tickable {
             try {
                 ParticleData.spawn(player, location, plugin.setting("offset_particle").get(ParticleData[].class, OFFSET_PARTICLE));
             } catch (SerializationException ignore) {}
-        }
-
-        // equipped
-        EntityEquipment equipment = player.getEquipment();
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
-            PaperComponent component = plugin.itemManager().component(equipment.getItem(slot));
-            if (component != null)
-                component.tree().call(BukkitItemEvents.BukkitEquipped.of(component, player, slot, tickContext));
         }
 
         // slot view
@@ -155,20 +164,6 @@ public final class CalibrePlayer implements Tickable {
         inaccuracy -= tickContext.delta() / 1000d;
         if (inaccuracy < 0)
             inaccuracy = 0;
-
-        // recoil
-        if (recoil.manhattanLength() > 0.01) {
-            Vector2D rotation = recoil.multiply(recoilSpeed);
-            CalibreProtocol.rotate(player, rotation.x(), rotation.y());
-            recoil = recoil.multiply(1 - recoilSpeed);
-            recoilToRecover = recoilToRecover.add(rotation.multiply(-recoilRecovery));
-        }
-
-        if (System.currentTimeMillis() >= recoilRecoveryAt && recoilToRecover.manhattanLength() > 0.01) {
-            Vector2D rotation = recoilToRecover.multiply(recoilRecoverySpeed);
-            CalibreProtocol.rotate(player, rotation.x(), rotation.y());
-            recoilToRecover = recoilToRecover.multiply(1 - recoilRecoverySpeed);
-        }
 
         // stamina
         if (!player.isSneaking())
@@ -190,6 +185,41 @@ public final class CalibrePlayer implements Tickable {
             tickContext.tick(animation);
             if (!animation.finished())
                 player.addPotionEffect(EFFECT_MINING_FATIGUE);
+        }
+    }
+
+    public void threadTick(TickContext tickContext) {
+        // equipped
+        for (var entry : Collections.unmodifiableMap(componentCache).entrySet()) {
+            PaperComponent component = entry.getValue();
+            if (component != null)
+                component.tree().call(BukkitItemEvents.BukkitEquipped.of(component, player, entry.getKey(), tickContext));
+        }
+
+        // recoil
+        if (recoil.manhattanLength() > 0.05) {
+            Vector2D rotation = recoil.multiply(recoilSpeed);
+            CalibreProtocol.rotate(player, rotation.x(), rotation.y());
+            recoil = recoil.multiply(1 - recoilSpeed);
+            recoilToRecover = recoilToRecover.add(rotation.multiply(-recoilRecovery));
+        }
+
+        if (System.currentTimeMillis() >= recoilRecoveryAt && recoilToRecover.manhattanLength() > 0.05) {
+            Vector2D rotation = recoilToRecover.multiply(recoilRecoverySpeed);
+            CalibreProtocol.rotate(player, rotation.x(), rotation.y());
+            recoilToRecover = recoilToRecover.multiply(1 - recoilRecoverySpeed);
+        }
+    }
+
+    @Override
+    public void tick(TickContext tickContext) {
+        if (player.isDead())
+            return;
+
+        if (tickContext.loop() instanceof MinecraftSyncLoop) {
+            bukkitSyncTick(tickContext);
+        } else {
+            threadTick(tickContext);
         }
     }
 }

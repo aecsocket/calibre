@@ -6,6 +6,7 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.injector.netty.WirePacket;
 import io.leangen.geantyref.TypeToken;
 import me.aecsocket.calibre.blueprint.PaperBlueprint;
 import me.aecsocket.calibre.component.ComponentTree;
@@ -21,6 +22,7 @@ import me.aecsocket.unifiedframework.locale.LocaleLoader;
 import me.aecsocket.unifiedframework.locale.LocaleManager;
 import me.aecsocket.unifiedframework.locale.Translation;
 import me.aecsocket.unifiedframework.loop.SchedulerLoop;
+import me.aecsocket.unifiedframework.loop.ThreadLoop;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.loop.Tickable;
 import me.aecsocket.unifiedframework.registry.Identifiable;
@@ -80,6 +82,7 @@ import java.util.stream.Collectors;
  */
 public class CalibrePlugin extends JavaPlugin implements Tickable {
     public static final String SETTINGS_FILE = "settings.conf";
+    public static final int THREAD_LOOP_PERIOD = 10;
     public static final List<String> SAVED_RESOURCES = Arrays.asList(
             "README.txt",
             SETTINGS_FILE,
@@ -99,6 +102,8 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     private final VelocityTracker velocityTracker = new VelocityTracker();
     private final CalibreRegistry registry = new CalibreRegistry();
     private final Map<Class<?>, Formatter<?>> statFormatters = new HashMap<>();
+    private final SchedulerLoop schedulerLoop = new SchedulerLoop(this);
+    private final ThreadLoop threadLoop = new ThreadLoop(THREAD_LOOP_PERIOD);
     private ConfigurationOptions configOptions;
     private PaperCommandManager commandManager;
     private GUIManager guiManager;
@@ -107,7 +112,6 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     private MapFont font;
     private ConfigurationNode settings;
     private StatMapSerializer statMapSerializer;
-    private SchedulerLoop schedulerLoop;
 
     private final Map<String, NamespacedKey> keys = new HashMap<>();
 
@@ -127,13 +131,6 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
         protocol = ProtocolLibrary.getProtocolManager();
         font = new MinecraftFont();
 
-        schedulerLoop = new SchedulerLoop(this);
-        schedulerLoop.register(this);
-        schedulerLoop.register(systemScheduler);
-        schedulerLoop.register(casingManager);
-        schedulerLoop.register(velocityTracker);
-        schedulerLoop.start();
-
         createConfigOptions();
         createCommandManager();
         registerDefaults();
@@ -141,12 +138,25 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
         saveDefaults();
         logAll(load());
 
+        schedulerLoop.register(this);
+        schedulerLoop.register(systemScheduler);
+        schedulerLoop.register(casingManager);
+        schedulerLoop.register(velocityTracker);
+        schedulerLoop.start();
+
+        threadLoop.register(this);
+        threadLoop.start();
+
         hooks.forEach(CalibreHook::postEnable);
     }
 
     @Override
     public void onDisable() {
         hooks.forEach(CalibreHook::onDisable);
+        if (schedulerLoop.running())
+            schedulerLoop.stop();
+        if (threadLoop.running())
+            threadLoop.stop();
     }
 
     public List<CalibreHook> hooks() { return hooks; }
@@ -159,6 +169,8 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     public VelocityTracker velocityTracker() { return velocityTracker; }
     public CalibreRegistry registry() { return registry; }
     public Map<Class<?>, Formatter<?>> statFormatters() { return statFormatters; }
+    public SchedulerLoop schedulerLoop() { return schedulerLoop; }
+    public ThreadLoop threadLoop() { return threadLoop; }
     public ConfigurationOptions configOptions() { return configOptions; }
     public PaperCommandManager commandManager() { return commandManager; }
     public GUIManager guiManager() { return guiManager; }
@@ -167,7 +179,6 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     public MapFont font() { return font; }
     public ConfigurationNode settings() { return settings; }
     public StatMapSerializer statMapSerializer() { return statMapSerializer; }
-    public SchedulerLoop schedulerLoop() { return schedulerLoop; }
 
     @SuppressWarnings("unchecked")
     public <T> Formatter<T> statFormatter(Class<T> type) { return (Formatter<T>) statFormatters.get(type); }
@@ -315,11 +326,11 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
         commandManager.getCommandContexts().registerContext(ComponentTree.class, ctx -> {
             CommandSender sender = ctx.getSender();
             String locale = locale(sender);
-            String json = ctx.popFirstArg();
+            String input = ctx.popFirstArg();
 
             ComponentTree tree;
             try {
-                tree = ComponentTree.deserialize(json, configOptions);
+                tree = itemManager.raw(input);
             } catch (ConfigurateException e) {
                 sendMessage(sender, gen(locale, "command.error.parse_tree",
                         "error", TextUtils.combineMessages(e)));
@@ -492,18 +503,30 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                 "empty", empty.repeat(emptyWidth));
     }
 
-    public void sendPacket(PacketContainer packet, Player target) {
+    public void sendPacket(PacketContainer packet, Player target, boolean wire) {
         try {
-            protocol.sendServerPacket(target, packet);
-        } catch (InvocationTargetException e) {
+            if (wire) {
+                WirePacket wirePacket = WirePacket.fromPacket(packet);
+                protocol.sendWirePacket(target, wirePacket);
+            } else
+                protocol.sendServerPacket(target, packet);
+        } catch (InvocationTargetException | RuntimeException e) {
             log(LogLevel.WARN, e, "Could not send packet to %s (%s)", target.getName(), target.getUniqueId());
         }
     }
 
-    public void sendPacket(Player target, PacketType type, Consumer<PacketContainer> builder) {
+    public void sendPacket(PacketContainer packet, Player target) {
+        sendPacket(packet, target, false);
+    }
+
+    public void sendPacket(Player target, PacketType type, boolean wire, Consumer<PacketContainer> builder) {
         PacketContainer packet = new PacketContainer(type);
         builder.accept(packet);
-        sendPacket(packet, target);
+        sendPacket(packet, target, wire);
+    }
+
+    public void sendPacket(Player target, PacketType type, Consumer<PacketContainer> builder) {
+        sendPacket(target, type, false, builder);
     }
 
     public double hardness(Block block) {

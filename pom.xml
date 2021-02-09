@@ -97,7 +97,6 @@
                             <link>https://papermc.io/javadocs/paper/1.16</link>
                             <link>https://jd.adventure.kyori.net/api/4.2.0</link>
                             <link>https://configurate.aoeu.xyz/4.1.0-SNAPSHOT/apidocs</link>
-                            <link>https://javadoc.io/doc/com.google.code.gson/gson/2.8.0</link>
                             <link>https://junit.org/junit4/javadoc/latest</link>
                         </links>
                         <additionalOptions>-linksource --no-module-directories</additionalOptions>

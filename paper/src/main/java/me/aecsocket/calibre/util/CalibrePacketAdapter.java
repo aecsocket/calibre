@@ -43,7 +43,7 @@ public class CalibrePacketAdapter extends PacketAdapter {
             Entity holder = packet.getEntityModifier(event).read(0);
             for (Pair<EnumWrappers.ItemSlot, ItemStack> equipment : packet.getSlotStackPairLists().read(0)) {
                 ItemStack item = equipment.getSecond();
-                PaperComponent component = plugin.itemManager().component(item);
+                PaperComponent component = plugin.itemManager().get(item);
                 if (component != null) {
                     if (component.tree().call(new BukkitItemEvents.ShowItem(item, component, player, holder)).cancelled())
                         event.setCancelled(true);
@@ -65,7 +65,7 @@ public class CalibrePacketAdapter extends PacketAdapter {
 
     private boolean handleAnimation(EquipmentSlot slot, Player player, LivingEntity holder) {
         ItemStack item = holder.getEquipment().getItem(slot);
-        PaperComponent component = plugin.itemManager().component(item);
+        PaperComponent component = plugin.itemManager().get(item);
         if (component != null)
             return component.tree().call(new BukkitItemEvents.Swing(item, component, player, holder)).cancelled();
         return false;

@@ -12,8 +12,7 @@ import java.lang.reflect.Field;
 
 public abstract class AbstractSystem implements CalibreSystem {
     protected transient CalibreComponent<?> parent;
-    @FromMaster
-    protected final int listenerPriority;
+    @FromMaster protected final int listenerPriority;
 
     public AbstractSystem(int listenerPriority) {
         this.listenerPriority = listenerPriority;

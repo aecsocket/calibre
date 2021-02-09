@@ -81,7 +81,7 @@ public final class CalibreProtocol {
     }
 
     public static void rotate(Player target, double yaw, double pitch) {
-        plugin().sendPacket(target, PacketType.Play.Server.POSITION, packet -> {
+        plugin().sendPacket(target, PacketType.Play.Server.POSITION, true, packet -> {
             packet.getDoubles().write(0, 0d);
             packet.getDoubles().write(1, 0d);
             packet.getDoubles().write(2, 0d);

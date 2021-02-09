@@ -9,7 +9,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.spongepowered.configurate.ConfigurateException;
 
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ public interface BukkitItem extends Item {
             PersistentDataContainer container = meta.getPersistentDataContainer();
             CalibrePlugin plugin = CalibrePlugin.getInstance();
             try {
-                container.set(plugin.key("tree"), PersistentDataType.STRING, tree.serialize(plugin.configOptions(), false));
+                plugin.itemManager().set(container, tree);
             } catch (ConfigurateException e) {
                 throw new ItemCreationException("Could not serialize tree", e);
             }

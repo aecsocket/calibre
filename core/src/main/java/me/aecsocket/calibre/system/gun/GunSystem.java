@@ -17,6 +17,7 @@ import me.aecsocket.calibre.world.slot.ItemSlot;
 import me.aecsocket.calibre.world.user.*;
 import me.aecsocket.unifiedframework.event.Cancellable;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
+import me.aecsocket.unifiedframework.loop.MinecraftSyncLoop;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.stat.Stat;
 import me.aecsocket.unifiedframework.stat.impl.BooleanStat;
@@ -77,6 +78,7 @@ public abstract class GunSystem extends AbstractSystem {
             .init("shots", NumberDescriptorStat.of(1))
             .init("projectiles", NumberDescriptorStat.of(1))
             .init("barrel_offset", new Vector3DDescriptorStat(new Vector3D()))
+            .init("barrel_offset_random", new Vector3DDescriptorStat(new Vector3D()))
             .init("converge_range", NumberDescriptorStat.of(0d))
             .init("zero_range", NumberDescriptorStat.of(0d))
             .init("eject_offset", new Vector3DDescriptorStat(new Vector3D()))
@@ -155,6 +157,8 @@ public abstract class GunSystem extends AbstractSystem {
     protected boolean aiming;
     protected SightPath sight;
     protected FireModePath fireMode;
+
+    protected transient boolean resting;
 
     /**
      * Used for registration + deserialization.
@@ -366,52 +370,55 @@ public abstract class GunSystem extends AbstractSystem {
     protected <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {
         ItemUser user = event.user();
 
-        boolean resting = user instanceof RestableUser && resting((RestableUser) user, event.slot());
+        if (event.tickContext().loop() instanceof MinecraftSyncLoop) {
+            resting = user instanceof RestableUser && resting((RestableUser) user, event.slot());
 
-        boolean update = false;
-        if (user instanceof CameraUser) {
-            TickContext ctx = event.tickContext();
-            Vector2D sway = tree().<Vector2DDescriptor>stat("sway").apply()
-                    .multiply(ctx.delta() / 1000d);
-            long cycle = tree().<NumberDescriptor.Long>stat("sway_cycle").apply();
-
-            if (user instanceof InaccuracyUser) {
-                sway = sway.multiply(1 + (
-                        calculateInaccuracy((InaccuracyUser) user) * tree().<NumberDescriptor.Double>stat("sway_inaccuracy_coefficient").apply()
-                ));
-            }
-            if (resting)
-                sway = sway.multiply(tree().<NumberDescriptor.Double>stat("sway_resting_multiplier").apply());
-
-            if (sway.manhattanLength() > 0 && cycle > 0) {
-                double angle = ((double) ctx.elapsed() / (cycle / 2d /* so it is a full ellipse of sway, not half of one */)) * Math.PI;
-                Vector2D rotation = new Vector2D(
-                        Math.cos(angle) * sway.x(),
-                        Math.sin(angle) * sway.y()
-                );
-                if (stabilization.stabilizes(ctx, user))
-                    rotation = rotation.multiply(tree().<Vector2DDescriptor>stat("sway_stabilization").apply());
-                ((CameraUser) user).rotate(rotation);
-            }
-        }
-
-        if (aiming && getSight() == null) {
-            aiming = false;
-            update = true;
-        }
-
-        if (event.slot() instanceof HandSlot) {
-            HandSlot<I> handSlot = (HandSlot<I>) event.slot();
-            HandSlot<I> opposite = handSlot.opposite();
-            if (aiming && (!handSlot.main() || (opposite != null && opposite.get() != null))) {
+            boolean update = false;
+            if (aiming && getSight() == null) {
                 aiming = false;
                 update = true;
             }
-        }
 
-        if (update) {
-            tree().build();
-            update(event);
+            if (event.slot() instanceof HandSlot) {
+                HandSlot<I> handSlot = (HandSlot<I>) event.slot();
+                HandSlot<I> opposite = handSlot.opposite();
+                if (aiming && (!handSlot.main() || (opposite != null && opposite.get() != null))) {
+                    aiming = false;
+                    update = true;
+                }
+            }
+
+            if (update) {
+                tree().build();
+                update(event);
+            }
+        } else {
+            if (user instanceof CameraUser) {
+                // sway
+                TickContext ctx = event.tickContext();
+                Vector2D sway = tree().<Vector2DDescriptor>stat("sway").apply()
+                        .multiply(ctx.delta() / 1000d);
+                long cycle = tree().<NumberDescriptor.Long>stat("sway_cycle").apply();
+
+                if (user instanceof InaccuracyUser) {
+                    sway = sway.multiply(1 + (
+                            calculateInaccuracy((InaccuracyUser) user) * tree().<NumberDescriptor.Double>stat("sway_inaccuracy_coefficient").apply()
+                    ));
+                }
+                if (resting)
+                    sway = sway.multiply(tree().<NumberDescriptor.Double>stat("sway_resting_multiplier").apply());
+
+                if (sway.manhattanLength() > 0 && cycle > 0) {
+                    double angle = ((double) ctx.elapsed() / (cycle / 2d /* so it is a full ellipse of sway, not half of one */)) * Math.PI;
+                    Vector2D rotation = new Vector2D(
+                            Math.cos(angle) * sway.x(),
+                            Math.sin(angle) * sway.y()
+                    );
+                    if (stabilization.stabilizes(ctx, user))
+                        rotation = rotation.multiply(tree().<Vector2DDescriptor>stat("sway_stabilization").apply());
+                    ((CameraUser) user).applyRotation(rotation);
+                }
+            }
         }
     }
 
@@ -645,7 +652,11 @@ public abstract class GunSystem extends AbstractSystem {
         event.projectileSystem = result.d();
 
         // get barrel offset
-        Vector3D position = offset(user, itemSlot, tree().<Vector3DDescriptor>stat("barrel_offset").apply());
+        Vector3D offset = Utils.addRandom(
+                tree().<Vector3DDescriptor>stat("barrel_offset").apply(),
+                tree().<Vector3DDescriptor>stat("barrel_offset_random").apply()
+        );
+        Vector3D position = offset(user, itemSlot, offset);
         ViewCoordinates view = user.direction().toViewCoordinates();
 
         double zeroRange = tree().<NumberDescriptor.Double>stat("zero_range").apply();
@@ -697,12 +708,10 @@ public abstract class GunSystem extends AbstractSystem {
 
         // apply recoil
         if (user instanceof RecoilableUser) {
-            Vector2D random = tree().<Vector2DDescriptor>stat("recoil_random").apply();
-            Vector2D recoil = tree().<Vector2DDescriptor>stat("recoil").apply()
-                    .add(
-                            (ThreadLocalRandom.current().nextDouble() - 0.5) * 2 * random.x(),
-                            (ThreadLocalRandom.current().nextDouble() - 0.5) * 2 * random.y()
-                    );
+            Vector2D recoil = Utils.addRandom(
+                    tree().<Vector2DDescriptor>stat("recoil").apply(),
+                    tree().<Vector2DDescriptor>stat("recoil_random").apply()
+            );
             if (user instanceof InaccuracyUser)
                 recoil = recoil.multiply(1 + (
                         calculateInaccuracy((InaccuracyUser) event.user()) * tree().<NumberDescriptor.Double>stat("recoil_inaccuracy_coefficient").apply()

@@ -14,6 +14,7 @@ import me.aecsocket.calibre.world.user.ItemUser;
 import me.aecsocket.calibre.world.user.SenderUser;
 import me.aecsocket.calibre.world.user.StabilizableUser;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
+import me.aecsocket.unifiedframework.loop.MinecraftSyncLoop;
 import me.aecsocket.unifiedframework.util.Utils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -107,6 +108,9 @@ public abstract class GunInfoSystem extends AbstractSystem {
     protected abstract Component bar(String locale, String key, double percent);
 
     protected <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {
+        if (!(event.tickContext().loop() instanceof MinecraftSyncLoop))
+            return;
+
         String locale = event.user().locale();
         ItemUser user = event.user();
         if (user instanceof SenderUser) {

@@ -45,7 +45,7 @@ public class CalibreListener implements Listener {
     }
 
     private void callOn(ItemStack item, Consumer<PaperComponent> function) {
-        PaperComponent component = plugin.itemManager().component(item);
+        PaperComponent component = plugin.itemManager().get(item);
         if (component == null)
             return;
         function.accept(component);
@@ -126,8 +126,8 @@ public class CalibreListener implements Listener {
     public void onEvent(InventoryClickEvent event) {
         ItemStack clickedStack = event.getCurrentItem();
         ItemStack cursorStack = event.getCursor();
-        PaperComponent clicked = plugin.itemManager().component(clickedStack);
-        PaperComponent cursor = plugin.itemManager().component(cursorStack);
+        PaperComponent clicked = plugin.itemManager().get(clickedStack);
+        PaperComponent cursor = plugin.itemManager().get(cursorStack);
         ClickType type = event.getClick();
         Player player = (Player) event.getWhoClicked();
         plugin.playerData(player).cancelInteract();
@@ -213,7 +213,7 @@ public class CalibreListener implements Listener {
     private void handleSwitch(Player player, Runnable cancelled, ItemSlot<BukkitItem> from, ItemSlot<BukkitItem> to) {
         PlayerUser user = PlayerUser.of(player);
         PaperComponent fromComp;
-        if (from != null && from.get() != null && (fromComp = plugin.itemManager().component(from.get().item())) != null) {
+        if (from != null && from.get() != null && (fromComp = plugin.itemManager().get(from.get().item())) != null) {
             BukkitItemEvents.BukkitSwitch event = new BukkitItemEvents.BukkitSwitch(fromComp, user, from, ItemEvents.Switch.FROM);
             fromComp.tree().call(event);
             if (event.cancelled()) {
@@ -223,7 +223,7 @@ public class CalibreListener implements Listener {
         }
 
         PaperComponent toComp;
-        if (to != null && to.get() != null && (toComp = plugin.itemManager().component(to.get().item())) != null) {
+        if (to != null && to.get() != null && (toComp = plugin.itemManager().get(to.get().item())) != null) {
             BukkitItemEvents.BukkitSwitch event = new BukkitItemEvents.BukkitSwitch(toComp, user, to, ItemEvents.Switch.TO);
             toComp.tree().call(event);
             if (event.cancelled())

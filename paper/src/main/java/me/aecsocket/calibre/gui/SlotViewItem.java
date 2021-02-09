@@ -74,7 +74,7 @@ public class SlotViewItem implements GUIItem {
                 component = slot.get();
         }
 
-        CalibreComponent<BukkitItem> cursor = plugin.itemManager().component(view.getView().getCursor());
+        CalibreComponent<BukkitItem> cursor = plugin.itemManager().get(view.getView().getCursor());
 
         String locale = view.getPlayer().getLocale();
         ItemStack item;
@@ -118,7 +118,7 @@ public class SlotViewItem implements GUIItem {
             view.setRawCursor(inSlot.create(locale).item());
             slot.set(null);
         } else if (!BukkitUtils.empty(rawCursor)) {
-            CalibreComponent<BukkitItem> component = plugin.itemManager().component(rawCursor);
+            CalibreComponent<BukkitItem> component = plugin.itemManager().get(rawCursor);
             if (component == null || !slot.isCompatible(component))
                 return;
 

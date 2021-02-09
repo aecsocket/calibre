@@ -97,7 +97,7 @@ public class SlotViewGUI extends GUI {
                 view.getView().close();
                 return;
             }
-            PaperComponent realComponent = plugin.itemManager().component(slot.get().item());
+            PaperComponent realComponent = plugin.itemManager().get(slot.get().item());
             if (!component.equals(realComponent)) {
                 component = realComponent;
                 notifyUpdate(view);

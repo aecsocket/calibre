@@ -5,6 +5,7 @@ import me.aecsocket.calibre.component.ComponentTree;
 import me.aecsocket.calibre.system.*;
 import me.aecsocket.calibre.world.Item;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
+import me.aecsocket.unifiedframework.loop.MinecraftSyncLoop;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.loop.Tickable;
 import me.aecsocket.unifiedframework.util.data.Tuple2;
@@ -192,8 +193,10 @@ public abstract class SchedulerSystem extends AbstractSystem {
     }
 
     protected <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {
-        if (checkTasks())
-            update(event);
+        if (event.tickContext().loop() instanceof MinecraftSyncLoop) {
+            if (checkTasks())
+                update(event);
+        }
     }
 
     protected <I extends Item> void onEvent(ItemEvents.Switch<I> event) {

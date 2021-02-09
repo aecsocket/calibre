@@ -10,7 +10,7 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 public class PaperGunInfoSystem extends GunInfoSystem implements PaperSystem {
     @FromMaster(fromDefault = true)
     private transient CalibrePlugin plugin;
-    private final int staminaBarWidth;
+    @FromMaster private final int staminaBarWidth;
 
     /**
      * Used for registration.

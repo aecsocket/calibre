@@ -12,17 +12,10 @@ import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.stat.StatMap;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.BasicConfigurationNode;
-import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
-import org.spongepowered.configurate.ConfigurationOptions;
-import org.spongepowered.configurate.gson.GsonConfigurationLoader;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -240,23 +233,4 @@ public class ComponentTree {
     }
 
     @Override public String toString() { return "tree<" + root + ">"; }
-
-    public String serialize(ConfigurationOptions options) throws ConfigurateException {
-        StringWriter writer = new StringWriter();
-        // We use GSON because it is so so much more performant than HOCON
-        // Performance really matters.
-        GsonConfigurationLoader loader = GsonConfigurationLoader.builder()
-                .sink(() -> new BufferedWriter(writer))
-                .build();
-        ConfigurationNode node = BasicConfigurationNode.root(options).set(this);
-        loader.save(node);
-        return writer.toString();
-    }
-
-    public static ComponentTree deserialize(String input, ConfigurationOptions options) throws ConfigurateException {
-        GsonConfigurationLoader loader = GsonConfigurationLoader.builder()
-                .source(() -> new BufferedReader(new StringReader(input)))
-                .build();
-        return loader.load(options).get(ComponentTree.class);
-    }
 }

@@ -4,11 +4,13 @@ import io.leangen.geantyref.TypeToken;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.util.ItemCreationException;
 import me.aecsocket.calibre.util.ItemDescriptor;
+import me.aecsocket.calibre.util.StatCollection;
 import me.aecsocket.calibre.wrapper.BukkitItem;
 import me.aecsocket.unifiedframework.stat.Stat;
 import me.aecsocket.unifiedframework.stat.impl.data.SoundDataStat;
 import me.aecsocket.unifiedframework.util.BukkitUtils;
 import me.aecsocket.unifiedframework.util.MapInit;
+import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -76,6 +78,13 @@ public class PaperComponent extends CalibreComponent<BukkitItem> {
         this(o, o.plugin);
     }
 
+    @Override
+    public StatCollection buildStats() {
+        if (!Bukkit.isPrimaryThread())
+            new RuntimeException("not main thread when building stats").printStackTrace();
+        return super.buildStats();
+    }
+
     @Override public net.kyori.adventure.text.Component gen(String locale, String key, Object... args) { return plugin.gen(locale, key, args); }
     @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }
     @Override
@@ -87,7 +96,7 @@ public class PaperComponent extends CalibreComponent<BukkitItem> {
     public CalibreComponent<BukkitItem> getComponent(BukkitItem item) {
         if (item == null)
             return null;
-        return plugin.itemManager().component(item.item());
+        return plugin.itemManager().get(item.item());
     }
 
     @Override
@@ -109,6 +118,8 @@ public class PaperComponent extends CalibreComponent<BukkitItem> {
         BukkitItem result = create(locale, existing.getAmount());
         return result == null ? null : result.item();
     }
+
+    @Override public PaperComponent buildTree() { return (PaperComponent) super.buildTree(); }
 
     @Override public PaperComponent copy() { return new PaperComponent(this); }
 }

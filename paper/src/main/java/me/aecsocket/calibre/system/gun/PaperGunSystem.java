@@ -21,7 +21,7 @@ import me.aecsocket.calibre.wrapper.user.BukkitItemUser;
 import me.aecsocket.calibre.wrapper.user.LivingEntityUser;
 import me.aecsocket.calibre.wrapper.user.PlayerUser;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
-import me.aecsocket.unifiedframework.loop.BukkitSyncLoop;
+import me.aecsocket.unifiedframework.loop.MinecraftSyncLoop;
 import me.aecsocket.unifiedframework.stat.Stat;
 import me.aecsocket.unifiedframework.stat.impl.BooleanStat;
 import me.aecsocket.unifiedframework.stat.impl.StringStat;
@@ -150,7 +150,7 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
         if (user instanceof PlayerUser)
             // use #lengthSquared because #length is expensive
             result += plugin.velocityTracker().velocity(((PlayerUser) user).entity()).lengthSquared()
-                    * BukkitSyncLoop.TICKS_PER_SECOND
+                    * MinecraftSyncLoop.TICKS_PER_SECOND
                     * tree().<NumberDescriptor.Double>stat("inaccuracy_velocity").apply();
         return result;
     }
@@ -159,9 +159,11 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
     protected <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {
         super.onEvent(event);
 
-        if (!(event.user() instanceof LivingEntityUser))
-            return;
-        ((LivingEntityUser) event.user()).entity().addPotionEffect(EFFECT_HASTE);
+        if (event.tickContext().loop() instanceof MinecraftSyncLoop) {
+            if (!(event.user() instanceof LivingEntityUser))
+                return;
+            ((LivingEntityUser) event.user()).entity().addPotionEffect(EFFECT_HASTE);
+        }
     }
 
     @Override
@@ -198,7 +200,7 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
                 ((BukkitItem) created).item()
         );
         entity.setVelocity(VectorUtils.toBukkit(velocity));
-        entity.setTicksLived(ITEM_DESPAWN - (int) (tree().<NumberDescriptor.Double>stat("casing_lifetime").apply() * BukkitSyncLoop.TICKS_PER_SECOND));
+        entity.setTicksLived(ITEM_DESPAWN - (int) (tree().<NumberDescriptor.Double>stat("casing_lifetime").apply() * MinecraftSyncLoop.TICKS_PER_SECOND));
         entity.setCanMobPickup(false);
         if (!tree().<Boolean>stat("casing_can_pick_up"))
             entity.setPickupDelay(Integer.MAX_VALUE);

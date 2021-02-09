@@ -231,7 +231,7 @@ public abstract class GunInfoSystem extends AbstractSystem {
             ((SenderUser) user).sendInfo(Component.text(""));
     }
 
-    public abstract GunInfoSystem copy();
+    @Override public abstract GunInfoSystem copy();
 
     @Override
     public boolean equals(Object o) {

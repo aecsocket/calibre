@@ -1,4 +1,4 @@
-package me.aecsocket.calibre.util;
+package me.aecsocket.calibre.util.item;
 
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.component.ComponentTree;
@@ -9,59 +9,47 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.spongepowered.configurate.BasicConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.ConfigurationNode;
-import org.spongepowered.configurate.jackson.JacksonConfigurationLoader;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
 
 public class ItemManager {
     private final CalibrePlugin plugin;
+    private final ProtobufManager protobuf;
     private long nextInvalidDataError;
 
     public ItemManager(CalibrePlugin plugin) {
         this.plugin = plugin;
+        protobuf = new ProtobufManager(plugin);
     }
 
     public CalibrePlugin plugin() { return plugin; }
+    public ProtobufManager protobuf() { return protobuf; }
 
-    public ComponentTree raw(String input) throws ConfigurateException {
-        JacksonConfigurationLoader loader = JacksonConfigurationLoader.builder()
-                .source(() -> new BufferedReader(new StringReader(input)))
-                .build();
-        ComponentTree loaded = loader.load(plugin.configOptions()).get(ComponentTree.class);
-        if (loaded == null)
-            throw new ComponentCreationException("Null tree");
-        return loaded;
-    }
-
-    public PaperComponent raw(ItemStack item) throws ComponentCreationException {
+    public byte[] tree(ItemStack item) {
         if (item == null || !item.hasItemMeta())
             return null;
         PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
-        String tree = container.get(plugin.key("tree"), PersistentDataType.STRING);
+        return container.get(plugin.key("tree"), PersistentDataType.BYTE_ARRAY);
+    }
+
+    public PaperComponent raw(ItemStack item) throws ComponentCreationException {
+        byte[] tree = tree(item);
         if (tree == null)
             return null;
-        try {
-            return raw(tree).root();
-        } catch (ConfigurateException e) {
-            throw new ComponentCreationException(e, tree);
-        }
+        return protobuf.read(tree).root();
     }
 
     public PaperComponent get(ItemStack item) {
         if (item == null)
             return null;
         try {
-            return raw(item);
+            PaperComponent component = raw(item);
+            if (component != null)
+                component.buildTree();
+            return component;
         } catch (ComponentCreationException e) {
             long time = System.currentTimeMillis();
             if (time >= nextInvalidDataError) {
-                plugin.log(LogLevel.WARN, e, "Could not get component from item %s x %d\nTree: %s", item.getType().name(), item.getAmount(), e.tree());
+                plugin.log(LogLevel.WARN, e, "Could not get component from item %s x %d", item.getType().name(), item.getAmount());
                 nextInvalidDataError = time + plugin.setting("invalid_data_error_delay").getLong(60000);
             }
             return null;
@@ -69,14 +57,7 @@ public class ItemManager {
     }
 
     public void set(PersistentDataContainer data, ComponentTree tree) throws ConfigurateException {
-        StringWriter writer = new StringWriter();
-        // Jackson is more performant than GSON is more performant than HOCON
-        JacksonConfigurationLoader loader = JacksonConfigurationLoader.builder()
-                .sink(() -> new BufferedWriter(writer))
-                .build();
-        ConfigurationNode node = BasicConfigurationNode.root(plugin.configOptions()).set(tree);
-        loader.save(node);
-        data.set(plugin.key("tree"), PersistentDataType.STRING, writer.toString());
+        data.set(plugin.key("tree"), PersistentDataType.BYTE_ARRAY, protobuf.write(tree.root()).toByteArray());
     }
 
     public ItemStack hide(ItemStack item, boolean hidden) {

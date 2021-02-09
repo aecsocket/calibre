@@ -1,7 +1,9 @@
 package me.aecsocket.calibre.component;
 
+import com.google.protobuf.Any;
 import io.leangen.geantyref.TypeToken;
 import me.aecsocket.calibre.CalibrePlugin;
+import me.aecsocket.calibre.proto.Tree;
 import me.aecsocket.calibre.util.ItemCreationException;
 import me.aecsocket.calibre.util.ItemDescriptor;
 import me.aecsocket.calibre.util.StatCollection;
@@ -20,6 +22,7 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -60,7 +63,9 @@ public class PaperComponent extends CalibreComponent<BukkitItem> {
             .init("modify_sound", new SoundDataStat())
             .get();
 
-    protected transient final CalibrePlugin plugin;
+    private transient final CalibrePlugin plugin;
+    private transient final Map<String, Tree.Component> invalidSlots = new HashMap<>();
+    private transient final Map<String, Any> invalidSystems = new HashMap<>();
 
     public PaperComponent(CalibrePlugin plugin, String id) {
         super(id);
@@ -77,6 +82,10 @@ public class PaperComponent extends CalibreComponent<BukkitItem> {
     public PaperComponent(PaperComponent o) {
         this(o, o.plugin);
     }
+
+    public CalibrePlugin plugin() { return plugin; }
+    public Map<String, Tree.Component> invalidSlots() { return invalidSlots; }
+    public Map<String, Any> invalidSystems() { return invalidSystems; }
 
     @Override
     public StatCollection buildStats() {

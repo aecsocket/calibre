@@ -34,7 +34,7 @@ public abstract class ChamberSystem extends AbstractSystem {
         return parent.slot(loadPath);
     }
 
-    public abstract ChamberSystem copy();
+    @Override public abstract ChamberSystem copy();
 
     @Override
     public boolean equals(Object o) {

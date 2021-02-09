@@ -77,7 +77,7 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
      */
     public ComponentContainerSystem(ComponentContainerSystem o) {
         super(o);
-        components = new LinkedList<>(o.components);
+        components = new LinkedList<>();
         compatibility = o.compatibility;
     }
 
@@ -198,7 +198,7 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
         update(event);
     }
 
-    public abstract ComponentContainerSystem copy();
+    @Override public abstract ComponentContainerSystem copy();
 
     @Override
     public boolean equals(Object o) {

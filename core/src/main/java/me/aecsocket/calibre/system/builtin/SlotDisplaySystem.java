@@ -76,7 +76,7 @@ public abstract class SlotDisplaySystem extends AbstractSystem {
             event.item().addInfo(info);
     }
 
-    public abstract SlotDisplaySystem copy();
+    @Override public abstract SlotDisplaySystem copy();
 
     @Override
     public boolean equals(Object o) {

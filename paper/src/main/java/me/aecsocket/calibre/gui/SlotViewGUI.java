@@ -3,7 +3,7 @@ package me.aecsocket.calibre.gui;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.component.PaperComponent;
 import me.aecsocket.calibre.component.PaperSlot;
-import me.aecsocket.calibre.util.ComponentCreationException;
+import me.aecsocket.calibre.util.item.ComponentCreationException;
 import me.aecsocket.calibre.world.slot.ItemSlot;
 import me.aecsocket.calibre.wrapper.BukkitItem;
 import me.aecsocket.unifiedframework.gui.*;

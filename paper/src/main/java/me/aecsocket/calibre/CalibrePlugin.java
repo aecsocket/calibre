@@ -16,6 +16,7 @@ import me.aecsocket.calibre.system.builtin.Formatter;
 import me.aecsocket.calibre.system.builtin.*;
 import me.aecsocket.calibre.system.gun.*;
 import me.aecsocket.calibre.util.*;
+import me.aecsocket.calibre.util.item.ItemManager;
 import me.aecsocket.unifiedframework.gui.GUIManager;
 import me.aecsocket.unifiedframework.gui.GUIVector;
 import me.aecsocket.unifiedframework.locale.LocaleLoader;
@@ -71,7 +72,9 @@ import org.spongepowered.configurate.objectmapping.ObjectMapper;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 import org.spongepowered.configurate.util.NamingSchemes;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.Consumer;
@@ -330,7 +333,10 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
 
             ComponentTree tree;
             try {
-                tree = itemManager.raw(input);
+                HoconConfigurationLoader loader = HoconConfigurationLoader.builder()
+                        .source(() -> new BufferedReader(new StringReader(input)))
+                        .build();
+                tree = loader.load().get(ComponentTree.class);
             } catch (ConfigurateException e) {
                 sendMessage(sender, gen(locale, "command.error.parse_tree",
                         "error", TextUtils.combineMessages(e)));
@@ -427,7 +433,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                 result.addSuccess(LogLevel.VERBOSE, "Loaded " + id.getClass().getSimpleName() + " " + id.id());
             } else {
                 Exception e = ((Exception) entry.getResult());
-                result.addFailure(LogLevel.WARN, "Could not load registry from " + entry.getKey(), e);
+                result.addFailure(LogLevel.WARN, e, "Could not load registry from %s", entry.getKey());
             }
         });
 
@@ -439,7 +445,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                         " with " + dep.getClass().getSimpleName() + " " + dep.id());
             } else {
                 Exception e = ((Exception) entry.getResult());
-                result.addFailure(LogLevel.WARN, "Could not link " + id.getClass().getSimpleName(), e);
+                result.addFailure(LogLevel.WARN, e, "Could not link %s", id.getClass().getSimpleName());
             }
         });
 
@@ -449,7 +455,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                 result.addSuccess(LogLevel.VERBOSE, "Resolved " + id.getClass().getSimpleName() + " " + id.id());
             } else {
                 Exception e = ((Exception) entry.getResult());
-                result.addFailure(LogLevel.WARN, "Could not resolve " + id.getClass().getSimpleName() + " " + id.id(), e);
+                result.addFailure(LogLevel.WARN, e, "Could not resolve %s %s", id.getClass().getSimpleName(), id.id());
             }
         });
 

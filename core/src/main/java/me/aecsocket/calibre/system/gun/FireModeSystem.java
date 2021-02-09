@@ -84,7 +84,7 @@ public abstract class FireModeSystem extends AbstractSystem {
             event.item().addInfo(info);
     }
 
-    public abstract FireModeSystem copy();
+    @Override public abstract FireModeSystem copy();
 
     @Override
     public boolean equals(Object o) {

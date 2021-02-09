@@ -175,10 +175,6 @@ public abstract class GunSystem extends AbstractSystem {
         stabilization = o.stabilization;
         aimingStats = o.aimingStats == null ? null : new StatCollection(o.aimingStats);
         notAimingStats = o.notAimingStats == null ? null : new StatCollection(o.notAimingStats);
-
-        aiming = o.aiming;
-        sight = o.sight;
-        fireMode = o.fireMode;
     }
 
     public StatCollection aimingStats() { return aimingStats; }
@@ -867,7 +863,7 @@ public abstract class GunSystem extends AbstractSystem {
         scheduler.delay(tree().<NumberDescriptor.Long>stat("fail_delay").apply());
     }
 
-    public abstract GunSystem copy();
+    @Override public abstract GunSystem copy();
 
     @Override
     public boolean equals(Object o) {

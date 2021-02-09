@@ -94,7 +94,7 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
 
     public List<String> categories() { return categories; }
 
-    @Override @SuppressWarnings("unchecked") public @NotNull <S extends Slot> Map<String, S> slots() { return (Map<String, S>) slots; }
+    @Override @SuppressWarnings("unchecked") public @NotNull <S extends Slot> Map<String, S> slots() { return new HashMap<>((Map<String, S>) slots); }
 
     @Override @SuppressWarnings("unchecked") public <S extends Slot> S slot(String key) { return (S) slots.get(key); }
     public CalibreComponent<I> slot(String key, CalibreSlot slot) {
@@ -104,7 +104,7 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
         return this;
     }
 
-    public Map<String, CalibreSystem> systems() { return new HashMap<>(systems); }
+    @SuppressWarnings("unchecked") public <S extends CalibreSystem> Map<String, S> systems() { return new HashMap<>((Map<String, S>) systems); }
 
     public <T extends CalibreSystem> T system(String id) {
         @SuppressWarnings("unchecked")

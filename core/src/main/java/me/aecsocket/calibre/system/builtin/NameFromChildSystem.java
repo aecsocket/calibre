@@ -59,7 +59,7 @@ public abstract class NameFromChildSystem extends AbstractSystem {
             event.result(child.name(event.locale()));
     }
 
-    public abstract NameFromChildSystem copy();
+    @Override public abstract NameFromChildSystem copy();
 
     @Override
     public boolean equals(Object o) {

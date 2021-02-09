@@ -217,6 +217,7 @@ public final class CalibrePlayer implements Tickable {
             return;
 
         if (tickContext.loop() instanceof MinecraftSyncLoop) {
+            player.sendTitle("", String.format("%.3f", Bukkit.getAverageTickTime()), 0, 5, 0);
             bukkitSyncTick(tickContext);
         } else {
             threadTick(tickContext);

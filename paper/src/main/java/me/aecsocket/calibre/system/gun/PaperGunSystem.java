@@ -1,9 +1,11 @@
 package me.aecsocket.calibre.system.gun;
 
+import com.google.protobuf.Any;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.component.CalibreSlot;
 import me.aecsocket.calibre.component.ComponentTree;
+import me.aecsocket.calibre.proto.system.SystemsGun;
 import me.aecsocket.calibre.system.BukkitItemEvents;
 import me.aecsocket.calibre.system.FromMaster;
 import me.aecsocket.calibre.system.ItemEvents;
@@ -47,6 +49,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -292,4 +295,29 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
     }
 
     @Override public PaperGunSystem copy() { return new PaperGunSystem(this); }
+
+    @Override
+    public Any writeProtobuf() {
+        return Any.pack(SystemsGun.GunSystem.newBuilder()
+                .setAiming(aiming)
+                .setIgnoreSwitch(ignoreSwitch)
+                .setFireMode(SystemsGun.Path.newBuilder()
+                        .addAllPath(Arrays.asList(fireMode.path))
+                        .setIndex(fireMode.index).build())
+                .setSight(SystemsGun.Path.newBuilder()
+                        .addAllPath(Arrays.asList(sight.path))
+                        .setIndex(sight.index).build())
+                .build());
+    }
+
+    @Override
+    public PaperGunSystem readProtobuf(Any raw) {
+        SystemsGun.GunSystem msg = unpack(raw, SystemsGun.GunSystem.class);
+        PaperGunSystem sys = new PaperGunSystem(this);
+        sys.aiming = msg.getAiming();
+        sys.ignoreSwitch = msg.getIgnoreSwitch();
+        sys.fireMode = new FireModePath(msg.getFireMode().getPathList().toArray(new String[0]), msg.getFireMode().getIndex());
+        sys.sight = new SightPath(msg.getSight().getPathList().toArray(new String[0]), msg.getSight().getIndex());
+        return sys;
+    }
 }

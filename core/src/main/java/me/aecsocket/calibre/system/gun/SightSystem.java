@@ -101,7 +101,7 @@ public abstract class SightSystem extends AbstractSystem {
             event.item().addInfo(info);
     }
 
-    public abstract SightSystem copy();
+    @Override public abstract SightSystem copy();
 
     @Override
     public boolean equals(Object o) {

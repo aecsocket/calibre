@@ -242,7 +242,7 @@ public abstract class StatDisplaySystem extends AbstractSystem implements StatRe
             event.item().addInfo(info);
     }
 
-    public abstract StatDisplaySystem copy();
+    @Override public abstract StatDisplaySystem copy();
 
     @Override
     public String toString() { return super.toString() + " " + formatSupplier; }

@@ -1,6 +1,7 @@
 package me.aecsocket.calibre.component;
 
 import me.aecsocket.calibre.CalibrePlugin;
+import me.aecsocket.calibre.proto.Tree;
 import me.aecsocket.calibre.util.ItemCreationException;
 import me.aecsocket.calibre.util.ItemDescriptor;
 import me.aecsocket.calibre.wrapper.BukkitItem;
@@ -15,31 +16,25 @@ import org.spongepowered.configurate.serialize.SerializationException;
 @ConfigSerializable
 public class PaperSlot extends CalibreSlot {
     private transient final CalibrePlugin plugin;
+    private transient Tree.Component invalidComponent;
     private GUIVector offset;
 
-    public PaperSlot(CalibrePlugin plugin, boolean required, boolean fieldModifiable, GUIVector offset) {
-        super(required, fieldModifiable);
-        this.plugin = plugin;
-        this.offset = offset;
-    }
-
-    public PaperSlot(CalibrePlugin plugin, boolean required, boolean fieldModifiable) {
+    public PaperSlot(boolean required, boolean fieldModifiable, CalibrePlugin plugin) {
         super(required, fieldModifiable);
         this.plugin = plugin;
     }
 
-    public PaperSlot(CalibrePlugin plugin, boolean required, GUIVector offset) {
+    public PaperSlot(boolean required, CalibrePlugin plugin) {
         super(required);
         this.plugin = plugin;
-        this.offset = offset;
-    }
-
-    public PaperSlot(CalibrePlugin plugin, GUIVector offset) {
-        this.plugin = plugin;
-        this.offset = offset;
     }
 
     public PaperSlot(CalibrePlugin plugin) {
+        this.plugin = plugin;
+    }
+
+    public PaperSlot(CalibreSlot o, CalibrePlugin plugin) {
+        super(o);
         this.plugin = plugin;
     }
 
@@ -47,14 +42,11 @@ public class PaperSlot extends CalibreSlot {
         plugin = CalibrePlugin.getInstance();
     }
 
-    public PaperSlot(CalibreSlot o, CalibrePlugin plugin, GUIVector offset) {
-        super(o);
-        this.plugin = plugin;
-        this.offset = offset;
-    }
-
     public GUIVector offset() { return offset; }
-    public void offset(GUIVector offset) { this.offset = offset; }
+    public PaperSlot offset(GUIVector offset) { this.offset = offset; return this; }
+
+    public Tree.Component invalidComponent() { return invalidComponent; }
+    public PaperSlot invalidComponent(Tree.Component invalidComponent) { this.invalidComponent = invalidComponent; return this; }
 
     public ItemStack createViewItem(String locale, String slotKey, CalibreComponent<BukkitItem> cursor) {
         ItemStack item;
@@ -79,6 +71,6 @@ public class PaperSlot extends CalibreSlot {
 
     @Override
     public CalibreSlot copy() {
-        return new PaperSlot(super.copy(), plugin, offset);
+        return new PaperSlot(super.copy(), plugin).offset(offset);
     }
 }

@@ -58,16 +58,16 @@ public class CalibreSlot implements Slot {
     }
 
     public boolean required() { return required; }
-    public void required(boolean required) { this.required = required; }
+    public CalibreSlot required(boolean required) { this.required = required; return this; }
 
     public ComponentCompatibility compatibility() { return compatibility; }
-    public void compatibility(ComponentCompatibility compatibility) { this.compatibility = compatibility; }
+    public CalibreSlot compatibility(ComponentCompatibility compatibility) { this.compatibility = compatibility; return this; }
 
     public boolean fieldModifiable() { return fieldModifiable; }
-    public void fieldModifiable(boolean fieldModifiable) { this.fieldModifiable = fieldModifiable; }
+    public CalibreSlot fieldModifiable(boolean fieldModifiable) { this.fieldModifiable = fieldModifiable; return this; }
 
     public int type() { return type; }
-    public void type(int type) { this.type = type; }
+    public CalibreSlot type(int type) { this.type = type; return this; }
 
     public List<String> tags() { return tags; }
 

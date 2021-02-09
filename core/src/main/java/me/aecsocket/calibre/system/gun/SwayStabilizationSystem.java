@@ -47,7 +47,7 @@ public abstract class SwayStabilizationSystem extends AbstractSystem implements 
         return false;
     }
 
-    public abstract SwayStabilizationSystem copy();
+    @Override public abstract SwayStabilizationSystem copy();
 
     @Override
     public boolean equals(Object o) {

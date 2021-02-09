@@ -5,7 +5,11 @@ import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.*;
 import me.aecsocket.calibre.component.ComponentTree;
 import me.aecsocket.calibre.component.PaperComponent;
-import me.aecsocket.calibre.util.*;
+import me.aecsocket.calibre.util.CalibreIdentifiable;
+import me.aecsocket.calibre.util.CalibreProtocol;
+import me.aecsocket.calibre.util.ItemCreationException;
+import me.aecsocket.calibre.util.ItemSupplier;
+import me.aecsocket.calibre.util.item.ComponentCreationException;
 import me.aecsocket.calibre.wrapper.BukkitItem;
 import me.aecsocket.unifiedframework.registry.Ref;
 import me.aecsocket.unifiedframework.util.BukkitUtils;
@@ -13,6 +17,7 @@ import me.aecsocket.unifiedframework.util.TextUtils;
 import me.aecsocket.unifiedframework.util.log.LogLevel;
 import me.aecsocket.unifiedframework.util.vector.Vector3D;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -45,8 +50,12 @@ public class CalibreCommand extends BaseCommand {
 
     private String locale(CommandSender sender) { return plugin.locale(sender); }
 
+    private Component gen(CommandSender sender, String key, Object... args) {
+        return plugin.gen(locale(sender), key, args);
+    }
+
     private void send(CommandSender sender, String key, Object... args) {
-        plugin.audiences().sender(sender).sendMessage(plugin.gen(locale(sender), key, args));
+        plugin.audiences().sender(sender).sendMessage(gen(sender, key, args));
     }
 
     private void sendError(CommandSender sender, Throwable e, String key, Object... args) {
@@ -282,6 +291,55 @@ public class CalibreCommand extends BaseCommand {
             sendError(sender, e, "command.error.get_item",
                     "error", TextUtils.combineMessages(e));
         }
+    }
+
+    @Subcommand("dump-tree")
+    @Description("Displays the raw Protocol Buffer bytes of the currently held item (does not have to be a valid component)")
+    @CommandPermission("calibre.command.dump-tree")
+    public void dumpTree(CommandSender sender) {
+        if (!(sender instanceof Player)) {
+            send(sender, "command.error.sender_not_player");
+            return;
+        }
+
+        ItemStack hand = ((Player) sender).getInventory().getItemInMainHand();
+        if (BukkitUtils.empty(hand)) {
+            send(sender, "command.error.no_held_item");
+            return;
+        }
+
+        Component spacing = gen(sender, "command.dump_tree.spacing");
+        Component blank = gen(sender, "command.dump_tree.blank");
+
+        long start = System.nanoTime();
+        byte[] bytes = plugin.itemManager().tree(((Player) sender).getInventory().getItemInMainHand());
+        long time = System.nanoTime() - start;
+
+        int lineIndex = 0;
+        int lineLength = 16;
+        while (lineIndex < bytes.length) {
+            TextComponent.Builder line = Component.text();
+            for (int i = 0; i < lineLength; i++) {
+                int idx = lineIndex + i;
+                Component toWrite;
+                if (idx >= bytes.length)
+                    toWrite = blank;
+                else
+                    toWrite = Component.text(String.format("%02x", bytes[idx]));
+                line.append(Component.text()
+                        .append(toWrite)
+                        .append(spacing)
+                );
+            }
+            send(sender, "command.dump_tree.line",
+                    "index", String.format("%08x", lineIndex),
+                    "bytes", line.build());
+            lineIndex += lineLength;
+        }
+        send(sender, "command.dump_tree.footer",
+                "size_int", String.format("%,d", bytes.length),
+                "size_hex", String.format("%x", bytes.length),
+                "time", String.format("%,d", time));
     }
 
     @Subcommand("zoom")

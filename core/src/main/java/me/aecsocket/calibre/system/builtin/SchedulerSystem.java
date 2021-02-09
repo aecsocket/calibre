@@ -2,7 +2,10 @@ package me.aecsocket.calibre.system.builtin;
 
 import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.component.ComponentTree;
-import me.aecsocket.calibre.system.*;
+import me.aecsocket.calibre.system.AbstractSystem;
+import me.aecsocket.calibre.system.CalibreSystem;
+import me.aecsocket.calibre.system.FromMaster;
+import me.aecsocket.calibre.system.ItemEvents;
 import me.aecsocket.calibre.world.Item;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.loop.MinecraftSyncLoop;
@@ -112,9 +115,9 @@ public abstract class SchedulerSystem extends AbstractSystem {
     public static final int LISTENER_PRIORITY = 100000;
 
     @FromMaster(fromDefault = true)
-    private final transient Scheduler scheduler;
-    private final List<Integer> tasks = new ArrayList<>();
-    private long availableAt;
+    protected final transient Scheduler scheduler;
+    protected final List<Integer> tasks = new ArrayList<>();
+    protected long availableAt;
 
     /**
      * Used for registration.
@@ -210,7 +213,7 @@ public abstract class SchedulerSystem extends AbstractSystem {
         update(event);
     }
 
-    public abstract SchedulerSystem copy();
+    @Override public abstract SchedulerSystem copy();
 
     @Override
     public boolean equals(Object o) {

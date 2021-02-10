@@ -18,6 +18,7 @@ import me.aecsocket.calibre.wrapper.BukkitItem;
 import me.aecsocket.calibre.wrapper.user.BukkitItemUser;
 import me.aecsocket.calibre.wrapper.user.PlayerUser;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
+import me.aecsocket.unifiedframework.loop.MinecraftSyncLoop;
 import me.aecsocket.unifiedframework.stat.Stat;
 import me.aecsocket.unifiedframework.stat.impl.BooleanStat;
 import me.aecsocket.unifiedframework.stat.impl.data.SoundDataStat;
@@ -100,6 +101,7 @@ public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
         EventDispatcher events = tree.events();
         events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.UpdateItem.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.Equipped.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.Jump.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.ToggleSprint.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.Switch.class, this::onEvent, listenerPriority);
@@ -140,6 +142,11 @@ public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
         }
     }
 
+    public <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {
+        if (event.tickContext().loop() instanceof MinecraftSyncLoop)
+            update(event.user());
+    }
+
     public <I extends Item> void onEvent(ItemEvents.Jump<I> event) {
         if (!tree().<Boolean>stat("allow_jump"))
             event.cancel();
@@ -158,7 +165,7 @@ public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
             return;
         ItemUser user = event.user();
         if (event.position() == ItemEvents.Switch.TO) {
-            update(user);
+            update(event);
             String prefix = user instanceof MovementUser && ((MovementUser) user).sprinting() ? "sprint_start" : "switch_to";
             if (user instanceof BukkitItemUser)
                 SoundData.play(((BukkitItemUser) user)::location, tree().stat(prefix + "_sound"));
@@ -168,7 +175,6 @@ public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
             if (user instanceof PlayerUser)
                 plugin.playerData(((PlayerUser) user).entity()).animation(null);
             reset(user);
-            update(event);
         }
     }
 

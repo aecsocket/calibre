@@ -419,10 +419,6 @@ public abstract class GunSystem extends AbstractSystem {
     }
 
     protected <I extends Item> void onEvent(ItemEvents.Jump<I> event) {
-        if (aiming) {
-            event.cancel();
-            return;
-        }
         if (event.user() instanceof InaccuracyUser)
             ((InaccuracyUser) event.user()).addInaccuracy(tree().<NumberDescriptor.Double>stat("inaccuracy_jump").apply());
     }

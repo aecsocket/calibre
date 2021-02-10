@@ -294,20 +294,29 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
         ItemAnimation.start(user, event.slot(), tree().stat("fail_animation"));
     }
 
-    @Override public PaperGunSystem copy() { return new PaperGunSystem(this); }
+    @Override public PaperGunSystem partialCopy() { return new PaperGunSystem(this); }
+
+    @Override
+    public PaperGunSystem copy() {
+        PaperGunSystem sys = (PaperGunSystem) super.copy();
+        sys.ignoreSwitch = ignoreSwitch;
+        return sys;
+    }
 
     @Override
     public Any writeProtobuf() {
-        return Any.pack(SystemsGun.GunSystem.newBuilder()
+        var builder = SystemsGun.GunSystem.newBuilder()
                 .setAiming(aiming)
-                .setIgnoreSwitch(ignoreSwitch)
-                .setFireMode(SystemsGun.Path.newBuilder()
+                .setIgnoreSwitch(ignoreSwitch);
+        if (fireMode != null)
+                builder.setFireMode(SystemsGun.Path.newBuilder()
                         .addAllPath(Arrays.asList(fireMode.path))
-                        .setIndex(fireMode.index).build())
-                .setSight(SystemsGun.Path.newBuilder()
+                        .setIndex(fireMode.index).build());
+        if (sight != null)
+                builder.setSight(SystemsGun.Path.newBuilder()
                         .addAllPath(Arrays.asList(sight.path))
-                        .setIndex(sight.index).build())
-                .build());
+                        .setIndex(sight.index).build());
+        return Any.pack(builder.build());
     }
 
     @Override
@@ -316,8 +325,10 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
         PaperGunSystem sys = new PaperGunSystem(this);
         sys.aiming = msg.getAiming();
         sys.ignoreSwitch = msg.getIgnoreSwitch();
-        sys.fireMode = new FireModePath(msg.getFireMode().getPathList().toArray(new String[0]), msg.getFireMode().getIndex());
-        sys.sight = new SightPath(msg.getSight().getPathList().toArray(new String[0]), msg.getSight().getIndex());
+        if (msg.hasFireMode())
+            sys.fireMode = new FireModePath(msg.getFireMode().getPathList().toArray(new String[0]), msg.getFireMode().getIndex());
+        if (msg.hasSight())
+            sys.sight = new SightPath(msg.getSight().getPathList().toArray(new String[0]), msg.getSight().getIndex());
         return sys;
     }
 }

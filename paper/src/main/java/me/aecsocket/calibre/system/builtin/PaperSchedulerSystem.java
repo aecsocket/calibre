@@ -59,7 +59,12 @@ public class PaperSchedulerSystem extends SchedulerSystem implements PaperSystem
         }
     }
 
-    @Override public PaperSchedulerSystem copy() { return new PaperSchedulerSystem(this); }
+    @Override public PaperSchedulerSystem copy() {
+        PaperSchedulerSystem sys = new PaperSchedulerSystem(this);
+        sys.availableAt = availableAt;
+        sys.tasks.addAll(tasks);
+        return sys;
+    }
 
     @Override
     public Any writeProtobuf() {

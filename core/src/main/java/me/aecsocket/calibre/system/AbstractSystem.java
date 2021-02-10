@@ -66,6 +66,7 @@ public abstract class AbstractSystem implements CalibreSystem {
             base.combine(add);
     }
 
+    // TODO stuff with this, since we don't deserialize configurate tree anymore
     @Override
     public void inherit(CalibreSystem master, boolean fromDefault) {
         if (!master.getClass().equals(getClass())) return;

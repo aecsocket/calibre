@@ -1,25 +1,18 @@
-cache:
-  paths:
-    - ".m2/repository"
+image: "gradle:alpine"
 
 variables:
-  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+before_script:
+  - "export GRADLE_USER_HOME=`pwd`/.gradle"
 
 build:
   image: "maven:3-jdk-11"
   script:
-    - "mvn clean install javadoc:javadoc site:site site:stage"
-  artifacts:
+    - "./gradlew --build-cache build"
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: "push"
     paths:
-      - "target"
-
-pages:
-  stage: "deploy"
-  script:
-    - "mkdir public"
-    - "cp -r target/staging/* public"
-  artifacts:
-    paths:
-      - "public"
-  only:
-    - "master"
+      - "build"
+      - ".gradle"

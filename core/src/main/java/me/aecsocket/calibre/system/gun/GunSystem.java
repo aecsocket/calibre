@@ -863,7 +863,16 @@ public abstract class GunSystem extends AbstractSystem {
         scheduler.delay(tree().<NumberDescriptor.Long>stat("fail_delay").apply());
     }
 
-    @Override public abstract GunSystem copy();
+    protected abstract GunSystem partialCopy();
+
+    @Override
+    public GunSystem copy() {
+        GunSystem sys = partialCopy();
+        sys.aiming = aiming;
+        sys.fireMode = fireMode;
+        sys.sight = sight;
+        return sys;
+    }
 
     @Override
     public boolean equals(Object o) {

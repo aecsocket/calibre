@@ -59,14 +59,14 @@ public class PaperCapacityComponentContainerSystem extends CapacityComponentCont
             SoundData.play(((BukkitItemUser) event.user())::location, cursor.tree().stat("insert_sound"));
     }
 
-    @Override public PaperCapacityComponentContainerSystem copy() { return new PaperCapacityComponentContainerSystem(this); }
+    @Override public PaperCapacityComponentContainerSystem partialCopy() { return new PaperCapacityComponentContainerSystem(this); }
 
     @Override
     public Any writeProtobuf() {
         var builder = SystemsBuiltin.ComponentContainerSystem.newBuilder();
         components.forEach(quant ->
                 builder.addComponents(SystemsBuiltin.ComponentQuantifier.newBuilder()
-                        .setComponent(plugin.itemManager().protobuf().write((PaperComponent) quant.get()))
+                        .setComponent(plugin.itemManager().protobuf().write((PaperComponent) quant.get().buildTree()))
                         .setAmount(quant.getAmount())
                 ));
         return Any.pack(builder.build());
@@ -77,7 +77,7 @@ public class PaperCapacityComponentContainerSystem extends CapacityComponentCont
         SystemsBuiltin.ComponentContainerSystem msg = unpack(raw, SystemsBuiltin.ComponentContainerSystem.class);
         PaperCapacityComponentContainerSystem sys = new PaperCapacityComponentContainerSystem(this);
         msg.getComponentsList().forEach(quant ->
-                sys.components.add(new Quantifier<>(plugin.itemManager().protobuf().read(quant.getComponent()), quant.getAmount())));
+                sys.components.add(new Quantifier<>(plugin.itemManager().protobuf().read(quant.getComponent()).buildTree(), quant.getAmount())));
         return sys;
     }
 }

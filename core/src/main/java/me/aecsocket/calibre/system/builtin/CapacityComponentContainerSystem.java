@@ -53,7 +53,8 @@ public abstract class CapacityComponentContainerSystem extends ComponentContaine
         return Math.min(remaining(), super.amountToInsert(rawCursor, cursor, shiftClick));
     }
 
-    @Override public abstract CapacityComponentContainerSystem copy();
+    @Override protected abstract CapacityComponentContainerSystem partialCopy();
+    @Override public CapacityComponentContainerSystem copy() { return (CapacityComponentContainerSystem) super.copy(); }
 
     @Override
     public boolean equals(Object o) {

@@ -123,6 +123,7 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
         EventDispatcher events = tree.events();
         events.registerListener(CalibreComponent.Events.NameCreate.class, this::onEvent, listenerPriority);
         events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.Equipped.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.Click.class, this::onEvent, listenerPriority);
     }
 
@@ -159,6 +160,10 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
 
     protected <I extends Item> void remove(ItemEvents.Click<I> event, Quantifier<CalibreComponent<I>> last) {}
     protected <I extends Item> void insert(ItemEvents.Click<I> event, int amount, I rawCursor, CalibreComponent<I> cursor) {}
+
+    protected <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {
+        event.user().debug("comp = " + components);
+    }
 
     protected <I extends Item> void onEvent(ItemEvents.Click<I> event) {
         if (event.slot().get().amount() > 1)
@@ -198,7 +203,14 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
         update(event);
     }
 
-    @Override public abstract ComponentContainerSystem copy();
+    protected abstract ComponentContainerSystem partialCopy();
+
+    @Override
+    public ComponentContainerSystem copy() {
+        ComponentContainerSystem sys = partialCopy();
+        sys.components.addAll(components);
+        return sys;
+    }
 
     @Override
     public boolean equals(Object o) {

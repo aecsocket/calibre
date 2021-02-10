@@ -309,7 +309,6 @@ public class CalibreCommand extends BaseCommand {
         }
 
         Component spacing = gen(sender, "command.dump_tree.spacing");
-        Component blank = gen(sender, "command.dump_tree.blank");
 
         long start = System.nanoTime();
         byte[] bytes = plugin.itemManager().tree(((Player) sender).getInventory().getItemInMainHand());
@@ -323,9 +322,8 @@ public class CalibreCommand extends BaseCommand {
                 int idx = lineIndex + i;
                 Component toWrite;
                 if (idx >= bytes.length)
-                    toWrite = blank;
-                else
-                    toWrite = Component.text(String.format("%02x", bytes[idx]));
+                    break;
+                toWrite = Component.text(String.format("%02x", bytes[idx]));
                 line.append(Component.text()
                         .append(toWrite)
                         .append(spacing)

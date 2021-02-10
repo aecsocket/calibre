@@ -55,6 +55,7 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -203,6 +204,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                     TypeSerializer systemSerializer = new CalibreSystem.Serializer(Utils.delegate(CalibreSystem.class, builder, mapper), NamingSchemes.SNAKE_CASE);
                     builder
                             .register(Color.class, ColorSerializer.INSTANCE)
+                            .register(BlockData.class, BlockDataSerializer.INSTANCE)
                             .register(Particle.DustOptions.class, DustOptionsSerializer.INSTANCE)
                             .register(ItemStack.class, ItemStackSerializer.INSTANCE)
                             .register(Location.class, LocationSerializer.INSTANCE)

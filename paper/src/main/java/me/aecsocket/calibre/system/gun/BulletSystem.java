@@ -12,24 +12,21 @@ import me.aecsocket.unifiedframework.loop.SchedulerLoop;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.stat.Stat;
 import me.aecsocket.unifiedframework.stat.StatMap;
-import me.aecsocket.unifiedframework.stat.impl.data.ParticleDataStat;
-import me.aecsocket.unifiedframework.stat.impl.data.SoundDataStat;
 import me.aecsocket.unifiedframework.stat.impl.descriptor.NumberDescriptorStat;
 import me.aecsocket.unifiedframework.stat.impl.descriptor.Vector2DDescriptorStat;
 import me.aecsocket.unifiedframework.util.MapInit;
 import me.aecsocket.unifiedframework.util.Utils;
-import me.aecsocket.unifiedframework.util.VectorUtils;
-import me.aecsocket.unifiedframework.util.data.ParticleData;
-import me.aecsocket.unifiedframework.util.data.SoundData;
 import me.aecsocket.unifiedframework.util.descriptor.NumberDescriptor;
 import me.aecsocket.unifiedframework.util.descriptor.Vector2DDescriptor;
-import me.aecsocket.unifiedframework.util.projectile.BukkitCollidable;
-import me.aecsocket.unifiedframework.util.projectile.BukkitProjectile;
 import me.aecsocket.unifiedframework.util.projectile.BukkitRayTrace;
+import me.aecsocket.unifiedframework.util.projectile.RayTrace;
 import me.aecsocket.unifiedframework.util.vector.Vector2D;
 import me.aecsocket.unifiedframework.util.vector.Vector3D;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.attribute.Attributable;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Hanging;
@@ -45,27 +42,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @ConfigSerializable
 public class BulletSystem extends AbstractSystem implements ProjectileSystem, PaperSystem {
-    public static class Projectile extends BukkitProjectile {
-        public enum HitResult {
-            STOP,
-            RICOCHET,
-            CONTINUE
-        }
-
-        private final CalibrePlugin plugin;
-        private final StatMap stats;
-        private ParticleData[] trailParticle;
-        private double trailDistance;
-
-        private ParticleData[] hitParticle;
-        private SoundData[] hitSound;
-
-        private ParticleData[] hitBlockParticle;
-        private SoundData[] hitBlockSound;
-
-        private ParticleData[] hitEntityParticle;
-        private SoundData[] hitEntitySound;
-
+    public static class Projectile extends PaperProjectiles.CalibreProjectile {
         protected final double originalDamage;
         protected double damage;
         protected double armorPenetration;
@@ -74,27 +51,12 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
 
         protected double ricochetChance;
         protected double ricochetAngle;
-        protected double ricochetMultiplier;
 
         protected double dropoff;
         protected double range;
 
         public Projectile(CalibrePlugin plugin, World world, Vector3D position, Vector3D velocity, StatMap stats) {
-            super(world, position, velocity);
-            this.plugin = plugin;
-            this.stats = stats;
-
-            trailParticle = stats.val("trail_particle");
-            trailDistance = stats.<NumberDescriptor.Double>val("trail_distance").apply();
-
-            hitParticle = stats.val("hit_particle");
-            hitSound = stats.val("hit_sound");
-
-            hitBlockParticle = stats.val("hit_block_particle");
-            hitBlockSound = stats.val("hit_block_sound");
-
-            hitEntityParticle = stats.val("hit_entity_particle");
-            hitEntitySound = stats.val("hit_entity_sound");
+            super(world, position, velocity, plugin, stats);
 
             originalDamage = stats.<NumberDescriptor.Double>val("damage").apply();
             damage = originalDamage;
@@ -104,27 +66,11 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
 
             ricochetChance = stats.<NumberDescriptor.Double>val("ricochet_chance").apply();
             ricochetAngle = stats.<NumberDescriptor.Double>val("ricochet_angle").apply() + 90;
-            ricochetMultiplier = stats.<NumberDescriptor.Double>val("ricochet_multiplier").apply();
 
             Vector2D rangeStat = stats.<Vector2DDescriptor>val("range").apply(new Vector2D());
             dropoff = rangeStat.x();
             range = rangeStat.y();
         }
-
-        public CalibrePlugin plugin() { return plugin; }
-        public StatMap stats() { return stats; }
-
-        public ParticleData[] trailParticle() { return trailParticle; }
-        public double trailDistance() { return trailDistance; }
-
-        public ParticleData[] hitParticle() { return hitParticle; }
-        public SoundData[] hitSound() { return hitSound; }
-
-        public ParticleData[] hitBlockParticle() { return hitBlockParticle; }
-        public SoundData[] hitBlockSound() { return hitBlockSound; }
-
-        public ParticleData[] hitEntityParticle() { return hitEntityParticle; }
-        public SoundData[] hitEntitySound() { return hitEntitySound; }
 
         public double originalDamage() { return originalDamage; }
 
@@ -149,10 +95,6 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
         public double ricochetAngle() { return ricochetAngle; }
         public void ricochetAngle(double ricochetAngle) { this.ricochetAngle = ricochetAngle; }
 
-        public double ricochetMultiplier() { return ricochetMultiplier; }
-        public void ricochetMultiplier(double ricochetSpeed) { this.ricochetMultiplier = ricochetSpeed; }
-
-
         public double dropoff() { return dropoff; }
         public void dropoff(double dropoff) { this.dropoff = dropoff; }
 
@@ -162,36 +104,14 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
         @Override
         protected void step(TickContext tickContext, BukkitRayTrace ray, Vector3D from, Vector3D delta, double deltaLength) {
             super.step(tickContext, ray, from, delta, deltaLength);
-            Vector step = VectorUtils.toBukkit(delta.normalize().multiply(trailDistance));
-            Location current = VectorUtils.toBukkit(from).toLocation(world);
-            for (double d = 0; d < deltaLength; d += trailDistance) {
-                ParticleData.spawn(current, trailParticle);
-                current.add(step);
-            }
+            if (travelled() >= range)
+                tickContext.remove();
         }
 
         @Override
-        protected void collide(TickContext tickContext, BukkitRayTrace ray, BukkitCollidable collided) {
-            Location location = VectorUtils.toBukkit(ray.position()).toLocation(world);
-
-            ParticleData.spawn(location, hitParticle);
-            SoundData.play(() -> location, hitSound);
-
-            HitResult result;
-            if (collided.isBlock())
-                result = collideBlock(tickContext, ray, location, collided.block());
-            else
-                result = collideEntity(tickContext, ray, location, collided.entity());
-
-            if (damage <= 0 || result == HitResult.STOP) {
-                tickContext.remove();
-                return;
-            }
-
-            if (result == HitResult.RICOCHET) {
-                velocity = velocity.deflect(ray.collisionNormal()).multiply(ricochetMultiplier);
-                damage *= ricochetMultiplier;
-            }
+        public void bounce(RayTrace<?> ray) {
+            super.bounce(ray);
+            damage *= bounce;
         }
 
         protected boolean ricochets(BukkitRayTrace ray) {
@@ -204,54 +124,62 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
         }
 
         protected HitResult collideBlock(TickContext tickContext, BukkitRayTrace ray, Location location, Block block) {
-            ParticleData.spawn(location, block.getBlockData(), hitBlockParticle);
-            SoundData.play(() -> location, hitBlockSound);
-            if (bounce > 0)
-                return HitResult.CONTINUE;
-
+            super.collideBlock(tickContext, ray, location, block);
             double hardness = plugin.hardness(block);
             // if this block is too hard
             if (hardness > blockPenetration) {
                 if (ricochets(ray))
-                    // ricochets
-                    return HitResult.RICOCHET;
+                    // ricochets/bounces
+                    return HitResult.BOUNCE;
                 else
                     // or gets stopped
                     return HitResult.STOP;
-            } else
+            } else {
                 // penetrates
-                damage -= originalDamage * Utils.clamp01(hardness / Math.max(1e-6, blockPenetration));
-            return HitResult.CONTINUE;
+                damage -= originalDamage * Utils.clamp01(hardness / Math.max(1, blockPenetration));
+                return HitResult.CONTINUE;
+            }
         }
 
         protected HitResult collideEntity(TickContext tickContext, BukkitRayTrace ray, Location location, Entity entity) {
-            if (entity instanceof LivingEntity) {
-                ParticleData.spawn(location, hitEntityParticle);
-                SoundData.play(() -> location, hitEntitySound);
-                damage((LivingEntity) entity);
-            } else if (entity instanceof Hanging) {
+            super.collideEntity(tickContext, ray, location, entity);
+            if (entity instanceof Hanging) {
                 if (new HangingBreakByEntityEvent((Hanging) entity, source, HangingBreakEvent.RemoveCause.ENTITY).callEvent())
                     entity.remove();
             }
-            // todo
-            return HitResult.STOP;
+
+            calculateDamage(entity);
+            if (entity instanceof LivingEntity) {
+                damage((LivingEntity) entity);
+            }
+
+            damage *= entityPenetration;
+            return HitResult.CONTINUE;
+        }
+
+        protected void calculateDamage(Entity entity) {
+            double armor = 0;
+            if (entity instanceof Attributable) {
+                AttributeInstance attr = ((Attributable) entity).getAttribute(Attribute.GENERIC_ARMOR);
+                if (attr != null)
+                    armor = attr.getValue();
+            }
+
+            damage *= Math.min(1, armorPenetration / Math.max(1, armor));
         }
 
         protected void damage(LivingEntity entity) {
-            double entityDamage = damage * (1 - Utils.clamp01((travelled()-dropoff) / (range-dropoff)));
-            entity.damage(entityDamage, source);
+            double applied = damage * (1 - Utils.clamp01((travelled()-dropoff) / (range-dropoff)));
+            entity.damage(1e-16, source);
+            entity.setHealth(Math.max(0, entity.getHealth() - applied));
             entity.setNoDamageTicks(0);
             entity.setVelocity(new Vector());
-
-            if (bounce > 0)
-                return;
-            damage *= entityPenetration;
         }
     }
 
     public static final String ID = "bullet";
     public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
-            .init(BukkitProjectiles.STATS)
+            .init(PaperProjectiles.CALIBRE_STATS)
             .init("damage", NumberDescriptorStat.of(0d))
             .init("armor_penetration", NumberDescriptorStat.of(0d))
             .init("block_penetration", NumberDescriptorStat.of(0d))
@@ -263,18 +191,6 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
 
             .init("raycast_distance", NumberDescriptorStat.of(0d))
             .init("range", new Vector2DDescriptorStat(new Vector2D()))
-
-            .init("trail_particle", new ParticleDataStat())
-            .init("trail_distance", NumberDescriptorStat.of(1d))
-
-            .init("hit_particle", new ParticleDataStat())
-            .init("hit_sound", new SoundDataStat())
-
-            .init("hit_block_particle", new ParticleDataStat())
-            .init("hit_block_sound", new SoundDataStat())
-
-            .init("hit_entity_particle", new ParticleDataStat())
-            .init("hit_entity_sound", new SoundDataStat())
             .get();
 
     @FromMaster(fromDefault = true)
@@ -318,7 +234,7 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
         BukkitItemUser bukkitUser = (BukkitItemUser) user;
 
         Projectile projectile = new Projectile(plugin, bukkitUser.world(), position, velocity, tree().stats());
-        BukkitProjectiles.applyTo(projectile, tree().stats());
+        PaperProjectiles.applyTo(projectile, tree().stats());
         projectile.source(user instanceof EntityUser ? ((EntityUser) user).entity() : null);
 
         // raycast the first specified amount metres

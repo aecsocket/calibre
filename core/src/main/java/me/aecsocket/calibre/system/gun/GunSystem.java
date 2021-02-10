@@ -55,7 +55,7 @@ public abstract class GunSystem extends AbstractSystem {
     DONE action bar
     DONE real animations (aiming)
     DONE sway stabilize system
-    - casings + casing sounds
+    DONE casings + casing sounds
 
     - proper bullet damage
      */

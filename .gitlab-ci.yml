@@ -1,18 +1,13 @@
-image: "gradle:alpine"
+image: "maven:3-jdk-11"
+
+cache:
+  paths:
+    - "maven.repository/"
 
 variables:
-  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-
-before_script:
-  - "export GRADLE_USER_HOME=`pwd`/.gradle"
+  MAVEN_OPTS: "--batch-mode -Dmaven.repo.local=maven.repository"
 
 build:
   image: "maven:3-jdk-11"
   script:
-    - "./gradlew --build-cache build"
-  cache:
-    key: "$CI_COMMIT_REF_NAME"
-    policy: "push"
-    paths:
-      - "build"
-      - ".gradle"
+    - "mvn compile"

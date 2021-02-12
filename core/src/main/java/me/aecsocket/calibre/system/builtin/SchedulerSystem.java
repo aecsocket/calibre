@@ -19,7 +19,6 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.function.Consumer;
 
 public abstract class SchedulerSystem extends AbstractSystem {
     public static class Serializer implements TypeSerializer<SchedulerSystem> {
@@ -47,7 +46,7 @@ public abstract class SchedulerSystem extends AbstractSystem {
     }
 
     public static class Scheduler implements Tickable {
-        protected final Map<Integer, Task<?>> tasks = new HashMap<>();
+        protected final Map<Integer, Task<?, ?>> tasks = new HashMap<>();
         protected int taskId;
         protected long cleanDelay;
         protected long cleanThreshold;
@@ -59,7 +58,7 @@ public abstract class SchedulerSystem extends AbstractSystem {
             this.cleanThreshold = cleanThreshold;
         }
 
-        public Map<Integer, Task<?>> tasks() { return tasks; }
+        public Map<Integer, Task<?, ?>> tasks() { return tasks; }
         public int taskId() { return taskId; }
         public int nextTaskId() { return ++taskId; }
 
@@ -69,13 +68,13 @@ public abstract class SchedulerSystem extends AbstractSystem {
         public long cleanThreshold() { return cleanThreshold; }
         public void cleanThreshold(long cleanThreshold) { this.cleanThreshold = cleanThreshold; }
 
-        public <S extends CalibreSystem> Tuple2<Integer, Task<S>> schedule(S system, long delay, Consumer<S> function) {
-            Task<S> task = new Task<>(system.parent().path(), system.id(), System.currentTimeMillis() + delay, function);
+        public <S extends CalibreSystem, I extends Item> Tuple2<Integer, Task<S, I>> schedule(S system, long delay, TaskFunction<S, I> function) {
+            Task<S, I> task = new Task<>(system.parent().path(), system.id(), System.currentTimeMillis() + delay, function);
             int id = nextTaskId();
             tasks.put(id, task);
             return Tuple2.of(id, task);
         }
-        public Task<?> unschedule(int id) { return tasks.remove(id); }
+        public Task<?, ?> unschedule(int id) { return tasks.remove(id); }
 
         public void clean() {
             long time = System.currentTimeMillis();
@@ -92,13 +91,21 @@ public abstract class SchedulerSystem extends AbstractSystem {
         }
     }
 
-    public static class Task<S extends CalibreSystem> {
+    public interface SystemGetter {
+        <S extends CalibreSystem> S get(S system);
+    }
+
+    public interface TaskFunction<S extends CalibreSystem, I extends Item> {
+        void run(S self, ItemEvents.Equipped<I> equip, SystemGetter ctx);
+    }
+
+    public static class Task<S extends CalibreSystem, I extends Item> {
         private final String[] path;
         private final String systemId;
         private final long runAt;
-        private final Consumer<S> function;
+        private final TaskFunction<S, I> function;
 
-        public Task(String[] path, String systemId, long runAt, Consumer<S> function) {
+        public Task(String[] path, String systemId, long runAt, TaskFunction<S, I> function) {
             this.path = path;
             this.systemId = systemId;
             this.runAt = runAt;
@@ -108,7 +115,7 @@ public abstract class SchedulerSystem extends AbstractSystem {
         public String[] path() { return path; }
         public String systemId() { return systemId; }
         public long runAt() { return runAt; }
-        public Consumer<S> function() { return function; }
+        public TaskFunction<S, I> function() { return function; }
     }
 
     public static final String ID = "scheduler";
@@ -155,8 +162,8 @@ public abstract class SchedulerSystem extends AbstractSystem {
     public boolean available() { return System.currentTimeMillis() >= availableAt; }
     public void delay(long ms) { availableAt = System.currentTimeMillis() + ms; }
 
-    public <S extends CalibreSystem> Tuple2<Integer, Task<S>> schedule(S system, long delay, Consumer<S> function) {
-        Tuple2<Integer, Task<S>> result = scheduler.schedule(system, delay, function);
+    public <S extends CalibreSystem, I extends Item> Tuple2<Integer, Task<S, I>> schedule(S system, long delay, TaskFunction<S, I> function) {
+        Tuple2<Integer, Task<S, I>> result = scheduler.schedule(system, delay, function);
         tasks.add(result.a());
         return result;
     }
@@ -164,40 +171,56 @@ public abstract class SchedulerSystem extends AbstractSystem {
     @Override
     public void parentTo(ComponentTree tree, CalibreComponent<?> parent) {
         super.parentTo(tree, parent);
-        if (!parent.isRoot()) return;
 
         EventDispatcher events = tree.events();
         events.registerListener(ItemEvents.Equipped.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.Switch.class, this::onEvent, listenerPriority);
     }
 
-    public boolean checkTasks() {
-        int before = tasks.size();
-        tasks.removeIf(id -> {
-            Task<?> task = scheduler.tasks.get(id);
-            if (task == null)
-                return true;
-            if (System.currentTimeMillis() < task.runAt)
-                return false;
-            runTask(task);
-            return true;
+    public boolean checkTasks(ItemEvents.Equipped<?> equip) {
+        List<Integer> removed = new ArrayList<>();
+        int tasksSize = tasks.size();
+        new ArrayList<>(tasks).forEach(id -> {
+            Task<?, ?> task = scheduler.tasks.get(id);
+            if (task == null) {
+                removed.add(id);
+                return;
+            }
+            if (System.currentTimeMillis() < task.runAt) {
+                return;
+            }
+
+            runTask(task, equip);
+            removed.add(id);
         });
-        return before != tasks.size();
+        removed.forEach(tasks::remove);
+        // if any new tasks are scheduled, OR any tasks need to be removed, then update
+        return tasksSize != tasks.size() || removed.size() > 0;
     }
 
-    public <S extends CalibreSystem> void runTask(Task<S> task) {
-        CalibreComponent<?> targetComp = parent.root().component(task.path);
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <S extends CalibreSystem, I extends Item> void runTask(Task<S, I> task, ItemEvents.Equipped<?> equip) {
+        CalibreComponent<?> root = parent.root();
+        CalibreComponent<?> targetComp = root.component(task.path);
         if (targetComp == null)
             return;
-        S system = targetComp.system(task.systemId);
-        if (system == null)
+        S targetSystem = targetComp.system(task.systemId);
+        if (targetSystem == null)
             return;
-        task.function.accept(system);
+        ((TaskFunction) task.function).run(targetSystem, equip, new SystemGetter() {
+            @Override
+            public <T extends CalibreSystem> T get(T get) {
+                CalibreComponent<?> childComp = root.component(get.parent().path());
+                if (childComp == null)
+                    return null;
+                return childComp.system(get.id());
+            }
+        });
     }
 
     protected <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {
         if (event.tickContext().loop() instanceof MinecraftSyncLoop) {
-            if (checkTasks())
+            if (checkTasks(event))
                 update(event);
         }
     }

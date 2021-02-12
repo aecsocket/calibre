@@ -49,7 +49,7 @@ public class CalibreComponentTest {
         ComponentTree tree = root.buildTree().tree;
 
         String data = "abc";
-        tree.call(new TestSystem.Events.DebugEvent(data));
+        tree.call(new TestSystem.Events.TestEvent(data));
         assertEquals(data, root.<TestSystem>system(system.id()).lastData());
     }
 

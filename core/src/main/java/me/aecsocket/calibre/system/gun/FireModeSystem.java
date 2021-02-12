@@ -45,9 +45,10 @@ public abstract class FireModeSystem extends AbstractSystem {
         fireModes = new ArrayList<>(o.fireModes);
     }
 
-    public List<FireMode> fireModes() { return fireModes; }
-
     @Override public String id() { return ID; }
+
+    public StatRenderer statRenderer() { return statRenderer; }
+    public List<FireMode> fireModes() { return fireModes; }
 
     @Override public void setup(CalibreComponent<?> parent) throws SystemSetupException {
         super.setup(parent);
@@ -55,17 +56,18 @@ public abstract class FireModeSystem extends AbstractSystem {
             fireModes = deserialize(dependencies.fireModes, new TypeToken<>(){}, "fireModes");
             dependencies = null;
         }
+        require(StatRenderer.class);
     }
 
     @Override
     public void parentTo(ComponentTree tree, CalibreComponent<?> parent) {
         super.parentTo(tree, parent);
+        statRenderer = require(StatRenderer.class);
+
         if (!parent.isRoot()) return;
 
         EventDispatcher events = tree.events();
         events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, listenerPriority);
-
-        statRenderer = parent.system(StatRenderer.class);
     }
 
     protected <I extends Item> void onEvent(CalibreComponent.Events.ItemCreate<I> event) {

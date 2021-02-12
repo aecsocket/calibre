@@ -22,6 +22,7 @@ import me.aecsocket.unifiedframework.util.projectile.BukkitRayTrace;
 import me.aecsocket.unifiedframework.util.projectile.RayTrace;
 import me.aecsocket.unifiedframework.util.vector.Vector2D;
 import me.aecsocket.unifiedframework.util.vector.Vector3D;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.attribute.Attributable;
@@ -30,9 +31,12 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Hanging;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
@@ -154,7 +158,8 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
             }
 
             damage *= entityPenetration;
-            return HitResult.CONTINUE;
+            // TODO
+            return HitResult.STOP;
         }
 
         protected void calculateDamage(Entity entity) {
@@ -170,6 +175,13 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
 
         protected void damage(LivingEntity entity) {
             double applied = damage * (1 - Utils.clamp01((travelled()-dropoff) / (range-dropoff)));
+            if (applied <= 0)
+                return;
+            if (entity instanceof HumanEntity && ((HumanEntity) entity).getGameMode() == GameMode.CREATIVE)
+                return;
+            PotionEffect resistance = entity.getPotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
+            if (resistance != null)
+                applied *= Utils.clamp(1 - (resistance.getAmplifier() / 4d), 0, 1);
             entity.damage(1e-16, source);
             entity.setHealth(Math.max(0, entity.getHealth() - applied));
             entity.setNoDamageTicks(0);

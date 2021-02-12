@@ -47,11 +47,10 @@ public abstract class SightSystem extends AbstractSystem {
         sights = new ArrayList<>(o.sights);
     }
 
-    public List<Sight> sights() { return sights; }
-
     @Override public String id() { return ID; }
 
     public StatRenderer statRenderer() { return statRenderer; }
+    public List<Sight> sights() { return sights; }
 
     @Override public void setup(CalibreComponent<?> parent) throws SystemSetupException {
         super.setup(parent);
@@ -59,17 +58,18 @@ public abstract class SightSystem extends AbstractSystem {
             sights = deserialize(dependencies.sights, new TypeToken<>(){}, "sights");
             dependencies = null;
         }
+        require(StatRenderer.class);
     }
 
     @Override
     public void parentTo(ComponentTree tree, CalibreComponent<?> parent) {
         super.parentTo(tree, parent);
+        statRenderer = require(StatRenderer.class);
+
         if (!parent.isRoot()) return;
 
         EventDispatcher events = tree.events();
         events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, listenerPriority);
-
-        statRenderer = parent.system(StatRenderer.class);
     }
 
     protected <I extends Item> void onEvent(CalibreComponent.Events.ItemCreate<I> event) {

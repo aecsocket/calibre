@@ -35,10 +35,10 @@ public class TestSystem extends AbstractSystem {
     @Override
     public void parentTo(ComponentTree tree, CalibreComponent<?> parent) {
         super.parentTo(tree, parent);
-        tree.events().registerListener(Events.DebugEvent.class, this::onEvent, 0);
+        tree.events().registerListener(Events.TestEvent.class, this::onEvent, 0);
     }
 
-    protected void onEvent(Events.DebugEvent event) {
+    protected void onEvent(Events.TestEvent event) {
         lastData = event.data;
     }
 
@@ -47,10 +47,10 @@ public class TestSystem extends AbstractSystem {
     public static final class Events {
         private Events() {}
 
-        public static class DebugEvent {
+        public static class TestEvent {
             private final String data;
 
-            public DebugEvent(String data) {
+            public TestEvent(String data) {
                 this.data = data;
             }
 

@@ -49,6 +49,11 @@ public abstract class CapacityComponentContainerSystem extends ComponentContaine
     }
 
     @Override
+    public boolean accepts(CalibreComponent<?> component) {
+        return super.accepts(component) && remaining() > 0;
+    }
+
+    @Override
     protected <I extends Item> int amountToInsert(I rawCursor, CalibreComponent<I> cursor, boolean shiftClick) {
         return Math.min(remaining(), super.amountToInsert(rawCursor, cursor, shiftClick));
     }

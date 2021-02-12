@@ -39,7 +39,7 @@ public class PaperSlot extends CalibreSlot {
     }
 
     public PaperSlot() {
-        plugin = CalibrePlugin.getInstance();
+        plugin = CalibrePlugin.instance();
     }
 
     public GUIVector offset() { return offset; }

@@ -22,7 +22,7 @@ public interface BukkitItem extends Item {
     default void saveTree(ComponentTree tree) {
         BukkitUtils.modMeta(item(), meta -> {
             PersistentDataContainer container = meta.getPersistentDataContainer();
-            CalibrePlugin plugin = CalibrePlugin.getInstance();
+            CalibrePlugin plugin = CalibrePlugin.instance();
             try {
                 plugin.itemManager().set(container, tree);
             } catch (ConfigurateException e) {

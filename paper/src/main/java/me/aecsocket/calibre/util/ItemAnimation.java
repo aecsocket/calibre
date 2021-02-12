@@ -19,6 +19,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
@@ -67,12 +69,16 @@ public class ItemAnimation {
                             EquipmentSlot slot = child.node("slot").get(EquipmentSlot.class);
                             int step = node.node("step").getInt(1);
                             int range = node.node("range").getInt();
+                            boolean lowered = node.node("lowered").getBoolean(false);
+                            boolean passthrough = node.node("passthrough").getBoolean(false);
                             for (int i = 0; i < range; i++) {
                                 int val = from + (i * step);
                                 frames.add(new Frame(
                                         duration, slot,
                                         useDamage ? null : val,
-                                        useDamage ? val : null
+                                        useDamage ? val : null,
+                                        lowered,
+                                        passthrough
                                 ));
                             }
                             break;
@@ -143,17 +149,20 @@ public class ItemAnimation {
 
         public boolean finished() { return index < 0 || index >= frames.size(); }
 
-        public Frame updateFrame() { frame = finished() ? null : frames.get(index); return frame; }
+        public Frame updateFrame() { frame = frames.get(index); return frame; }
 
         @Override
         public void tick(TickContext tickContext) {
-            if (frame == null)
+            if (finished())
                 return;
             frameTime += tickContext.delta();
-            while (frame != null && frameTime >= frame.duration) {
+            while (!finished() && frameTime >= frame.duration) {
                 frameTime -= frame.duration;
                 nextFrame();
             }
+
+            if (frame.lowered)
+                player.addPotionEffect(EFFECT_MINING_FATIGUE);
         }
 
         public void apply() {
@@ -163,10 +172,10 @@ public class ItemAnimation {
 
         public void nextFrame() {
             ++index;
-            updateFrame();
-            if (frame == null)
+            if (finished())
                 return;
-            frame.apply(plugin, player, slot);
+            updateFrame();
+            apply();
         }
 
         @Override public String toString() { return index + "/" + frameTime + ": [" + frame + "]"; }
@@ -179,21 +188,27 @@ public class ItemAnimation {
         private final ItemDescriptor item;
         private final Integer modelData;
         private final Integer damage;
+        private final boolean lowered;
+        private final boolean passthrough;
 
-        public Frame(long duration, EquipmentSlot slot, ItemDescriptor item) {
+        public Frame(long duration, EquipmentSlot slot, ItemDescriptor item, boolean lowered, boolean passthrough) {
             this.duration = duration;
             this.slot = slot;
             this.item = item;
             modelData = null;
             damage = null;
+            this.lowered = lowered;
+            this.passthrough = passthrough;
         }
 
-        public Frame(long duration, EquipmentSlot slot, Integer modelData, Integer damage) {
+        public Frame(long duration, EquipmentSlot slot, Integer modelData, Integer damage, boolean lowered, boolean passthrough) {
             this.duration = duration;
             this.slot = slot;
             item = null;
             this.modelData = modelData;
             this.damage = damage;
+            this.lowered = lowered;
+            this.passthrough = passthrough;
         }
 
         public Frame() {
@@ -202,6 +217,8 @@ public class ItemAnimation {
             item = null;
             modelData = null;
             damage = null;
+            lowered = false;
+            passthrough = false;
         }
 
         public Frame(Frame o) {
@@ -210,6 +227,8 @@ public class ItemAnimation {
             item = o.item;
             modelData = o.modelData;
             damage = o.damage;
+            lowered = o.lowered;
+            passthrough = o.passthrough;
         }
 
         public long duration() { return duration; }
@@ -217,6 +236,8 @@ public class ItemAnimation {
         public ItemDescriptor item() { return item; }
         public Integer modelData() { return modelData; }
         public Integer damage() { return damage; }
+        public boolean lowered() { return lowered; }
+        public boolean passthrough() { return passthrough; }
 
         public boolean usesItem() { return item != null && item.id() != null; }
 
@@ -237,6 +258,8 @@ public class ItemAnimation {
         }
 
         public void apply(CalibrePlugin plugin, Player player, int slot) {
+            if (passthrough)
+                return;
             if (this.slot != null)
                 slot = CalibreProtocol.slotOf(player, this.slot);
             CalibreProtocol.item(player, create(plugin, player.getInventory().getItem(slot)), slot);
@@ -244,12 +267,15 @@ public class ItemAnimation {
 
         @Override public String toString() {
             return duration + "ms: " + (
+                    passthrough ? "passthrough" : (
                     usesItem()
-                            ? item
-                            : modelData + "/" + damage + " [" + slot + "]"
-                    );
+                    ? item
+                    : modelData + "/" + damage + " [" + slot + "]"
+            ) + (lowered ? " lowered" : " "));
         }
     }
+
+    public static final PotionEffect EFFECT_MINING_FATIGUE = new PotionEffect(PotionEffectType.SLOW_DIGGING, 2, 127, false, false, false);
 
     private final CalibrePlugin plugin;
     private List<Frame> frames;

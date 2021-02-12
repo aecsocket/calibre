@@ -23,7 +23,7 @@ public abstract class AbstractSystem implements CalibreSystem {
         listenerPriority = o.listenerPriority;
     }
 
-    @Override public void id(String s) {}
+    @Override public void id(String s) { throw new UnsupportedOperationException(); }
 
     public int listenerPriority() { return listenerPriority; }
 

@@ -15,6 +15,8 @@ import me.aecsocket.calibre.system.CalibreSystem;
 import me.aecsocket.calibre.system.builtin.Formatter;
 import me.aecsocket.calibre.system.builtin.*;
 import me.aecsocket.calibre.system.gun.*;
+import me.aecsocket.calibre.system.gun.reload.external.PaperSingleChamberReloadSystem;
+import me.aecsocket.calibre.system.gun.reload.external.PaperSwapReloadSystem;
 import me.aecsocket.calibre.util.*;
 import me.aecsocket.calibre.util.item.ItemManager;
 import me.aecsocket.unifiedframework.gui.GUIManager;
@@ -94,7 +96,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     );
 
     private static CalibrePlugin instance;
-    public static CalibrePlugin getInstance() { return instance; }
+    public static CalibrePlugin instance() { return instance; }
 
     private final List<CalibreHook> hooks = new ArrayList<>();
     private final Map<Player, CalibrePlayer> players = new HashMap<>();
@@ -271,14 +273,18 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
             r.register(new PaperNameFromChildSystem(this));
             r.register(new PaperSchedulerSystem(this, systemScheduler));
 
+            r.register(new GenericStatsSystem(this));
+            r.register(new InventoryComponentAccessorSystem(this));
+
             r.register(new PaperGunSystem(this));
             r.register(new PaperGunInfoSystem(this));
             r.register(new PaperSwayStabilizationSystem(this));
-            r.register(new PaperSightSystem(this));
             r.register(new PaperFireModeSystem(this));
+            r.register(new PaperSightSystem(this));
             r.register(new PaperChamberSystem(this));
+            r.register(new PaperSingleChamberReloadSystem(this));
+            r.register(new PaperSwapReloadSystem(this));
             r.register(new BulletSystem(this));
-            r.register(new GenericStatsSystem(this));
         });
     }
 

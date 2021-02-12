@@ -23,7 +23,7 @@ public final class CalibreProtocol {
 
     private CalibreProtocol() {}
 
-    private static CalibrePlugin plugin() { return CalibrePlugin.getInstance(); }
+    private static CalibrePlugin plugin() { return CalibrePlugin.instance(); }
 
     public enum PlayerTeleportFlag {
         X, Y, Z, Y_ROT, X_ROT

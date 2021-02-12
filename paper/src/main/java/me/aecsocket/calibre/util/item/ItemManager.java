@@ -70,7 +70,7 @@ public class ItemManager {
         });
     }
 
-    public boolean hide(ItemStack item) {
+    public boolean hidden(ItemStack item) {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return false;
         PersistentDataContainer data = meta.getPersistentDataContainer();

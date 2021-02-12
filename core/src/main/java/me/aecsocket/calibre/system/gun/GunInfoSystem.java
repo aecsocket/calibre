@@ -50,7 +50,6 @@ public abstract class GunInfoSystem extends AbstractSystem {
      */
     public GunInfoSystem(GunInfoSystem o) {
         super(o);
-        gun = o.gun;
         ammoStyle = o.ammoStyle;
         chamberStyle = o.chamberStyle;
         showAllFireModes = o.showAllFireModes;

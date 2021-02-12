@@ -137,13 +137,10 @@ public final class PaperProjectiles {
             else
                 result = collideEntity(tickContext, ray, location, collided.entity());
 
-            if (result == HitResult.STOP) {
-                tickContext.remove();
-                return;
-            }
-
-            if (result == HitResult.BOUNCE) {
+            if (result == HitResult.BOUNCE && bounce > 0) {
                 bounce(ray);
+            } else if (result != HitResult.CONTINUE) {
+                tickContext.remove();
             }
         }
 

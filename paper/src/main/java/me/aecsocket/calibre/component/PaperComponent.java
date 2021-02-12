@@ -72,7 +72,7 @@ public class PaperComponent extends CalibreComponent<BukkitItem> {
         this.plugin = plugin;
     }
 
-    public PaperComponent() { this(CalibrePlugin.getInstance(), null); }
+    public PaperComponent() { this(CalibrePlugin.instance(), null); }
 
     public PaperComponent(CalibreComponent<BukkitItem> o, CalibrePlugin plugin) {
         super(o);

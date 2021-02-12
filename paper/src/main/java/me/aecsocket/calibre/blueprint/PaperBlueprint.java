@@ -14,7 +14,7 @@ public class PaperBlueprint extends Blueprint<BukkitItem> {
         this.plugin = plugin;
     }
 
-    public PaperBlueprint() { this(CalibrePlugin.getInstance(), null); }
+    public PaperBlueprint() { this(CalibrePlugin.instance(), null); }
 
     @Override public Component gen(String locale, String key, Object... args) { return plugin.gen(locale, key, args); }
 }

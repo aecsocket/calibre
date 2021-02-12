@@ -14,13 +14,12 @@ import me.aecsocket.unifiedframework.util.data.ParticleData;
 import me.aecsocket.unifiedframework.util.vector.Vector2D;
 import me.aecsocket.unifiedframework.util.vector.Vector3D;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.Collections;
@@ -30,7 +29,6 @@ public final class CalibrePlayer implements Tickable {
     public static final ParticleData[] OFFSET_PARTICLE = {
             new ParticleData().particle(Particle.FIREWORKS_SPARK)
     };
-    public static final PotionEffect EFFECT_MINING_FATIGUE = new PotionEffect(PotionEffectType.SLOW_DIGGING, 2, 127, false, false, false);
 
     private final CalibrePlugin plugin;
     private final Player player;
@@ -40,7 +38,10 @@ public final class CalibrePlayer implements Tickable {
     private ItemAnimation.Instance animation;
 
     private int cancelInteractTick;
+    private int cancelBlockInteract;
+    private int inventoryDrop;
     private double inaccuracy;
+    private boolean showInaccuracy;
 
     private double stamina;
     private double maxStamina;
@@ -71,11 +72,22 @@ public final class CalibrePlayer implements Tickable {
     public void animation(ItemAnimation.Instance animation) { this.animation = animation; }
 
     public int cancelInteractTick() { return cancelInteractTick; }
-    public boolean cancelledInteract() { return Bukkit.getCurrentTick() <= cancelInteractTick + 3; }
-    public void cancelInteract() { cancelInteractTick = Bukkit.getCurrentTick(); }
+    public boolean cancelledInteract() { return Bukkit.getCurrentTick() <= cancelInteractTick; }
+    public void cancelInteract() { cancelInteractTick = Bukkit.getCurrentTick() + 3; }
+
+    public int cancelBlockInteractTick() { return cancelBlockInteract; }
+    public boolean cancelledBlockInteract() { return Bukkit.getCurrentTick() <= cancelBlockInteract ; }
+    public void cancelBlockInteract() { cancelBlockInteract = Bukkit.getCurrentTick() + 1; }
+
+    public int inventoryDropTick() { return inventoryDrop; }
+    public boolean isInventoryDrop() { return Bukkit.getCurrentTick() <= inventoryDrop; }
+    public void setInventoryDrop() { inventoryDrop = Bukkit.getCurrentTick() + 1; }
 
     public double inaccuracy() { return inaccuracy; }
     public void inaccuracy(double inaccuracy) { this.inaccuracy = inaccuracy; }
+
+    public boolean showInaccuracy() { return showInaccuracy; }
+    public void showInaccuracy(boolean showInaccuracy) { this.showInaccuracy = showInaccuracy; }
 
     public double stamina() { return stamina; }
     public void stamina(double stamina) { this.stamina = stamina; }
@@ -153,6 +165,10 @@ public final class CalibrePlayer implements Tickable {
             } catch (SerializationException ignore) {}
         }
 
+        // show inaccuracy
+        if (showInaccuracy)
+            player.sendTitle("", String.format("%.3f", inaccuracy), 0, 5, 0);
+
         // slot view
         GUIView view = plugin.guiManager().getView(player);
         if (view != null && view.getGUI() instanceof SlotViewGUI) {
@@ -183,8 +199,6 @@ public final class CalibrePlayer implements Tickable {
         // animation
         if (animation != null) {
             tickContext.tick(animation);
-            if (!animation.finished())
-                player.addPotionEffect(EFFECT_MINING_FATIGUE);
         }
     }
 
@@ -214,6 +228,8 @@ public final class CalibrePlayer implements Tickable {
     @Override
     public void tick(TickContext tickContext) {
         if (player.isDead())
+            return;
+        if (player.getGameMode() == GameMode.SPECTATOR)
             return;
 
         if (tickContext.loop() instanceof MinecraftSyncLoop) {

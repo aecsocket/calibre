@@ -1,19 +1,24 @@
 package me.aecsocket.calibre.system;
 
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
+import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.component.PaperComponent;
+import me.aecsocket.calibre.util.CalibrePlayer;
+import me.aecsocket.calibre.world.slot.EquippableSlot;
 import me.aecsocket.calibre.world.slot.ItemSlot;
 import me.aecsocket.calibre.world.user.ItemUser;
 import me.aecsocket.calibre.wrapper.BukkitItem;
 import me.aecsocket.calibre.wrapper.slot.BukkitSlot;
 import me.aecsocket.calibre.wrapper.slot.EntityEquipmentSlot;
 import me.aecsocket.calibre.wrapper.slot.InventorySlot;
+import me.aecsocket.calibre.wrapper.user.EntityUser;
 import me.aecsocket.calibre.wrapper.user.PlayerUser;
 import me.aecsocket.unifiedframework.event.Cancellable;
 import me.aecsocket.unifiedframework.loop.TickContext;
 import me.aecsocket.unifiedframework.util.BukkitUtils;
 import me.aecsocket.unifiedframework.util.vector.Vector3I;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -22,6 +27,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
@@ -216,16 +222,38 @@ public final class BukkitItemEvents {
         public PlayerDropItemEvent event() { return event; }
 
         @Override public boolean cancelled() { return event.isCancelled(); }
-        @Override public void cancel() { event.setCancelled(true); }
+        @Override public void cancel() {
+            CalibrePlugin plugin = CalibrePlugin.instance();
+            Item drop = event.getItemDrop();
+            ItemStack item = drop.getItemStack();
+            plugin.itemManager().hide(item, false);
+            drop.setItemStack(item);
+            event.setCancelled(true);
 
-        public static BukkitDrop of(PlayerDropItemEvent event, PaperComponent component) {
+            if (user() instanceof PlayerUser) {
+                CalibrePlayer data = plugin.playerData(((PlayerUser) user()).entity());
+                if (data.animation() != null)
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> data.animation().apply(), 2);
+            }
+        }
+
+        public static BukkitDrop of(PlayerDropItemEvent event, PaperComponent component, boolean equipped) {
             Player player = event.getPlayer();
             Item drop = event.getItemDrop();
+
+            class ItemDropSlot implements BukkitSlot, EquippableSlot<BukkitItem> {
+                @Override public ItemStack bukkitGet() { return drop.getItemStack(); }
+                @Override public void bukkitSet(ItemStack item) {
+                    drop.setItemStack(item);
+                }
+                @Override public boolean equipped() { return equipped; }
+            }
+
             return new BukkitDrop(
                     event,
                     component,
                     PlayerUser.of(player),
-                    BukkitSlot.of(drop::getItemStack, drop::setItemStack)
+                    new ItemDropSlot()
             );
         }
     }
@@ -317,6 +345,27 @@ public final class BukkitItemEvents {
             );
         }
     }
+
+    public static class BukkitDeath extends Base implements ItemEvents.Death<BukkitItem> {
+        private final EntityDeathEvent event;
+
+        public BukkitDeath(EntityDeathEvent event, CalibreComponent<BukkitItem> component, ItemUser user, ItemSlot<BukkitItem> slot) {
+            super(component, user, slot);
+            this.event = event;
+        }
+
+        public EntityDeathEvent event() { return event; }
+
+        public static BukkitDeath of(EntityDeathEvent event, PaperComponent component, EquipmentSlot slot) {
+            return new BukkitDeath(
+                    event,
+                    component,
+                    EntityUser.autoOf(event.getEntity()),
+                    EntityEquipmentSlot.of(event.getEntity(), slot)
+            );
+        }
+    }
+
 
     public static class PacketEvent implements Cancellable {
         private final ItemStack item;

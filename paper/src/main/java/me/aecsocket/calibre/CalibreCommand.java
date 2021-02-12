@@ -5,10 +5,7 @@ import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.*;
 import me.aecsocket.calibre.component.ComponentTree;
 import me.aecsocket.calibre.component.PaperComponent;
-import me.aecsocket.calibre.util.CalibreIdentifiable;
-import me.aecsocket.calibre.util.CalibreProtocol;
-import me.aecsocket.calibre.util.ItemCreationException;
-import me.aecsocket.calibre.util.ItemSupplier;
+import me.aecsocket.calibre.util.*;
 import me.aecsocket.calibre.util.item.ComponentCreationException;
 import me.aecsocket.calibre.wrapper.BukkitItem;
 import me.aecsocket.unifiedframework.registry.Ref;
@@ -370,5 +367,18 @@ public class CalibreCommand extends BaseCommand {
             plugin.playerData(player).offset(null);
         else
             plugin.playerData(player).offset(new Vector3D(x, y, z));
+    }
+
+    @Subcommand("inaccuracy")
+    @Description("Toggles showing your inaccuracy in the subtitle")
+    @CommandPermission("calibre.command.inaccuracy")
+    public void inaccuracy(CommandSender sender) {
+        if (!(sender instanceof Player)) {
+            send(sender, "command.error.sender_not_player");
+            return;
+        }
+
+        CalibrePlayer data = plugin.playerData((Player) sender);
+        data.showInaccuracy(!data.showInaccuracy());
     }
 }

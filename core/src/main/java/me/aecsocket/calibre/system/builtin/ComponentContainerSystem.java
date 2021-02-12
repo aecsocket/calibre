@@ -8,6 +8,7 @@ import me.aecsocket.calibre.system.AbstractSystem;
 import me.aecsocket.calibre.system.FromMaster;
 import me.aecsocket.calibre.system.ItemEvents;
 import me.aecsocket.calibre.world.Item;
+import me.aecsocket.unifiedframework.component.IncompatibleComponentException;
 import me.aecsocket.unifiedframework.event.EventDispatcher;
 import me.aecsocket.unifiedframework.util.Quantifier;
 import net.kyori.adventure.text.Component;
@@ -81,20 +82,34 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
         compatibility = o.compatibility;
     }
 
+    @Override public String id() { return ID; }
+
     public LinkedList<Quantifier<CalibreComponent<?>>> components() { return new LinkedList<>(components); }
 
     public ComponentCompatibility compatibility() { return compatibility; }
     public void compatibility(ComponentCompatibility compatibility) { this.compatibility = compatibility; }
 
+    public boolean accepts(CalibreComponent<?> component) {
+        return compatibility.applies(component);
+    }
+
     public void push(Quantifier<CalibreComponent<?>> quantifier) {
         Quantifier<CalibreComponent<?>> last = components.peekLast();
-        if (last != null && last.get().equals(quantifier.get()))
+        CalibreComponent<?> component = quantifier.get();
+        if (!accepts(component))
+            throw new IncompatibleComponentException("Component [" + component + "] is not compatible with this system");
+        if (last != null && last.get().equals(component))
             last.add(quantifier.getAmount());
         else
             components.add(quantifier);
     }
     public void push(CalibreComponent<?> component, int amount) { push(new Quantifier<>(component, amount)); }
     public void push(CalibreComponent<?> component) { push(component, 1); }
+
+    public CalibreComponent<?> peek() {
+        Quantifier<CalibreComponent<?>> last = components.peekLast();
+        return last == null ? null : last.get();
+    }
 
     public CalibreComponent<?> pop() {
         Quantifier<CalibreComponent<?>> last = components.peekLast();
@@ -106,14 +121,7 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
         return last.get().copy().buildTree();
     }
 
-    public CalibreComponent<?> peek() {
-        Quantifier<CalibreComponent<?>> last = components.peekLast();
-        return last == null ? null : last.get();
-    }
-
     public int amount() { return Quantifier.amount(components); }
-
-    @Override public String id() { return ID; }
 
     @Override
     public void parentTo(ComponentTree tree, CalibreComponent<?> parent) {
@@ -183,7 +191,7 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
             CalibreComponent<I> cursor = event.component().getComponent(rawCursor);
             if (cursor == null)
                 return;
-            if (!compatibility.applies(cursor))
+            if (!accepts(cursor))
                 return;
             int amount = amountToInsert(rawCursor, cursor, event.shiftClick());
             if (amount > 0) {

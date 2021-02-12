@@ -10,8 +10,11 @@ import me.aecsocket.calibre.system.ItemEvents;
 import me.aecsocket.calibre.system.builtin.ComponentContainerSystem;
 import me.aecsocket.calibre.system.builtin.ProjectileSystem;
 import me.aecsocket.calibre.system.builtin.SchedulerSystem;
+import me.aecsocket.calibre.system.gun.reload.external.ExternalReloadSystem;
+import me.aecsocket.calibre.system.gun.reload.internal.InternalReloadSystem;
 import me.aecsocket.calibre.util.StatCollection;
 import me.aecsocket.calibre.world.Item;
+import me.aecsocket.calibre.world.slot.EquippableSlot;
 import me.aecsocket.calibre.world.slot.HandSlot;
 import me.aecsocket.calibre.world.slot.ItemSlot;
 import me.aecsocket.calibre.world.user.*;
@@ -97,6 +100,7 @@ public abstract class GunSystem extends AbstractSystem {
             .init("sprint_disables", new BooleanStat(false))
             .init("chamber_while_aiming", new BooleanStat(false))
             .init("change_fire_mode_while_aiming", new BooleanStat(false))
+            .init("reload_while_aiming", new BooleanStat(false))
 
             // Inaccuracy
             .init("inaccuracy_jump", NumberDescriptorStat.of(0d))
@@ -171,11 +175,13 @@ public abstract class GunSystem extends AbstractSystem {
      */
     public GunSystem(GunSystem o) {
         super(o);
-        scheduler = o.scheduler;
         stabilization = o.stabilization;
         aimingStats = o.aimingStats == null ? null : new StatCollection(o.aimingStats);
         notAimingStats = o.notAimingStats == null ? null : new StatCollection(o.notAimingStats);
     }
+
+    public SchedulerSystem scheduler() { return scheduler; }
+    public SwayStabilization stabilization() { return stabilization; }
 
     public StatCollection aimingStats() { return aimingStats; }
     public StatCollection notAimingStats() { return notAimingStats; }
@@ -244,39 +250,6 @@ public abstract class GunSystem extends AbstractSystem {
         return parent.fromSlots(slots, ChamberSystem.class);
     }
 
-    protected Tuple3<ChamberSystem, CalibreSlot, ProjectileSystem> getProjectile(CalibreComponent<?> component) {
-        ChamberSystem chamberSystem;
-        if (
-                component == null
-                        || (chamberSystem = component.system(ChamberSystem.class)) == null
-        ) return Tuple3.of(null, null, null);
-
-        CalibreSlot loadSlot = chamberSystem.getLoadSlot();
-        if (loadSlot == null)
-            return Tuple3.of(chamberSystem, null, null);
-
-        CalibreComponent<?> loadComponent = loadSlot.get();
-        ProjectileSystem projectileSystem;
-        if (
-                loadComponent == null
-                        || (projectileSystem = loadComponent.system(ProjectileSystem.class)) == null
-        ) return Tuple3.of(chamberSystem, loadSlot, null);
-
-        return Tuple3.of(chamberSystem, loadSlot, projectileSystem);
-    }
-
-    protected Tuple3<ChamberSystem, CalibreSlot, ProjectileSystem> getProjectile(CalibreSlot chamberSlot) {
-        return getProjectile(chamberSlot.<CalibreComponent<?>>get());
-    }
-
-    protected Tuple4<CalibreSlot, ChamberSystem, CalibreSlot, ProjectileSystem> collectChamber(List<CalibreSlot> slots) {
-        if (slots.size() == 0)
-            return null;
-        CalibreSlot chamberSlot = slots.get(0);
-        Tuple3<ChamberSystem, CalibreSlot, ProjectileSystem> result = getProjectile(chamberSlot);
-        return Tuple4.of(chamberSlot, result.a(), result.b(), result.c());
-    }
-
     public List<CalibreSlot> collectAmmoSlots() {
         return parent.collectSlots(SLOT_TAG_AMMO, tree().<NumberDescriptor.Integer>stat("slot_type_ammo").apply());
     }
@@ -314,6 +287,7 @@ public abstract class GunSystem extends AbstractSystem {
         events.registerListener(ItemEvents.Drop.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.BreakBlock.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.PlaceBlock.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.Death.class, this::onEvent, listenerPriority);
 
         if (getSight() == null) {
             List<SightPath> found = collectSights();
@@ -511,12 +485,39 @@ public abstract class GunSystem extends AbstractSystem {
     }
 
     protected <I extends Item> void onEvent(ItemEvents.Drop<I> event) {
+        if (!(event.slot() instanceof EquippableSlot) || !((EquippableSlot<I>) event.slot()).equipped())
+            return;
+
         event.cancel();
         if (!scheduler.available()) return;
+        if (aiming && !tree().<Boolean>stat("reload_while_aiming"))
+            return;
+
         ItemUser user = event.user();
         if (tree().<Boolean>stat("sprint_disables") && user instanceof MovementUser && ((MovementUser) user).sprinting()) return;
 
-        event.user().debug("reload");
+        List<CalibreSlot> ammoSlots = collectAmmoSlots();
+        if (ammoSlots.size() == 0)
+            return;
+        CalibreSlot ammoSlot = ammoSlots.get(0);
+        CalibreComponent<?> component = ammoSlot.get();
+        if (component == null) {
+            InternalReloadSystem handler = parent.system(InternalReloadSystem.class);
+            if (handler != null) {
+                internalReload(new Events.InternalReload<>(
+                        event.component(), event.user(), event.slot(), this,
+                        handler
+                ));
+            }
+        } else {
+            ExternalReloadSystem handler = component.system(ExternalReloadSystem.class);
+            if (handler != null) {
+                externalReload(new Events.ExternalReload<>(
+                        event.component(), event.user(), event.slot(), this,
+                        handler, ammoSlot
+                ));
+            }
+        }
     }
 
     protected <I extends Item> void onEvent(ItemEvents.BreakBlock<I> event) {
@@ -525,6 +526,11 @@ public abstract class GunSystem extends AbstractSystem {
 
     protected <I extends Item> void onEvent(ItemEvents.PlaceBlock<I> event) {
         event.cancel();
+    }
+
+    protected <I extends Item> void onEvent(ItemEvents.Death<I> event) {
+        aiming = false;
+        update(event);
     }
 
     public <I extends Item> void startFire(Events.StartFire<I> event) {
@@ -543,8 +549,8 @@ public abstract class GunSystem extends AbstractSystem {
             int shots = tree().<NumberDescriptor.Integer>stat("shots").apply();
             scheduler.delay(tree().<NumberDescriptor.Long>stat("fire_delay").apply());
             for (int i = 0; i < shots; i++) {
-                scheduler.schedule(this, shotStart + (shotDelay * i), self -> self.fire(new Events.Fire<>(
-                        event.component(), event.user(), event.slot(), self
+                scheduler.schedule(this, shotStart + (shotDelay * i), (self, equip, ctx) -> self.fire(new Events.Fire<>(
+                        equip.component(), equip.user(), equip.slot(), self
                 )));
             }
 
@@ -686,6 +692,7 @@ public abstract class GunSystem extends AbstractSystem {
 
     public <I extends Item> void fireSuccess(Events.FireSuccess<I> event) {
         if (tree().call(event).cancelled) return;
+
         Vector3D position = event.position;
         Vector3D direction = event.direction;
         double velocity = event.velocity;
@@ -787,9 +794,9 @@ public abstract class GunSystem extends AbstractSystem {
         if (!aiming || tree().<Boolean>stat("chamber_while_aiming")) {
             event.result = updateChambers(chamberSlots, true, false, null, null) ? ItemEvents.Result.SUCCESS : ItemEvents.Result.FAILURE;
             if (event.result == ItemEvents.Result.SUCCESS) {
-                scheduler.schedule(this, tree().<NumberDescriptor.Long>stat("chamber_after").apply(), self -> {
-                    self.updateChambers(self.collectChamberSlots(), false, false, event.user(), event.slot());
-                    self.update(event);
+                scheduler.schedule(this, tree().<NumberDescriptor.Long>stat("chamber_after").apply(), (self, equip, ctx) -> {
+                    self.updateChambers(self.collectChamberSlots(), false, false, equip.user(), equip.slot());
+                    self.update(equip);
                 });
             }
         } else
@@ -855,6 +862,16 @@ public abstract class GunSystem extends AbstractSystem {
         event.updateItem();
     }
 
+    public <I extends Item> void internalReload(Events.InternalReload<I> event) {
+        if (tree().call(event).cancelled()) return;
+        event.handler.reload(event);
+    }
+
+    public <I extends Item> void externalReload(Events.ExternalReload<I> event) {
+        if (tree().call(event).cancelled()) return;
+        event.handler.reload(event);
+    }
+
     public <I extends Item> void fail(Events.Fail<I> event) {
         scheduler.delay(tree().<NumberDescriptor.Long>stat("fail_delay").apply());
     }
@@ -898,6 +915,39 @@ public abstract class GunSystem extends AbstractSystem {
         if (!Double.isFinite(theta))
             return 0;
         return theta;
+    }
+
+    public static Tuple3<ChamberSystem, CalibreSlot, ProjectileSystem> getProjectile(CalibreComponent<?> component) {
+        ChamberSystem chamberSystem;
+        if (
+                component == null
+                        || (chamberSystem = component.system(ChamberSystem.class)) == null
+        ) return Tuple3.of(null, null, null);
+
+        CalibreSlot loadSlot = chamberSystem.getLoadSlot();
+        if (loadSlot == null)
+            return Tuple3.of(chamberSystem, null, null);
+
+        CalibreComponent<?> loadComponent = loadSlot.get();
+        ProjectileSystem projectileSystem;
+        if (
+                loadComponent == null
+                        || (projectileSystem = loadComponent.system(ProjectileSystem.class)) == null
+        ) return Tuple3.of(chamberSystem, loadSlot, null);
+
+        return Tuple3.of(chamberSystem, loadSlot, projectileSystem);
+    }
+
+    public static Tuple3<ChamberSystem, CalibreSlot, ProjectileSystem> getProjectile(CalibreSlot chamberSlot) {
+        return getProjectile(chamberSlot.<CalibreComponent<?>>get());
+    }
+
+    public static Tuple4<CalibreSlot, ChamberSystem, CalibreSlot, ProjectileSystem> collectChamber(List<CalibreSlot> slots) {
+        if (slots.size() == 0)
+            return null;
+        CalibreSlot chamberSlot = slots.get(0);
+        Tuple3<ChamberSystem, CalibreSlot, ProjectileSystem> result = getProjectile(chamberSlot);
+        return Tuple4.of(chamberSlot, result.a(), result.b(), result.c());
     }
 
 
@@ -1062,6 +1112,46 @@ public abstract class GunSystem extends AbstractSystem {
 
             public ItemEvents.Result result() { return result; }
             public void result(ItemEvents.Result result) { this.result = result; }
+        }
+
+        public static class Reload<I extends Item> extends Base<I> implements Cancellable {
+            private boolean cancelled;
+
+            public Reload(CalibreComponent<I> component, ItemUser user, ItemSlot<I> slot, GunSystem system) {
+                super(component, user, slot, system);
+            }
+
+            @Override public boolean cancelled() { return cancelled; }
+            @Override public void cancel() { cancelled = true; }
+        }
+
+        public static class InternalReload<I extends Item> extends Reload<I> {
+            private final InternalReloadSystem handler;
+
+            public InternalReload(CalibreComponent<I> component, ItemUser user, ItemSlot<I> slot, GunSystem system, InternalReloadSystem handler) {
+                super(component, user, slot, system);
+                this.handler = handler;
+            }
+
+            public InternalReloadSystem handler() { return handler; }
+        }
+
+        public static class ExternalReload<I extends Item> extends Reload<I> {
+            private final ExternalReloadSystem handler;
+            private final CalibreSlot ammoSlot;
+            private ItemEvents.Result result;
+
+            public ExternalReload(CalibreComponent<I> component, ItemUser user, ItemSlot<I> slot, GunSystem system, ExternalReloadSystem handler, CalibreSlot ammoSlot) {
+                super(component, user, slot, system);
+                this.handler = handler;
+                this.ammoSlot = ammoSlot;
+            }
+
+            public ExternalReloadSystem handler() { return handler; }
+            public CalibreSlot ammoSlot() { return ammoSlot; }
+
+            public ItemEvents.Result result() { return result; }
+            public ExternalReload<I> result(ItemEvents.Result result) { this.result = result; return this; }
         }
 
         public static class Fail<I extends Item> extends Base<I> {

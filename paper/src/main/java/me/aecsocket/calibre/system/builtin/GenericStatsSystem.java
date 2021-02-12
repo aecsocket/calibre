@@ -11,6 +11,7 @@ import me.aecsocket.calibre.util.CalibreProtocol;
 import me.aecsocket.calibre.util.ItemAnimation;
 import me.aecsocket.calibre.world.Item;
 import me.aecsocket.calibre.world.slot.EquippableSlot;
+import me.aecsocket.calibre.world.slot.ItemSlot;
 import me.aecsocket.calibre.world.user.CameraUser;
 import me.aecsocket.calibre.world.user.ItemUser;
 import me.aecsocket.calibre.world.user.MovementUser;
@@ -134,12 +135,14 @@ public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
 
     public <I extends Item> void onEvent(ItemEvents.UpdateItem<I> event) {
         update(event.user());
-        if (
-                event.slot() instanceof EquippableSlot && ((EquippableSlot<I>) event.slot()).equipped()
-                && event.user() instanceof PlayerUser && plugin.playerData(((PlayerUser) event.user()).entity()).animation() != null
-        ) {
-            plugin.itemManager().hide(((BukkitItem) event.item()).item(), true);
-        }
+        ItemUser user = event.user();
+        if (!(user instanceof PlayerUser) || plugin.playerData(((PlayerUser) user).entity()).animation() == null)
+            return;
+        ItemSlot<I> slot = event.slot();
+        if (!(slot instanceof EquippableSlot) || !((EquippableSlot<I>) slot).equipped())
+            return;
+
+        plugin.itemManager().hide(((BukkitItem) event.item()).item(), true);
     }
 
     public <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {

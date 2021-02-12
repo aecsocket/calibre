@@ -100,4 +100,6 @@ public final class ItemEvents {
     }
 
     public interface PlaceBlock<I extends Item> extends ItemEvent<I>, Cancellable {}
+
+    public interface Death<I extends Item> extends ItemEvent<I> {}
 }

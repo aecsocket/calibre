@@ -9,11 +9,14 @@ import com.comphenix.protocol.wrappers.Pair;
 import me.aecsocket.calibre.CalibrePlugin;
 import me.aecsocket.calibre.component.PaperComponent;
 import me.aecsocket.calibre.system.BukkitItemEvents;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.List;
 
 public class CalibrePacketAdapter extends PacketAdapter {
     private final CalibrePlugin plugin;
@@ -21,6 +24,7 @@ public class CalibrePacketAdapter extends PacketAdapter {
     public CalibrePacketAdapter(CalibrePlugin plugin) {
         super(plugin,
                 PacketType.Play.Server.SET_SLOT,
+                PacketType.Play.Server.WINDOW_ITEMS,
                 PacketType.Play.Server.ENTITY_EQUIPMENT,
                 PacketType.Play.Server.ANIMATION);
         this.plugin = plugin;
@@ -34,8 +38,18 @@ public class CalibrePacketAdapter extends PacketAdapter {
 
         if (type == PacketType.Play.Server.SET_SLOT) {
             ItemStack item = packet.getItemModifier().read(0);
-            if (plugin.itemManager().hide(item)) {
+            if (plugin.itemManager().hidden(item)) {
                 event.setCancelled(true);
+            }
+        }
+
+        if (type == PacketType.Play.Server.WINDOW_ITEMS) {
+            List<ItemStack> items = packet.getItemListModifier().read(0);
+            for (int i = 0; i < items.size(); i++) {
+                if (plugin.itemManager().hidden(items.get(i))) {
+                    items.set(i, new ItemStack(Material.STICK));
+                    break;
+                }
             }
         }
 

@@ -16,13 +16,9 @@ public class PaperChamberSystem extends ChamberSystem implements PaperSystem {
 
     public PaperChamberSystem() {}
 
-    public PaperChamberSystem(PaperChamberSystem o, CalibrePlugin plugin) {
-        super(o);
-        this.plugin = plugin;
-    }
-
     public PaperChamberSystem(PaperChamberSystem o) {
-        this(o, o.plugin);
+        super(o);
+        plugin = o.plugin;
     }
 
     @Override public CalibrePlugin plugin() { return plugin; }

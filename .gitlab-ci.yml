@@ -5,9 +5,9 @@ cache:
     - "maven.repository/"
 
 variables:
-  MAVEN_OPTS: "-B -Dmaven.repo.local=maven.repository"
+  MAVEN_OPTS: "-Dmaven.repo.local=maven.repository"
 
 build:
   image: "maven:3-jdk-11"
   script:
-    - "mvn compile"
+    - "mvn compile -B"

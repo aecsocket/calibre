@@ -506,7 +506,7 @@ public abstract class GunSystem extends AbstractSystem {
             if (handler != null) {
                 internalReload(new Events.InternalReload<>(
                         event.component(), event.user(), event.slot(), this,
-                        handler
+                        handler, ammoSlot
                 ));
             }
         } else {
@@ -864,12 +864,12 @@ public abstract class GunSystem extends AbstractSystem {
 
     public <I extends Item> void internalReload(Events.InternalReload<I> event) {
         if (tree().call(event).cancelled()) return;
-        event.handler.reload(event);
+        event.handler().reload(event);
     }
 
     public <I extends Item> void externalReload(Events.ExternalReload<I> event) {
         if (tree().call(event).cancelled()) return;
-        event.handler.reload(event);
+        event.handler().reload(event);
     }
 
     public <I extends Item> void fail(Events.Fail<I> event) {
@@ -1114,44 +1114,38 @@ public abstract class GunSystem extends AbstractSystem {
             public void result(ItemEvents.Result result) { this.result = result; }
         }
 
-        public static class Reload<I extends Item> extends Base<I> implements Cancellable {
+        public static class Reload<I extends Item, H> extends Base<I> implements Cancellable {
+            private final H handler;
+            private final CalibreSlot ammoSlot;
+            private ItemEvents.Result result = ItemEvents.Result.NONE;
             private boolean cancelled;
 
-            public Reload(CalibreComponent<I> component, ItemUser user, ItemSlot<I> slot, GunSystem system) {
-                super(component, user, slot, system);
-            }
-
-            @Override public boolean cancelled() { return cancelled; }
-            @Override public void cancel() { cancelled = true; }
-        }
-
-        public static class InternalReload<I extends Item> extends Reload<I> {
-            private final InternalReloadSystem handler;
-
-            public InternalReload(CalibreComponent<I> component, ItemUser user, ItemSlot<I> slot, GunSystem system, InternalReloadSystem handler) {
-                super(component, user, slot, system);
-                this.handler = handler;
-            }
-
-            public InternalReloadSystem handler() { return handler; }
-        }
-
-        public static class ExternalReload<I extends Item> extends Reload<I> {
-            private final ExternalReloadSystem handler;
-            private final CalibreSlot ammoSlot;
-            private ItemEvents.Result result;
-
-            public ExternalReload(CalibreComponent<I> component, ItemUser user, ItemSlot<I> slot, GunSystem system, ExternalReloadSystem handler, CalibreSlot ammoSlot) {
+            public Reload(CalibreComponent<I> component, ItemUser user, ItemSlot<I> slot, GunSystem system, H handler, CalibreSlot ammoSlot) {
                 super(component, user, slot, system);
                 this.handler = handler;
                 this.ammoSlot = ammoSlot;
             }
 
-            public ExternalReloadSystem handler() { return handler; }
+            public H handler() { return handler; }
             public CalibreSlot ammoSlot() { return ammoSlot; }
 
             public ItemEvents.Result result() { return result; }
-            public ExternalReload<I> result(ItemEvents.Result result) { this.result = result; return this; }
+            public Reload<I, H> result(ItemEvents.Result result) { this.result = result; return this; }
+
+            @Override public boolean cancelled() { return cancelled; }
+            @Override public void cancel() { cancelled = true; }
+        }
+
+        public static class InternalReload<I extends Item> extends Reload<I, InternalReloadSystem> {
+            public InternalReload(CalibreComponent<I> component, ItemUser user, ItemSlot<I> slot, GunSystem system, InternalReloadSystem handler, CalibreSlot ammoSlot) {
+                super(component, user, slot, system, handler, ammoSlot);
+            }
+        }
+
+        public static class ExternalReload<I extends Item> extends Reload<I, ExternalReloadSystem> {
+            public ExternalReload(CalibreComponent<I> component, ItemUser user, ItemSlot<I> slot, GunSystem system, ExternalReloadSystem handler, CalibreSlot ammoSlot) {
+                super(component, user, slot, system, handler, ammoSlot);
+            }
         }
 
         public static class Fail<I extends Item> extends Base<I> {

@@ -19,23 +19,23 @@ import org.bukkit.entity.Player;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class PaperSwapReloadSystem extends SwapReloadSystem implements PaperSystem {
+public class PaperRemoveReloadSystem extends RemoveReloadSystem implements PaperSystem {
     public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
-            .init(SwapReloadSystem.DEFAULT_STATS)
-            .init("reload_out_sound", new SoundDataStat())
-            .init("reload_out_animation", new ItemAnimation.Stat())
+            .init(RemoveReloadSystem.DEFAULT_STATS)
+            .init("unload_sound", new SoundDataStat())
+            .init("unload_animation", new ItemAnimation.Stat())
             .get();
 
     @FromMaster(fromDefault = true)
     private transient CalibrePlugin plugin;
 
-    public PaperSwapReloadSystem(CalibrePlugin plugin) {
+    public PaperRemoveReloadSystem(CalibrePlugin plugin) {
         this.plugin = plugin;
     }
 
-    public PaperSwapReloadSystem() {}
+    public PaperRemoveReloadSystem() {}
 
-    public PaperSwapReloadSystem(PaperSwapReloadSystem o) {
+    public PaperRemoveReloadSystem(PaperRemoveReloadSystem o) {
         super(o);
         plugin = o.plugin;
     }
@@ -49,13 +49,13 @@ public class PaperSwapReloadSystem extends SwapReloadSystem implements PaperSyst
         super.reload(event);
         ItemUser user = event.user();
         if (user instanceof BukkitItemUser && event.result() == ItemEvents.Result.SUCCESS) {
-            SoundData.play(((BukkitItemUser) user)::location, tree().stat("reload_out_sound"));
+            SoundData.play(((BukkitItemUser) user)::location, tree().stat("unload_sound"));
             if (user instanceof PlayerUser) {
                 Player player = ((PlayerUser) user).entity();
-                ItemAnimation.start(player, player.getInventory().getHeldItemSlot(), tree().stat("reload_out_animation"));
+                ItemAnimation.start(player, player.getInventory().getHeldItemSlot(), tree().stat("unload_animation"));
             }
         }
     }
 
-    @Override public PaperSwapReloadSystem copy() { return new PaperSwapReloadSystem(this); }
+    @Override public PaperRemoveReloadSystem copy() { return new PaperRemoveReloadSystem(this); }
 }

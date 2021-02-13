@@ -1,6 +1,7 @@
 package me.aecsocket.calibre.system.builtin;
 
 import me.aecsocket.calibre.component.CalibreComponent;
+import me.aecsocket.calibre.component.CalibreSlot;
 import me.aecsocket.calibre.component.ComponentTree;
 import me.aecsocket.calibre.system.AbstractSystem;
 import me.aecsocket.calibre.system.CalibreSystem;
@@ -91,12 +92,14 @@ public abstract class SchedulerSystem extends AbstractSystem {
         }
     }
 
-    public interface SystemGetter {
-        <S extends CalibreSystem> S get(S system);
+    public interface TreeContext {
+        <C extends CalibreComponent<?>> C component(C original);
+        <S extends CalibreSlot> S slot(S original);
+        <S extends CalibreSystem> S system(S original);
     }
 
     public interface TaskFunction<S extends CalibreSystem, I extends Item> {
-        void run(S self, ItemEvents.Equipped<I> equip, SystemGetter ctx);
+        void run(S self, ItemEvents.Equipped<I> equip, TreeContext ctx);
     }
 
     public static class Task<S extends CalibreSystem, I extends Item> {
@@ -175,6 +178,7 @@ public abstract class SchedulerSystem extends AbstractSystem {
         EventDispatcher events = tree.events();
         events.registerListener(ItemEvents.Equipped.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.Switch.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.Death.class, this::onEvent, listenerPriority);
     }
 
     public boolean checkTasks(ItemEvents.Equipped<?> equip) {
@@ -207,15 +211,28 @@ public abstract class SchedulerSystem extends AbstractSystem {
         S targetSystem = targetComp.system(task.systemId);
         if (targetSystem == null)
             return;
-        ((TaskFunction) task.function).run(targetSystem, equip, new SystemGetter() {
+        ((TaskFunction) task.function).run(targetSystem, equip, new TreeContext() {
             @Override
-            public <T extends CalibreSystem> T get(T get) {
-                CalibreComponent<?> childComp = root.component(get.parent().path());
-                if (childComp == null)
-                    return null;
-                return childComp.system(get.id());
+            public <C extends CalibreComponent<?>> C component(C original) {
+                return root.component(original.path());
+            }
+
+            @Override
+            public <T extends CalibreSlot> T slot(T original) {
+                return root.slot(original.path());
+            }
+
+            @Override
+            public <T extends CalibreSystem> T system(T original) {
+                CalibreComponent<?> childComp = component(original.parent());
+                return childComp == null ? null : childComp.system(original.id());
             }
         });
+    }
+
+    public void clearTasks() {
+        tasks.forEach(scheduler.tasks::remove);
+        tasks.clear();
     }
 
     protected <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {
@@ -231,8 +248,12 @@ public abstract class SchedulerSystem extends AbstractSystem {
 
         if (event.cancelled())
             return;
-        tasks.forEach(scheduler.tasks::remove);
-        tasks.clear();
+        clearTasks();
+        update(event);
+    }
+
+    protected <I extends Item> void onEvent(ItemEvents.Death<I> event) {
+        clearTasks();
         update(event);
     }
 

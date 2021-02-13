@@ -86,7 +86,7 @@ public abstract class SingleChamberReloadSystem extends AbstractSystem implement
                 result.removeItem();
                 scheduler.delay(tree().<NumberDescriptor.Long>stat("reload_single_delay").apply());
                 scheduler.<SingleChamberReloadSystem, I>schedule(this, singleAfter,
-                        (self, equip, ctx) -> self.reloadSingle(equip.user(), equip.slot(), equip.tickContext(), ctx.get(event.system().scheduler()), event));
+                        (self, equip, ctx) -> self.reloadSingle(equip.user(), equip.slot(), equip.tickContext(), ctx.system(event.system().scheduler()), event));
                 update(user, slot, event);
             }
         }
@@ -108,7 +108,7 @@ public abstract class SingleChamberReloadSystem extends AbstractSystem implement
         SchedulerSystem scheduler = event.system().scheduler();
         scheduler.delay(tree().<NumberDescriptor.Long>stat("reload_delay").apply());
         scheduler.<SingleChamberReloadSystem, I>schedule(this, tree().<NumberDescriptor.Long>stat("reload_after").apply(),
-                (self, equip, ctx) -> self.reloadSingle(equip.user(), equip.slot(), equip.tickContext(), ctx.get(scheduler), event));
+                (self, equip, ctx) -> self.reloadSingle(equip.user(), equip.slot(), equip.tickContext(), ctx.system(scheduler), event));
         update(event);
         event.result(ItemEvents.Result.SUCCESS);
     }

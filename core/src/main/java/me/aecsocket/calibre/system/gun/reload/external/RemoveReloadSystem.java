@@ -24,11 +24,11 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public abstract class SwapReloadSystem extends AbstractSystem implements ExternalReloadSystem {
-    public static final String ID = "swap_reload";
+public abstract class RemoveReloadSystem extends AbstractSystem implements ExternalReloadSystem {
+    public static final String ID = "remove_reload";
     public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
-            .init("reload_out_delay", NumberDescriptorStat.of(0L))
-            .init("reload_out_after", NumberDescriptorStat.of(0L))
+            .init("unload_delay", NumberDescriptorStat.of(0L))
+            .init("unload_after", NumberDescriptorStat.of(0L))
             .get();
 
     protected transient ComponentContainerSystem container;
@@ -37,13 +37,13 @@ public abstract class SwapReloadSystem extends AbstractSystem implements Externa
     /**
      * Used for registration + deserialization.
      */
-    public SwapReloadSystem() { super(0); }
+    public RemoveReloadSystem() { super(0); }
 
     /**
      * Used for copying.
      * @param o The other instance.
      */
-    public SwapReloadSystem(SwapReloadSystem o) {
+    public RemoveReloadSystem(RemoveReloadSystem o) {
         super(o);
     }
 
@@ -83,37 +83,33 @@ public abstract class SwapReloadSystem extends AbstractSystem implements Externa
             return;
         }
         SchedulerSystem scheduler = event.system().scheduler();
-        scheduler.delay(tree().<NumberDescriptor.Long>stat("reload_out_delay").apply());
-        scheduler.<SwapReloadSystem, I>schedule(this, tree().<NumberDescriptor.Long>stat("reload_out_after").apply(),
+        scheduler.delay(tree().<NumberDescriptor.Long>stat("unload_delay").apply());
+        scheduler.<RemoveReloadSystem, I>schedule(this, tree().<NumberDescriptor.Long>stat("unload_after").apply(),
                 (self, equip, ctx) -> self.removeAmmo(equip, ctx, event));
         update(event);
         event.result(ItemEvents.Result.SUCCESS);
     }
 
-    protected <I extends Item> void removeAmmo(ItemEvents.Equipped<I> equip, SchedulerSystem.SystemGetter ctx, GunSystem.Events.ExternalReload<I> event) {
+    protected <I extends Item> void removeAmmo(ItemEvents.Equipped<I> equip, SchedulerSystem.TreeContext ctx, GunSystem.Events.ExternalReload<I> event) {
         ItemUser user = equip.user();
         ItemSlot<I> slot = equip.slot();
 
-        GunSystem gun = event.system();
-        SchedulerSystem scheduler = ctx.get(gun.scheduler());
-        scheduler.delay(tree().<NumberDescriptor.Long>stat("reload_in_delay").apply());
-        scheduler.schedule(gun, tree().<NumberDescriptor.Long>stat("reload_in_after").apply(), (self, equip2, ctx2) -> {
-            GunSystem gun2 = ctx2.get(gun);
-            InternalReloadSystem handler = gun2.parent().system(InternalReloadSystem.class);
-            if (handler != null) {
-                gun2.internalReload(new GunSystem.Events.InternalReload<>(
-                        equip2.component(), equip2.user(), equip2.slot(), gun2, handler
-                ));
-            }
-        });
-
         CalibreSlot parentSlot = parent.parent();
+        GunSystem gun = ctx.system(event.system());
+        InternalReloadSystem handler = gun.parent().system(InternalReloadSystem.class);
+        if (handler != null) {
+            gun.internalReload(new GunSystem.Events.InternalReload<>(
+                    equip.component(), user, slot, gun,
+                    handler, parentSlot
+            ));
+        }
+
         parentSlot.set(null);
         update(user, slot, event);
         accessor.addComponent(user, parent.buildTree());
     }
 
-    @Override public abstract SwapReloadSystem copy();
+    @Override public abstract RemoveReloadSystem copy();
 
     @Override
     public boolean equals(Object o) {

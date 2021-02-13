@@ -16,7 +16,8 @@ import me.aecsocket.calibre.system.builtin.Formatter;
 import me.aecsocket.calibre.system.builtin.*;
 import me.aecsocket.calibre.system.gun.*;
 import me.aecsocket.calibre.system.gun.reload.external.PaperSingleChamberReloadSystem;
-import me.aecsocket.calibre.system.gun.reload.external.PaperSwapReloadSystem;
+import me.aecsocket.calibre.system.gun.reload.external.PaperRemoveReloadSystem;
+import me.aecsocket.calibre.system.gun.reload.internal.PaperInsertReloadSystem;
 import me.aecsocket.calibre.util.*;
 import me.aecsocket.calibre.util.item.ItemManager;
 import me.aecsocket.unifiedframework.gui.GUIManager;
@@ -283,7 +284,8 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
             r.register(new PaperSightSystem(this));
             r.register(new PaperChamberSystem(this));
             r.register(new PaperSingleChamberReloadSystem(this));
-            r.register(new PaperSwapReloadSystem(this));
+            r.register(new PaperInsertReloadSystem(this));
+            r.register(new PaperRemoveReloadSystem(this));
             r.register(new BulletSystem(this));
         });
     }

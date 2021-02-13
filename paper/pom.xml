@@ -26,7 +26,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>me.aecsocket</groupId>
+            <groupId>com.gitlab.aecsocket.unified-framework</groupId>
             <artifactId>unified-framework-core</artifactId>
         </dependency>
         <dependency>
@@ -58,9 +58,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>me.aecsocket</groupId>
+            <groupId>com.gitlab.aecsocket.unified-framework</groupId>
             <artifactId>unified-framework-paper</artifactId>
-            <version>1.1</version>
+            <version>master-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.comphenix.protocol</groupId>

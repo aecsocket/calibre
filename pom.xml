@@ -36,9 +36,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>me.aecsocket</groupId>
+                <groupId>com.gitlab.aecsocket.unified-framework</groupId>
                 <artifactId>unified-framework-core</artifactId>
-                <version>1.1</version>
+                <version>master-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.jetbrains</groupId>
@@ -71,6 +71,10 @@
         <repository>
             <id>hocon-snapshots</id>
             <url>https://repo.spongepowered.org/repository/maven-public/</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 

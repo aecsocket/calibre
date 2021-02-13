@@ -168,7 +168,7 @@ public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
             return;
         ItemUser user = event.user();
         if (event.position() == ItemEvents.Switch.TO) {
-            update(event);
+            update(user);
             String prefix = user instanceof MovementUser && ((MovementUser) user).sprinting() ? "sprint_start" : "switch_to";
             if (user instanceof BukkitItemUser)
                 SoundData.play(((BukkitItemUser) user)::location, tree().stat(prefix + "_sound"));

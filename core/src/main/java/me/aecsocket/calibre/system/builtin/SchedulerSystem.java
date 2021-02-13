@@ -230,9 +230,11 @@ public abstract class SchedulerSystem extends AbstractSystem {
         });
     }
 
-    public void clearTasks() {
+    public boolean clearTasks() {
+        boolean result = tasks.size() > 0;
         tasks.forEach(scheduler.tasks::remove);
         tasks.clear();
+        return result;
     }
 
     protected <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {
@@ -248,13 +250,13 @@ public abstract class SchedulerSystem extends AbstractSystem {
 
         if (event.cancelled())
             return;
-        clearTasks();
-        update(event);
+        if (clearTasks())
+            update(event);
     }
 
     protected <I extends Item> void onEvent(ItemEvents.Death<I> event) {
-        clearTasks();
-        update(event);
+        if (clearTasks())
+            update(event);
     }
 
     @Override public abstract SchedulerSystem copy();

@@ -1,6 +1,7 @@
 package me.aecsocket.calibre;
 
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
+import me.aecsocket.calibre.component.CalibreComponent;
 import me.aecsocket.calibre.component.CalibreSlot;
 import me.aecsocket.calibre.component.PaperComponent;
 import me.aecsocket.calibre.gui.SlotViewGUI;
@@ -154,15 +155,21 @@ public class CalibreListener implements Listener {
             return;
 
         if (clicked != null && cursor != null && type == ClickType.LEFT && plugin.setting("quick_modify", "enabled").getBoolean(true)) {
-            int clickedAmt = clickedStack.getAmount();
-            if (clickedAmt == 1 || clickedAmt == cursorStack.getAmount()) {
-                CalibreSlot slot = clicked.combine(cursor, plugin.setting("quick_modify", "limited").getBoolean(true));
-                if (slot != null) {
-                    SoundData.play(player::getLocation, cursor.tree().stat("modify_sound"));
-                    clicked.tree().build();
-                    event.setCurrentItem(clicked.create(player.getLocale(), clickedStack));
-                    event.getView().setCursor(cursorStack.subtract(clickedAmt));
-                    event.setCancelled(true);
+            CalibreSlot slot = clicked.combine(cursor, plugin.setting("quick_modify", "limited").getBoolean(true));
+            if (slot != null) {
+                SoundData.play(player::getLocation, cursor.tree().stat("modify_sound"));
+                clicked.buildTree();
+                event.setCancelled(true);
+                String locale = player.getLocale();
+
+                int cursorAmount = cursorStack.getAmount();
+                int clickedAmount = clickedStack.getAmount();
+                if (cursorAmount >= clickedAmount) {
+                    event.setCurrentItem(clicked.create(locale, clickedAmount).item());
+                    cursorStack.subtract(clickedAmount);
+                } else {
+                    clickedStack.subtract(cursorAmount);
+                    event.getView().setCursor(clicked.create(locale, cursorAmount).item());
                 }
             }
             return;
@@ -172,7 +179,7 @@ public class CalibreListener implements Listener {
             event.setCancelled(true);
             new SlotViewGUI(
                     plugin, clicked,
-                    plugin.setting("slot_view", "modification").getBoolean(true) && clickedStack.getAmount() == 1,
+                    plugin.setting("slot_view", "modification").getBoolean(true),
                     plugin.setting("slot_view", "limited").getBoolean(true),
                     BukkitSlot.of(event::getCurrentItem, event::setCurrentItem)
             ).open(player);

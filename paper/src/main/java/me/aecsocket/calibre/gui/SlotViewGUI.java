@@ -7,6 +7,7 @@ import me.aecsocket.calibre.util.item.ComponentCreationException;
 import me.aecsocket.calibre.world.slot.ItemSlot;
 import me.aecsocket.calibre.wrapper.BukkitItem;
 import me.aecsocket.unifiedframework.gui.*;
+import net.bytebuddy.implementation.bytecode.member.HandleInvocation;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -24,6 +25,16 @@ public class SlotViewGUI extends GUI {
     private boolean modification;
     private boolean limited;
     private ItemSlot<BukkitItem> slot;
+    private int amount;
+
+    public SlotViewGUI(CalibrePlugin plugin, PaperComponent component, boolean modification, boolean limited, ItemSlot<BukkitItem> slot, int amount) {
+        this.plugin = plugin;
+        this.component = component;
+        this.modification = modification;
+        this.limited = limited;
+        this.slot = slot;
+        this.amount = amount;
+    }
 
     public SlotViewGUI(CalibrePlugin plugin, PaperComponent component, boolean modification, boolean limited, ItemSlot<BukkitItem> slot) {
         this.plugin = plugin;
@@ -31,6 +42,15 @@ public class SlotViewGUI extends GUI {
         this.modification = modification;
         this.limited = limited;
         this.slot = slot;
+        amount = slot.get().amount();
+    }
+
+    public SlotViewGUI(CalibrePlugin plugin, PaperComponent component, boolean modification, boolean limited, int amount) {
+        this.plugin = plugin;
+        this.component = component;
+        this.modification = modification;
+        this.limited = limited;
+        this.amount = amount;
     }
 
     public CalibrePlugin plugin() { return plugin; }
@@ -46,6 +66,9 @@ public class SlotViewGUI extends GUI {
 
     public ItemSlot<BukkitItem> slot() { return slot; }
     public void slot(ItemSlot<BukkitItem> slot) { this.slot = slot; }
+
+    public int amount() { return amount; }
+    public void amount(int amount) { this.amount = amount; }
 
     @Override public GUIManager getGUIManager() { return plugin().guiManager(); }
     @Override public InventorySize getSize(Player player) { return SIZE; }
@@ -65,7 +88,7 @@ public class SlotViewGUI extends GUI {
         }
         result.put(
                 vec.slot(),
-                new SlotViewItem(plugin, component, modification, limited)
+                new SlotViewItem(plugin, component, modification, limited, amount)
         );
         for (var entry : component.<PaperSlot>slots().entrySet())
             addItems(result, entry.getKey(), entry.getValue(), vec);
@@ -75,7 +98,7 @@ public class SlotViewGUI extends GUI {
     private void addItems(Map<Integer, GUIItem> map, String slotKey, PaperSlot slot, GUIVector offset) {
         if (slot.offset() != null)
             offset = new GUIVector(offset.add(slot.offset()));
-        map.put(offset.slot(), new SlotViewItem(plugin, slot, slotKey, modification, limited));
+        map.put(offset.slot(), new SlotViewItem(plugin, slot, slotKey, modification, limited, amount));
         if (slot.get() == null)
             return;
 

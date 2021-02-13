@@ -1,0 +1,17 @@
+syntax = "proto3";
+package aecsocket.me.calibre;
+
+option java_package = "me.aecsocket.calibre.proto.system";
+option java_outer_classname = "SystemsGun";
+
+message Path {
+  repeated string path = 1;
+  uint32 index = 2;
+}
+
+message GunSystem {
+  bool aiming = 1;
+  int32 ignore_switch = 2;
+  Path fire_mode = 3;
+  Path sight = 4;
+}

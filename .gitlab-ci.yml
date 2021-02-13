@@ -1,25 +1,13 @@
+image: "maven:3-jdk-11"
+
 cache:
   paths:
-    - ".m2/repository"
+    - "maven.repository/"
 
 variables:
-  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+  MAVEN_OPTS: "-Dmaven.repo.local=maven.repository"
 
 build:
   image: "maven:3-jdk-11"
   script:
-    - "mvn clean install javadoc:javadoc site"
-  artifacts:
-    paths:
-      - "target"
-
-pages:
-  stage: "deploy"
-  script:
-    - "mkdir public"
-    - "cp -r target/site/* public"
-  artifacts:
-    paths:
-      - "public"
-  only:
-    - "master"
+    - "mvn compile -B"

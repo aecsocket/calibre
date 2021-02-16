@@ -10,7 +10,7 @@ variables:
 build:
   image: "maven:3-jdk-11"
   script:
-    - "mvn compile -B"
+    - "mvn package -B"
   artifacts:
     paths:
       - "*/target"

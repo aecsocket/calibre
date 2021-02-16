@@ -1,6 +1,6 @@
 # Calibre
 
-## Advanced, scalable and modular gun framework, with implementation for Paper servers
+Advanced, scalable and modular gun framework, with implementation for Paper servers
 
 ---
 
@@ -18,36 +18,42 @@ No screenshots or videos yet, but go to the wiki to see a list of features.
 
 ### For server owners
 
-To configure the plugin, go to [the wiki](https://gitlab.com/aecsocket/calibre/-/wikis/home).
+To install, install as you would any other normal plugin. **This plugin only works on Paper 1.16.1 and above!**
+
+To see how to configure the plugin, go to the wiki.
 
 ### For developers
 
 Available on Jitpack.
 
 Latest version: `master-SNAPSHOT`
+
 Current version: (none, use latest)
 
 #### Maven coordinates
 
 Repository:
-
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
+```xml
+<repository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+</repository>
+```
 
 Core:
-
-    <dependency>
-        <groupId>com.gitlab.aecsocket.calibre</groupId>
-        <artifactId>calibre-core</artifactId>
-        <version>[the version]</version>
-    </dependency>
+```xml
+<dependency>
+    <groupId>com.gitlab.aecsocket.calibre</groupId>
+    <artifactId>calibre-core</artifactId>
+    <version>[the version]</version>
+</dependency>
+```
 
 Paper:
-
-    <dependency>
-        <groupId>com.gitlab.aecsocket.calibre</groupId>
-        <artifactId>calibre-paper</artifactId>
-        <version>[the version]</version>
-    </dependency>
+```xml
+<dependency>
+    <groupId>com.gitlab.aecsocket.calibre</groupId>
+    <artifactId>calibre-paper</artifactId>
+    <version>[the version]</version>
+</dependency>
+```

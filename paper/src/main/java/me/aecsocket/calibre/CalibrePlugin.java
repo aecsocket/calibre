@@ -106,6 +106,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     private final ItemManager itemManager = new ItemManager(this);
     private final SchedulerSystem.Scheduler systemScheduler = new SchedulerSystem.Scheduler(10000, 100);
     private final CasingManager casingManager = new CasingManager(this);
+    private final LocationalDamageManager locationalDamageManager = new LocationalDamageManager(this);
     private final VelocityTracker velocityTracker = new VelocityTracker();
     private final CalibreRegistry registry = new CalibreRegistry();
     private final Map<Class<?>, Formatter<?>> statFormatters = new HashMap<>();
@@ -173,6 +174,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
     public ItemManager itemManager() { return itemManager; }
     public SchedulerSystem.Scheduler systemScheduler() { return systemScheduler; }
     public CasingManager casingManager() { return casingManager; }
+    public LocationalDamageManager locationalDamageManager() { return locationalDamageManager; }
     public VelocityTracker velocityTracker() { return velocityTracker; }
     public CalibreRegistry registry() { return registry; }
     public Map<Class<?>, Formatter<?>> statFormatters() { return statFormatters; }
@@ -397,7 +399,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
         } catch (ConfigurateException e) {
             settings = BasicConfigurationNode.root();
             return new LoggingResult()
-                    .addFailure(LogLevel.ERROR, "Could not load settings from " + SETTINGS_FILE, e);
+                    .addFailure(LogLevel.ERROR, e, "Could not load settings from " + SETTINGS_FILE);
         }
 
         logger.setLevel(LogLevel.valueOfDefault(setting("log_level").getString("VERBOSE")));
@@ -409,6 +411,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
         systemScheduler.cleanThreshold(setting("scheduler", "clean_threshold").getLong(100));
 
         casingManager.load();
+        locationalDamageManager.load();
 
         return new LoggingResult()
                 .addSuccess(LogLevel.INFO, "Loaded settings from " + SETTINGS_FILE);
@@ -423,7 +426,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                 result.addSuccess(LogLevel.INFO, "Loaded " + ((Translation) entry.getResult()).getLocale() + " from " + entry.getKey());
             else {
                 Exception e = ((Exception) entry.getResult());
-                result.addFailure(LogLevel.WARN, "Could not load locales from " + entry.getKey(), e);
+                result.addFailure(LogLevel.WARN, e, "Could not load locales from " + entry.getKey());
             }
         });
         return result;

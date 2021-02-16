@@ -11,3 +11,6 @@ build:
   image: "maven:3-jdk-11"
   script:
     - "mvn compile -B"
+  artifacts:
+    paths:
+      - "*/target"

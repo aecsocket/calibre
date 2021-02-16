@@ -24,6 +24,7 @@ import me.aecsocket.unifiedframework.util.vector.Vector2D;
 import me.aecsocket.unifiedframework.util.vector.Vector3D;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Registry;
 import org.bukkit.World;
 import org.bukkit.attribute.Attributable;
 import org.bukkit.attribute.Attribute;
@@ -175,17 +176,7 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
 
         protected void damage(LivingEntity entity) {
             double applied = damage * (1 - Utils.clamp01((travelled()-dropoff) / (range-dropoff)));
-            if (applied <= 0)
-                return;
-            if (entity instanceof HumanEntity && ((HumanEntity) entity).getGameMode() == GameMode.CREATIVE)
-                return;
-            PotionEffect resistance = entity.getPotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
-            if (resistance != null)
-                applied *= Utils.clamp(1 - (resistance.getAmplifier() / 4d), 0, 1);
-            entity.damage(1e-16, source);
-            entity.setHealth(Math.max(0, entity.getHealth() - applied));
-            entity.setNoDamageTicks(0);
-            entity.setVelocity(new Vector());
+            plugin.locationalDamageManager().damage(applied, entity, source, position);
         }
     }
 

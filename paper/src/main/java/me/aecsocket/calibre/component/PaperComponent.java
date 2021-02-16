@@ -81,6 +81,8 @@ public class PaperComponent extends CalibreComponent<BukkitItem> {
 
     public PaperComponent(PaperComponent o) {
         this(o, o.plugin);
+        invalidSlots.putAll(o.invalidSlots);
+        invalidSystems.putAll(o.invalidSystems);
     }
 
     public CalibrePlugin plugin() { return plugin; }

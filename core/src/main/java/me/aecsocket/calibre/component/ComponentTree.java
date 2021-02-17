@@ -22,7 +22,6 @@ import java.util.*;
 public class ComponentTree {
     public static abstract class AbstractSerializer implements TypeSerializer<ComponentTree> {
         protected abstract <T extends CalibreIdentifiable> T byId(String id, Class<T> type);
-        protected abstract boolean preserveInvalidData();
 
         @Override
         public void serialize(Type type, @Nullable ComponentTree obj, ConfigurationNode node) throws SerializationException {
@@ -56,7 +55,7 @@ public class ComponentTree {
             }
         }
 
-        private <I extends Item> ComponentTree internalDeserialize(Type type, ConfigurationNode node, boolean preserveInvalidData) throws SerializationException {
+        private <I extends Item> ComponentTree internalDeserialize(Type type, ConfigurationNode node) throws SerializationException {
             String id;
             Map<String, ConfigurationNode> systems = null;
             Map<String, ConfigurationNode> slots = null;
@@ -77,16 +76,12 @@ public class ComponentTree {
                 for (var entry : systems.entrySet()) {
                     String sysId = entry.getKey();
                     CalibreSystem parentSystem = root.system(sysId);
-                    if (parentSystem == null) {
-                        if (preserveInvalidData) throw new SerializationException(node, type, "System [" + sysId + "] is not present on this component");
-                        else continue;
-                    }
+                    if (parentSystem == null)
+                        throw new SerializationException(node, type, "System [" + sysId + "] is not present on this component");
 
                     CalibreSystem system = entry.getValue().get(parentSystem.getClass());
-                    if (system == null) {
-                        if (preserveInvalidData) throw new SerializationException(node, type, "Could not create system [" + sysId + "]");
-                        else continue;
-                    }
+                    if (system == null)
+                        throw new SerializationException(node, type, "Could not create system [" + sysId + "]");
                     system.inherit(parentSystem, false);
                     root.system(system);
                 }
@@ -95,28 +90,22 @@ public class ComponentTree {
             if (slots != null) {
                 for (var entry : slots.entrySet()) {
                     String key = entry.getKey();
-                    if (root.slot(key) == null) {
-                        if (preserveInvalidData) throw new SerializationException(node, type, "Slot [" + key + "] is not present on this component");
-                        else continue;
-                    }
+                    if (root.slot(key) == null)
+                        throw new SerializationException(node, type, "Slot [" + key + "] is not present on this component");
 
                     ComponentTree childTree;
                     try {
-                        childTree = internalDeserialize(type, entry.getValue(), preserveInvalidData);
+                        childTree = internalDeserialize(type, entry.getValue());
                     } catch (SerializationException e) {
-                        if (preserveInvalidData) throw new SerializationException(node, type, "Could not create component for slot [" + key + "]", e);
-                        else continue;
+                        throw new SerializationException(node, type, "Could not create component for slot [" + key + "]", e);
                     }
-                    if (childTree.root == null) {
-                        if (preserveInvalidData) throw new SerializationException(node, type, "Did not create component for slot [" + key + "]");
-                        else continue;
-                    }
+                    if (childTree.root == null)
+                        throw new SerializationException(node, type, "Did not create component for slot [" + key + "]");
 
                     try {
                         ((CalibreSlot) (root.slot(key))).set(childTree.root);
                     } catch (IncompatibleComponentException e) {
-                        if (preserveInvalidData)
-                            throw new SerializationException(node, type, e);
+                        throw new SerializationException(node, type, e);
                     }
                 }
             }
@@ -126,8 +115,7 @@ public class ComponentTree {
 
         @Override
         public ComponentTree deserialize(Type type, ConfigurationNode node) throws SerializationException {
-            boolean preserveInvalidData = preserveInvalidData();
-            return internalDeserialize(type, node, preserveInvalidData).build();
+            return internalDeserialize(type, node).build();
         }
     }
 

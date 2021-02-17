@@ -249,7 +249,6 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                             .register(PaperComponent.class, new PaperComponent.Serializer(Utils.delegate(PaperComponent.class, builder, mapper)))
                             .register(ComponentTree.class, new ComponentTree.AbstractSerializer() {
                                 @Override protected <T extends CalibreIdentifiable> T byId(String id, Class<T> type) { return registry.get(id, type); }
-                                @Override protected boolean preserveInvalidData() { return setting("preserve_invalid_data").getBoolean(true); }
                             })
                             .registerAnnotatedObjects(mapper);
                 });
@@ -402,7 +401,7 @@ public class CalibrePlugin extends JavaPlugin implements Tickable {
                     .addFailure(LogLevel.ERROR, e, "Could not load settings from " + SETTINGS_FILE);
         }
 
-        logger.setLevel(LogLevel.valueOfDefault(setting("log_level").getString("VERBOSE")));
+        logger.setLevel(LogLevel.valueOfDefault(setting("log_level").getString("INFO")));
 
         settings.node("font_map").childrenMap().forEach((key, node) ->
                 font.setChar(key.toString().charAt(0), new MapFont.CharacterSprite(node.getInt(), 0, new boolean[0])));

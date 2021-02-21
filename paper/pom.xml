@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>me.aecsocket</groupId>
-        <artifactId>calibre</artifactId>
+        <groupId>com.gitlab.aecsocket.calibre</groupId>
+        <artifactId>calibre-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
@@ -16,13 +16,6 @@
 
     <name>Calibre Paper</name>
     <description>Components of Calibre which interact with Paper</description>
-
-    <distributionManagement>
-        <site>
-            <id>calibre</id>
-            <url>https://aecsocket.gitlab.io/calibre/paper/</url>
-        </site>
-    </distributionManagement>
 
     <dependencies>
         <dependency>
@@ -47,7 +40,7 @@
         </dependency>
 
         <dependency>
-            <groupId>me.aecsocket</groupId>
+            <groupId>com.gitlab.aecsocket.calibre</groupId>
             <artifactId>calibre-core</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
@@ -60,7 +53,7 @@
         <dependency>
             <groupId>com.gitlab.aecsocket.unified-framework</groupId>
             <artifactId>unified-framework-paper</artifactId>
-            <version>master-SNAPSHOT</version>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.comphenix.protocol</groupId>
@@ -105,14 +98,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
             </plugin>
 
             <plugin>

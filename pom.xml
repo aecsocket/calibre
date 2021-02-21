@@ -4,17 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>me.aecsocket</groupId>
-    <artifactId>calibre</artifactId>
+    <groupId>com.gitlab.aecsocket.calibre</groupId>
+    <artifactId>calibre-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Calibre Parent</name>
     <description>Advanced, scalable and modular gun framework, with implementation for Paper servers</description>
-    <url>https://aecsocket.gitlab.io/calibre/</url>
+    <url>https://gitlab.com/aecsocket/calibre</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
     </properties>
 
     <modules>
@@ -26,19 +28,12 @@
         <url>https://gitlab.com/aecsocket/calibre</url>
     </scm>
 
-    <distributionManagement>
-        <site>
-            <id>?</id>
-            <url>https://aecsocket.gitlab.io/calibre/</url>
-        </site>
-    </distributionManagement>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>com.gitlab.aecsocket.unified-framework</groupId>
                 <artifactId>unified-framework-core</artifactId>
-                <version>master-SNAPSHOT</version>
+                <version>1.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.jetbrains</groupId>
@@ -73,80 +68,50 @@
             <url>https://repo.spongepowered.org/repository/maven-public/</url>
         </repository>
         <repository>
-            <id>jitpack.io</id>
+            <id>jitpack</id>
             <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
     <build>
         <defaultGoal>clean install</defaultGoal>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.1</version>
-                    <configuration>
-                        <release>11</release>
-                    </configuration>
-                </plugin>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <finalName>Calibre</finalName>
+                </configuration>
+            </plugin>
 
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>2.4</version>
-                    <configuration>
-                        <finalName>Calibre</finalName>
-                    </configuration>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.2.0</version>
-                    <configuration>
-                        <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
-                        <links>
-                            <link>https://papermc.io/javadocs/paper/1.16</link>
-                            <link>https://jd.adventure.kyori.net/api/4.2.0</link>
-                            <link>https://configurate.aoeu.xyz/4.1.0-SNAPSHOT/apidocs</link>
-                            <link>https://junit.org/junit4/javadoc/latest</link>
-                        </links>
-                        <additionalOptions>-linksource</additionalOptions>
-                        <sourceFileExcludes>
-                            <exclude>me/aecsocket/calibre/proto</exclude>
-                        </sourceFileExcludes>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>javadoc</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>3.1.1</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-site-plugin</artifactId>
-                    <version>3.9.1</version>
-                    <dependencies>
-                        <dependency>
-                            <groupId>com.bernardomg.maven.skins</groupId>
-                            <artifactId>docs-maven-skin</artifactId>
-                            <version>2.0.8</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-            </plugins>
-        </pluginManagement>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
+                    <links>
+                        <link>https://papermc.io/javadocs/paper/1.16</link>
+                        <link>https://jd.adventure.kyori.net/api/4.2.0</link>
+                        <link>https://configurate.aoeu.xyz/4.1.0-SNAPSHOT/apidocs</link>
+                        <link>https://junit.org/junit4/javadoc/latest</link>
+                    </links>
+                    <additionalOptions>-linksource</additionalOptions>
+                    <sourceFileExcludes>
+                        <exclude>me/aecsocket/calibre/proto</exclude>
+                    </sourceFileExcludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>javadoc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
 
         <resources>
             <resource>

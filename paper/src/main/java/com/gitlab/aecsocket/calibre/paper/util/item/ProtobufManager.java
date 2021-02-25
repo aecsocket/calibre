@@ -1,7 +1,7 @@
 package com.gitlab.aecsocket.calibre.paper.util.item;
 
 import com.gitlab.aecsocket.calibre.core.component.CalibreSlot;
-import com.gitlab.aecsocket.calibre.core.proto.Tree;
+import com.gitlab.aecsocket.calibre.paper.proto.Tree;
 import com.gitlab.aecsocket.calibre.paper.system.PaperSystem;
 import com.google.protobuf.Any;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -35,13 +35,7 @@ public class ProtobufManager {
     }
 
     public PaperComponent read(Tree.Component msg) {
-        InvalidDataHandling handling = InvalidDataHandling.CONTINUE;
-        try {
-            handling = plugin.setting("invalid_data_handling").get(InvalidDataHandling.class, handling);
-        } catch (SerializationException e) {
-            plugin.log(LogLevel.WARN, e, "Invalid `invalid_data_handling` key specified, defaulting to %s", handling.name());
-        }
-
+        InvalidDataHandling handling = plugin.setting(n -> n.get(InvalidDataHandling.class, InvalidDataHandling.CONTINUE), "invalid_data_handling");
         return read(msg, handling);
     }
 

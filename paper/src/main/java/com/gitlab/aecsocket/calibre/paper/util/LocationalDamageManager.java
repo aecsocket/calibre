@@ -18,6 +18,7 @@ import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class LocationalDamageManager {
@@ -71,7 +72,7 @@ public class LocationalDamageManager {
 
     public void load() {
         try {
-            for (var entry : plugin.setting("locational_damage", "locations").get(new TypeToken<Map<EntityType, ConfigurationNode>>(){}, Collections.emptyMap()).entrySet()) {
+            for (var entry : plugin.setting(n -> n.get(new TypeToken<Map<EntityType, ConfigurationNode>>(){}), Collections.emptyMap(), "locational_damage", "locations").entrySet()) {
                 EntityType type = entry.getKey();
                 ConfigurationNode node = entry.getValue();
                 if (type == EntityType.PLAYER) {
@@ -87,7 +88,7 @@ public class LocationalDamageManager {
                     entities.put(type, entity -> locations);
                 }
             }
-            debug = plugin.setting("locational_damage", "debug").getBoolean(false);
+            debug = plugin.setting(n -> n.getBoolean(false), "locational_damage", "debug");
         } catch (SerializationException e) {
             plugin.log(LogLevel.WARN, e, "Could not load locational damage settings");
         }
@@ -137,14 +138,15 @@ public class LocationalDamageManager {
             double realDamage = damage * multiplier(entity, position);
             Tuple2<String, Location> result = location(entity, position);
             Location location = result.b();
-            plugin.audiences().player(player).sendMessage(
+            Locale locale = player.locale();
+            player.sendMessage(
                     location == null
-                    ? plugin.gen(player.getLocale(), "locational_damage_debug.no_location",
+                            ? plugin.gen(locale, "locational_damage_debug.no_location",
                             "damage", realDamage + "",
-                            "y", String.format("%.3f", y))
-                    : plugin.gen(player.getLocale(), "locational_damage_debug.location",
+                            "y", String.format(locale, "%.3f", y))
+                            : plugin.gen(locale, "locational_damage_debug.location",
                             "damage", realDamage + "",
-                            "y", String.format("%.3f", y),
+                            "y", String.format(locale, "%.3f", y),
                             "location", result.a(),
                             "min", location.min + "",
                             "max", location.max + "",

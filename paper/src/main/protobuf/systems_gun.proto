@@ -1,7 +1,7 @@
 syntax = "proto3";
-package aecsocket.me.calibre;
+package gitlab.com.aecsocket.calibre;
 
-option java_package = "me.aecsocket.calibre.proto.system";
+option java_package = "com.gitlab.aecsocket.calibre.paper.proto.system";
 option java_outer_classname = "SystemsGun";
 
 message Path {

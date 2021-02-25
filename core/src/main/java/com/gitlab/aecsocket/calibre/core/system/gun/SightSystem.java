@@ -3,7 +3,7 @@ package com.gitlab.aecsocket.calibre.core.system.gun;
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
 import com.gitlab.aecsocket.calibre.core.system.StatRenderer;
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import io.leangen.geantyref.TypeToken;
 import com.gitlab.aecsocket.calibre.core.system.AbstractSystem;
 import com.gitlab.aecsocket.calibre.core.system.FromMaster;
@@ -16,6 +16,7 @@ import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public abstract class SightSystem extends AbstractSystem {
@@ -73,7 +74,7 @@ public abstract class SightSystem extends AbstractSystem {
     }
 
     protected <I extends Item> void onEvent(CalibreComponent.Events.ItemCreate<I> event) {
-        String locale = event.locale();
+        Locale locale = event.locale();
         List<Component> info = new ArrayList<>();
         for (Sight sight : sights) {
             info.add(gen(locale, "system." + ID + ".header",

@@ -1,7 +1,7 @@
 package com.gitlab.aecsocket.calibre.core.component;
 
 import com.gitlab.aecsocket.calibre.core.system.CalibreSystem;
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.CalibreComponentImpl;
 import com.gitlab.aecsocket.calibre.core.TestSystem;
 import org.junit.jupiter.api.Test;

@@ -1,5 +1,7 @@
 package com.gitlab.aecsocket.calibre.core.util;
 
+import java.util.Locale;
+
 /**
  * An object which can create and provide an item of type {@link I}.
  * @param <I> The item type.
@@ -12,7 +14,7 @@ public interface ItemSupplier<I> extends CalibreIdentifiable {
      * @return The item.
      * @throws ItemCreationException If the item could not be created.
      */
-    I create(String locale, int amount) throws ItemCreationException;
+    I create(Locale locale, int amount) throws ItemCreationException;
 
     /**
      * Creates one item for the specified locale.
@@ -20,5 +22,5 @@ public interface ItemSupplier<I> extends CalibreIdentifiable {
      * @return The item.
      * @throws ItemCreationException If the item could not be created.
      */
-    default I create(String locale) throws ItemCreationException { return create(locale, 1); }
+    default I create(Locale locale) throws ItemCreationException { return create(locale, 1); }
 }

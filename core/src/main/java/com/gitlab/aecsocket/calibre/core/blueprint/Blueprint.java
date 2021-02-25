@@ -2,7 +2,7 @@ package com.gitlab.aecsocket.calibre.core.blueprint;
 
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.util.CalibreIdentifiable;
 import com.gitlab.aecsocket.calibre.core.util.ItemCreationException;
 import com.gitlab.aecsocket.calibre.core.util.ItemSupplier;
@@ -16,6 +16,7 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A prebuit tree of components which can be used as a givable item.
@@ -80,7 +81,7 @@ public abstract class Blueprint<I extends Item> implements CalibreIdentifiable, 
     }
 
     @Override
-    public I create(String locale, int amount) throws ItemCreationException {
+    public I create(Locale locale, int amount) throws ItemCreationException {
         return tree.<CalibreComponent<I>>root().create(locale, amount);
     }
 }

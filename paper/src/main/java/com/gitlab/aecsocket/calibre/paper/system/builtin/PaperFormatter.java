@@ -4,6 +4,9 @@ import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.core.system.builtin.Formatter;
 import com.gitlab.aecsocket.unifiedframework.core.util.descriptor.NumberDescriptor;
 import net.kyori.adventure.text.Component;
+import org.spongepowered.configurate.ConfigurationNode;
+
+import java.util.Locale;
 
 public final class PaperFormatter {
     private PaperFormatter() {}
@@ -18,12 +21,12 @@ public final class PaperFormatter {
         public CalibrePlugin plugin() { return plugin; }
 
         @Override
-        protected Component bar(String locale, String key, double percent) {
-            return plugin.bar(locale, key, percent, 0, plugin.setting("stat_formatter", "bar_widths").node(0).getInt());
+        protected Component bar(Locale locale, String key, double percent) {
+            return plugin.bar(locale, key, percent, 0, plugin.setting(ConfigurationNode::getInt, "stat_formatter", "bar_widths", 0));
         }
 
         @Override
-        protected Component gen(String locale, String key, Object... args) {
+        protected Component gen(Locale locale, String key, Object... args) {
             return plugin.gen(locale, key, args);
         }
     }
@@ -38,12 +41,12 @@ public final class PaperFormatter {
         public CalibrePlugin plugin() { return plugin; }
 
         @Override
-        protected Component bar(String locale, String key, double percent) {
-            return plugin.bar(locale, key, percent, 0, plugin.setting("stat_formatter", "bar_widths").node(1).getInt());
+        protected Component bar(Locale locale, String key, double percent) {
+            return plugin.bar(locale, key, percent, 0, plugin.setting(ConfigurationNode::getInt, "stat_formatter", "bar_widths", 1));
         }
 
         @Override
-        protected Component gen(String locale, String key, Object... args) {
+        protected Component gen(Locale locale, String key, Object... args) {
             return plugin.gen(locale, key, args);
         }
     }

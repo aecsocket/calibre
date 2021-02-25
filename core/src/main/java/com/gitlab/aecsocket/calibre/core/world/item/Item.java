@@ -1,4 +1,4 @@
-package com.gitlab.aecsocket.calibre.core.world;
+package com.gitlab.aecsocket.calibre.core.world.item;
 
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
 import net.kyori.adventure.text.Component;

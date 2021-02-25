@@ -5,7 +5,7 @@ import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
 import com.gitlab.aecsocket.calibre.core.system.AbstractSystem;
 import com.gitlab.aecsocket.calibre.core.system.builtin.CapacityComponentContainerSystem;
 import com.gitlab.aecsocket.calibre.core.system.gun.GunSystem;
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.system.ItemEvents;
 import com.gitlab.aecsocket.calibre.core.system.SystemSetupException;
 import com.gitlab.aecsocket.calibre.core.system.builtin.ComponentAccessorSystem;
@@ -67,11 +67,11 @@ public abstract class SingleChamberReloadSystem extends AbstractSystem implement
         accessor = require(ComponentAccessorSystem.class);
     }
 
-    protected <I extends Item> void reloadSingle(ItemUser user, ItemSlot<I> slot, TickContext tickContext, SchedulerSystem scheduler, GunSystem.Events.ExternalReload<I> event) {
+    protected <I extends Item> boolean reloadSingle(ItemUser user, ItemSlot<I> slot, TickContext tickContext, SchedulerSystem scheduler, GunSystem.Events.ExternalReload<I> event) {
         int remaining = container.remaining();
         if (remaining <= 0) {
             finishReload(user, slot, tickContext, event);
-            return;
+            return true;
         }
         long singleAfter = tree().<NumberDescriptor.Long>stat("reload_single_after").apply();
         int amount = singleAfter == 0
@@ -79,22 +79,24 @@ public abstract class SingleChamberReloadSystem extends AbstractSystem implement
                 : singleAfter < tickContext.delta() ? (int) (tickContext.delta() / singleAfter) : 1;
         for (int i = 0; i < amount; i++) {
             ComponentAccessorSystem.Result result = collectChamber(user);
-            if (result == null)
+            if (result == null) {
                 finishReload(user, slot, tickContext, event);
-            else {
+                return true;
+            } else {
                 container.push(result.component());
                 result.removeItem();
                 scheduler.delay(tree().<NumberDescriptor.Long>stat("reload_single_delay").apply());
                 scheduler.<SingleChamberReloadSystem, I>schedule(this, singleAfter,
                         (self, equip, ctx) -> self.reloadSingle(equip.user(), equip.slot(), equip.tickContext(), ctx.system(event.system().scheduler()), event));
                 update(user, slot, event);
+                return false;
             }
         }
+        return true;
     }
 
     protected ComponentAccessorSystem.Result collectChamber(ItemUser user) {
-        return accessor.collectComponent(user, component ->
-                GunSystem.getProjectile(component).c() != null && container.accepts(component), null);
+        return accessor.collectComponent(user, component -> GunSystem.getProjectile(component).c() != null && container.accepts(component), null);
     }
 
     protected <I extends Item> void finishReload(ItemUser user, ItemSlot<I> slot, TickContext tickContext, GunSystem.Events.ExternalReload<I> event) {}

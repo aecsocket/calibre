@@ -9,7 +9,7 @@ import com.gitlab.aecsocket.calibre.core.system.ItemEvents;
 import com.gitlab.aecsocket.calibre.core.system.SystemSetupException;
 import com.gitlab.aecsocket.calibre.core.system.builtin.CapacityComponentContainerSystem;
 import com.gitlab.aecsocket.calibre.core.system.builtin.ComponentContainerSystem;
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.world.user.ItemUser;
 import com.gitlab.aecsocket.calibre.core.world.user.SenderUser;
 import com.gitlab.aecsocket.calibre.core.world.user.StabilizableUser;
@@ -21,6 +21,7 @@ import net.kyori.adventure.text.TextComponent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public abstract class GunInfoSystem extends AbstractSystem {
     public enum Style {
@@ -99,19 +100,19 @@ public abstract class GunInfoSystem extends AbstractSystem {
         gun = require(GunSystem.class);
     }
 
-    public Component genFor(String locale, CalibreComponent<?> component) {
+    public Component genFor(Locale locale, CalibreComponent<?> component) {
         CalibreSlot loadSlot = gun.getProjectile(component).b();
         return gen(locale, "system." + ID + ".component." +
                 (loadSlot == null || loadSlot.get() == null ? component.id() : loadSlot.<CalibreComponent<?>>get().id()));
     }
 
-    protected abstract Component bar(String locale, String key, double percent);
+    protected abstract Component bar(Locale locale, String key, double percent);
 
     protected <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {
         if (!(event.tickContext().loop() instanceof MinecraftSyncLoop))
             return;
 
-        String locale = event.user().locale();
+        Locale locale = event.user().locale();
         ItemUser user = event.user();
         if (user instanceof SenderUser) {
             FireMode fireMode = gun.getFireMode();

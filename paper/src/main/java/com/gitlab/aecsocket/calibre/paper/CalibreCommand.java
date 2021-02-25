@@ -4,14 +4,14 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.*;
 import com.gitlab.aecsocket.calibre.core.util.*;
-import com.gitlab.aecsocket.calibre.paper.util.CalibrePlayer;
+import com.gitlab.aecsocket.calibre.paper.util.PlayerData;
 import com.gitlab.aecsocket.calibre.paper.util.CalibreProtocol;
 import com.gitlab.aecsocket.calibre.paper.util.item.ComponentCreationException;
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
 import com.gitlab.aecsocket.calibre.paper.component.PaperComponent;
-import me.aecsocket.calibre.util.*;
 import com.gitlab.aecsocket.calibre.paper.wrapper.BukkitItem;
 import com.gitlab.aecsocket.unifiedframework.core.registry.Ref;
+import com.gitlab.aecsocket.unifiedframework.core.util.result.LoggingEntry;
 import com.gitlab.aecsocket.unifiedframework.paper.util.BukkitUtils;
 import com.gitlab.aecsocket.unifiedframework.core.util.TextUtils;
 import com.gitlab.aecsocket.unifiedframework.core.util.log.LogLevel;
@@ -32,6 +32,7 @@ import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
 
 import java.io.BufferedWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -48,14 +49,14 @@ public class CalibreCommand extends BaseCommand {
 
     public CalibrePlugin getPlugin() { return plugin; }
 
-    private String locale(CommandSender sender) { return plugin.locale(sender); }
+    private Locale locale(CommandSender sender) { return plugin.locale(sender); }
 
     private Component gen(CommandSender sender, String key, Object... args) {
         return plugin.gen(locale(sender), key, args);
     }
 
     private void send(CommandSender sender, String key, Object... args) {
-        plugin.audiences().sender(sender).sendMessage(gen(sender, key, args));
+        sender.sendMessage(gen(sender, key, args));
     }
 
     private void sendError(CommandSender sender, Throwable e, String key, Object... args) {
@@ -95,10 +96,12 @@ public class CalibreCommand extends BaseCommand {
     public void reload(CommandSender sender) {
         send(sender, "command.reload.start");
         AtomicInteger warnings = new AtomicInteger(0);
-        plugin.logAll(plugin.load()).forEach(entry -> {
-            if (!entry.isSuccessful()) {
+        List<LoggingEntry> result = new ArrayList<>();
+        plugin.load(result);
+        plugin.log(result).forEach(entry -> {
+            if (entry.level().level() >= LogLevel.WARN.level()) {
                 warnings.incrementAndGet();
-                for (String line : TextUtils.lines(entry.getBasic())) {
+                for (String line : TextUtils.lines(entry.infoBasic())) {
                     send(sender, "command.reload.warning",
                             "message", line);
                 }
@@ -129,7 +132,7 @@ public class CalibreCommand extends BaseCommand {
         classFilter = createFilter(classFilter);
         nameFilter = createFilter(nameFilter);
 
-        String locale = locale(sender);
+        Locale locale = locale(sender);
         int results = 0;
         for (Ref<CalibreIdentifiable> ref : plugin.registry().getRegistry().values()) {
             CalibreIdentifiable object = ref.get();
@@ -161,7 +164,7 @@ public class CalibreCommand extends BaseCommand {
     @CommandCompletion("@registry")
     @Syntax("<id>")
     public void info(CommandSender sender, CalibreIdentifiable object) {
-        String locale = locale(sender);
+        Locale locale = locale(sender);
         send(sender, "command.object",
                 "type", object.getClass().getSimpleName(),
                 "id", object.id(),
@@ -206,7 +209,7 @@ public class CalibreCommand extends BaseCommand {
             }
 
             Player target = (Player) entity;
-            String locale = target.getLocale();
+            Locale locale = target.locale();
 
             BukkitItem wrapCreated;
             try {
@@ -262,7 +265,7 @@ public class CalibreCommand extends BaseCommand {
             return;
         }
 
-        String locale = locale(sender);
+        Locale locale = locale(sender);
         try {
             PaperComponent component = plugin.itemManager().get(((Player) sender).getInventory().getItemInMainHand());
             ComponentTree tree = component.tree();
@@ -381,7 +384,7 @@ public class CalibreCommand extends BaseCommand {
             return;
         }
 
-        CalibrePlayer data = plugin.playerData((Player) sender);
+        PlayerData data = plugin.playerData((Player) sender);
         data.showInaccuracy(!data.showInaccuracy());
     }
 }

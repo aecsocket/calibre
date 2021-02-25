@@ -7,19 +7,21 @@ import com.google.protobuf.Message;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import net.kyori.adventure.text.Component;
 
+import java.util.Locale;
+
 public interface PaperSystem extends CalibreSystem {
-    CalibrePlugin plugin();
+    CalibrePlugin calibre();
 
     @Override
-    default Component gen(String locale, String key, Object... args) {
-        return plugin().gen(locale, key, args);
+    default Component gen(Locale locale, String key, Object... args) {
+        return calibre().gen(locale, key, args);
     }
 
     default <M extends Message> M unpack(Any raw, Class<M> type) {
         try {
             return raw.unpack(type);
         } catch (InvalidProtocolBufferException e) {
-            throw new InvalidMessageTypeException(type);
+            throw new InvalidMessageTypeException(type, raw.getTypeUrl());
         }
     }
     default Any writeProtobuf() { return Any.getDefaultInstance(); }

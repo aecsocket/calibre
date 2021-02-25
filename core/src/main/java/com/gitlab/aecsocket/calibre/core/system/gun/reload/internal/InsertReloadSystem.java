@@ -6,7 +6,7 @@ import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
 import com.gitlab.aecsocket.calibre.core.system.AbstractSystem;
 import com.gitlab.aecsocket.calibre.core.system.builtin.ComponentContainerSystem;
 import com.gitlab.aecsocket.calibre.core.system.gun.GunSystem;
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.system.ItemEvents;
 import com.gitlab.aecsocket.calibre.core.system.SystemSetupException;
 import com.gitlab.aecsocket.calibre.core.system.builtin.ComponentAccessorSystem;

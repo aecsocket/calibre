@@ -1,21 +1,22 @@
 package com.gitlab.aecsocket.calibre.paper.wrapper.user;
 
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
-import com.gitlab.aecsocket.calibre.paper.util.CalibrePlayer;
+import com.gitlab.aecsocket.calibre.paper.util.PlayerData;
 import com.gitlab.aecsocket.calibre.core.world.user.*;
 import com.gitlab.aecsocket.calibre.paper.util.CalibreProtocol;
-import me.aecsocket.calibre.world.user.*;
 import com.gitlab.aecsocket.unifiedframework.core.loop.TickContext;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector2D;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
+import java.util.Locale;
+
 public interface PlayerUser extends LivingEntityUser, MovementUser, CameraUser, RecoilableUser, InaccuracyUser, StabilizableUser, InventoryUser {
     Player entity();
 
-    default CalibrePlayer playerData() { return CalibrePlugin.instance().playerData(entity()); }
+    default PlayerData playerData() { return CalibrePlugin.instance().playerData(entity()); }
 
-    @Override default String locale() { return entity().getLocale(); }
+    @Override default Locale locale() { return entity().locale(); }
 
     @Override default boolean sneaking() { return entity().isSneaking(); }
     @Override default boolean sprinting() { return entity().isSprinting(); }

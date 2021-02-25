@@ -4,6 +4,8 @@ import com.gitlab.aecsocket.unifiedframework.core.registry.Identifiable;
 import com.gitlab.aecsocket.unifiedframework.core.registry.ValidationException;
 import net.kyori.adventure.text.Component;
 
+import java.util.Locale;
+
 public interface CalibreIdentifiable extends Identifiable {
     String VALID_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789_.";
 
@@ -16,8 +18,8 @@ public interface CalibreIdentifiable extends Identifiable {
         });
     }
 
-    Component gen(String locale, String key, Object... args);
+    Component gen(Locale locale, String key, Object... args);
 
-    default Component name(String locale) { return gen(locale, "object." + id()); }
-    default Component[] info(String locale) { return null; }
+    default Component name(Locale locale) { return gen(locale, "object." + id()); }
+    default Component[] info(Locale locale) { return null; }
 }

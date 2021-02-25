@@ -35,7 +35,7 @@ public class PaperSightSystem extends SightSystem implements PaperSystem {
         plugin = o.plugin;
     }
 
-    @Override public CalibrePlugin plugin() { return plugin; }
+    @Override public CalibrePlugin calibre() { return plugin; }
 
     @Override public PaperSightSystem copy() { return new PaperSightSystem(this); }
 }

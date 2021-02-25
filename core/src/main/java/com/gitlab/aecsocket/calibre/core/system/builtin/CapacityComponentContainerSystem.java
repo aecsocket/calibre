@@ -1,17 +1,21 @@
 package com.gitlab.aecsocket.calibre.core.system.builtin;
 
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.FillableItem;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.system.FromMaster;
+import com.gitlab.aecsocket.calibre.core.world.user.SenderUser;
 import net.kyori.adventure.text.Component;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
+import java.util.Locale;
 import java.util.Objects;
 
 @ConfigSerializable
 public abstract class CapacityComponentContainerSystem extends ComponentContainerSystem {
     public static final String ID = "capacity_component_container";
     @FromMaster protected int capacity;
+    @FromMaster protected boolean showFilled = true;
 
     /**
      * Used for registration + deserialization.
@@ -25,6 +29,7 @@ public abstract class CapacityComponentContainerSystem extends ComponentContaine
     public CapacityComponentContainerSystem(CapacityComponentContainerSystem o) {
         super(o);
         capacity = o.capacity;
+        showFilled = o.showFilled;
     }
 
     @Override public String id() { return ID; }
@@ -32,7 +37,11 @@ public abstract class CapacityComponentContainerSystem extends ComponentContaine
     public int capacity() { return capacity; }
     public void capacity(int capacity) { this.capacity = capacity; }
 
+    public boolean showFilled() { return showFilled; }
+    public void showFilled(boolean showFilled) { this.showFilled = showFilled; }
+
     public int remaining() { return capacity - amount(); }
+    public double filled() { return (double) amount() / capacity; }
 
     protected void onEvent(CalibreComponent.Events.NameCreate<?> event) {
         event.result(gen(event.locale(), "system." + ID + ".component_name",
@@ -42,7 +51,15 @@ public abstract class CapacityComponentContainerSystem extends ComponentContaine
     }
 
     @Override
-    protected Component writeTotal(String locale, int total) {
+    protected void onEvent(CalibreComponent.Events.ItemCreate<?> event) {
+        super.onEvent(event);
+        if (showFilled && event.item() instanceof FillableItem) {
+            ((FillableItem) event.item()).fill(filled());
+        }
+    }
+
+    @Override
+    protected Component writeTotal(Locale locale, int total) {
         return gen(locale, "system." + ID + ".total",
                 "total", Integer.toString(total),
                 "capacity", Integer.toString(capacity));

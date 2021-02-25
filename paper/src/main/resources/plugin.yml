@@ -3,5 +3,5 @@ description: "Advanced, scalable and modular gun framework - Paper implementatio
 author: "aecsocket"
 version: "${project.version}"
 api-version: "1.16"
-main: "me.aecsocket.calibre.CalibrePlugin"
+main: "com.gitlab.aecsocket.calibre.paper.CalibrePlugin"
 depend: [ "ProtocolLib" ]

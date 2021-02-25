@@ -43,16 +43,6 @@ public class CalibrePacketAdapter extends PacketAdapter {
             }
         }
 
-        if (type == PacketType.Play.Server.WINDOW_ITEMS) {
-            List<ItemStack> items = packet.getItemListModifier().read(0);
-            for (int i = 0; i < items.size(); i++) {
-                if (plugin.itemManager().hidden(items.get(i))) {
-                    items.set(i, new ItemStack(Material.STICK));
-                    break;
-                }
-            }
-        }
-
         if (type == PacketType.Play.Server.ENTITY_EQUIPMENT) {
             Entity holder = packet.getEntityModifier(event).read(0);
             for (Pair<EnumWrappers.ItemSlot, ItemStack> equipment : packet.getSlotStackPairLists().read(0)) {

@@ -9,6 +9,7 @@ import com.gitlab.aecsocket.unifiedframework.paper.gui.GUIItem;
 import com.gitlab.aecsocket.unifiedframework.paper.gui.GUIView;
 import com.gitlab.aecsocket.unifiedframework.paper.util.BukkitUtils;
 import com.gitlab.aecsocket.unifiedframework.paper.util.data.SoundData;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -16,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class SlotViewItem implements GUIItem {
     private final CalibrePlugin plugin;
@@ -77,7 +79,7 @@ public class SlotViewItem implements GUIItem {
 
         CalibreComponent<BukkitItem> cursor = plugin.itemManager().get(view.getView().getCursor());
 
-        String locale = view.getPlayer().getLocale();
+        Locale locale = view.getPlayer().locale();
         ItemStack item;
         if (component == null) {
             item = slot.createViewItem(locale, slotKey, cursor);
@@ -92,11 +94,11 @@ public class SlotViewItem implements GUIItem {
 
         if (item != null && slot != null && slot.fieldModifiable())
             BukkitUtils.modMeta(item, meta -> {
-                List<String> lore = meta.getLore();
+                List<Component> lore = meta.lore();
                 if (lore == null)
                     lore = new ArrayList<>();
-                lore.add(LegacyComponentSerializer.legacySection().serialize(plugin.gen(locale, "slot_view.field_modifiable")));
-                meta.setLore(lore);
+                lore.add(plugin.gen(locale, "slot_view.field_modifiable"));
+                meta.lore(lore);
             });
         return item;
     }
@@ -110,7 +112,7 @@ public class SlotViewItem implements GUIItem {
             return;
 
         Player player = view.getPlayer();
-        String locale = player.getLocale();
+        Locale locale = player.locale();
         ItemStack rawCursor = view.getRawCursor();
         if (BukkitUtils.empty(rawCursor) && slot.get() != null) {
             // remove component

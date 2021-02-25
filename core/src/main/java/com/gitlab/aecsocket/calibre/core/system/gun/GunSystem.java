@@ -8,7 +8,7 @@ import com.gitlab.aecsocket.calibre.core.system.CalibreSystem;
 import com.gitlab.aecsocket.calibre.core.system.builtin.ComponentContainerSystem;
 import com.gitlab.aecsocket.calibre.core.system.builtin.ProjectileSystem;
 import com.gitlab.aecsocket.calibre.core.util.StatCollection;
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.world.user.*;
 import com.gitlab.aecsocket.calibre.core.system.FromMaster;
 import com.gitlab.aecsocket.calibre.core.system.ItemEvents;
@@ -18,7 +18,6 @@ import com.gitlab.aecsocket.calibre.core.system.gun.reload.internal.InternalRelo
 import com.gitlab.aecsocket.calibre.core.world.slot.EquippableSlot;
 import com.gitlab.aecsocket.calibre.core.world.slot.HandSlot;
 import com.gitlab.aecsocket.calibre.core.world.slot.ItemSlot;
-import me.aecsocket.calibre.world.user.*;
 import com.gitlab.aecsocket.unifiedframework.core.event.Cancellable;
 import com.gitlab.aecsocket.unifiedframework.core.event.EventDispatcher;
 import com.gitlab.aecsocket.unifiedframework.core.loop.MinecraftSyncLoop;
@@ -284,7 +283,7 @@ public abstract class GunSystem extends AbstractSystem {
         events.registerListener(ItemEvents.Jump.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.Scroll.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.Switch.class, this::onEvent, listenerPriority);
-        events.registerListener(ItemEvents.Interact.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.GameClick.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.SwapHand.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.Drop.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.BreakBlock.class, this::onEvent, listenerPriority);
@@ -304,7 +303,7 @@ public abstract class GunSystem extends AbstractSystem {
         }
     }
 
-    protected Component createFireModes(String locale) {
+    protected Component createFireModes(Locale locale) {
         Component separator = gen(locale, "system." + ID + ".fire_modes.separator");
         List<Component> values = new ArrayList<>();
         for (FireModePath ref : collectFireModes()) {
@@ -314,7 +313,7 @@ public abstract class GunSystem extends AbstractSystem {
         return values.size() == 0 ? gen(locale, "system." + ID + ".fire_modes.none") : Utils.join(separator, values);
     }
 
-    protected Component createSights(String locale) {
+    protected Component createSights(Locale locale) {
         Component separator = gen(locale, "system." + ID + ".sights.separator");
         List<Component> values = new ArrayList<>();
         for (SightPath ref : collectSights()) {
@@ -330,7 +329,7 @@ public abstract class GunSystem extends AbstractSystem {
 
     protected <I extends Item> void onEvent(CalibreComponent.Events.ItemCreate<I> event) {
         List<Component> info = new ArrayList<>();
-        String locale = event.locale();
+        Locale locale = event.locale();
 
         info.add(gen(locale, "system." + ID + ".info",
                 "fire_modes", createFireModes(locale),
@@ -397,7 +396,7 @@ public abstract class GunSystem extends AbstractSystem {
             ((InaccuracyUser) event.user()).addInaccuracy(tree().<NumberDescriptor.Double>stat("inaccuracy_jump").apply());
     }
 
-    protected <I extends Item> void onEvent(ItemEvents.Interact<I> event) {
+    protected <I extends Item> void onEvent(ItemEvents.GameClick<I> event) {
         if (!scheduler.available()) return;
         ItemUser user = event.user();
         if (tree().<Boolean>stat("sprint_disables") && user instanceof MovementUser && ((MovementUser) user).sprinting()) return;
@@ -410,20 +409,20 @@ public abstract class GunSystem extends AbstractSystem {
             if (!handSlot.main() || (opposite != null && opposite.get() != null)) {
                 // dual wielding
                 if (handSlot.main()) {
-                    if (event.type() == ItemEvents.Interact.LEFT)
+                    if (event.type() == ItemEvents.GameClick.LEFT)
                         startFire(new Events.StartFire<>(component, user, slot, this));
-                } else if (event.type() == ItemEvents.Interact.RIGHT)
+                } else if (event.type() == ItemEvents.GameClick.RIGHT)
                     startFire(new Events.StartFire<>(component, user, slot, this));
                 return;
             }
         }
 
         // main hand OR not hand slot
-        if (event.type() == ItemEvents.Interact.LEFT) {
+        if (event.type() == ItemEvents.GameClick.LEFT) {
             if (!tree().<Boolean>stat("can_fire_underwater") && user instanceof SwimmableUser && ((SwimmableUser) user).swimming())
                 return;
             startFire(new Events.StartFire<>(component, user, slot, this));
-        } else if (event.type() == ItemEvents.Interact.RIGHT) {
+        } else if (event.type() == ItemEvents.GameClick.RIGHT) {
             aim(new Events.Aim<>(
                     component, user, slot, this, !aiming
             ));

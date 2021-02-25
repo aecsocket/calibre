@@ -219,7 +219,7 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
         plugin = o.plugin;
     }
 
-    @Override public CalibrePlugin plugin() { return plugin; }
+    @Override public CalibrePlugin calibre() { return plugin; }
 
     @Override public String id() { return ID; }
     @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }

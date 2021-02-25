@@ -1,11 +1,12 @@
 package com.gitlab.aecsocket.calibre.core;
 
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.util.ItemCreationException;
 import com.gitlab.aecsocket.unifiedframework.core.stat.Stat;
 
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 
 public class CalibreComponentImpl extends CalibreComponent<Item> {
@@ -18,7 +19,7 @@ public class CalibreComponentImpl extends CalibreComponent<Item> {
     }
 
     @Override
-    public net.kyori.adventure.text.Component gen(String locale, String key, Object... args) {
+    public net.kyori.adventure.text.Component gen(Locale locale, String key, Object... args) {
         return net.kyori.adventure.text.Component.text("");
     }
 

@@ -5,6 +5,8 @@ import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
 import com.gitlab.aecsocket.calibre.core.system.AbstractSystem;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
+import java.util.Locale;
+
 @ConfigSerializable
 public class TestSystem extends AbstractSystem {
     private String lastData;
@@ -27,7 +29,7 @@ public class TestSystem extends AbstractSystem {
     public String lastData() { return lastData; }
     public void lastData(String lastData) { this.lastData = lastData; }
 
-    @Override public net.kyori.adventure.text.Component gen(String locale, String key, Object... args) { return net.kyori.adventure.text.Component.text(""); }
+    @Override public net.kyori.adventure.text.Component gen(Locale locale, String key, Object... args) { return net.kyori.adventure.text.Component.text(""); }
 
     @Override
     public void setup(CalibreComponent<?> parent) {}

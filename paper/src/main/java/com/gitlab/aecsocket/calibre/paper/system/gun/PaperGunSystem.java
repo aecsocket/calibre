@@ -4,7 +4,7 @@ import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.core.component.CalibreSlot;
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
-import com.gitlab.aecsocket.calibre.core.proto.system.SystemsGun;
+import com.gitlab.aecsocket.calibre.paper.proto.system.SystemsGun;
 import com.gitlab.aecsocket.calibre.paper.system.BukkitItemEvents;
 import com.gitlab.aecsocket.calibre.core.system.FromMaster;
 import com.gitlab.aecsocket.calibre.core.system.ItemEvents;
@@ -13,7 +13,7 @@ import com.gitlab.aecsocket.calibre.core.system.gun.FireModePath;
 import com.gitlab.aecsocket.calibre.core.system.gun.GunSystem;
 import com.gitlab.aecsocket.calibre.core.system.gun.SightPath;
 import com.gitlab.aecsocket.calibre.paper.util.ItemDescriptor;
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.world.slot.ItemSlot;
 import com.gitlab.aecsocket.calibre.core.world.user.InaccuracyUser;
 import com.gitlab.aecsocket.calibre.core.world.user.ItemUser;
@@ -124,7 +124,7 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
 
     @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }
 
-    @Override public CalibrePlugin plugin() { return plugin; }
+    @Override public CalibrePlugin calibre() { return plugin; }
 
     @Override
     public void parentTo(ComponentTree tree, CalibreComponent<?> parent) {
@@ -325,12 +325,12 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
                 .setIgnoreSwitch(ignoreSwitch);
         if (fireMode != null)
                 builder.setFireMode(SystemsGun.Path.newBuilder()
-                        .addAllPath(Arrays.asList(fireMode.path))
-                        .setIndex(fireMode.index).build());
+                        .addAllPath(Arrays.asList(fireMode.path()))
+                        .setIndex(fireMode.index()).build());
         if (sight != null)
                 builder.setSight(SystemsGun.Path.newBuilder()
-                        .addAllPath(Arrays.asList(sight.path))
-                        .setIndex(sight.index).build());
+                        .addAllPath(Arrays.asList(sight.path()))
+                        .setIndex(sight.index()).build());
         return Any.pack(builder.build());
     }
 

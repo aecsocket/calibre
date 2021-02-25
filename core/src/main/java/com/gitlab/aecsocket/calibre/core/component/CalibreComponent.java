@@ -1,6 +1,6 @@
 package com.gitlab.aecsocket.calibre.core.component;
 
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.system.CalibreSystem;
 import com.gitlab.aecsocket.calibre.core.system.SystemSetupException;
 import com.gitlab.aecsocket.calibre.core.util.CalibreIdentifiable;
@@ -276,7 +276,7 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
     }
 
     @Override
-    public net.kyori.adventure.text.Component name(String locale) {
+    public net.kyori.adventure.text.Component name(Locale locale) {
         net.kyori.adventure.text.Component result = ItemSupplier.super.name(locale);
         return tree.call(new Events.NameCreate<>(this, locale, result)).result;
     }
@@ -289,7 +289,7 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
     public abstract CalibreComponent<I> getComponent(I item);
 
     /**
-     * Creates the initial {@link I} for {@link #create(String, int)}.
+     * Creates the initial {@link I} for {@link #create(Locale, int)}.
      * @param amount The amount of items.
      * @return The initial {@link I}.
      * @throws ItemCreationException If the item could not be created.
@@ -297,7 +297,7 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
     protected abstract I createInitial(int amount) throws ItemCreationException;
 
     @Override
-    public I create(String locale, int amount) throws ItemCreationException {
+    public I create(Locale locale, int amount) throws ItemCreationException {
         I result;
         try {
             result = createInitial(amount);
@@ -415,18 +415,18 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
             /** The component that is being affected. */
             private final CalibreComponent<I> component;
             /** The locale the name is being generated for. */
-            private final String locale;
+            private final Locale locale;
             /** The currently chosen name. */
             private net.kyori.adventure.text.Component result;
 
-            public NameCreate(CalibreComponent<I> component, String locale, net.kyori.adventure.text.Component result) {
+            public NameCreate(CalibreComponent<I> component, Locale locale, net.kyori.adventure.text.Component result) {
                 this.component = component;
                 this.locale = locale;
                 this.result = result;
             }
 
             public CalibreComponent<I> component() { return component; }
-            public String locale() { return locale; }
+            public Locale locale() { return locale; }
 
             public net.kyori.adventure.text.Component result() { return result; }
             public void result(net.kyori.adventure.text.Component result) { this.result = result; }
@@ -440,17 +440,17 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
             /** The component that is being affected. */
             private final CalibreComponent<I> component;
             /** The locale the name is being generated for. */
-            private final String locale;
+            private final Locale locale;
             /** The currently chosen item. */
             private final I item;
 
-            public ItemCreate(CalibreComponent<I> component, String locale, I item) {
+            public ItemCreate(CalibreComponent<I> component, Locale locale, I item) {
                 this.component = component;
                 this.locale = locale;
                 this.item = item;
             }
 
-            public String locale() { return locale; }
+            public Locale locale() { return locale; }
             public I item() { return item; }
             public CalibreComponent<I> component() { return component; }
         }

@@ -147,11 +147,7 @@ public class CasingManager implements Tickable {
     }
 
     public void load() {
-        try {
-            categories = plugin.setting("casing").get(new TypeToken<>(){});
-        } catch (SerializationException e) {
-            plugin.log(LogLevel.WARN, e, "Could not load casing settings");
-        }
+        categories = plugin.setting(n -> n.get(new TypeToken<>(){}), "casing");
     }
 
     public CalibrePlugin plugin() { return plugin; }

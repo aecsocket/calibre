@@ -11,6 +11,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
+import java.util.Locale;
+
 public interface EntityUser extends ItemUser, SenderUser, BukkitItemUser {
     Entity entity();
 
@@ -19,20 +21,16 @@ public interface EntityUser extends ItemUser, SenderUser, BukkitItemUser {
 
     @Override
     default void sendMessage(Component component) {
-        CalibrePlugin.instance().audiences()
-                .sender(entity())
-                .sendMessage(component);
+        entity().sendMessage(component);
     }
 
     @Override
     default void sendInfo(Component component) {
-        CalibrePlugin.instance().audiences()
-                .sender(entity())
-                .sendActionBar(component);
+        entity().sendActionBar(component);
     }
 
     @Override
-    default String locale() { return CalibrePlugin.instance().getDefaultLocale(); }
+    default Locale locale() { return CalibrePlugin.instance().defaultLocale(); }
 
     @Override default Vector3D position() { return VectorUtils.toUF(entity().getLocation().toVector()); }
     @Override default Vector3D direction() { return VectorUtils.toUF(entity().getLocation().getDirection()); }

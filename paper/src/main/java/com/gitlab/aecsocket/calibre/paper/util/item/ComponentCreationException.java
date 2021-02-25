@@ -1,6 +1,6 @@
 package com.gitlab.aecsocket.calibre.paper.util.item;
 
-import com.gitlab.aecsocket.calibre.core.proto.Tree;
+import com.gitlab.aecsocket.calibre.paper.proto.Tree;
 
 public class ComponentCreationException extends RuntimeException {
     private final Tree.Component component;

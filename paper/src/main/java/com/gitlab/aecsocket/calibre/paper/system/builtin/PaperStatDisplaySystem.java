@@ -9,6 +9,7 @@ import org.bukkit.map.MapFont;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -16,7 +17,7 @@ import java.util.function.Function;
 public class PaperStatDisplaySystem extends StatDisplaySystem implements PaperSystem {
     @FromMaster(fromDefault = true)
     private transient final CalibrePlugin plugin;
-    private static final Map<String, String> padding = new HashMap<>();
+    private static final Map<Locale, String> padding = new HashMap<>();
 
     /**
      * Used for registration.
@@ -44,7 +45,7 @@ public class PaperStatDisplaySystem extends StatDisplaySystem implements PaperSy
         plugin = o.plugin;
     }
 
-    @Override public CalibrePlugin plugin() { return plugin; }
+    @Override public CalibrePlugin calibre() { return plugin; }
 
     @Override protected int getWidth(String text) {
         MapFont font = plugin.font();
@@ -53,12 +54,12 @@ public class PaperStatDisplaySystem extends StatDisplaySystem implements PaperSy
         return font.getWidth(text);
     }
 
-    private String padding(String locale) {
-        return padding.computeIfAbsent(locale, __ -> plugin.setting("symbol", "pad").getString(" "));
+    private String padding(Locale locale) {
+        return padding.computeIfAbsent(locale, __ -> plugin.setting(n -> n.getString(" "), "symbol", "pad"));
     }
 
     @Override
-    protected String pad(String locale, int width) {
+    protected String pad(Locale locale, int width) {
         String padding = padding(locale);
         MapFont font = plugin.font();
         if (font.isValid(padding)) {

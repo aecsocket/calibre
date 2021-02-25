@@ -2,7 +2,7 @@ package com.gitlab.aecsocket.calibre.core.system.builtin;
 
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.component.CalibreSlot;
 import com.gitlab.aecsocket.calibre.core.system.AbstractSystem;
 import com.gitlab.aecsocket.unifiedframework.core.component.Slot;
@@ -10,10 +10,7 @@ import com.gitlab.aecsocket.unifiedframework.core.event.EventDispatcher;
 import com.gitlab.aecsocket.unifiedframework.core.util.Utils;
 import net.kyori.adventure.text.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class SlotDisplaySystem extends AbstractSystem {
     public static final String ID = "slot_display";
@@ -48,7 +45,7 @@ public abstract class SlotDisplaySystem extends AbstractSystem {
     }
 
     protected <I extends Item> void onEvent(CalibreComponent.Events.ItemCreate<I> event) {
-        String locale = event.locale();
+        Locale locale = event.locale();
         List<Component> info = new ArrayList<>();
         Component paddingStart = gen(locale, "system." + ID + ".padding.start");
         Component paddingMiddle = gen(locale, "system." + ID + ".padding.middle");

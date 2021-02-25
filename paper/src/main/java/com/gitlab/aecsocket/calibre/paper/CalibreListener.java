@@ -1,9 +1,11 @@
 package com.gitlab.aecsocket.calibre.paper;
 
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
+import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.core.component.CalibreSlot;
+import com.gitlab.aecsocket.calibre.core.world.user.ItemUser;
 import com.gitlab.aecsocket.calibre.paper.gui.SlotViewGUI;
-import com.gitlab.aecsocket.calibre.paper.util.CalibrePlayer;
+import com.gitlab.aecsocket.calibre.paper.util.PlayerData;
 import com.gitlab.aecsocket.calibre.paper.wrapper.slot.EntityEquipmentSlot;
 import com.gitlab.aecsocket.calibre.paper.wrapper.slot.InventorySlot;
 import com.gitlab.aecsocket.calibre.paper.component.PaperComponent;
@@ -16,9 +18,9 @@ import com.gitlab.aecsocket.calibre.paper.wrapper.user.PlayerUser;
 import com.gitlab.aecsocket.unifiedframework.paper.gui.GUIView;
 import com.gitlab.aecsocket.unifiedframework.paper.util.data.SoundData;
 import org.bukkit.GameMode;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -34,6 +36,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
+import java.util.Locale;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -61,12 +64,6 @@ public class CalibreListener implements Listener {
         if (player.getGameMode() == GameMode.SPECTATOR)
             return;
         callOn(player.getInventory().getItem(slot), comp -> function.accept(comp, slot));
-    }
-
-    @EventHandler
-    public void onEvent(PlayerQuitEvent event) {
-        Player player = event.getPlayer();
-        plugin.players().remove(player);
     }
 
     @EventHandler
@@ -102,17 +99,6 @@ public class CalibreListener implements Listener {
     }
 
     @EventHandler
-    public void onEvent(PlayerInteractEntityEvent event) {
-        if (event.getHand() != EquipmentSlot.HAND) return;
-        Player player = event.getPlayer();
-        PlayerInteractEvent event2 = new PlayerInteractEvent(
-                event.getPlayer(), Action.RIGHT_CLICK_AIR, event.getPlayer().getActiveItem(), null, BlockFace.SELF
-        );
-        callOn(player, EquipmentSlot.HAND, (comp, slot) -> comp.tree().call(BukkitItemEvents.BukkitInteract.of(event2, comp, slot)));
-        callOn(player, EquipmentSlot.OFF_HAND, (comp, slot) -> comp.tree().call(BukkitItemEvents.BukkitInteract.of(event2, comp, slot)));
-    }
-
-    @EventHandler
     public void onEvent(PlayerSwapHandItemsEvent event) {
         Player player = event.getPlayer();
         callOn(player, EquipmentSlot.HAND, (comp, slot) -> comp.tree().call(BukkitItemEvents.BukkitSwapHand.of(event, comp, slot)));
@@ -124,7 +110,7 @@ public class CalibreListener implements Listener {
         Player player = event.getPlayer();
         if (player.getGameMode() == GameMode.SPECTATOR || player.getGameMode() == GameMode.CREATIVE) // creative mode: quit inventory = drop
             return;
-        CalibrePlayer data = plugin.playerData(event.getPlayer());
+        PlayerData data = plugin.playerData(event.getPlayer());
         data.cancelInteract();
         boolean inventoryDrop = data.isInventoryDrop();
         callOn(event.getItemDrop().getItemStack(), comp -> comp.tree().call(BukkitItemEvents.BukkitDrop.of(event, comp, !inventoryDrop)));
@@ -140,7 +126,7 @@ public class CalibreListener implements Listener {
         PaperComponent cursor = plugin.itemManager().get(cursorStack);
         ClickType type = event.getClick();
         Player player = (Player) event.getWhoClicked();
-        CalibrePlayer data = plugin.playerData(player);
+        PlayerData data = plugin.playerData(player);
         data.cancelInteract();
         data.setInventoryDrop();
 
@@ -150,16 +136,16 @@ public class CalibreListener implements Listener {
                 return;
         }
 
-        if (clicked != null && clicked.tree().call(BukkitItemEvents.BukkitClick.of(event, clicked)).cancelled())
+        if (clicked != null && clicked.tree().call(BukkitItemEvents.BukkitItemClick.of(event, clicked)).cancelled())
             return;
 
-        if (clicked != null && cursor != null && type == ClickType.LEFT && plugin.setting("quick_modify", "enabled").getBoolean(true)) {
-            CalibreSlot slot = clicked.combine(cursor, plugin.setting("quick_modify", "limited").getBoolean(true));
+        if (clicked != null && cursor != null && type == ClickType.LEFT && plugin.setting(n -> n.getBoolean(true), "quick_modify", "enabled")) {
+            CalibreSlot slot = clicked.combine(cursor, plugin.setting(n -> n.getBoolean(true), "quick_modify", "limited"));
             if (slot != null) {
                 SoundData.play(player::getLocation, cursor.tree().stat("modify_sound"));
                 clicked.buildTree();
                 event.setCancelled(true);
-                String locale = player.getLocale();
+                Locale locale = player.locale();
 
                 int cursorAmount = cursorStack.getAmount();
                 int clickedAmount = clickedStack.getAmount();
@@ -174,12 +160,12 @@ public class CalibreListener implements Listener {
             return;
         }
 
-        if (clicked != null && cursor == null && type == ClickType.RIGHT && plugin.setting("slot_view", "enabled").getBoolean(true)) {
+        if (clicked != null && cursor == null && type == ClickType.RIGHT && plugin.setting(n -> n.getBoolean(true), "slot_view", "enabled")) {
             event.setCancelled(true);
             new SlotViewGUI(
                     plugin, clicked,
-                    plugin.setting("slot_view", "modification").getBoolean(true),
-                    plugin.setting("slot_view", "limited").getBoolean(true),
+                    plugin.setting(n -> n.getBoolean(true), "slot_view", "modification"),
+                    plugin.setting(n -> n.getBoolean(true), "slot_view", "limited"),
                     BukkitSlot.of(event::getCurrentItem, event::setCurrentItem)
             ).open(player);
             return;
@@ -257,6 +243,30 @@ public class CalibreListener implements Listener {
     }
 
     @EventHandler
+    public void onEvent(PlayerAnimationEvent event) {
+        Player player = event.getPlayer();
+        if (plugin.playerData(player).cancelledInteract())
+            return;
+
+        if (event.getAnimationType() != PlayerAnimationType.ARM_SWING)
+            return;
+
+        class AnimationClick extends ItemEvents.Base<BukkitItem> implements ItemEvents.GameClick<BukkitItem> {
+            public AnimationClick(CalibreComponent<BukkitItem> component, ItemUser user, ItemSlot<BukkitItem> slot) {
+                super(component, user, slot);
+            }
+
+            @Override public boolean cancelled() { return event.isCancelled(); }
+            @Override public void cancel() { event.setCancelled(true); }
+
+            @Override public int type() { return ItemEvents.GameClick.LEFT; }
+        }
+
+        callOn(player, EquipmentSlot.HAND, (comp, slot) -> comp.tree().call(new AnimationClick(comp, PlayerUser.of(player), EntityEquipmentSlot.of(player, slot))));
+        callOn(player, EquipmentSlot.OFF_HAND, (comp, slot) -> comp.tree().call(new AnimationClick(comp, PlayerUser.of(player), EntityEquipmentSlot.of(player, slot))));
+    }
+
+    @EventHandler
     public void onEvent(PlayerInteractEvent event) {
         if (event.getHand() != EquipmentSlot.HAND)
             return;
@@ -264,13 +274,29 @@ public class CalibreListener implements Listener {
         if (plugin.playerData(player).cancelledInteract())
             return;
 
-        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            CalibrePlayer data = plugin.playerData(player);
+        Action action = event.getAction();
+        if (action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK)
+            return; // handled in player animation
+
+        if (action == Action.RIGHT_CLICK_BLOCK) {
+            PlayerData data = plugin.playerData(player);
             if (data.cancelledBlockInteract())
                 return;
             data.cancelBlockInteract();
         }
-        callOn(player, EquipmentSlot.HAND, (comp, slot) -> comp.tree().call(BukkitItemEvents.BukkitInteract.of(event, comp, slot)));
-        callOn(player, EquipmentSlot.OFF_HAND, (comp, slot) -> comp.tree().call(BukkitItemEvents.BukkitInteract.of(event, comp, slot)));
+
+        class InteractClick extends ItemEvents.Base<BukkitItem> implements ItemEvents.GameClick<BukkitItem> {
+            public InteractClick(CalibreComponent<BukkitItem> component, ItemUser user, ItemSlot<BukkitItem> slot) {
+                super(component, user, slot);
+            }
+
+            @Override public boolean cancelled() { return event.useItemInHand() == Event.Result.DENY && event.useInteractedBlock() == Event.Result.DENY; }
+            @Override public void cancel() { event.setCancelled(true); }
+
+            @Override public int type() { return ItemEvents.GameClick.RIGHT; }
+        }
+
+        callOn(player, EquipmentSlot.HAND, (comp, slot) -> comp.tree().call(new InteractClick(comp, PlayerUser.of(player), EntityEquipmentSlot.of(player, slot))));
+        callOn(player, EquipmentSlot.OFF_HAND, (comp, slot) -> comp.tree().call(new InteractClick(comp, PlayerUser.of(player), EntityEquipmentSlot.of(player, slot))));
     }
 }

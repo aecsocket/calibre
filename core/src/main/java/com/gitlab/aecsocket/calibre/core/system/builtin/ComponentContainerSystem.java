@@ -1,7 +1,7 @@
 package com.gitlab.aecsocket.calibre.core.system.builtin;
 
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import io.leangen.geantyref.TypeToken;
 import com.gitlab.aecsocket.calibre.core.component.ComponentCompatibility;
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
@@ -20,10 +20,7 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @ConfigSerializable
@@ -131,7 +128,7 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
         EventDispatcher events = tree.events();
         events.registerListener(CalibreComponent.Events.NameCreate.class, this::onEvent, listenerPriority);
         events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, listenerPriority);
-        events.registerListener(ItemEvents.Click.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.ItemClick.class, this::onEvent, listenerPriority);
     }
 
     protected void onEvent(CalibreComponent.Events.NameCreate<?> event) {
@@ -140,14 +137,14 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
                 "amount", Integer.toString(amount())));
     }
 
-    protected Component writeTotal(String locale, int total) {
+    protected Component writeTotal(Locale locale, int total) {
         return gen(locale, "system." + ID + ".total",
                 "total", Integer.toString(total));
     }
 
     protected void onEvent(CalibreComponent.Events.ItemCreate<?> event) {
         List<Component> info = new ArrayList<>();
-        String locale = event.locale();
+        Locale locale = event.locale();
 
         int total = 0;
         for (Quantifier<CalibreComponent<?>> quantifier : components) {
@@ -165,14 +162,14 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
         return shiftClick ? 1 : rawCursor.amount();
     }
 
-    protected <I extends Item> void remove(ItemEvents.Click<I> event, Quantifier<CalibreComponent<I>> last) {}
-    protected <I extends Item> void insert(ItemEvents.Click<I> event, int amount, I rawCursor, CalibreComponent<I> cursor) {}
+    protected <I extends Item> void remove(ItemEvents.ItemClick<I> event, Quantifier<CalibreComponent<I>> last) {}
+    protected <I extends Item> void insert(ItemEvents.ItemClick<I> event, int amount, I rawCursor, CalibreComponent<I> cursor) {}
 
-    protected <I extends Item> void onEvent(ItemEvents.Click<I> event) {
+    protected <I extends Item> void onEvent(ItemEvents.ItemClick<I> event) {
         if (event.slot().get().amount() > 1)
             return;
 
-        String locale = event.user().locale();
+        Locale locale = event.user().locale();
         I rawCursor = event.cursor().get();
         if (event.rightClick()) {
             if (!event.shiftClick() || rawCursor != null)
@@ -191,15 +188,15 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
             CalibreComponent<I> cursor = event.component().getComponent(rawCursor);
             if (cursor == null)
                 return;
-            if (!accepts(cursor))
-                return;
-            int amount = amountToInsert(rawCursor, cursor, event.shiftClick());
-            if (amount <= 0)
-                return;
-            push(cursor, amount);
-            rawCursor.subtract(amount);
-            event.cursor().set(rawCursor);
-            insert(event, amount, rawCursor, cursor);
+            if (accepts(cursor)) {
+                int amount = amountToInsert(rawCursor, cursor, event.shiftClick());
+                if (amount > 0) {
+                    push(cursor, amount);
+                    rawCursor.subtract(amount);
+                    event.cursor().set(rawCursor);
+                    insert(event, amount, rawCursor, cursor);
+                }
+            }
         }
 
         event.cancel();

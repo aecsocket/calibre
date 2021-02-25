@@ -3,7 +3,7 @@ package com.gitlab.aecsocket.calibre.core.system.builtin;
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
 import com.gitlab.aecsocket.calibre.core.system.StatRenderer;
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.system.AbstractSystem;
 import com.gitlab.aecsocket.calibre.core.system.FromMaster;
 import com.gitlab.aecsocket.unifiedframework.core.event.EventDispatcher;
@@ -93,7 +93,7 @@ public abstract class StatDisplaySystem extends AbstractSystem implements StatRe
     }
 
     protected abstract int getWidth(String text);
-    protected abstract String pad(String locale, int width);
+    protected abstract String pad(Locale locale, int width);
 
     protected boolean drawn(StatInstance<?> inst) {
         if (inst.empty())
@@ -102,7 +102,7 @@ public abstract class StatDisplaySystem extends AbstractSystem implements StatRe
     }
 
     @Override
-    public List<Component> createInfo(String locale, Map<Integer, StatMap> stats, Component prefix) {
+    public List<Component> createInfo(Locale locale, Map<Integer, StatMap> stats, Component prefix) {
         List<Component> info = new ArrayList<>();
         if (sections == null)
             return info;
@@ -208,7 +208,7 @@ public abstract class StatDisplaySystem extends AbstractSystem implements StatRe
         return info;
     }
 
-    protected <T> Component addElement(String locale, Element element, StatInstance<T> inst, int columnWidth, Tuple2<Component, Integer> generated) {
+    protected <T> Component addElement(Locale locale, Element element, StatInstance<T> inst, int columnWidth, Tuple2<Component, Integer> generated) {
         @SuppressWarnings("unchecked")
         Formatter<T> formatter = (Formatter<T>) formatter(inst.get().getClass());
         if (formatter == null)
@@ -219,7 +219,7 @@ public abstract class StatDisplaySystem extends AbstractSystem implements StatRe
                 "value", formatter.format(locale, inst, element));
     }
 
-    protected <T> Component generateKey(String locale, StatInstance<T> inst, Element element) {
+    protected <T> Component generateKey(Locale locale, StatInstance<T> inst, Element element) {
         @SuppressWarnings("unchecked")
         Formatter<T> formatter = (Formatter<T>) formatter(inst.get().getClass());
         if (formatter != null) {

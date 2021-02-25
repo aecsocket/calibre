@@ -4,7 +4,7 @@ import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.core.system.ItemEvents;
-import com.gitlab.aecsocket.calibre.paper.util.CalibrePlayer;
+import com.gitlab.aecsocket.calibre.paper.util.PlayerData;
 import com.gitlab.aecsocket.calibre.core.world.slot.EquippableSlot;
 import com.gitlab.aecsocket.calibre.core.world.slot.ItemSlot;
 import com.gitlab.aecsocket.calibre.core.world.user.ItemUser;
@@ -25,7 +25,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -143,47 +142,6 @@ public final class BukkitItemEvents {
         @Override public void cancel() { cancelled = true; }
     }
 
-    public static class BukkitInteract extends Base implements ItemEvents.Interact<BukkitItem> {
-        private final PlayerInteractEvent event;
-        private final int type;
-
-        public BukkitInteract(PlayerInteractEvent event, CalibreComponent<BukkitItem> component, ItemUser user, ItemSlot<BukkitItem> slot, int type) {
-            super(component, user, slot);
-            this.event = event;
-            this.type = type;
-        }
-
-        public PlayerInteractEvent event() { return event; }
-        @Override public int type() { return type; }
-
-        @Override public boolean cancelled() { return event.useItemInHand() == Event.Result.DENY; }
-        @Override public void cancel() { event.setUseItemInHand(Event.Result.DENY); }
-
-        public static BukkitInteract of(PlayerInteractEvent event, PaperComponent component, EquipmentSlot slot) {
-            Player player = event.getPlayer();
-            int type;
-            switch (event.getAction()) {
-                case LEFT_CLICK_AIR:
-                case LEFT_CLICK_BLOCK:
-                    type = LEFT;
-                    break;
-                case RIGHT_CLICK_AIR:
-                case RIGHT_CLICK_BLOCK:
-                    type = RIGHT;
-                    break;
-                default:
-                    throw new IllegalArgumentException("Incompatible action type " + event.getAction());
-            }
-            return new BukkitInteract(
-                    event,
-                    component,
-                    PlayerUser.of(player),
-                    EntityEquipmentSlot.of(player, slot),
-                    type
-            );
-        }
-    }
-
     public static class BukkitSwapHand extends Base implements ItemEvents.SwapHand<BukkitItem> {
         private final PlayerSwapHandItemsEvent event;
         private final ItemSlot<BukkitItem> offhand;
@@ -232,7 +190,7 @@ public final class BukkitItemEvents {
             event.setCancelled(true);
 
             if (user() instanceof PlayerUser) {
-                CalibrePlayer data = plugin.playerData(((PlayerUser) user()).entity());
+                PlayerData data = plugin.playerData(((PlayerUser) user()).entity());
                 if (data.animation() != null)
                     Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> data.animation().apply(), 2);
             }
@@ -259,12 +217,12 @@ public final class BukkitItemEvents {
         }
     }
 
-    public static class BukkitClick extends Base implements ItemEvents.Click<BukkitItem> {
+    public static class BukkitItemClick extends Base implements ItemEvents.ItemClick<BukkitItem> {
         private final InventoryClickEvent event;
         private final ItemSlot<BukkitItem> cursor;
         private final boolean leftClick, rightClick, shiftClick;
 
-        public BukkitClick(InventoryClickEvent event, CalibreComponent<BukkitItem> component, ItemUser user, ItemSlot<BukkitItem> slot, ItemSlot<BukkitItem> cursor, boolean leftClick, boolean rightClick, boolean shiftClick) {
+        public BukkitItemClick(InventoryClickEvent event, CalibreComponent<BukkitItem> component, ItemUser user, ItemSlot<BukkitItem> slot, ItemSlot<BukkitItem> cursor, boolean leftClick, boolean rightClick, boolean shiftClick) {
             super(component, user, slot);
             this.event = event;
             this.cursor = cursor;
@@ -282,8 +240,8 @@ public final class BukkitItemEvents {
         @Override public boolean cancelled() { return event.isCancelled(); }
         @Override public void cancel() { event.setCancelled(true); }
 
-        public static BukkitClick of(InventoryClickEvent event, PaperComponent component) {
-            return new BukkitClick(
+        public static BukkitItemClick of(InventoryClickEvent event, PaperComponent component) {
+            return new BukkitItemClick(
                     event,
                     component,
                     PlayerUser.of((Player) event.getWhoClicked()),

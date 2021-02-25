@@ -12,17 +12,18 @@ import net.kyori.adventure.text.Component;
 import org.spongepowered.configurate.ConfigurationNode;
 
 import java.text.DecimalFormat;
+import java.util.Locale;
 
 public interface Formatter<T> {
-    Component key(String locale, StatInstance<T> inst, StatDisplaySystem.Element element);
-    Component format(String locale, StatInstance<T> inst, StatDisplaySystem.Element element);
+    Component key(Locale locale, StatInstance<T> inst, StatDisplaySystem.Element element);
+    Component format(Locale locale, StatInstance<T> inst, StatDisplaySystem.Element element);
 
     abstract class NumberDescriptorFormatter<N extends Number, T extends NumberDescriptor<N>> implements Formatter<T> {
-        protected abstract Component bar(String locale, String key, double percent);
-        protected abstract Component gen(String locale, String key, Object... args);
+        protected abstract Component bar(Locale locale, String key, double percent);
+        protected abstract Component gen(Locale locale, String key, Object... args);
 
         @Override
-        public Component key(String locale, StatInstance<T> inst, StatDisplaySystem.Element element) {
+        public Component key(Locale locale, StatInstance<T> inst, StatDisplaySystem.Element element) {
             NumberDescriptor<N> desc = inst.raw();
             ConfigurationNode config = element.config();
 
@@ -32,7 +33,7 @@ public interface Formatter<T> {
         }
 
         @Override
-        public Component format(String locale, StatInstance<T> inst, StatDisplaySystem.Element element) {
+        public Component format(Locale locale, StatInstance<T> inst, StatDisplaySystem.Element element) {
             NumberDescriptor<N> desc = inst.raw();
 
             Tuple3<String, Double, ConfigurationNode> generated = generate(desc.toDouble(desc.value()), desc, element.config());
@@ -90,16 +91,16 @@ public interface Formatter<T> {
     }
 
     abstract class Vector2DDescriptorFormatter implements Formatter<Vector2DDescriptor> {
-        protected abstract Component bar(String locale, String key, double percent);
-        protected abstract Component gen(String locale, String key, Object... args);
+        protected abstract Component bar(Locale locale, String key, double percent);
+        protected abstract Component gen(Locale locale, String key, Object... args);
 
         @Override
-        public Component key(String locale, StatInstance<Vector2DDescriptor> inst, StatDisplaySystem.Element element) {
+        public Component key(Locale locale, StatInstance<Vector2DDescriptor> inst, StatDisplaySystem.Element element) {
             return null;
         }
 
         @Override
-        public Component format(String locale, StatInstance<Vector2DDescriptor> inst, StatDisplaySystem.Element element) {
+        public Component format(Locale locale, StatInstance<Vector2DDescriptor> inst, StatDisplaySystem.Element element) {
             ConfigurationNode config = element.config();
 
             Vector2DDescriptor desc = inst.raw();

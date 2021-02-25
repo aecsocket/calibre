@@ -35,7 +35,7 @@ public class PaperFireModeSystem extends FireModeSystem implements PaperSystem {
         plugin = o.plugin;
     }
 
-    @Override public CalibrePlugin plugin() { return plugin; }
+    @Override public CalibrePlugin calibre() { return plugin; }
 
     @Override public PaperFireModeSystem copy() { return new PaperFireModeSystem(this); }
 }

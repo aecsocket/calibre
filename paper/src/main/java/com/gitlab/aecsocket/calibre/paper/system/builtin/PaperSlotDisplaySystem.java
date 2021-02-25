@@ -35,7 +35,7 @@ public class PaperSlotDisplaySystem extends SlotDisplaySystem implements PaperSy
         plugin = o.plugin;
     }
 
-    @Override public CalibrePlugin plugin() { return plugin; }
+    @Override public CalibrePlugin calibre() { return plugin; }
 
     @Override public PaperSlotDisplaySystem copy() { return new PaperSlotDisplaySystem(this); }
 }

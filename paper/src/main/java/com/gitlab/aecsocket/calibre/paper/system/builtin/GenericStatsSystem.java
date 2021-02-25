@@ -5,11 +5,10 @@ import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
 import com.gitlab.aecsocket.calibre.core.system.*;
 import com.gitlab.aecsocket.calibre.core.system.builtin.SchedulerSystem;
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.world.slot.EquippableSlot;
 import com.gitlab.aecsocket.calibre.paper.wrapper.user.BukkitItemUser;
 import com.gitlab.aecsocket.calibre.paper.system.PaperSystem;
-import me.aecsocket.calibre.system.*;
 import com.gitlab.aecsocket.calibre.paper.util.CalibreProtocol;
 import com.gitlab.aecsocket.calibre.paper.util.ItemAnimation;
 import com.gitlab.aecsocket.calibre.core.world.slot.ItemSlot;
@@ -98,7 +97,7 @@ public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
         plugin = o.plugin;
     }
 
-    @Override public CalibrePlugin plugin() { return plugin; }
+    @Override public CalibrePlugin calibre() { return plugin; }
 
     @Override public String id() { return ID; }
     @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }

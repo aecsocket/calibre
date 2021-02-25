@@ -2,7 +2,7 @@ package com.gitlab.aecsocket.calibre.paper.component;
 
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
-import com.gitlab.aecsocket.calibre.core.proto.Tree;
+import com.gitlab.aecsocket.calibre.paper.proto.Tree;
 import com.gitlab.aecsocket.calibre.core.util.ItemCreationException;
 import com.gitlab.aecsocket.calibre.paper.util.ItemDescriptor;
 import com.gitlab.aecsocket.calibre.core.util.StatCollection;
@@ -25,6 +25,7 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 @ConfigSerializable
@@ -97,7 +98,7 @@ public class PaperComponent extends CalibreComponent<BukkitItem> {
         return super.buildStats();
     }
 
-    @Override public net.kyori.adventure.text.Component gen(String locale, String key, Object... args) { return plugin.gen(locale, key, args); }
+    @Override public net.kyori.adventure.text.Component gen(Locale locale, String key, Object... args) { return plugin.gen(locale, key, args); }
     @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }
     @Override
     protected void prepareStatDeserialization(Map<String, Stat<?>> originals) {
@@ -117,16 +118,13 @@ public class PaperComponent extends CalibreComponent<BukkitItem> {
         if (descriptor == null)
             throw new ItemCreationException("No item descriptor");
         try {
-            return BukkitItem.of(BukkitUtils.modMeta(descriptor.create(amount), meta -> {
-                meta.setUnbreakable(true);
-                meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
-            }));
+            return BukkitItem.of(BukkitUtils.modMeta(descriptor.create(amount), meta -> meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE)));
         } catch (IllegalArgumentException e) {
             throw new ItemCreationException(e);
         }
     }
 
-    public ItemStack create(String locale, ItemStack existing) {
+    public ItemStack create(Locale locale, ItemStack existing) {
         BukkitItem result = create(locale, existing.getAmount());
         return result == null ? null : result.item();
     }

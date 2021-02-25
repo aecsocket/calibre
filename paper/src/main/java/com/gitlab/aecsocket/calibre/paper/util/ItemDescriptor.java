@@ -8,6 +8,7 @@ import com.gitlab.aecsocket.unifiedframework.paper.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -39,23 +40,28 @@ public class ItemDescriptor {
     private final NamespacedKey id;
     private final Integer modelData;
     private final Integer damage;
+    private final boolean unbreakable;
 
-    public ItemDescriptor(NamespacedKey id, Integer modelData, Integer damage) {
+    public ItemDescriptor(NamespacedKey id, Integer modelData, Integer damage, boolean unbreakable) {
         this.id = id;
         this.modelData = modelData;
         this.damage = damage;
+        this.unbreakable = unbreakable;
     }
 
-    public ItemDescriptor() { this(null, null, null); }
+    public ItemDescriptor() { this(null, null, null, false); }
 
     public NamespacedKey id() { return id; }
-    public ItemDescriptor id(NamespacedKey id) { return new ItemDescriptor(id, modelData, damage); }
+    public ItemDescriptor id(NamespacedKey id) { return new ItemDescriptor(id, modelData, damage, unbreakable); }
 
     public Integer modelData() { return modelData; }
-    public ItemDescriptor modelData(Integer modelData) { return new ItemDescriptor(id, modelData, damage); }
+    public ItemDescriptor modelData(Integer modelData) { return new ItemDescriptor(id, modelData, damage, unbreakable); }
 
     public Integer damage() { return damage; }
-    public ItemDescriptor damage(Integer damage) { return new ItemDescriptor(id, modelData, damage); }
+    public ItemDescriptor damage(Integer damage) { return new ItemDescriptor(id, modelData, damage, unbreakable); }
+
+    public boolean unbreakable() { return unbreakable; }
+    public ItemDescriptor unbreakable(boolean unbreakable) { return new ItemDescriptor(id, modelData, damage, unbreakable); }
 
     public ItemStack apply(ItemStack item) {
         Material material = Registry.MATERIAL.get(id);
@@ -65,6 +71,8 @@ public class ItemDescriptor {
         return BukkitUtils.modMeta(item, meta -> {
             if (modelData != null)
                 meta.setCustomModelData(modelData);
+            if (unbreakable)
+                meta.setUnbreakable(true);
             if (damage != null && meta instanceof Damageable)
                 ((Damageable) meta).setDamage(damage);
         });

@@ -50,7 +50,7 @@ public class ItemManager {
             long time = System.currentTimeMillis();
             if (time >= nextInvalidDataError) {
                 plugin.log(LogLevel.WARN, e, "Could not get component from item %s x %d", item.getType().name(), item.getAmount());
-                nextInvalidDataError = time + plugin.setting("invalid_data_error_delay").getLong(60000);
+                nextInvalidDataError = time + plugin.setting(n -> n.getLong(6000), "invalid_data_error_delay");
             }
             return null;
         }

@@ -22,7 +22,7 @@ public class PaperChamberSystem extends ChamberSystem implements PaperSystem {
         plugin = o.plugin;
     }
 
-    @Override public CalibrePlugin plugin() { return plugin; }
+    @Override public CalibrePlugin calibre() { return plugin; }
 
     @Override public PaperChamberSystem copy() { return new PaperChamberSystem(this); }
 }

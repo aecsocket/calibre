@@ -6,6 +6,8 @@ import com.gitlab.aecsocket.calibre.paper.wrapper.BukkitItem;
 import net.kyori.adventure.text.Component;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
+import java.util.Locale;
+
 @ConfigSerializable
 public class PaperBlueprint extends Blueprint<BukkitItem> {
     protected transient final CalibrePlugin plugin;
@@ -17,5 +19,5 @@ public class PaperBlueprint extends Blueprint<BukkitItem> {
 
     public PaperBlueprint() { this(CalibrePlugin.instance(), null); }
 
-    @Override public Component gen(String locale, String key, Object... args) { return plugin.gen(locale, key, args); }
+    @Override public Component gen(Locale locale, String key, Object... args) { return plugin.gen(locale, key, args); }
 }

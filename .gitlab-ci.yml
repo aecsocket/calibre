@@ -8,7 +8,6 @@ variables:
   MAVEN_OPTS: "-Dmaven.repo.local=maven.repository"
 
 build:
-  image: "maven:3-jdk-11"
   script:
     - "mvn package -B"
   artifacts:

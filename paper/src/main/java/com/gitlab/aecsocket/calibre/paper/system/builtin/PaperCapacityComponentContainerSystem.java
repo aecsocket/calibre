@@ -2,12 +2,12 @@ package com.gitlab.aecsocket.calibre.paper.system.builtin;
 
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.core.system.builtin.CapacityComponentContainerSystem;
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.paper.wrapper.user.BukkitItemUser;
 import com.google.protobuf.Any;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.paper.component.PaperComponent;
-import com.gitlab.aecsocket.calibre.core.proto.system.SystemsBuiltin;
+import com.gitlab.aecsocket.calibre.paper.proto.system.SystemsBuiltin;
 import com.gitlab.aecsocket.calibre.core.system.FromMaster;
 import com.gitlab.aecsocket.calibre.core.system.ItemEvents;
 import com.gitlab.aecsocket.calibre.paper.system.PaperSystem;
@@ -44,17 +44,17 @@ public class PaperCapacityComponentContainerSystem extends CapacityComponentCont
         plugin = o.plugin;
     }
 
-    @Override public CalibrePlugin plugin() { return plugin; }
+    @Override public CalibrePlugin calibre() { return plugin; }
 
     @Override
-    protected <I extends Item> void remove(ItemEvents.Click<I> event, Quantifier<CalibreComponent<I>> last) {
+    protected <I extends Item> void remove(ItemEvents.ItemClick<I> event, Quantifier<CalibreComponent<I>> last) {
         super.remove(event, last);
         if (event.user() instanceof BukkitItemUser)
             SoundData.play(((BukkitItemUser) event.user())::location, last.get().tree().stat("remove_sound"));
     }
 
     @Override
-    protected <I extends Item> void insert(ItemEvents.Click<I> event, int amount, I rawCursor, CalibreComponent<I> cursor) {
+    protected <I extends Item> void insert(ItemEvents.ItemClick<I> event, int amount, I rawCursor, CalibreComponent<I> cursor) {
         super.insert(event, amount, rawCursor, cursor);
         if (event.user() instanceof BukkitItemUser)
             SoundData.play(((BukkitItemUser) event.user())::location, cursor.tree().stat("insert_sound"));

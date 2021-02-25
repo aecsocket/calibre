@@ -72,19 +72,15 @@ public class SlotViewGUI extends GUI {
     @Override public GUIManager getGUIManager() { return plugin().guiManager(); }
     @Override public InventorySize getSize(Player player) { return SIZE; }
     @Override public net.kyori.adventure.text.Component getTitle(Player player) {
-        return plugin.gen(player.getLocale(), "slot_view.title",
-            "name", component.name(player.getLocale()));
+        return plugin.gen(player.locale(), "slot_view.title",
+            "name", component.name(player.locale()));
     }
 
     @Override
     public Map<Integer, GUIItem> getItems(Player player) {
         Map<Integer, GUIItem> result = new HashMap<>();
         GUIVector vec;
-        try {
-            vec = plugin.setting("slot_view", "center").get(GUIVector.class, CENTER);
-        } catch (SerializationException e) {
-            vec = CENTER;
-        }
+        vec = plugin.setting(n -> n.get(GUIVector.class, CENTER), "slot_view", "center");
         result.put(
                 vec.slot(),
                 new SlotViewItem(plugin, component, modification, limited, amount)
@@ -107,7 +103,7 @@ public class SlotViewGUI extends GUI {
 
     @Override
     public GUIView createView(Player player) {
-        slot.set(component.create(player.getLocale(), slot.get().amount()));
+        slot.set(component.create(player.locale(), slot.get().amount()));
         return super.createView(player);
     }
 
@@ -138,7 +134,7 @@ public class SlotViewGUI extends GUI {
     public void notifyUpdate(GUIView view) {
         component.buildTree();
         if (slot != null)
-            slot.set(component.create(view.getPlayer().getLocale(), slot.get().amount()));
+            slot.set(component.create(view.getPlayer().locale(), slot.get().amount()));
         view.reopen();
     }
 }

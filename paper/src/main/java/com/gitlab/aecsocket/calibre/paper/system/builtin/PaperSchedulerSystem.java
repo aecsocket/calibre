@@ -3,10 +3,10 @@ package com.gitlab.aecsocket.calibre.paper.system.builtin;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
-import com.gitlab.aecsocket.calibre.core.proto.system.SystemsBuiltin;
+import com.gitlab.aecsocket.calibre.paper.proto.system.SystemsBuiltin;
 import com.gitlab.aecsocket.calibre.paper.system.PaperSystem;
 import com.gitlab.aecsocket.calibre.core.system.builtin.SchedulerSystem;
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.google.protobuf.Any;
 import com.gitlab.aecsocket.calibre.core.system.FromMaster;
 import com.gitlab.aecsocket.calibre.core.system.ItemEvents;
@@ -45,7 +45,7 @@ public class PaperSchedulerSystem extends SchedulerSystem implements PaperSystem
         plugin = o.plugin;
     }
 
-    @Override public CalibrePlugin plugin() { return plugin; }
+    @Override public CalibrePlugin calibre() { return plugin; }
 
     @Override
     public void parentTo(ComponentTree tree, CalibreComponent<?> parent) {

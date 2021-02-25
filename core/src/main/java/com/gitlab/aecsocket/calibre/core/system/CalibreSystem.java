@@ -2,7 +2,7 @@ package com.gitlab.aecsocket.calibre.core.system;
 
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.util.CalibreIdentifiable;
 import com.gitlab.aecsocket.calibre.core.util.StatCollection;
 import com.gitlab.aecsocket.calibre.core.world.slot.ItemSlot;

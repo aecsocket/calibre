@@ -25,7 +25,7 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import java.util.Collections;
 import java.util.EnumMap;
 
-public final class CalibrePlayer implements Tickable {
+public final class PlayerData implements Tickable {
     public static final ParticleData[] OFFSET_PARTICLE = {
             new ParticleData().particle(Particle.FIREWORKS_SPARK)
     };
@@ -55,10 +55,10 @@ public final class CalibrePlayer implements Tickable {
     private long recoilRecoveryAt;
     private Vector2D recoilToRecover = new Vector2D();
 
-    public CalibrePlayer(CalibrePlugin plugin, Player player) {
+    public PlayerData(CalibrePlugin plugin, Player player) {
         this.plugin = plugin;
         this.player = player;
-        maxStamina = plugin.setting("stamina", "max").getDouble(5000);
+        maxStamina = plugin.setting(n -> n.getDouble(5000), "stamina", "max");
         stamina = maxStamina;
     }
 
@@ -137,7 +137,7 @@ public final class CalibrePlayer implements Tickable {
             stamina = 0;
             stabilizeBlocked = true;
         }
-        staminaRecoverAt = System.currentTimeMillis() + plugin.setting("stamina", "recover_after").getLong(2000);
+        staminaRecoverAt = System.currentTimeMillis() + plugin.setting(n -> n.getLong(2000), "stamina", "recover_after");
     }
 
     public boolean stabilize() {
@@ -160,9 +160,7 @@ public final class CalibrePlayer implements Tickable {
         if (offset != null) {
             Location eyeLoc = player.getEyeLocation();
             Location location = VectorUtils.toBukkit(Utils.relativeOffset(VectorUtils.toUF(eyeLoc.toVector()), VectorUtils.toUF(eyeLoc.getDirection()), offset)).toLocation(player.getWorld());
-            try {
-                ParticleData.spawn(player, location, plugin.setting("offset_particle").get(ParticleData[].class, OFFSET_PARTICLE));
-            } catch (SerializationException ignore) {}
+            ParticleData.spawn(player, location, plugin.setting(n -> n.get(ParticleData[].class, OFFSET_PARTICLE), "offset_particle"));
         }
 
         // show inaccuracy
@@ -187,12 +185,12 @@ public final class CalibrePlayer implements Tickable {
 
         if (stamina < maxStamina) {
             if (System.currentTimeMillis() >= staminaRecoverAt) {
-                stamina += plugin.setting("stamina", "recover").getDouble(1000) * (tickContext.delta() / 1000d);
+                stamina += plugin.setting(n -> n.getDouble(1000), "stamina", "recover") * (tickContext.delta() / 1000d);
                 if (stamina > maxStamina)
                     stamina = maxStamina;
             }
 
-            if (plugin.setting("stamina", "show_in_air_bar").getBoolean(true))
+            if (plugin.setting(n -> n.getBoolean(true), "stamina", "show_in_air_bar"))
                 CalibreProtocol.air(player, stamina / maxStamina);
         }
 

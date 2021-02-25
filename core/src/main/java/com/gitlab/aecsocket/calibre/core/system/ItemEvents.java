@@ -1,7 +1,7 @@
 package com.gitlab.aecsocket.calibre.core.system;
 
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.world.slot.ItemSlot;
 import com.gitlab.aecsocket.calibre.core.world.user.ItemUser;
 import com.gitlab.aecsocket.unifiedframework.core.event.Cancellable;
@@ -75,7 +75,7 @@ public final class ItemEvents {
         int position();
     }
 
-    public interface Interact<I extends Item> extends ItemEvent<I>, Cancellable {
+    public interface GameClick<I extends Item> extends ItemEvent<I>, Cancellable {
         int LEFT = 0;
         int RIGHT = 1;
 
@@ -88,7 +88,7 @@ public final class ItemEvents {
 
     public interface Drop<I extends Item> extends ItemEvent<I>, Cancellable {}
 
-    public interface Click<I extends Item> extends ItemEvent<I>, Cancellable {
+    public interface ItemClick<I extends Item> extends ItemEvent<I>, Cancellable {
         ItemSlot<I> cursor();
         boolean leftClick();
         boolean rightClick();

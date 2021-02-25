@@ -7,6 +7,8 @@ import com.gitlab.aecsocket.calibre.core.system.gun.GunInfoSystem;
 import net.kyori.adventure.text.Component;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
+import java.util.Locale;
+
 @ConfigSerializable
 public class PaperGunInfoSystem extends GunInfoSystem implements PaperSystem {
     @FromMaster(fromDefault = true)
@@ -40,10 +42,10 @@ public class PaperGunInfoSystem extends GunInfoSystem implements PaperSystem {
         staminaBarWidth = o.staminaBarWidth;
     }
 
-    @Override public CalibrePlugin plugin() { return plugin; }
+    @Override public CalibrePlugin calibre() { return plugin; }
 
     @Override
-    protected Component bar(String locale, String key, double percent) {
+    protected Component bar(Locale locale, String key, double percent) {
         return plugin.bar(locale, key, percent, 0d, staminaBarWidth);
     }
 

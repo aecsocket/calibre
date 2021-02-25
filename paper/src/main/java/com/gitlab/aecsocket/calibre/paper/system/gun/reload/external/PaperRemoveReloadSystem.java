@@ -3,7 +3,7 @@ package com.gitlab.aecsocket.calibre.paper.system.gun.reload.external;
 import com.gitlab.aecsocket.calibre.paper.system.PaperSystem;
 import com.gitlab.aecsocket.calibre.core.system.gun.GunSystem;
 import com.gitlab.aecsocket.calibre.core.system.gun.reload.external.RemoveReloadSystem;
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.paper.wrapper.user.BukkitItemUser;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.core.system.FromMaster;
@@ -41,7 +41,7 @@ public class PaperRemoveReloadSystem extends RemoveReloadSystem implements Paper
         plugin = o.plugin;
     }
 
-    @Override public CalibrePlugin plugin() { return plugin; }
+    @Override public CalibrePlugin calibre() { return plugin; }
 
     @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }
 

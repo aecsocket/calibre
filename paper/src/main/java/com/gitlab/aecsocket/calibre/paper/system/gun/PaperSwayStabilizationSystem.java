@@ -35,7 +35,7 @@ public class PaperSwayStabilizationSystem extends SwayStabilizationSystem implem
         plugin = o.plugin;
     }
 
-    @Override public CalibrePlugin plugin() { return plugin; }
+    @Override public CalibrePlugin calibre() { return plugin; }
 
     @Override public PaperSwayStabilizationSystem copy() { return new PaperSwayStabilizationSystem(this); }
 }

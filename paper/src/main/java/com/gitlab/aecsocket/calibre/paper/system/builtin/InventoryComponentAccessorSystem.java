@@ -73,7 +73,7 @@ public class InventoryComponentAccessorSystem extends AbstractSystem implements 
         plugin = o.plugin;
     }
 
-    @Override public CalibrePlugin plugin() { return plugin; }
+    @Override public CalibrePlugin calibre() { return plugin; }
 
     @Override public String id() { return ID; }
 
@@ -106,7 +106,7 @@ public class InventoryComponentAccessorSystem extends AbstractSystem implements 
     public void addComponent(ItemUser user, CalibreComponent<?> component) {
         if (!(user instanceof PlayerUser)) return;
         Player player = ((PlayerUser) user).entity();
-        BukkitUtils.giveItem(player, ((BukkitItem) component.create(player.getLocale())).item());
+        BukkitUtils.giveItem(player, ((BukkitItem) component.create(player.locale())).item());
     }
 
     @Override public InventoryComponentAccessorSystem copy() { return new InventoryComponentAccessorSystem(this); }

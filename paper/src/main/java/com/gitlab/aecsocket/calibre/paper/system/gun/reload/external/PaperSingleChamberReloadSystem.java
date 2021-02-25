@@ -1,9 +1,10 @@
 package com.gitlab.aecsocket.calibre.paper.system.gun.reload.external;
 
+import com.gitlab.aecsocket.calibre.core.system.builtin.SchedulerSystem;
 import com.gitlab.aecsocket.calibre.paper.system.PaperSystem;
 import com.gitlab.aecsocket.calibre.core.system.gun.GunSystem;
 import com.gitlab.aecsocket.calibre.core.system.gun.reload.external.SingleChamberReloadSystem;
-import com.gitlab.aecsocket.calibre.core.world.Item;
+import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.paper.wrapper.user.BukkitItemUser;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.core.system.FromMaster;
@@ -11,13 +12,11 @@ import com.gitlab.aecsocket.calibre.core.system.ItemEvents;
 import com.gitlab.aecsocket.calibre.paper.util.ItemAnimation;
 import com.gitlab.aecsocket.calibre.core.world.slot.ItemSlot;
 import com.gitlab.aecsocket.calibre.core.world.user.ItemUser;
-import com.gitlab.aecsocket.calibre.paper.wrapper.user.PlayerUser;
 import com.gitlab.aecsocket.unifiedframework.core.loop.TickContext;
 import com.gitlab.aecsocket.unifiedframework.core.stat.Stat;
 import com.gitlab.aecsocket.unifiedframework.paper.stat.impl.data.SoundDataStat;
 import com.gitlab.aecsocket.unifiedframework.core.util.MapInit;
 import com.gitlab.aecsocket.unifiedframework.paper.util.data.SoundData;
-import org.bukkit.entity.Player;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -49,7 +48,7 @@ public class PaperSingleChamberReloadSystem extends SingleChamberReloadSystem im
         plugin = o.plugin;
     }
 
-    @Override public CalibrePlugin plugin() { return plugin; }
+    @Override public CalibrePlugin calibre() { return plugin; }
 
     @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }
 
@@ -59,11 +58,20 @@ public class PaperSingleChamberReloadSystem extends SingleChamberReloadSystem im
         ItemUser user = event.user();
         if (user instanceof BukkitItemUser && event.result() == ItemEvents.Result.SUCCESS) {
             SoundData.play(((BukkitItemUser) user)::location, tree().stat("reload_sound"));
-            if (user instanceof PlayerUser) {
-                Player player = ((PlayerUser) user).entity();
-                ItemAnimation.start(player, player.getInventory().getHeldItemSlot(), tree().stat("reload_animation"));
+            ItemAnimation.start(event.user(), event.slot(), tree().stat("reload_animation"));
+        }
+    }
+
+    @Override
+    protected <I extends Item> boolean reloadSingle(ItemUser user, ItemSlot<I> slot, TickContext tickContext, SchedulerSystem scheduler, GunSystem.Events.ExternalReload<I> event) {
+        boolean result = super.reloadSingle(user, slot, tickContext, scheduler, event);
+        if (!result) {
+            if (user instanceof BukkitItemUser) {
+                SoundData.play(((BukkitItemUser) user)::location, tree().stat("reload_single_sound"));
+                ItemAnimation.start(user, slot, tree().stat("reload_single_animation"));
             }
         }
+        return result;
     }
 
     @Override

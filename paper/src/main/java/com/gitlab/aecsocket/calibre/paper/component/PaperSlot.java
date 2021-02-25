@@ -3,7 +3,7 @@ package com.gitlab.aecsocket.calibre.paper.component;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.core.component.CalibreSlot;
-import com.gitlab.aecsocket.calibre.core.proto.Tree;
+import com.gitlab.aecsocket.calibre.paper.proto.Tree;
 import com.gitlab.aecsocket.calibre.core.util.ItemCreationException;
 import com.gitlab.aecsocket.calibre.paper.util.ItemDescriptor;
 import com.gitlab.aecsocket.calibre.paper.wrapper.BukkitItem;
@@ -14,6 +14,8 @@ import org.bukkit.inventory.ItemStack;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.serialize.SerializationException;
+
+import java.util.Locale;
 
 @ConfigSerializable
 public class PaperSlot extends CalibreSlot {
@@ -50,13 +52,13 @@ public class PaperSlot extends CalibreSlot {
     public Tree.Component invalidComponent() { return invalidComponent; }
     public PaperSlot invalidComponent(Tree.Component invalidComponent) { this.invalidComponent = invalidComponent; return this; }
 
-    public ItemStack createViewItem(String locale, String slotKey, CalibreComponent<BukkitItem> cursor) {
+    public ItemStack createViewItem(Locale locale, String slotKey, CalibreComponent<BukkitItem> cursor) {
         ItemStack item;
         try {
             String itemNodePath = cursor == null
                     ? (required ? "required" : "normal")
                     : (isCompatible(cursor) ? "compatible" : "incompatible");
-            ConfigurationNode itemNode = plugin.setting("slot_view", "icon", itemNodePath);
+            ConfigurationNode itemNode = plugin.setting(n -> n, "slot_view", "icon", itemNodePath);
             if (itemNode.virtual())
                 throw new ItemCreationException("No slot item provided for [" + itemNodePath + "]");
             item = itemNode.get(ItemDescriptor.class).create();

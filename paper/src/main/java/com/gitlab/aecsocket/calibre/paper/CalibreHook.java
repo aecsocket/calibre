@@ -2,12 +2,12 @@ package com.gitlab.aecsocket.calibre.paper;
 
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 
+import java.util.function.Consumer;
+
 public interface CalibreHook {
-    default void onEnable(CalibrePlugin plugin) {}
+    default void serverLoad() {}
 
-    default void postEnable() {}
-
-    default void onDisable() {}
+    default void calibreDisable() {}
 
     default void registerSerializers(TypeSerializerCollection.Builder builder) {}
 

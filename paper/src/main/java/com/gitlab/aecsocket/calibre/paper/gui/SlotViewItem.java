@@ -10,12 +10,14 @@ import com.gitlab.aecsocket.unifiedframework.paper.gui.GUIView;
 import com.gitlab.aecsocket.unifiedframework.paper.util.BukkitUtils;
 import com.gitlab.aecsocket.unifiedframework.paper.util.data.SoundData;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -97,7 +99,12 @@ public class SlotViewItem implements GUIItem {
                 List<Component> lore = meta.lore();
                 if (lore == null)
                     lore = new ArrayList<>();
-                lore.add(plugin.gen(locale, "slot_view.field_modifiable"));
+                lore.add(
+                        Component.text()
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .append(plugin.gen(locale, "slot_view.field_modifiable"))
+                                .build()
+                );
                 meta.lore(lore);
             });
         return item;

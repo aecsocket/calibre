@@ -61,9 +61,9 @@ public interface BukkitItem extends Item, FillableItem {
             for (Component component : components) {
                 lore.add(
                         Component.text()
-                        .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .append(component)
-                        .build()
+                                .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                .append(component)
+                                .build()
                 );
             }
             meta.lore(lore);

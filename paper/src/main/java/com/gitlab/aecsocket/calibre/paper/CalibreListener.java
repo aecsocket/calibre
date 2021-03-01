@@ -5,7 +5,7 @@ import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.core.component.CalibreSlot;
 import com.gitlab.aecsocket.calibre.core.world.user.ItemUser;
 import com.gitlab.aecsocket.calibre.paper.gui.SlotViewGUI;
-import com.gitlab.aecsocket.calibre.paper.util.PlayerData;
+import com.gitlab.aecsocket.calibre.paper.util.CalibrePlayerData;
 import com.gitlab.aecsocket.calibre.paper.wrapper.slot.EntityEquipmentSlot;
 import com.gitlab.aecsocket.calibre.paper.wrapper.slot.InventorySlot;
 import com.gitlab.aecsocket.calibre.paper.component.PaperComponent;
@@ -17,7 +17,9 @@ import com.gitlab.aecsocket.calibre.paper.wrapper.slot.BukkitSlot;
 import com.gitlab.aecsocket.calibre.paper.wrapper.user.PlayerUser;
 import com.gitlab.aecsocket.unifiedframework.paper.gui.GUIView;
 import com.gitlab.aecsocket.unifiedframework.paper.util.data.SoundData;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Tag;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -67,6 +69,13 @@ public class CalibreListener implements Listener {
     }
 
     @EventHandler
+    public void onEvent(PlayerItemBreakEvent event) {
+        if (plugin.itemManager().get(event.getBrokenItem()) != null) {
+            // TODO
+        }
+    }
+
+    @EventHandler
     public void onEvent(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         callOn(player, EquipmentSlot.HAND, (comp, slot) -> comp.tree().call(new BukkitItemEvents.BukkitSwitch(
@@ -110,7 +119,7 @@ public class CalibreListener implements Listener {
         Player player = event.getPlayer();
         if (player.getGameMode() == GameMode.SPECTATOR || player.getGameMode() == GameMode.CREATIVE) // creative mode: quit inventory = drop
             return;
-        PlayerData data = plugin.playerData(event.getPlayer());
+        CalibrePlayerData data = plugin.playerData(event.getPlayer());
         data.cancelInteract();
         boolean inventoryDrop = data.isInventoryDrop();
         callOn(event.getItemDrop().getItemStack(), comp -> comp.tree().call(BukkitItemEvents.BukkitDrop.of(event, comp, !inventoryDrop)));
@@ -126,7 +135,7 @@ public class CalibreListener implements Listener {
         PaperComponent cursor = plugin.itemManager().get(cursorStack);
         ClickType type = event.getClick();
         Player player = (Player) event.getWhoClicked();
-        PlayerData data = plugin.playerData(player);
+        CalibrePlayerData data = plugin.playerData(player);
         data.cancelInteract();
         data.setInventoryDrop();
 
@@ -219,6 +228,8 @@ public class CalibreListener implements Listener {
         LivingEntity entity = event.getEntity();
         callOn(entity, EquipmentSlot.HAND, (comp, slot) -> comp.tree().call(BukkitItemEvents.BukkitDeath.of(event, comp, slot)));
         callOn(entity, EquipmentSlot.OFF_HAND, (comp, slot) -> comp.tree().call(BukkitItemEvents.BukkitDeath.of(event, comp, slot)));
+        if (entity instanceof Player)
+            plugin.playerData((Player) entity).reset();
     }
 
     private void handleSwitch(Player player, Runnable cancelled, ItemSlot<BukkitItem> from, ItemSlot<BukkitItem> to) {
@@ -279,7 +290,7 @@ public class CalibreListener implements Listener {
             return; // handled in player animation
 
         if (action == Action.RIGHT_CLICK_BLOCK) {
-            PlayerData data = plugin.playerData(player);
+            CalibrePlayerData data = plugin.playerData(player);
             if (data.cancelledBlockInteract())
                 return;
             data.cancelBlockInteract();

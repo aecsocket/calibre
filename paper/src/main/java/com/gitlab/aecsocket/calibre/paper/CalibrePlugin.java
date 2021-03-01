@@ -56,16 +56,18 @@ import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector3I;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.map.MapFont;
 import org.bukkit.map.MinecraftFont;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -89,6 +91,7 @@ import java.util.stream.Collectors;
  */
 public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
     public static final int THREAD_LOOP_PERIOD = 10;
+    public static final int BSTATS_PLUGIN_ID = 10479; // TODO
     public static final List<String> DEFAULT_RESOURCES = Collections.unmodifiableList(ListInit.of(new ArrayList<String>())
             .init(BasePlugin.DEFAULT_RESOURCES)
             .init("README.txt")
@@ -102,8 +105,8 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
     public static CalibrePlugin instance() { return instance; }
 
     private final List<CalibreHook> hooks = new ArrayList<>();
-    private final PlayerDataManager<PlayerData> playerData = new PlayerDataManager<>() {
-        @Override protected PlayerData createData(Player player) { return new PlayerData(CalibrePlugin.this, player); }
+    private final PlayerDataManager<CalibrePlayerData> playerData = new PlayerDataManager<>() {
+        @Override protected CalibrePlayerData createData(Player player) { return new CalibrePlayerData(CalibrePlugin.this, player); }
     };
     private final ItemManager itemManager = new ItemManager(this);
     private final SchedulerSystem.Scheduler systemScheduler = new SchedulerSystem.Scheduler(10000, 100);
@@ -120,20 +123,13 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
 
     @Override
     public void onEnable() {
+        super.onEnable();
         instance = this;
-
-        for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
-            if (plugin instanceof CalibreHook)
-                hooks.add((CalibreHook) plugin);
-        }
-
-        hooks.forEach(hook -> hook.onEnable(this));
 
         guiManager = new GUIManager(this);
         protocol = ProtocolLibrary.getProtocolManager();
         font = new MinecraftFont();
 
-        createConfigOptions();
         createCommandManager();
 
         Bukkit.getPluginManager().registerEvents(new CalibreListener(this), this);
@@ -146,18 +142,23 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
         schedulerLoop.register(velocityTracker);
 
         threadLoop.register(playerData);
-
-        super.onEnable();
-        threadLoop.start();
-
-        hooks.forEach(CalibreHook::postEnable);
     }
 
     @Override
     public void onDisable() {
-        hooks.forEach(CalibreHook::onDisable);
+        super.onDisable();
+        hooks.forEach(CalibreHook::calibreDisable);
         if (threadLoop.running())
             threadLoop.stop();
+    }
+
+    @Override
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void serverLoad(ServerLoadEvent event) {
+        hooks.forEach(CalibreHook::serverLoad);
+        createConfigOptions();
+        super.serverLoad(event);
+        threadLoop.start();
     }
 
     public List<CalibreHook> hooks() { return hooks; }
@@ -175,6 +176,8 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
     public ProtocolManager protocol() { return protocol; }
     public MapFont font() { return font; }
     public StatMapSerializer statMapSerializer() { return statMapSerializer; }
+
+    public void addHook(CalibreHook hook) { hooks.add(hook); }
 
     @SuppressWarnings("unchecked")
     public <T> Formatter<T> statFormatter(Class<T> type) { return (Formatter<T>) statFormatters.get(type); }
@@ -352,6 +355,11 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
 
             casingManager.load();
             locationalDamageManager.load();
+
+            if (setting(n -> n.getBoolean(true), "enable_bstats")) {
+                Metrics metrics = new Metrics(this, BSTATS_PLUGIN_ID);
+                // TODO add some cool charts
+            }
         }
     }
 
@@ -360,7 +368,7 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
     //endregion
 
     //region Utils
-    public PlayerData playerData(Player player) { return playerData.get(player); }
+    public CalibrePlayerData playerData(Player player) { return playerData.get(player); }
 
     public Component bar(Locale locale, String key, double fullPercent, double partPercent, int width) {
         String full = setting(n -> n.getString("="), "symbol", "full_bar");

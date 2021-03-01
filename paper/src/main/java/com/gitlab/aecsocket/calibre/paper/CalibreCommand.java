@@ -4,7 +4,7 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.*;
 import com.gitlab.aecsocket.calibre.core.util.*;
-import com.gitlab.aecsocket.calibre.paper.util.PlayerData;
+import com.gitlab.aecsocket.calibre.paper.util.CalibrePlayerData;
 import com.gitlab.aecsocket.calibre.paper.util.CalibreProtocol;
 import com.gitlab.aecsocket.calibre.paper.util.item.ComponentCreationException;
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
@@ -384,7 +384,7 @@ public class CalibreCommand extends BaseCommand {
             return;
         }
 
-        PlayerData data = plugin.playerData((Player) sender);
+        CalibrePlayerData data = plugin.playerData((Player) sender);
         data.showInaccuracy(!data.showInaccuracy());
     }
 }

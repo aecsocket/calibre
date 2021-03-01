@@ -72,7 +72,7 @@ public class LocationalDamageManager {
 
     public void load() {
         try {
-            for (var entry : plugin.setting(n -> n.get(new TypeToken<Map<EntityType, ConfigurationNode>>(){}), Collections.emptyMap(), "locational_damage", "locations").entrySet()) {
+            for (var entry : plugin.setting(n -> n.get(new TypeToken<Map<EntityType, ConfigurationNode>>(){}, Collections.emptyMap()), "locational_damage", "locations").entrySet()) {
                 EntityType type = entry.getKey();
                 ConfigurationNode node = entry.getValue();
                 if (type == EntityType.PLAYER) {

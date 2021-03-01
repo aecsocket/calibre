@@ -25,7 +25,7 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import java.util.Collections;
 import java.util.EnumMap;
 
-public final class PlayerData implements Tickable {
+public final class CalibrePlayerData implements Tickable {
     public static final ParticleData[] OFFSET_PARTICLE = {
             new ParticleData().particle(Particle.FIREWORKS_SPARK)
     };
@@ -55,11 +55,18 @@ public final class PlayerData implements Tickable {
     private long recoilRecoveryAt;
     private Vector2D recoilToRecover = new Vector2D();
 
-    public PlayerData(CalibrePlugin plugin, Player player) {
+    public CalibrePlayerData(CalibrePlugin plugin, Player player) {
         this.plugin = plugin;
         this.player = player;
         maxStamina = plugin.setting(n -> n.getDouble(5000), "stamina", "max");
         stamina = maxStamina;
+    }
+
+    public void reset() {
+        stamina = maxStamina;
+        recoil = new Vector2D();
+        recoilToRecover = new Vector2D();
+        inaccuracy = 0;
     }
 
     public CalibrePlugin plugin() { return plugin; }

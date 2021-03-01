@@ -35,7 +35,7 @@ public class ItemManager {
         byte[] tree = tree(item);
         if (tree == null)
             return null;
-        return protobuf.read(tree).root();
+        return protobuf.read(tree);
     }
 
     public PaperComponent get(ItemStack item) {

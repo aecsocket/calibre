@@ -4,7 +4,7 @@ import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.core.system.ItemEvents;
-import com.gitlab.aecsocket.calibre.paper.util.PlayerData;
+import com.gitlab.aecsocket.calibre.paper.util.CalibrePlayerData;
 import com.gitlab.aecsocket.calibre.core.world.slot.EquippableSlot;
 import com.gitlab.aecsocket.calibre.core.world.slot.ItemSlot;
 import com.gitlab.aecsocket.calibre.core.world.user.ItemUser;
@@ -190,7 +190,7 @@ public final class BukkitItemEvents {
             event.setCancelled(true);
 
             if (user() instanceof PlayerUser) {
-                PlayerData data = plugin.playerData(((PlayerUser) user()).entity());
+                CalibrePlayerData data = plugin.playerData(((PlayerUser) user()).entity());
                 if (data.animation() != null)
                     Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> data.animation().apply(), 2);
             }

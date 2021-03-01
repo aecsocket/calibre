@@ -1,7 +1,7 @@
 package com.gitlab.aecsocket.calibre.paper.wrapper.user;
 
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
-import com.gitlab.aecsocket.calibre.paper.util.PlayerData;
+import com.gitlab.aecsocket.calibre.paper.util.CalibrePlayerData;
 import com.gitlab.aecsocket.calibre.core.world.user.*;
 import com.gitlab.aecsocket.calibre.paper.util.CalibreProtocol;
 import com.gitlab.aecsocket.unifiedframework.core.loop.TickContext;
@@ -14,7 +14,7 @@ import java.util.Locale;
 public interface PlayerUser extends LivingEntityUser, MovementUser, CameraUser, RecoilableUser, InaccuracyUser, StabilizableUser, InventoryUser {
     Player entity();
 
-    default PlayerData playerData() { return CalibrePlugin.instance().playerData(entity()); }
+    default CalibrePlayerData playerData() { return CalibrePlugin.instance().playerData(entity()); }
 
     @Override default Locale locale() { return entity().locale(); }
 

@@ -8,6 +8,8 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.injector.netty.WirePacket;
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
+import com.gitlab.aecsocket.calibre.core.rule.Rule;
+import com.gitlab.aecsocket.calibre.core.rule.RuledStatCollectionList;
 import com.gitlab.aecsocket.calibre.core.system.CalibreSystem;
 import com.gitlab.aecsocket.calibre.core.system.builtin.*;
 import com.gitlab.aecsocket.calibre.core.system.builtin.Formatter;
@@ -120,6 +122,7 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
     private ProtocolManager protocol;
     private MapFont font;
     private StatMapSerializer statMapSerializer;
+    private Rule.Serializer ruleSerializer;
 
     @Override
     public void onEnable() {
@@ -176,6 +179,7 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
     public ProtocolManager protocol() { return protocol; }
     public MapFont font() { return font; }
     public StatMapSerializer statMapSerializer() { return statMapSerializer; }
+    public Rule.Serializer ruleSerializer() { return ruleSerializer; }
 
     public void addHook(CalibreHook hook) { hooks.add(hook); }
 
@@ -188,6 +192,7 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
         configOptions = configOptions.serializers(builder -> {
             hooks.forEach(hook -> hook.registerSerializers(builder));
             statMapSerializer = new StatMapSerializer();
+            ruleSerializer = new Rule.Serializer();
             ObjectMapper.Factory mapper = ObjectMapper.factoryBuilder()
                     .defaultNamingScheme(NamingSchemes.SNAKE_CASE)
                     .build();
@@ -220,7 +225,9 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
                     .register(SoundData.class, new SoundDataSerializer(this))
 
                     .register(StatMap.class, statMapSerializer)
+                    .registerExact(Rule.class, ruleSerializer)
                     .register(StatCollection.class, StatCollection.Serializer.INSTANCE)
+                    .register(RuledStatCollectionList.class, RuledStatCollectionList.Serializer.INSTANCE)
                     .register(CasingManager.Category.class, new CasingManager.Category.Serializer(this, Utils.delegate(CasingManager.Category.class, builder, mapper)))
 
                     .register(ComponentContainerSystem.class, new ComponentContainerSystem.Serializer((TypeSerializer<ComponentContainerSystem>) systemSerializer))

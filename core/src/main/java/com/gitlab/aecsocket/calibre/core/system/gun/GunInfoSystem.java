@@ -115,8 +115,8 @@ public abstract class GunInfoSystem extends AbstractSystem {
         Locale locale = event.user().locale();
         ItemUser user = event.user();
         if (user instanceof SenderUser) {
-            FireMode fireMode = gun.getFireMode();
-            Sight sight = gun.getSight();
+            FireModeSystem.FireMode fireMode = gun.getFireMode();
+            SightSystem.Sight sight = gun.getSight();
 
             List<Component> ammo = new ArrayList<>();
             for (ComponentContainerSystem sys : gun.collectAmmo(gun.collectAmmoSlots())) {
@@ -176,7 +176,7 @@ public abstract class GunInfoSystem extends AbstractSystem {
                 if (showAllFireModes) {
                     List<Component> components = new ArrayList<>();
                     gun.collectFireModes().forEach(path -> {
-                        FireMode currentMode = path.get(parent);
+                        FireModeSystem.FireMode currentMode = path.get(parent);
                         components.add(gen(locale, "system." + ID + ".fire_mode." + (fireMode.equals(currentMode) ? "selected" : "unselected"),
                                 "value", gen(locale, "system." + ID + ".fire_mode.value." + currentMode.id)
                         ));
@@ -193,7 +193,7 @@ public abstract class GunInfoSystem extends AbstractSystem {
                 if (showAllSights) {
                     List<Component> components = new ArrayList<>();
                     gun.collectSights().forEach(path -> {
-                        Sight currentSight = path.get(parent);
+                        SightSystem.Sight currentSight = path.get(parent);
                         components.add(gen(locale, "system." + ID + ".sight." + (sight.equals(currentSight) ? "selected" : "unselected"),
                                 "value", gen(locale, "system." + ID + ".sight.value." + currentSight.id)
                         ));

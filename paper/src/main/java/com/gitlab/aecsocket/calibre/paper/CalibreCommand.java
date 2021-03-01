@@ -233,7 +233,7 @@ public class CalibreCommand extends BaseCommand {
     @Subcommand("give")
     @Description("Gives a registered item to player targets.")
     @CommandPermission("calibre.command.give")
-    @CommandCompletion("<selector> @registry:type=me.aecsocket.calibre.util.ItemSupplier [amount]")
+    @CommandCompletion("<selector> @registry:type=com.gitlab.aecsocket.calibre.core.util.ItemSupplier [amount]")
     @Syntax("<selector> <item> [amount]")
     public void create(CommandSender sender, String selector, CalibreIdentifiable item, @Optional Integer amount) {
         @SuppressWarnings("unchecked")
@@ -244,7 +244,7 @@ public class CalibreCommand extends BaseCommand {
     @Subcommand("create")
     @Description("Creates a component tree and gives it to a player.")
     @CommandPermission("calibre.command.create")
-    @CommandCompletion("<selector> @registry:type=me.aecsocket.calibre.component.Component [amount]")
+    @CommandCompletion("<selector> @registry:type=com.gitlab.aecsocket.calibre.core.util.ItemSupplier [amount]")
     @Syntax("<selector> <tree> [amount]")
     public void create(CommandSender sender, String selector, ComponentTree tree, @Optional Integer amount) {
         internalGive(sender, selector, tree.<PaperComponent>root(), amount);

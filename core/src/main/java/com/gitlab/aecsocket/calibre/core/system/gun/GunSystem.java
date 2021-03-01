@@ -3,6 +3,7 @@ package com.gitlab.aecsocket.calibre.core.system.gun;
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.core.component.CalibreSlot;
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
+import com.gitlab.aecsocket.calibre.core.rule.Rule;
 import com.gitlab.aecsocket.calibre.core.system.AbstractSystem;
 import com.gitlab.aecsocket.calibre.core.system.CalibreSystem;
 import com.gitlab.aecsocket.calibre.core.system.builtin.ComponentContainerSystem;
@@ -10,7 +11,6 @@ import com.gitlab.aecsocket.calibre.core.system.builtin.ProjectileSystem;
 import com.gitlab.aecsocket.calibre.core.util.StatCollection;
 import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.world.user.*;
-import com.gitlab.aecsocket.calibre.core.system.FromMaster;
 import com.gitlab.aecsocket.calibre.core.system.ItemEvents;
 import com.gitlab.aecsocket.calibre.core.system.builtin.SchedulerSystem;
 import com.gitlab.aecsocket.calibre.core.system.gun.reload.external.ExternalReloadSystem;
@@ -39,9 +39,7 @@ import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector2D;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector3D;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.ViewCoordinates;
 import net.kyori.adventure.text.Component;
-import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
-import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -49,19 +47,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public abstract class GunSystem extends AbstractSystem {
-    /*
-    GUN TODO:
-    DONE toggles
-    DONE zeroing
-    DONE priorities
-    - reloading
-    DONE action bar
-    DONE real animations (aiming)
-    DONE sway stabilize system
-    DONE casings + casing sounds
-
-    - proper bullet damage
-     */
     /** Handles how to fire a gun if there is already a chamber loaded before firing. */
     public enum ChamberHandling {
         /** Only fire if there is an available chamber (closed-bolt gun). */
@@ -74,8 +59,7 @@ public abstract class GunSystem extends AbstractSystem {
 
     public static final String ID = "gun";
     public static final int LISTENER_PRIORITY = 0;
-    public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
-            .init(Projectiles.STATS)
+    public static final Map<String, Stat<?>> STAT_TYPES = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             // Basic stats about projectiles
             .init("muzzle_velocity", NumberDescriptorStat.of(0d))
             .init("shots", NumberDescriptorStat.of(1))
@@ -139,23 +123,16 @@ public abstract class GunSystem extends AbstractSystem {
 
             .init("fail_delay", NumberDescriptorStat.of(0L))
             .get();
+    public static final Map<String, Class<? extends Rule>> RULE_TYPES = MapInit.of(new HashMap<String, Class<? extends Rule>>())
+            .init(Rules.Aiming.TYPE, Rules.Aiming.class)
+            .init(Rules.HasSight.TYPE, Rules.HasSight.class)
+            .init(Rules.HasFireMode.TYPE, Rules.HasFireMode.class)
+            .get();
     public static final String SLOT_TAG_CHAMBER = "chamber";
     public static final String SLOT_TAG_AMMO = "ammo";
 
-    @ConfigSerializable
-    protected static class Dependencies {
-        protected ConfigurationNode aimingStats;
-        protected ConfigurationNode notAimingStats;
-        protected ConfigurationNode restingStats;
-    }
-
-    @Setting(nodeFromParent = true)
-    protected Dependencies dependencies;
     protected transient SchedulerSystem scheduler;
     protected transient SwayStabilization stabilization;
-    @FromMaster protected transient StatCollection aimingStats;
-    @FromMaster protected transient StatCollection notAimingStats;
-    @FromMaster protected transient StatCollection restingStats;
 
     protected boolean aiming;
     protected SightPath sight;
@@ -175,51 +152,35 @@ public abstract class GunSystem extends AbstractSystem {
     public GunSystem(GunSystem o) {
         super(o);
         stabilization = o.stabilization;
-        aimingStats = o.aimingStats == null ? null : new StatCollection(o.aimingStats);
-        notAimingStats = o.notAimingStats == null ? null : new StatCollection(o.notAimingStats);
     }
 
     public SchedulerSystem scheduler() { return scheduler; }
     public SwayStabilization stabilization() { return stabilization; }
-
-    public StatCollection aimingStats() { return aimingStats; }
-    public StatCollection notAimingStats() { return notAimingStats; }
 
     public boolean aiming() { return aiming; }
     public void aiming(boolean aiming) { this.aiming = aiming; }
 
     public SightPath sight() { return sight; }
     public void sight(SightPath sight) { this.sight = sight; }
-    public Sight getSight() { return sight == null ? null : sight.get(parent); }
+    public SightSystem.Sight getSight() { return sight == null ? null : sight.get(parent); }
 
     public FireModePath fireMode() { return fireMode; }
     public void fireMode(FireModePath fireMode) { this.fireMode = fireMode; }
-    public FireMode getFireMode() { return fireMode == null ? null : fireMode.get(parent); }
+    public FireModeSystem.FireMode getFireMode() { return fireMode == null ? null : fireMode.get(parent); }
 
     @Override public String id() { return ID; }
-    @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }
+    @Override public Map<String, Stat<?>> statTypes() { return STAT_TYPES; }
+    @Override public Map<String, Class<? extends Rule>> ruleTypes() { return RULE_TYPES; }
 
     @Override
-    public StatCollection buildStats() {
-        // TODO add resting in stats
-        StatCollection result = new StatCollection();
-        for (FireModePath ref : collectFireModes()) {
-            FireMode fireMode = ref.get(parent);
-            combine(result, ref.equals(this.fireMode) ? fireMode.activeStats : fireMode.notActiveStats);
-        }
+    public void buildStats(StatCollection stats) {
+        FireModeSystem.FireMode fireMode = getFireMode();
+        if (fireMode != null && fireMode.stats != null)
+            stats.combine(fireMode.stats.build(parent));
 
-        combine(result, aiming ? aimingStats : notAimingStats);
-
-        for (SightPath ref : collectSights()) {
-            Sight sight = ref.get(parent);
-            if (ref.equals(this.sight)) {
-                combine(result, sight.activeStats);
-                combine(result, aiming ? sight.aimingStats : sight.notAimingStats);
-            } else
-                combine(result, sight.notActiveStats);
-        }
-
-        return result;
+        SightSystem.Sight sight = getSight();
+        if (sight != null && sight.stats != null)
+            stats.combine(sight.stats.build(parent));
     }
 
     private <T extends ContainerPath<?>, S extends CalibreSystem> List<T> collect(Class<S> systemType, Function<S, List<?>> listGetter, BiFunction<String[], Integer, T> provider) {
@@ -261,11 +222,6 @@ public abstract class GunSystem extends AbstractSystem {
     @Override
     public void setup(CalibreComponent<?> parent) {
         super.setup(parent);
-        if (dependencies != null) {
-            aimingStats = deserialize(dependencies.aimingStats, StatCollection.class, "aimingStats");
-            notAimingStats = deserialize(dependencies.notAimingStats, StatCollection.class, "notAimingStats");
-            dependencies = null;
-        }
         require(SchedulerSystem.class);
         require(SwayStabilization.class);
     }
@@ -274,6 +230,7 @@ public abstract class GunSystem extends AbstractSystem {
     public void parentTo(ComponentTree tree, CalibreComponent<?> parent) {
         super.parentTo(tree, parent);
         if (!parent.isRoot()) return;
+        if (!tree().complete()) return;
 
         scheduler = require(SchedulerSystem.class);
         stabilization = require(SwayStabilization.class);
@@ -291,12 +248,14 @@ public abstract class GunSystem extends AbstractSystem {
         events.registerListener(ItemEvents.Death.class, this::onEvent, listenerPriority);
 
         if (getSight() == null) {
+            sight = null;
             List<SightPath> found = collectSights();
             if (found.size() > 0)
                 sight = found.get(0);
         }
 
         if (getFireMode() == null) {
+            fireMode = null;
             List<FireModePath> found = collectFireModes();
             if (found.size() > 0)
                 fireMode = found.get(0);
@@ -888,12 +847,12 @@ public abstract class GunSystem extends AbstractSystem {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GunSystem that = (GunSystem) o;
-        return aiming == that.aiming && Objects.equals(aimingStats, that.aimingStats) && Objects.equals(notAimingStats, that.notAimingStats) && Objects.equals(sight, that.sight) && Objects.equals(fireMode, that.fireMode);
+        return aiming == that.aiming && Objects.equals(sight, that.sight) && Objects.equals(fireMode, that.fireMode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(aimingStats, notAimingStats, aiming, sight, fireMode);
+        return Objects.hash(aiming, sight, fireMode);
     }
 
     /**
@@ -946,6 +905,61 @@ public abstract class GunSystem extends AbstractSystem {
         return Tuple4.of(chamberSlot, result.a(), result.b(), result.c());
     }
 
+
+    public static final class Rules {
+        private Rules() {}
+
+        @ConfigSerializable
+        public static class Aiming implements Rule {
+            public static final String TYPE = "aiming";
+            @Override public String type() { return TYPE; }
+
+            @Override
+            public boolean applies(CalibreComponent<?> component) {
+                return component.system(ID) != null && component.<GunSystem>system(ID).aiming;
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                return o != null && getClass() == o.getClass();
+            }
+        }
+
+        @ConfigSerializable
+        public static class HasSight implements Rule {
+            public static final String TYPE = "has_sight";
+            @Override public String type() { return TYPE; }
+
+            @Override
+            public boolean applies(CalibreComponent<?> component) {
+                return component.system(ID) != null && component.<GunSystem>system(ID).sight != null;
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                return o != null && getClass() == o.getClass();
+            }
+        }
+
+        @ConfigSerializable
+        public static class HasFireMode implements Rule {
+            public static final String TYPE = "has_fire_mode";
+            @Override public String type() { return TYPE; }
+
+            @Override
+            public boolean applies(CalibreComponent<?> component) {
+                return component.system(ID) != null && component.<GunSystem>system(ID).fireMode != null;
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                return o != null && getClass() == o.getClass();
+            }
+        }
+    }
 
     public static final class Events {
         private Events() {}

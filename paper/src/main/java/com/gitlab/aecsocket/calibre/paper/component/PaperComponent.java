@@ -1,5 +1,6 @@
 package com.gitlab.aecsocket.calibre.paper.component;
 
+import com.gitlab.aecsocket.calibre.core.rule.Rule;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.paper.proto.Tree;
@@ -57,7 +58,7 @@ public class PaperComponent extends CalibreComponent<BukkitItem> {
         }
     }
 
-    public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
+    public static final Map<String, Stat<?>> STAT_TYPES = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init("item", new ItemDescriptor.Stat())
 
             .init("insert_sound", new SoundDataStat())
@@ -99,10 +100,11 @@ public class PaperComponent extends CalibreComponent<BukkitItem> {
     }
 
     @Override public net.kyori.adventure.text.Component gen(Locale locale, String key, Object... args) { return plugin.gen(locale, key, args); }
-    @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }
+    @Override public Map<String, Stat<?>> statTypes() { return STAT_TYPES; }
     @Override
-    protected void prepareStatDeserialization(Map<String, Stat<?>> originals) {
-        plugin.statMapSerializer().originals(originals);
+    protected void prepareStatDeserialization(Map<String, Stat<?>> statTypes, Map<String, Class<? extends Rule>> ruleTypes) {
+        plugin.statMapSerializer().originals(statTypes);
+        plugin.ruleSerializer().ruleTypes(ruleTypes);
     }
 
     @Override

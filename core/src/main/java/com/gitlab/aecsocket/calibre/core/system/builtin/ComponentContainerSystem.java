@@ -1,9 +1,9 @@
 package com.gitlab.aecsocket.calibre.core.system.builtin;
 
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
+import com.gitlab.aecsocket.calibre.core.rule.Rule;
 import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import io.leangen.geantyref.TypeToken;
-import com.gitlab.aecsocket.calibre.core.component.ComponentCompatibility;
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
 import com.gitlab.aecsocket.calibre.core.system.AbstractSystem;
 import com.gitlab.aecsocket.calibre.core.system.FromMaster;
@@ -15,7 +15,6 @@ import net.kyori.adventure.text.Component;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
-import org.spongepowered.configurate.objectmapping.meta.Setting;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
@@ -58,8 +57,7 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
     public static final String ID = "component_container";
     public static final int LISTENER_PRIORITY = 1200;
     protected transient final LinkedList<Quantifier<CalibreComponent<?>>> components;
-    @Setting(nodeFromParent = true)
-    @FromMaster protected ComponentCompatibility compatibility;
+    @FromMaster protected Rule compatibility;
 
     /**
      * Used for registration + deserialization.
@@ -83,8 +81,8 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
 
     public LinkedList<Quantifier<CalibreComponent<?>>> components() { return new LinkedList<>(components); }
 
-    public ComponentCompatibility compatibility() { return compatibility; }
-    public void compatibility(ComponentCompatibility compatibility) { this.compatibility = compatibility; }
+    public Rule compatibility() { return compatibility; }
+    public void compatibility(Rule compatibility) { this.compatibility = compatibility; }
 
     public boolean accepts(CalibreComponent<?> component) {
         return compatibility.applies(component);
@@ -217,7 +215,7 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ComponentContainerSystem that = (ComponentContainerSystem) o;
-        return components.equals(that.components) && compatibility.equals(that.compatibility);
+        return components.equals(that.components);
     }
 
     @Override

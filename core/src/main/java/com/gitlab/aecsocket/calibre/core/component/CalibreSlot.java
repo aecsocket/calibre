@@ -1,5 +1,6 @@
 package com.gitlab.aecsocket.calibre.core.component;
 
+import com.gitlab.aecsocket.calibre.core.rule.Rule;
 import com.gitlab.aecsocket.unifiedframework.core.component.Component;
 import com.gitlab.aecsocket.unifiedframework.core.component.IncompatibleComponentException;
 import com.gitlab.aecsocket.unifiedframework.core.component.Slot;
@@ -7,7 +8,6 @@ import com.gitlab.aecsocket.unifiedframework.core.component.SlotRef;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
-import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 import java.util.*;
 
@@ -21,8 +21,7 @@ public class CalibreSlot implements Slot {
     /** The parent component this is held inside. */
     protected transient SlotRef<?> parent;
     /** Settings on what components are compatible with this slot. */
-    @Setting(nodeFromParent = true)
-    protected ComponentCompatibility compatibility = new ComponentCompatibility();
+    protected Rule compatibility;
     /** If this slot is required to be filled to complete the component tree. */
     protected boolean required;
     /** If this slot can be modified in the field. This is implementation detail. */
@@ -57,11 +56,11 @@ public class CalibreSlot implements Slot {
         tags = new ArrayList<>(o.tags);
     }
 
+    public Rule compatibility() { return compatibility; }
+    public CalibreSlot compatibility(Rule compatibility) { this.compatibility = compatibility; return this; }
+
     public boolean required() { return required; }
     public CalibreSlot required(boolean required) { this.required = required; return this; }
-
-    public ComponentCompatibility compatibility() { return compatibility; }
-    public CalibreSlot compatibility(ComponentCompatibility compatibility) { this.compatibility = compatibility; return this; }
 
     public boolean fieldModifiable() { return fieldModifiable; }
     public CalibreSlot fieldModifiable(boolean fieldModifiable) { this.fieldModifiable = fieldModifiable; return this; }

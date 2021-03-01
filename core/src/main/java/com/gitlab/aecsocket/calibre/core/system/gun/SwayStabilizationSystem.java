@@ -14,7 +14,7 @@ import java.util.Map;
 
 public abstract class SwayStabilizationSystem extends AbstractSystem implements SwayStabilization {
     public static final String ID = "sway_stabilization";
-    public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
+    public static final Map<String, Stat<?>> STAT_TYPES = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init("sway_stabilization_cost", NumberDescriptorStat.of(1000d))
             .get();
 
@@ -33,7 +33,7 @@ public abstract class SwayStabilizationSystem extends AbstractSystem implements 
 
     @Override public String id() { return ID; }
 
-    @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }
+    @Override public Map<String, Stat<?>> statTypes() { return STAT_TYPES; }
 
     @Override
     public boolean stabilizes(TickContext tickContext, ItemUser raw) {

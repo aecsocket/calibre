@@ -22,8 +22,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class PaperSingleChamberReloadSystem extends SingleChamberReloadSystem implements PaperSystem {
-    public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
-            .init(SingleChamberReloadSystem.DEFAULT_STATS)
+    public static final Map<String, Stat<?>> STAT_TYPES = MapInit.of(new LinkedHashMap<String, Stat<?>>())
+            .init(SingleChamberReloadSystem.STAT_TYPES)
             .init("reload_sound", new SoundDataStat())
             .init("reload_animation", new ItemAnimation.Stat())
 
@@ -50,7 +50,7 @@ public class PaperSingleChamberReloadSystem extends SingleChamberReloadSystem im
 
     @Override public CalibrePlugin calibre() { return plugin; }
 
-    @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }
+    @Override public Map<String, Stat<?>> statTypes() { return STAT_TYPES; }
 
     @Override
     public <I extends Item> void reload(GunSystem.Events.ExternalReload<I> event) {

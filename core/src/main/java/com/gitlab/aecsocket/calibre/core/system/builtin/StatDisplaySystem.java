@@ -234,7 +234,7 @@ public abstract class StatDisplaySystem extends AbstractSystem implements StatRe
         List<Component> info = createInfo(event.locale(),
                 tree().complete()
                         ? Map.of(0, tree().stats())
-                        : parent.stats().ordered(),
+                        : event.component().buildStats(),
                 Component.text("")
         );
 

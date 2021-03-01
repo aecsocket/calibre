@@ -5,7 +5,7 @@ import org.spongepowered.configurate.ConfigurationNode;
 
 import java.lang.reflect.Type;
 
-public class SightPath extends ContainerPath<Sight> {
+public class SightPath extends ContainerPath<SightSystem.Sight> {
     public static class Serializer extends ContainerPath.Serializer {
         public static final Serializer INSTANCE = new Serializer();
 
@@ -20,7 +20,7 @@ public class SightPath extends ContainerPath<Sight> {
     }
 
     @Override
-    protected Sight fromComponent(CalibreComponent<?> component) {
+    protected SightSystem.Sight fromComponent(CalibreComponent<?> component) {
         SightSystem system = component.system(SightSystem.class);
         if (system == null)
             return null;

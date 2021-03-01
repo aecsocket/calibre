@@ -44,7 +44,8 @@ public class StatCollection extends HashMap<Integer, StatMap> {
     }
 
     public StatCollection combine(Map<? extends Integer, ? extends StatMap> other) {
-        other.forEach(this::add);
+        if (other != null)
+            other.forEach(this::add);
         return this;
     }
 

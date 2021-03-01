@@ -61,8 +61,8 @@ import java.util.Map;
 public class PaperGunSystem extends GunSystem implements PaperSystem {
     public static final PotionEffect EFFECT_HASTE = new PotionEffect(PotionEffectType.FAST_DIGGING, 5, 127, false, false, false);
     public static final int ITEM_DESPAWN = 5 * 60 * 20;
-    public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
-            .init(GunSystem.DEFAULT_STATS)
+    public static final Map<String, Stat<?>> STAT_TYPES = MapInit.of(new LinkedHashMap<String, Stat<?>>())
+            .init(GunSystem.STAT_TYPES)
             .init("aim_item", new ItemDescriptor.Stat())
             .init("entity_aware_radius", NumberDescriptorStat.of(0d))
             .init("inaccuracy_velocity", NumberDescriptorStat.of(0d))
@@ -122,7 +122,7 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
         plugin = o.plugin;
     }
 
-    @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }
+    @Override public Map<String, Stat<?>> statTypes() { return STAT_TYPES; }
 
     @Override public CalibrePlugin calibre() { return plugin; }
 

@@ -175,7 +175,7 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
     }
 
     public static final String ID = "bullet";
-    public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
+    public static final Map<String, Stat<?>> STAT_TYPES = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init(PaperProjectiles.CALIBRE_STATS)
             .init("damage", NumberDescriptorStat.of(0d))
             .init("armor_penetration", NumberDescriptorStat.of(0d))
@@ -222,7 +222,7 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
     @Override public CalibrePlugin calibre() { return plugin; }
 
     @Override public String id() { return ID; }
-    @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }
+    @Override public Map<String, Stat<?>> statTypes() { return STAT_TYPES; }
 
     @Override
     public void createProjectile(ItemUser user, Vector3D position, Vector3D velocity) {

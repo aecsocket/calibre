@@ -23,7 +23,7 @@ import java.util.Map;
 
 public abstract class SingleChamberReloadSystem extends AbstractSystem implements ExternalReloadSystem {
     public static final String ID = "single_chamber_reload";
-    public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
+    public static final Map<String, Stat<?>> STAT_TYPES = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init("reload_delay", NumberDescriptorStat.of(0L))
             .init("reload_after", NumberDescriptorStat.of(0L))
 
@@ -48,7 +48,7 @@ public abstract class SingleChamberReloadSystem extends AbstractSystem implement
     }
 
     @Override public String id() { return ID; }
-    @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }
+    @Override public Map<String, Stat<?>> statTypes() { return STAT_TYPES; }
 
     public CapacityComponentContainerSystem container() { return container; }
     public ComponentAccessorSystem collector() { return accessor; }

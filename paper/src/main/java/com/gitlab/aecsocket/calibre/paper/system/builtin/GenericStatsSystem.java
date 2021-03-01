@@ -42,7 +42,7 @@ public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
     public static final int LISTENER_PRIORITY = 100000;
     public static final UUID ATTR_MOVE_SPEED = new UUID(3871, 4920);
     public static final UUID ATTR_ATTACK_DAMAGE = new UUID(3894, 1859);
-    public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
+    public static final Map<String, Stat<?>> STAT_TYPES = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init("zoom", NumberDescriptorStat.of(0.1))
             .init("move_speed", NumberDescriptorStat.of(1d))
             .init("attack_damage", NumberDescriptorStat.of(0d))
@@ -100,7 +100,7 @@ public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
     @Override public CalibrePlugin calibre() { return plugin; }
 
     @Override public String id() { return ID; }
-    @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }
+    @Override public Map<String, Stat<?>> statTypes() { return STAT_TYPES; }
 
     @Override
     public void setup(CalibreComponent<?> parent) throws SystemSetupException {

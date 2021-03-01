@@ -2,9 +2,10 @@ package com.gitlab.aecsocket.calibre.core.system;
 
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
+import com.gitlab.aecsocket.calibre.core.rule.Rule;
+import com.gitlab.aecsocket.calibre.core.util.StatCollection;
 import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.util.CalibreIdentifiable;
-import com.gitlab.aecsocket.calibre.core.util.StatCollection;
 import com.gitlab.aecsocket.calibre.core.world.slot.ItemSlot;
 import com.gitlab.aecsocket.calibre.core.world.user.ItemUser;
 import com.gitlab.aecsocket.unifiedframework.core.stat.Stat;
@@ -59,14 +60,16 @@ public interface CalibreSystem extends CalibreIdentifiable {
         }
     }
 
-    default Map<String, Stat<?>> defaultStats() { return Collections.emptyMap(); }
-    default StatCollection buildStats() { return new StatCollection(); }
+    default Map<String, Stat<?>> statTypes() { return Collections.emptyMap(); }
+    default Map<String, Class<? extends Rule>> ruleTypes() { return Collections.emptyMap(); }
 
     CalibreComponent<?> parent();
     default ComponentTree tree() { return parent().tree(); }
 
     void setup(CalibreComponent<?> parent) throws SystemSetupException;
     void parentTo(ComponentTree tree, CalibreComponent<?> parent);
+
+    default void buildStats(StatCollection stats) {}
 
     CalibreSystem copy();
     default void inherit(CalibreSystem master, boolean fromDefault) {}

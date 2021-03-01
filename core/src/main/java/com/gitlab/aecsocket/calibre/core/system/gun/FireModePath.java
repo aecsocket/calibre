@@ -5,7 +5,7 @@ import org.spongepowered.configurate.ConfigurationNode;
 
 import java.lang.reflect.Type;
 
-public class FireModePath extends ContainerPath<FireMode> {
+public class FireModePath extends ContainerPath<FireModeSystem.FireMode> {
     public static class Serializer extends ContainerPath.Serializer {
         public static final Serializer INSTANCE = new Serializer();
 
@@ -20,7 +20,7 @@ public class FireModePath extends ContainerPath<FireMode> {
     }
 
     @Override
-    protected FireMode fromComponent(CalibreComponent<?> component) {
+    protected FireModeSystem.FireMode fromComponent(CalibreComponent<?> component) {
         FireModeSystem system = component.system(FireModeSystem.class);
         if (system == null)
             return null;

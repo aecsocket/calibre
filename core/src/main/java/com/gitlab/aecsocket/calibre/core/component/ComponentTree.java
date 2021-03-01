@@ -139,13 +139,6 @@ public class ComponentTree {
     private <I extends Item> void build(Slot parent, CalibreComponent<I> component) {
         component.tree(this);
         component.parent(parent);
-        for (CalibreSystem system : component.systems.values()) {
-            try {
-                system.parentTo(this, component);
-            } catch (SystemSetupException e) {
-                throw new TreeBuildException(e);
-            }
-        }
         component.slots.forEach((key, slot) -> {
             slot.parent(component, key);
             CalibreComponent<I> child = slot.get();
@@ -167,8 +160,17 @@ public class ComponentTree {
     public ComponentTree buildTree() {
         stats.clear();
         events.unregisterAll();
-        complete = root.canComplete;
+        complete = true;
         build(null, root);
+
+        root.<CalibreComponent<?>>forWalkAndThis((component, path) -> component.systems.values().forEach(system -> {
+            try {
+                system.parentTo(this, component);
+            } catch (SystemSetupException e) {
+                throw new TreeBuildException(e);
+            }
+        }));
+
         return this;
     }
 

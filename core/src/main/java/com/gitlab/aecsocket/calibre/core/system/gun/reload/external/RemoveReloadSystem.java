@@ -26,7 +26,7 @@ import java.util.Map;
 
 public abstract class RemoveReloadSystem extends AbstractSystem implements ExternalReloadSystem {
     public static final String ID = "remove_reload";
-    public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
+    public static final Map<String, Stat<?>> STAT_TYPES = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init("unload_delay", NumberDescriptorStat.of(0L))
             .init("unload_after", NumberDescriptorStat.of(0L))
             .get();
@@ -48,7 +48,7 @@ public abstract class RemoveReloadSystem extends AbstractSystem implements Exter
     }
 
     @Override public String id() { return ID; }
-    @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }
+    @Override public Map<String, Stat<?>> statTypes() { return STAT_TYPES; }
 
     public ComponentContainerSystem container() { return container; }
     public ComponentAccessorSystem collector() { return accessor; }

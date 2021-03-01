@@ -2,6 +2,7 @@ package com.gitlab.aecsocket.calibre.core.system.gun;
 
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
+import com.gitlab.aecsocket.calibre.core.rule.RuledStatCollectionList;
 import com.gitlab.aecsocket.calibre.core.system.StatRenderer;
 import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import io.leangen.geantyref.TypeToken;
@@ -17,6 +18,31 @@ import org.spongepowered.configurate.objectmapping.meta.Setting;
 import java.util.*;
 
 public abstract class FireModeSystem extends AbstractSystem {
+    @ConfigSerializable
+    public static class FireMode {
+        protected String id;
+        protected RuledStatCollectionList stats;
+
+        public FireMode() {}
+
+        public String id() { return id; }
+        public FireMode id(String id) { this.id = id; return this; }
+
+        public RuledStatCollectionList stats() { return stats; }
+        public FireMode stats(RuledStatCollectionList activeStats) { this.stats = activeStats; return this; }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            FireMode fireMode = (FireMode) o;
+            return id.equals(fireMode.id) && Objects.equals(stats, fireMode.stats);
+        }
+
+        @Override public int hashCode() { return Objects.hash(id, stats); }
+        @Override public String toString() { return "FireMode{" + id + '}'; }
+    }
+
     public static final String ID = "fire_mode";
     public static final int LISTENER_PRIORITY = 1030;
 
@@ -77,8 +103,8 @@ public abstract class FireModeSystem extends AbstractSystem {
             info.add(gen(locale, "system." + ID + ".header",
                     "name", gen(locale, "fire_mode.full." + fireMode.id)));
             if (statRenderer != null) {
-                if (fireMode.activeStats != null)
-                    info.addAll(statRenderer.createInfo(locale, fireMode.activeStats, gen(locale, "system." + ID + ".stat_prefix")));
+                if (fireMode.stats != null)
+                    info.addAll(statRenderer.createInfo(locale, fireMode.stats.build(event.component()), gen(locale, "system." + ID + ".stat_prefix")));
             }
         }
 

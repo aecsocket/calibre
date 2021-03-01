@@ -24,7 +24,7 @@ import java.util.Map;
 
 public abstract class InsertReloadSystem extends AbstractSystem implements InternalReloadSystem {
     public static final String ID = "insert_reload";
-    public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
+    public static final Map<String, Stat<?>> STAT_TYPES = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init("load_delay", NumberDescriptorStat.of(0L))
             .init("load_after", NumberDescriptorStat.of(0L))
             .get();
@@ -45,7 +45,7 @@ public abstract class InsertReloadSystem extends AbstractSystem implements Inter
     }
 
     @Override public String id() { return ID; }
-    @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }
+    @Override public Map<String, Stat<?>> statTypes() { return STAT_TYPES; }
 
     public ComponentAccessorSystem collector() { return accessor; }
 

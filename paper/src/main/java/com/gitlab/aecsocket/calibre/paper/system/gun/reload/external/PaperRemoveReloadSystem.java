@@ -21,8 +21,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class PaperRemoveReloadSystem extends RemoveReloadSystem implements PaperSystem {
-    public static final Map<String, Stat<?>> DEFAULT_STATS = MapInit.of(new LinkedHashMap<String, Stat<?>>())
-            .init(RemoveReloadSystem.DEFAULT_STATS)
+    public static final Map<String, Stat<?>> STAT_TYPES = MapInit.of(new LinkedHashMap<String, Stat<?>>())
+            .init(RemoveReloadSystem.STAT_TYPES)
             .init("unload_sound", new SoundDataStat())
             .init("unload_animation", new ItemAnimation.Stat())
             .get();
@@ -43,7 +43,7 @@ public class PaperRemoveReloadSystem extends RemoveReloadSystem implements Paper
 
     @Override public CalibrePlugin calibre() { return plugin; }
 
-    @Override public Map<String, Stat<?>> defaultStats() { return DEFAULT_STATS; }
+    @Override public Map<String, Stat<?>> statTypes() { return STAT_TYPES; }
 
     @Override
     public <I extends Item> void reload(GunSystem.Events.ExternalReload<I> event) {

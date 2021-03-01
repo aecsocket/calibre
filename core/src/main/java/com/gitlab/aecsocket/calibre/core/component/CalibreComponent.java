@@ -1,5 +1,6 @@
 package com.gitlab.aecsocket.calibre.core.component;
 
+import com.gitlab.aecsocket.calibre.core.rule.*;
 import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.system.CalibreSystem;
 import com.gitlab.aecsocket.calibre.core.system.SystemSetupException;
@@ -12,6 +13,7 @@ import com.gitlab.aecsocket.unifiedframework.core.component.Slot;
 import com.gitlab.aecsocket.unifiedframework.core.registry.ResolutionContext;
 import com.gitlab.aecsocket.unifiedframework.core.registry.ResolutionException;
 import com.gitlab.aecsocket.unifiedframework.core.stat.Stat;
+import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
@@ -20,7 +22,6 @@ import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 /**
  * A component which can be placed in a {@link CalibreSlot} and take part in a {@link ComponentTree}.
@@ -33,15 +34,12 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
         protected Map<String, ConfigurationNode> systems;
         protected List<String> statSystems;
         protected ConfigurationNode stats;
-        protected ConfigurationNode completeStats;
     }
 
     @Setting(nodeFromParent = true)
     protected Dependencies dependencies;
     /** This object's ID. */
     protected String id;
-    /** If this component is capable of being considered "complete" by a tree. */
-    protected boolean canComplete;
     /** The categories this component falls under. */
     protected final List<String> categories;
     /** A map of this component's slots. */
@@ -49,9 +47,7 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
     /** A map of the systems this component stores, linked to their IDs. */
     protected transient final Map<String, CalibreSystem> systems;
     /** This component's stats that it provides during stat building. */
-    protected transient final StatCollection stats;
-    /** This component's stats that it provides during stat building <b>only if the tree is complete.</b> */
-    protected transient final StatCollection completeStats;
+    protected transient RuledStatCollectionList stats;
 
     /** The tree this component is a part of. */
     protected transient ComponentTree tree;
@@ -63,18 +59,15 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
         categories = new ArrayList<>();
         slots = new LinkedHashMap<>();
         systems = new HashMap<>();
-        stats = new StatCollection();
-        completeStats = new StatCollection();
+        stats = new RuledStatCollectionList();
     }
 
     public CalibreComponent(CalibreComponent<I> o) {
         id = o.id;
-        canComplete = o.canComplete;
         categories = new ArrayList<>(o.categories);
         slots = CalibreSlot.copySlots(o.slots);
         systems = CalibreSystem.copySystems(o.systems);
-        stats = new StatCollection(o.stats);
-        completeStats = new StatCollection(o.completeStats);
+        stats = o.stats.copy();
 
         tree = o.tree;
         parent = o.parent;
@@ -89,12 +82,9 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
         return result;
     }
 
-    public boolean canComplete() { return canComplete; }
-    public void canComplete(boolean canComplete) { this.canComplete = canComplete; }
-
     public List<String> categories() { return categories; }
 
-    @Override @SuppressWarnings("unchecked") public @NotNull <S extends Slot> Map<String, S> slots() { return new HashMap<>((Map<String, S>) slots); }
+    @Override @SuppressWarnings("unchecked") public @NotNull <S extends Slot> Map<String, S> slots() { return (Map<String, S>) slots; }
 
     @Override @SuppressWarnings("unchecked") public <S extends Slot> S slot(String key) { return (S) slots.get(key); }
     public CalibreComponent<I> slot(String key, CalibreSlot slot) {
@@ -138,21 +128,16 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
      */
     public CalibreComponent<I> system(CalibreSystem system) { systems.put(system.id(), system); return this; }
 
-    public StatCollection stats() { return stats; }
-
-    public StatCollection completeStats() { return completeStats; }
+    public RuledStatCollectionList stats() { return stats; }
+    public StatCollection getStats() { return stats.build(this); }
 
     /**
-     * Builds this component's stats, also considering complete stats and systems.
+     * Builds this component's stats.
      * @return The stats.
      */
     public StatCollection buildStats() {
-        StatCollection result = new StatCollection();
-
-        result.combine(stats);
-        if (tree.complete())
-            result.combine(completeStats);
-        systems.values().forEach(system -> result.combine(system.buildStats()));
+        StatCollection result = getStats();
+        systems.values().forEach(sys -> sys.buildStats(result));
         return result;
     }
 
@@ -172,10 +157,16 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
     @Override public CalibreComponent<I> parent(Slot parent) { this.parent = parent; return this; }
 
     /**
-     * Provides the default stats that this component provides to configurations.
-     * @return The stats.
+     * Provides the stat types that this component provides to configurations.
+     * @return The stat types.
      */
-    public abstract Map<String, Stat<?>> defaultStats();
+    public abstract Map<String, Stat<?>> statTypes();
+
+    /**
+     * Provides the rule types that this component provides to configurations.
+     * @return The rule types.
+     */
+    public Map<String, Class<? extends Rule>> ruleTypes() { return Rule.DEFAULT_RULE_TYPES; }
 
     /**
      * Prepares the stat deserializer used to deserialize the specified map of stat originals.
@@ -183,23 +174,16 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
      * If using a {@link com.gitlab.aecsocket.unifiedframework.core.serialization.configurate.StatMapSerializer}, the
      * {@link com.gitlab.aecsocket.unifiedframework.core.serialization.configurate.StatMapSerializer#originals(Map)} method should
      * be used.
-     * @param originals The originals.
+     * @param statTypes The originals, or stat types.
+     * @param ruleTypes The rule types.
      */
-    protected abstract void prepareStatDeserialization(Map<String, Stat<?>> originals);
+    protected abstract void prepareStatDeserialization(Map<String, Stat<?>> statTypes, Map<String, Class<? extends Rule>> ruleTypes);
 
-    /**
-     * Deserializes some stats and runs a function on them.
-     * @param node The node to deserialize.
-     * @param fieldName The name of the object's field that this deserializes. Is used in displaying errors.
-     * @param consumer The function to run if the stats are deserialized.
-     */
-    protected void deserializeStats(ConfigurationNode node, String fieldName, Consumer<StatCollection> consumer) {
+    protected <T> T deserialize(ConfigurationNode node, TypeToken<T> type, String fieldName) {
         if (node == null)
-            return;
+            return null;
         try {
-            StatCollection deserialized = node.get(StatCollection.class);
-            if (deserialized != null)
-                consumer.accept(deserialized);
+            return node.get(type);
         } catch (SerializationException e) {
             throw new ResolutionException("Could not set up " + fieldName, e);
         }
@@ -208,18 +192,19 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
     /**
      * Adds the specified originals map to an existing originals map.
      * @param toAdd The originals to add.
-     * @param defaultStats The existing originals map.
+     * @param statTypes The existing originals map.
      */
-    private void addToDefaults(Map<String, Stat<?>> toAdd, Map<String, Stat<?>> defaultStats) {
+    private void addToDefaults(Map<String, Stat<?>> toAdd, Map<String, Stat<?>> statTypes) {
         for (var statEntry : toAdd.entrySet()) {
             String key = statEntry.getKey();
-            defaultStats.put(key, statEntry.getValue());
+            statTypes.put(key, statEntry.getValue());
         }
     }
 
     @Override
     public void resolve(ResolutionContext context) throws ResolutionException {
-        Map<String, Stat<?>> defaultStats = new LinkedHashMap<>(defaultStats());
+        Map<String, Stat<?>> statTypes = new LinkedHashMap<>(statTypes());
+        Map<String, Class<? extends Rule>> ruleTypes = new HashMap<>(ruleTypes());
         systems.clear();
         if (dependencies.systems != null) {
             for (var entry : dependencies.systems.entrySet()) {
@@ -239,25 +224,29 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
                 system.inherit(registeredSystem, true);
                 systems.put(sysId, system);
 
-                Map<String, Stat<?>> sysDefaultStats = system.defaultStats();
-                if (sysDefaultStats == null)
-                    throw new ResolutionException(String.format("System %s returns no default stats: must at least return empty map", sysId));
-                addToDefaults(sysDefaultStats, defaultStats);
+                Map<String, Stat<?>> sysStatTypes = system.statTypes();
+                if (sysStatTypes == null)
+                    throw new ResolutionException(String.format("System %s returns no stat types: must at least return empty map", sysId));
+                addToDefaults(sysStatTypes, statTypes);
+
+                Map<String, Class<? extends Rule>> sysRuleTypes = system.ruleTypes();
+                if (sysRuleTypes == null)
+                    throw new ResolutionException(String.format("System %s returns no rule types: must at least return empty map", sysId));
+                ruleTypes.putAll(sysRuleTypes);
             }
         }
 
         if (dependencies.statSystems != null) {
             for (String sysId : dependencies.statSystems) {
                 CalibreSystem system = context.getResolve(sysId, CalibreSystem.class);
-                Map<String, Stat<?>> sysDefaultStats = system.defaultStats();
-                if (sysDefaultStats == null)
+                Map<String, Stat<?>> sysStatTypes = system.statTypes();
+                if (sysStatTypes == null)
                     throw new ResolutionException(String.format("System %s for stats returns no default stats: must at least return empty map", sysId));
-                addToDefaults(sysDefaultStats, defaultStats);
+                addToDefaults(sysStatTypes, statTypes);
             }
         }
 
-        stats.clear();
-        prepareStatDeserialization(defaultStats);
+        prepareStatDeserialization(statTypes, ruleTypes);
         // Initialize systems AFTER creation, and default stats created
         // This lets systems deserialize their own stats
         for (CalibreSystem system : systems.values()) {
@@ -268,8 +257,7 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
             }
         }
 
-        deserializeStats(dependencies.stats, "stats", stats::putAll);
-        deserializeStats(dependencies.completeStats, "completeStats", completeStats::putAll);
+        stats = deserialize(dependencies.stats, new TypeToken<>(){}, "stats");
 
         dependencies = null;
         buildTree();
@@ -385,12 +373,12 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CalibreComponent<?> that = (CalibreComponent<?>) o;
-        return canComplete == that.canComplete && id.equals(that.id) && categories.equals(that.categories) && slots.equals(that.slots) && systems.equals(that.systems) && stats.equals(that.stats) && completeStats.equals(that.completeStats);
+        return id.equals(that.id) && categories.equals(that.categories) && slots.equals(that.slots) && systems.equals(that.systems) && stats.equals(that.stats);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, canComplete, categories, slots, systems, stats, completeStats, tree, parent);
+        return Objects.hash(id, categories, slots, systems, stats, tree, parent);
     }
 
     @Override public String toString() { return id + slots.toString(); }

@@ -2,6 +2,7 @@ package com.gitlab.aecsocket.calibre.core.system.gun;
 
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
+import com.gitlab.aecsocket.calibre.core.rule.RuledStatCollectionList;
 import com.gitlab.aecsocket.calibre.core.system.StatRenderer;
 import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import io.leangen.geantyref.TypeToken;
@@ -20,6 +21,30 @@ import java.util.Locale;
 import java.util.Objects;
 
 public abstract class SightSystem extends AbstractSystem {
+    @ConfigSerializable
+    public static class Sight {
+        protected String id;
+        protected RuledStatCollectionList stats;
+
+        public Sight() {}
+
+        public String id() { return id; }
+        public Sight id(String id) { this.id = id; return this; }
+
+        public RuledStatCollectionList stats() { return stats; }
+        public Sight stats(RuledStatCollectionList activeStats) { this.stats = activeStats; return this; }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Sight sight = (Sight) o;
+            return id.equals(sight.id) && Objects.equals(stats, sight.stats);
+        }
+
+        @Override public int hashCode() { return Objects.hash(id, stats); }
+        @Override public String toString() { return "Sight{" + id + '}'; }
+    }
     public static final String ID = "sight";
     public static final int LISTENER_PRIORITY = 1060;
 
@@ -81,20 +106,8 @@ public abstract class SightSystem extends AbstractSystem {
                     "name", gen(locale, "sight.full." + sight.id)));
 
             if (statRenderer != null) {
-                Component prefix = gen(locale, "system." + ID + ".stat_prefix");
-                if (sight.activeStats != null) {
-                    List<Component> toAdd = statRenderer.createInfo(locale, sight.activeStats, prefix);
-                    if (toAdd.size() > 0)
-                        toAdd.add(0, gen(locale, "system." + ID + ".active"));
-                    info.addAll(toAdd);
-                }
-
-                if (sight.aimingStats != null) {
-                    List<Component> toAdd = statRenderer.createInfo(locale, sight.aimingStats, prefix);
-                    if (toAdd.size() > 0)
-                        toAdd.add(0, gen(locale, "system." + ID + ".aiming"));
-                    info.addAll(toAdd);
-                }
+                if (sight.stats != null)
+                    info.addAll(statRenderer.createInfo(locale, sight.stats.build(event.component()), gen(locale, "system." + ID + ".stat_prefix")));
             }
         }
 

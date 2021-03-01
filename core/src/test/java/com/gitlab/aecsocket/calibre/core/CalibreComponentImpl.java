@@ -1,6 +1,7 @@
 package com.gitlab.aecsocket.calibre.core;
 
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
+import com.gitlab.aecsocket.calibre.core.rule.Rule;
 import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.util.ItemCreationException;
 import com.gitlab.aecsocket.unifiedframework.core.stat.Stat;
@@ -23,8 +24,8 @@ public class CalibreComponentImpl extends CalibreComponent<Item> {
         return net.kyori.adventure.text.Component.text("");
     }
 
-    @Override public Map<String, Stat<?>> defaultStats() { return Collections.emptyMap(); }
-    @Override protected void prepareStatDeserialization(Map<String, Stat<?>> originals) {}
+    @Override public Map<String, Stat<?>> statTypes() { return Collections.emptyMap(); }
+    @Override protected void prepareStatDeserialization(Map<String, Stat<?>> statTypes, Map<String, Class<? extends Rule>> ruleTypes) {}
     @Override public CalibreComponent<Item> getComponent(Item item) { return null; }
 
     @Override public CalibreComponent<Item> copy() { return new CalibreComponentImpl(this); }

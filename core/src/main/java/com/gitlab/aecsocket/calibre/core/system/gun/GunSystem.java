@@ -175,12 +175,14 @@ public abstract class GunSystem extends AbstractSystem {
     @Override
     public void buildStats(StatCollection stats) {
         FireModeSystem.FireMode fireMode = getFireMode();
-        if (fireMode != null && fireMode.stats != null)
+        if (fireMode != null && fireMode.stats != null) {
             stats.combine(fireMode.stats.build(parent));
+        }
 
         SightSystem.Sight sight = getSight();
-        if (sight != null && sight.stats != null)
+        if (sight != null && sight.stats != null) {
             stats.combine(sight.stats.build(parent));
+        }
     }
 
     private <T extends ContainerPath<?>, S extends CalibreSystem> List<T> collect(Class<S> systemType, Function<S, List<?>> listGetter, BiFunction<String[], Integer, T> provider) {

@@ -32,7 +32,7 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
     @ConfigSerializable
     protected static class Dependencies {
         protected Map<String, ConfigurationNode> systems;
-        protected List<String> statSystems;
+        protected List<String> softSystems;
         protected ConfigurationNode stats;
     }
 
@@ -78,7 +78,7 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
 
     @Override public Collection<String> dependencies() {
         List<String> result = new ArrayList<>(dependencies.systems.keySet());
-        result.addAll(dependencies.statSystems);
+        result.addAll(dependencies.softSystems);
         return result;
     }
 
@@ -189,16 +189,16 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
         }
     }
 
-    /**
-     * Adds the specified originals map to an existing originals map.
-     * @param toAdd The originals to add.
-     * @param statTypes The existing originals map.
-     */
-    private void addToDefaults(Map<String, Stat<?>> toAdd, Map<String, Stat<?>> statTypes) {
-        for (var statEntry : toAdd.entrySet()) {
-            String key = statEntry.getKey();
-            statTypes.put(key, statEntry.getValue());
-        }
+    private void addTypes(CalibreSystem system, Map<String, Stat<?>> statTypes, Map<String, Class<? extends Rule>> ruleTypes) {
+        Map<String, Stat<?>> sysStatTypes = system.statTypes();
+        if (sysStatTypes == null)
+            throw new ResolutionException(String.format("System [%s] returns no stat types: must at least return empty map", system.id()));
+        statTypes.putAll(sysStatTypes);
+
+        Map<String, Class<? extends Rule>> sysRuleTypes = system.ruleTypes();
+        if (sysRuleTypes == null)
+            throw new ResolutionException(String.format("System [%s] returns no rule types: must at least return empty map", system.id()));
+        ruleTypes.putAll(sysRuleTypes);
     }
 
     @Override
@@ -224,25 +224,14 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
                 system.inherit(registeredSystem, true);
                 systems.put(sysId, system);
 
-                Map<String, Stat<?>> sysStatTypes = system.statTypes();
-                if (sysStatTypes == null)
-                    throw new ResolutionException(String.format("System %s returns no stat types: must at least return empty map", sysId));
-                addToDefaults(sysStatTypes, statTypes);
-
-                Map<String, Class<? extends Rule>> sysRuleTypes = system.ruleTypes();
-                if (sysRuleTypes == null)
-                    throw new ResolutionException(String.format("System %s returns no rule types: must at least return empty map", sysId));
-                ruleTypes.putAll(sysRuleTypes);
+                addTypes(system, statTypes, ruleTypes);
             }
         }
 
-        if (dependencies.statSystems != null) {
-            for (String sysId : dependencies.statSystems) {
+        if (dependencies.softSystems != null) {
+            for (String sysId : dependencies.softSystems) {
                 CalibreSystem system = context.getResolve(sysId, CalibreSystem.class);
-                Map<String, Stat<?>> sysStatTypes = system.statTypes();
-                if (sysStatTypes == null)
-                    throw new ResolutionException(String.format("System %s for stats returns no default stats: must at least return empty map", sysId));
-                addToDefaults(sysStatTypes, statTypes);
+                addTypes(system, statTypes, ruleTypes);
             }
         }
 

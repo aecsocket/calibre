@@ -97,4 +97,25 @@ public final class NavigationRule {
             return result;
         }
     }
+
+    @ConfigSerializable
+    public static class IsRoot implements Rule {
+        public static final String TYPE = "is_root";
+        @Override public String type() { return TYPE; }
+
+        public IsRoot() {}
+
+        @Override
+        public boolean applies(CalibreComponent<?> component) {
+            return component.isRoot();
+        }
+
+        @Override public String toString() { return TYPE; }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            return o != null && getClass() == o.getClass();
+        }
+    }
 }

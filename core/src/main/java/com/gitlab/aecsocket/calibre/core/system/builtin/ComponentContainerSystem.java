@@ -15,6 +15,7 @@ import net.kyori.adventure.text.Component;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Required;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
@@ -57,7 +58,7 @@ public abstract class ComponentContainerSystem extends AbstractSystem {
     public static final String ID = "component_container";
     public static final int LISTENER_PRIORITY = 1200;
     protected transient final LinkedList<Quantifier<CalibreComponent<?>>> components;
-    @FromMaster protected Rule compatibility;
+    @Required @FromMaster protected Rule compatibility;
 
     /**
      * Used for registration + deserialization.

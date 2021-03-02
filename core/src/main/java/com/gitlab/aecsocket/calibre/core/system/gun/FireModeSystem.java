@@ -13,6 +13,7 @@ import com.gitlab.aecsocket.unifiedframework.core.event.EventDispatcher;
 import net.kyori.adventure.text.Component;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Required;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 import java.util.*;
@@ -48,7 +49,7 @@ public abstract class FireModeSystem extends AbstractSystem {
 
     @ConfigSerializable
     protected static class Dependencies {
-        protected ConfigurationNode fireModes;
+        @Required protected ConfigurationNode fireModes;
     }
 
     @Setting(nodeFromParent = true)

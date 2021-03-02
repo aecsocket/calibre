@@ -26,6 +26,7 @@ public interface Rule {
 
             .init(NavigationRule.As.TYPE, NavigationRule.As.class)
             .init(NavigationRule.AsRoot.TYPE, NavigationRule.AsRoot.class)
+            .init(NavigationRule.IsRoot.TYPE, NavigationRule.IsRoot.class)
             .get();
 
     final class Serializer implements TypeSerializer<Rule> {

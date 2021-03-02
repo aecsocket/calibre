@@ -8,6 +8,7 @@ import com.gitlab.aecsocket.unifiedframework.core.component.SlotRef;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Required;
 
 import java.util.*;
 
@@ -94,7 +95,8 @@ public class CalibreSlot implements Slot {
 
     @Override
     public boolean isCompatible(@NotNull Component component) {
-        return component instanceof CalibreComponent && compatibility.applies((CalibreComponent<?>) component);
+        return component instanceof CalibreComponent &&
+                (compatibility == null || compatibility.applies((CalibreComponent<?>) component));
     }
 
     @Override

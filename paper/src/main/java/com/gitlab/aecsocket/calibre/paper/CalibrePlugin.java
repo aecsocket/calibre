@@ -262,6 +262,7 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
         registry.register(new PaperComponentContainerSystem(this));
         registry.register(new PaperCapacityComponentContainerSystem(this));
         registry.register(new PaperNameFromChildSystem(this));
+        registry.register(new PaperNameOverrideSystem(this));
         registry.register(new PaperSchedulerSystem(this, systemScheduler));
 
         registry.register(new GenericStatsSystem(this));

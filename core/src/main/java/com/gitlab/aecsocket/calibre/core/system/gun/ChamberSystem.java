@@ -31,7 +31,7 @@ public abstract class ChamberSystem extends AbstractSystem {
     public void loadPath(String[] loadPath) { this.loadPath = loadPath; }
 
     public CalibreSlot getLoadSlot() {
-        if (loadPath.length == 0)
+        if (loadPath == null || loadPath.length == 0)
             return parent.parent() == null ? new CalibreSlot().set(parent) : parent.parent();
         return parent.slot(loadPath);
     }

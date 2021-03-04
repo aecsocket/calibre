@@ -1,6 +1,7 @@
 package com.gitlab.aecsocket.calibre.core.rule;
 
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
+import com.gitlab.aecsocket.calibre.core.rule.visitor.Visitor;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Required;
 
@@ -18,6 +19,8 @@ public final class ComponentRule {
         public boolean applies(CalibreComponent<?> component) {
             return component.tree().complete();
         }
+
+        @Override public void visit(Visitor visitor) { visitor.visit(this); }
 
         @Override public String toString() { return TYPE; }
 
@@ -50,6 +53,8 @@ public final class ComponentRule {
             return component.component(path) != null;
         }
 
+        @Override public void visit(Visitor visitor) { visitor.visit(this); }
+
         @Override public String toString() { return TYPE + "{" + Arrays.toString(path) + "}"; }
 
         @Override
@@ -77,6 +82,8 @@ public final class ComponentRule {
             return component.categories().contains(category);
         }
 
+        @Override public void visit(Visitor visitor) { visitor.visit(this); }
+
         @Override public String toString() { return TYPE + "{" + category + "}"; }
 
         @Override
@@ -103,6 +110,8 @@ public final class ComponentRule {
         public boolean applies(CalibreComponent<?> component) {
             return component.systems().containsKey(id);
         }
+
+        @Override public void visit(Visitor visitor) { visitor.visit(this); }
 
         @Override public String toString() { return TYPE + "{" + id + "}"; }
 

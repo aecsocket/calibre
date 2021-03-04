@@ -116,7 +116,6 @@ public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
         EventDispatcher events = tree.events();
         events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.UpdateItem.class, this::onEvent, listenerPriority);
-        events.registerListener(ItemEvents.Equipped.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.Jump.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.ToggleSprint.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.Switch.class, this::onEvent, listenerPriority);
@@ -159,11 +158,6 @@ public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
             return;
 
         plugin.itemManager().hide(((BukkitItem) event.item()).item(), true);
-    }
-
-    public <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {
-        if (event.tickContext().loop() instanceof MinecraftSyncLoop)
-            update(event.user());
     }
 
     public <I extends Item> void onEvent(ItemEvents.Jump<I> event) {

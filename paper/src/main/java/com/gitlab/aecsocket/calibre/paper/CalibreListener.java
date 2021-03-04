@@ -17,6 +17,7 @@ import com.gitlab.aecsocket.calibre.paper.wrapper.slot.BukkitSlot;
 import com.gitlab.aecsocket.calibre.paper.wrapper.user.PlayerUser;
 import com.gitlab.aecsocket.unifiedframework.paper.gui.GUIView;
 import com.gitlab.aecsocket.unifiedframework.paper.util.data.SoundData;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Tag;
@@ -271,6 +272,7 @@ public class CalibreListener implements Listener {
             @Override public void cancel() { event.setCancelled(true); }
 
             @Override public int type() { return ItemEvents.GameClick.LEFT; }
+            @Override public boolean holding() { return false; }
         }
 
         callOn(player, EquipmentSlot.HAND, (comp, slot) -> comp.tree().call(new AnimationClick(comp, PlayerUser.of(player), EntityEquipmentSlot.of(player, slot))));
@@ -289,13 +291,14 @@ public class CalibreListener implements Listener {
         if (action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK)
             return; // handled in player animation
 
+        CalibrePlayerData data = plugin.playerData(player);
         if (action == Action.RIGHT_CLICK_BLOCK) {
-            CalibrePlayerData data = plugin.playerData(player);
             if (data.cancelledBlockInteract())
                 return;
             data.cancelBlockInteract();
         }
 
+        boolean holding = Bukkit.getCurrentTick() - data.lastRightClick() <= 5;
         class InteractClick extends ItemEvents.Base<BukkitItem> implements ItemEvents.GameClick<BukkitItem> {
             public InteractClick(CalibreComponent<BukkitItem> component, ItemUser user, ItemSlot<BukkitItem> slot) {
                 super(component, user, slot);
@@ -305,7 +308,10 @@ public class CalibreListener implements Listener {
             @Override public void cancel() { event.setCancelled(true); }
 
             @Override public int type() { return ItemEvents.GameClick.RIGHT; }
+            @Override public boolean holding() { return holding; }
         }
+
+        data.lastRightClick(Bukkit.getCurrentTick());
 
         callOn(player, EquipmentSlot.HAND, (comp, slot) -> comp.tree().call(new InteractClick(comp, PlayerUser.of(player), EntityEquipmentSlot.of(player, slot))));
         callOn(player, EquipmentSlot.OFF_HAND, (comp, slot) -> comp.tree().call(new InteractClick(comp, PlayerUser.of(player), EntityEquipmentSlot.of(player, slot))));

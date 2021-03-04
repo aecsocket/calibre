@@ -41,6 +41,7 @@ public class ProtobufManager {
 
     public PaperComponent read(Tree.Component msg, InvalidDataHandling handling) {
         PaperComponent component = plugin.registry().get(msg.getId(), PaperComponent.class);
+
         if (component == null) {
             switch (handling) {
                 case WARN:
@@ -72,22 +73,10 @@ public class ProtobufManager {
             }
 
             PaperComponent child = read(value, handling);
-            if (!slot.isCompatible(child)) {
-                switch (handling) {
-                    case WARN:
-                        plugin.log(LogLevel.WARN, "On component [%s] the component [%s] is not compatible with slot [%s]", component.id(), child.id(), key);
-                    case CONTINUE:
-                        component.invalidSlots().put(key, value);
-                        break;
-                    case REMOVE:
-                        break;
-                }
-                continue;
-            }
-            slot.set(read(value, handling));
+            slot.parent(component, key);
+            slot.set(child);
         }
 
-        // TODO systems
         for (var entry : msg.getSystemsMap().entrySet()) {
             String key = entry.getKey();
             Any value = entry.getValue();

@@ -56,7 +56,7 @@ public abstract class NameOverrideSystem extends AbstractSystem {
         if (key == null)
             throw new SystemSetupException("No key specified");
         if (dependencies != null) {
-            when = deserialize(dependencies.when, Rule.class, "when");
+            when = deserialize(dependencies.when, Rule.class);
         }
         dependencies = null;
     }

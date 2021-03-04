@@ -40,6 +40,8 @@ public final class CalibrePlayerData implements Tickable {
     private int cancelInteractTick;
     private int cancelBlockInteract;
     private int inventoryDrop;
+    private int lastRightClick;
+
     private double inaccuracy;
     private boolean showInaccuracy;
 
@@ -89,6 +91,9 @@ public final class CalibrePlayerData implements Tickable {
     public int inventoryDropTick() { return inventoryDrop; }
     public boolean isInventoryDrop() { return Bukkit.getCurrentTick() <= inventoryDrop; }
     public void setInventoryDrop() { inventoryDrop = Bukkit.getCurrentTick() + 1; }
+
+    public int lastRightClick() { return lastRightClick; }
+    public void lastRightClick(int lastRightClick) { this.lastRightClick = lastRightClick; }
 
     public double inaccuracy() { return inaccuracy; }
     public void inaccuracy(double inaccuracy) { this.inaccuracy = inaccuracy; }

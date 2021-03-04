@@ -1,6 +1,7 @@
 package com.gitlab.aecsocket.calibre.core.component;
 
 import com.gitlab.aecsocket.calibre.core.rule.Rule;
+import com.gitlab.aecsocket.calibre.core.rule.visitor.SlotSetterVisitor;
 import com.gitlab.aecsocket.unifiedframework.core.component.Component;
 import com.gitlab.aecsocket.unifiedframework.core.component.IncompatibleComponentException;
 import com.gitlab.aecsocket.unifiedframework.core.component.Slot;
@@ -8,7 +9,6 @@ import com.gitlab.aecsocket.unifiedframework.core.component.SlotRef;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
-import org.spongepowered.configurate.objectmapping.meta.Required;
 
 import java.util.*;
 
@@ -95,8 +95,13 @@ public class CalibreSlot implements Slot {
 
     @Override
     public boolean isCompatible(@NotNull Component component) {
-        return component instanceof CalibreComponent &&
-                (compatibility == null || compatibility.applies((CalibreComponent<?>) component));
+        if (!(component instanceof CalibreComponent))
+            return false;
+        if (compatibility == null)
+            return true;
+        CalibreComponent<?> child = (CalibreComponent<?>) component;
+        compatibility.visit(new SlotSetterVisitor(child, (CalibreComponent<?>) parent.component()));
+        return compatibility.applies(child);
     }
 
     @Override

@@ -120,6 +120,7 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
     public PaperGunSystem(PaperGunSystem o) {
         super(o);
         plugin = o.plugin;
+        ignoreSwitch = o.ignoreSwitch;
     }
 
     @Override public Map<String, Stat<?>> statTypes() { return STAT_TYPES; }
@@ -138,7 +139,10 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
     }
 
     protected <I extends Item> void onEvent(ItemEvents.UpdateItem<I> event) {
-        if (event.cause() instanceof Events.StartFire && event.item() instanceof BukkitItem) {
+        if (event.item() instanceof BukkitItem && (
+                event.cause() instanceof Events.StartFire
+                || event.cause() instanceof ItemEvents.GameClick
+        )) {
             plugin.itemManager().hide(((BukkitItem) event.item()).item(), true);
         }
     }
@@ -294,9 +298,13 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
     @Override
     public <I extends Item> void changeSight(Events.ChangeSight<I> event) {
         super.changeSight(event);
-        if (event.result() == ItemEvents.Result.SUCCESS && event.user() instanceof BukkitItemUser)
+        if (event.result() == ItemEvents.Result.SUCCESS && event.user() instanceof BukkitItemUser) {
             SoundData.play(((BukkitItemUser) event.user())::location, tree().stat("change_sight_sound"));
-        ItemAnimation.start(event.user(), event.slot(), tree().stat("change_sight_animation"));
+            if (aiming) {
+                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
+                        ItemAnimation.start(event.user(), event.slot(), tree().stat("aim_in_animation")), 3);
+            }
+        }
     }
 
     @Override
@@ -309,20 +317,14 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
         ItemAnimation.start(user, event.slot(), tree().stat("fail_animation"));
     }
 
-    @Override public PaperGunSystem partialCopy() { return new PaperGunSystem(this); }
-
-    @Override
-    public PaperGunSystem copy() {
-        PaperGunSystem sys = (PaperGunSystem) super.copy();
-        sys.ignoreSwitch = ignoreSwitch;
-        return sys;
-    }
+    @Override public PaperGunSystem copy() { return new PaperGunSystem(this); }
 
     @Override
     public Any writeProtobuf() {
         var builder = SystemsGun.GunSystem.newBuilder()
                 .setAiming(aiming)
-                .setIgnoreSwitch(ignoreSwitch);
+                .setIgnoreSwitch(ignoreSwitch)
+                .setResting(resting);
         if (fireMode != null)
                 builder.setFireMode(SystemsGun.Path.newBuilder()
                         .addAllPath(Arrays.asList(fireMode.path()))
@@ -340,6 +342,7 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
         PaperGunSystem sys = new PaperGunSystem(this);
         sys.aiming = msg.getAiming();
         sys.ignoreSwitch = msg.getIgnoreSwitch();
+        sys.resting = msg.getResting();
         if (msg.hasFireMode())
             sys.fireMode = new FireModePath(msg.getFireMode().getPathList().toArray(new String[0]), msg.getFireMode().getIndex());
         if (msg.hasSight())

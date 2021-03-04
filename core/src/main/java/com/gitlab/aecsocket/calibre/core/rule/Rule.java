@@ -1,6 +1,7 @@
 package com.gitlab.aecsocket.calibre.core.rule;
 
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
+import com.gitlab.aecsocket.calibre.core.rule.visitor.Visitor;
 import com.gitlab.aecsocket.unifiedframework.core.util.MapInit;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -27,6 +28,9 @@ public interface Rule {
             .init(NavigationRule.As.TYPE, NavigationRule.As.class)
             .init(NavigationRule.AsRoot.TYPE, NavigationRule.AsRoot.class)
             .init(NavigationRule.IsRoot.TYPE, NavigationRule.IsRoot.class)
+
+            .init(SlotRule.AsChild.TYPE, SlotRule.AsChild.class)
+            .init(SlotRule.AsParent.TYPE, SlotRule.AsParent.class)
             .get();
 
     final class Serializer implements TypeSerializer<Rule> {
@@ -66,4 +70,5 @@ public interface Rule {
 
     String type();
     boolean applies(CalibreComponent<?> component);
+    void visit(Visitor visitor);
 }

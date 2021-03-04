@@ -1,6 +1,7 @@
 package com.gitlab.aecsocket.calibre.core.rule;
 
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
+import com.gitlab.aecsocket.calibre.core.rule.visitor.Visitor;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Required;
 
@@ -32,6 +33,11 @@ public final class LogicRule {
             return !operand.applies(component);
         }
 
+        @Override public void visit(Visitor visitor) {
+            visitor.visit(this);
+            operand.visit(visitor);
+        }
+
         @Override
         public int hashCode() {
             return Objects.hash(operand);
@@ -58,12 +64,30 @@ public final class LogicRule {
             return Objects.hash(operands);
         }
 
+        @Override public void visit(Visitor visitor) {
+            visitor.visit(this);
+            for (Rule operand : operands) {
+                operand.visit(visitor);
+            }
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             TakesOperands that = (TakesOperands) o;
             return operands.equals(that.operands);
+        }
+
+        protected abstract String separator();
+
+        @Override
+        public String toString() {
+            StringJoiner result = new StringJoiner(separator());
+            for (Rule operand : operands) {
+                result.add("(" + operand.toString() + ")");
+            }
+            return result.toString();
         }
     }
 
@@ -81,14 +105,7 @@ public final class LogicRule {
             return true;
         }
 
-        @Override
-        public String toString() {
-            StringJoiner result = new StringJoiner(" & ");
-            for (Rule operand : operands) {
-                result.add(operand.toString());
-            }
-            return result.toString();
-        }
+        @Override protected String separator() { return " & "; }
     }
 
     @ConfigSerializable
@@ -105,13 +122,6 @@ public final class LogicRule {
             return false;
         }
 
-        @Override
-        public String toString() {
-            StringJoiner result = new StringJoiner(" | ");
-            for (Rule operand : operands) {
-                result.add(operand.toString());
-            }
-            return result.toString();
-        }
+        @Override protected String separator() { return " | "; }
     }
 }

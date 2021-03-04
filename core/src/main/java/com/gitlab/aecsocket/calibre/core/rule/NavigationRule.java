@@ -1,6 +1,7 @@
 package com.gitlab.aecsocket.calibre.core.rule;
 
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
+import com.gitlab.aecsocket.calibre.core.rule.visitor.Visitor;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Required;
 
@@ -34,6 +35,11 @@ public final class NavigationRule {
             if (component == null)
                 return false;
             return operand.applies(component);
+        }
+
+        @Override public void visit(Visitor visitor) {
+            visitor.visit(this);
+            operand.visit(visitor);
         }
 
         @Override public String toString() { return TYPE + Arrays.toString(target) + "{" + operand + "}"; }
@@ -80,6 +86,11 @@ public final class NavigationRule {
             return operand.applies(component);
         }
 
+        @Override public void visit(Visitor visitor) {
+            visitor.visit(this);
+            operand.visit(visitor);
+        }
+
         @Override public String toString() { return TYPE + Arrays.toString(target) + "{" + operand + "}"; }
 
         @Override
@@ -109,6 +120,8 @@ public final class NavigationRule {
         public boolean applies(CalibreComponent<?> component) {
             return component.isRoot();
         }
+
+        @Override public void visit(Visitor visitor) { visitor.visit(this); }
 
         @Override public String toString() { return TYPE; }
 

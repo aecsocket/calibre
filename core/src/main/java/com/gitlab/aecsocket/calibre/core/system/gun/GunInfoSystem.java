@@ -92,6 +92,7 @@ public abstract class GunInfoSystem extends AbstractSystem {
     public void parentTo(ComponentTree tree, CalibreComponent<?> parent) {
         super.parentTo(tree, parent);
         if (!parent.isRoot()) return;
+        if (!tree.complete()) return;
 
         EventDispatcher events = tree.events();
         events.registerListener(ItemEvents.Equipped.class, this::onEvent, listenerPriority);

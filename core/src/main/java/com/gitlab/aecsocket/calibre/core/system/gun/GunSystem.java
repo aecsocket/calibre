@@ -4,8 +4,10 @@ import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.core.component.CalibreSlot;
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
 import com.gitlab.aecsocket.calibre.core.rule.Rule;
+import com.gitlab.aecsocket.calibre.core.rule.visitor.Visitor;
 import com.gitlab.aecsocket.calibre.core.system.AbstractSystem;
 import com.gitlab.aecsocket.calibre.core.system.CalibreSystem;
+import com.gitlab.aecsocket.calibre.core.system.FromMaster;
 import com.gitlab.aecsocket.calibre.core.system.builtin.ComponentContainerSystem;
 import com.gitlab.aecsocket.calibre.core.system.builtin.ProjectileSystem;
 import com.gitlab.aecsocket.calibre.core.util.StatCollection;
@@ -39,7 +41,9 @@ import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector2D;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector3D;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.ViewCoordinates;
 import net.kyori.adventure.text.Component;
+import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -125,20 +129,30 @@ public abstract class GunSystem extends AbstractSystem {
             .get();
     public static final Map<String, Class<? extends Rule>> RULE_TYPES = MapInit.of(new HashMap<String, Class<? extends Rule>>())
             .init(Rules.Aiming.TYPE, Rules.Aiming.class)
+            .init(Rules.Resting.TYPE, Rules.Resting.class)
             .init(Rules.HasSight.TYPE, Rules.HasSight.class)
             .init(Rules.HasFireMode.TYPE, Rules.HasFireMode.class)
             .get();
     public static final String SLOT_TAG_CHAMBER = "chamber";
     public static final String SLOT_TAG_AMMO = "ammo";
 
+    @ConfigSerializable
+    private static class Dependencies {
+        private ConfigurationNode fallbackSight;
+        private ConfigurationNode fallbackFireMode;
+    }
+
+    @Setting(nodeFromParent = true)
+    private Dependencies dependencies;
+    @FromMaster protected transient SightSystem.Sight fallbackSight;
+    @FromMaster protected transient FireModeSystem.FireMode fallbackFireMode;
     protected transient SchedulerSystem scheduler;
     protected transient SwayStabilization stabilization;
 
     protected boolean aiming;
     protected SightPath sight;
     protected FireModePath fireMode;
-
-    protected transient boolean resting;
+    protected boolean resting;
 
     /**
      * Used for registration + deserialization.
@@ -152,7 +166,15 @@ public abstract class GunSystem extends AbstractSystem {
     public GunSystem(GunSystem o) {
         super(o);
         stabilization = o.stabilization;
+        fallbackSight = o.fallbackSight;
+        fallbackFireMode = o.fallbackFireMode;
     }
+
+    public SightSystem.Sight fallbackSight() { return fallbackSight; }
+    public void fallbackSight(SightSystem.Sight fallbackSight) { this.fallbackSight = fallbackSight; }
+
+    public FireModeSystem.FireMode fallbackFireMode() { return fallbackFireMode; }
+    public void fallbackFireMode(FireModeSystem.FireMode fallbackFireMode) { this.fallbackFireMode = fallbackFireMode; }
 
     public SchedulerSystem scheduler() { return scheduler; }
     public SwayStabilization stabilization() { return stabilization; }
@@ -162,11 +184,15 @@ public abstract class GunSystem extends AbstractSystem {
 
     public SightPath sight() { return sight; }
     public void sight(SightPath sight) { this.sight = sight; }
-    public SightSystem.Sight getSight() { return sight == null ? null : sight.get(parent); }
+    public SightSystem.Sight getRawSight() { return sight == null ? null : sight.get(parent); }
+    public SightSystem.Sight getSight() { return sight == null ? fallbackSight : sight.get(parent); }
 
     public FireModePath fireMode() { return fireMode; }
     public void fireMode(FireModePath fireMode) { this.fireMode = fireMode; }
-    public FireModeSystem.FireMode getFireMode() { return fireMode == null ? null : fireMode.get(parent); }
+    public FireModeSystem.FireMode getRawFireMode() { return fireMode == null ? null : fireMode.get(parent); }
+    public FireModeSystem.FireMode getFireMode() { return fireMode == null ? fallbackFireMode : fireMode.get(parent); }
+
+    public boolean resting() { return resting; }
 
     @Override public String id() { return ID; }
     @Override public Map<String, Stat<?>> statTypes() { return STAT_TYPES; }
@@ -224,6 +250,13 @@ public abstract class GunSystem extends AbstractSystem {
     @Override
     public void setup(CalibreComponent<?> parent) {
         super.setup(parent);
+        fallbackSight = deserialize(dependencies.fallbackSight, SightSystem.Sight.class);
+        fallbackFireMode = deserialize(dependencies.fallbackFireMode, FireModeSystem.FireMode.class);
+        dependencies = null;
+        if (fallbackSight.id == null)
+            fallbackSight = null;
+        if (fallbackFireMode.id == null)
+            fallbackFireMode = null;
         require(SchedulerSystem.class);
         require(SwayStabilization.class);
     }
@@ -249,14 +282,14 @@ public abstract class GunSystem extends AbstractSystem {
         events.registerListener(ItemEvents.PlaceBlock.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.Death.class, this::onEvent, listenerPriority);
 
-        if (getSight() == null) {
+        if (getRawSight() == null) {
             sight = null;
             List<SightPath> found = collectSights();
             if (found.size() > 0)
                 sight = found.get(0);
         }
 
-        if (getFireMode() == null) {
+        if (getRawFireMode() == null) {
             fireMode = null;
             List<FireModePath> found = collectFireModes();
             if (found.size() > 0)
@@ -303,9 +336,14 @@ public abstract class GunSystem extends AbstractSystem {
         ItemUser user = event.user();
 
         if (event.tickContext().loop() instanceof MinecraftSyncLoop) {
-            resting = user instanceof RestableUser && resting((RestableUser) user, event.slot());
-
             boolean update = false;
+
+            boolean pre = resting;
+            resting = user instanceof RestableUser && resting((RestableUser) user, event.slot());
+            if (resting != pre) {
+                update = true;
+            }
+
             if (aiming && getSight() == null) {
                 aiming = false;
                 update = true;
@@ -800,6 +838,7 @@ public abstract class GunSystem extends AbstractSystem {
 
         event.result = ItemEvents.Result.SUCCESS;
         scheduler.delay(tree().<NumberDescriptor.Long>stat("change_sight_delay").apply());
+
         tree().build();
         event.updateItem();
     }
@@ -831,17 +870,6 @@ public abstract class GunSystem extends AbstractSystem {
 
     public <I extends Item> void fail(Events.Fail<I> event) {
         scheduler.delay(tree().<NumberDescriptor.Long>stat("fail_delay").apply());
-    }
-
-    protected abstract GunSystem partialCopy();
-
-    @Override
-    public GunSystem copy() {
-        GunSystem sys = partialCopy();
-        sys.aiming = aiming;
-        sys.fireMode = fireMode;
-        sys.sight = sight;
-        return sys;
     }
 
     @Override
@@ -921,6 +949,27 @@ public abstract class GunSystem extends AbstractSystem {
                 return component.system(ID) != null && component.<GunSystem>system(ID).aiming;
             }
 
+            @Override public void visit(Visitor visitor) { visitor.visit(this); }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                return o != null && getClass() == o.getClass();
+            }
+        }
+
+        @ConfigSerializable
+        public static class Resting implements Rule {
+            public static final String TYPE = "resting";
+            @Override public String type() { return TYPE; }
+
+            @Override
+            public boolean applies(CalibreComponent<?> component) {
+                return component.system(ID) != null && component.<GunSystem>system(ID).resting;
+            }
+
+            @Override public void visit(Visitor visitor) { visitor.visit(this); }
+
             @Override
             public boolean equals(Object o) {
                 if (this == o) return true;
@@ -938,6 +987,8 @@ public abstract class GunSystem extends AbstractSystem {
                 return component.system(ID) != null && component.<GunSystem>system(ID).sight != null;
             }
 
+            @Override public void visit(Visitor visitor) { visitor.visit(this); }
+
             @Override
             public boolean equals(Object o) {
                 if (this == o) return true;
@@ -954,6 +1005,8 @@ public abstract class GunSystem extends AbstractSystem {
             public boolean applies(CalibreComponent<?> component) {
                 return component.system(ID) != null && component.<GunSystem>system(ID).fireMode != null;
             }
+
+            @Override public void visit(Visitor visitor) { visitor.visit(this); }
 
             @Override
             public boolean equals(Object o) {

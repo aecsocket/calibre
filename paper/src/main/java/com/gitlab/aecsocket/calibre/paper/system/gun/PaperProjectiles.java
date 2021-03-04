@@ -34,7 +34,8 @@ public final class PaperProjectiles {
         public enum HitResult {
             STOP,
             BOUNCE,
-            CONTINUE
+            CONTINUE,
+            IGNORE
         }
 
         protected final CalibrePlugin plugin;
@@ -129,13 +130,13 @@ public final class PaperProjectiles {
         }
 
         @Override
+        public void tick(TickContext tickContext) {
+            super.tick(tickContext);
+        }
+
+        @Override
         protected void collide(TickContext tickContext, BukkitRayTrace ray, BukkitCollidable collided) {
             Location location = VectorUtils.toBukkit(ray.position()).toLocation(world);
-
-            ParticleData.spawn(location, hitParticle);
-            SoundData.play(() -> location, hitSound);
-            if (source instanceof Player)
-                SoundData.play((Player) source, () -> source.getLocation(), hitSoundSource);
 
             HitResult result;
             if (collided.isBlock())
@@ -143,10 +144,17 @@ public final class PaperProjectiles {
             else
                 result = collideEntity(tickContext, ray, location, collided.entity());
 
-            if (result == HitResult.BOUNCE && bounce > 0) {
-                bounce(ray);
-            } else if (result != HitResult.CONTINUE) {
-                tickContext.remove();
+            if (result != HitResult.IGNORE) {
+                ParticleData.spawn(location, hitParticle);
+                SoundData.play(() -> location, hitSound);
+                if (source instanceof Player)
+                    SoundData.play((Player) source, () -> source.getLocation(), hitSoundSource);
+
+                if (result == HitResult.BOUNCE && bounce > 0) {
+                    bounce(ray);
+                } else if (result != HitResult.CONTINUE) {
+                    tickContext.remove();
+                }
             }
         }
 

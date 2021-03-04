@@ -14,4 +14,5 @@ message GunSystem {
   int32 ignore_switch = 2;
   Path fire_mode = 3;
   Path sight = 4;
+  bool resting = 5;
 }

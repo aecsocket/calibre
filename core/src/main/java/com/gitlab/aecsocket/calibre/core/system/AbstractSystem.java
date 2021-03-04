@@ -46,19 +46,19 @@ public abstract class AbstractSystem implements CalibreSystem {
         return system;
     }
 
-    protected <T> T deserialize(ConfigurationNode node, TypeToken<T> type, String fieldName) {
+    protected <T> T deserialize(ConfigurationNode node, TypeToken<T> type) {
         if (node == null)
             return null;
         try {
             return node.get(type);
         } catch (SerializationException e) {
-            throw new SystemSetupException("Could not set up " + fieldName, e);
+            throw new SystemSetupException("Could not set up " + node.key(), e);
         }
     }
 
 
-    protected <T> T deserialize(ConfigurationNode node, Class<T> type, String fieldName) {
-        return deserialize(node, TypeToken.get(type), fieldName);
+    protected <T> T deserialize(ConfigurationNode node, Class<T> type) {
+        return deserialize(node, TypeToken.get(type));
     }
 
     protected void combine(StatCollection base, StatCollection add) {

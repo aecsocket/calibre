@@ -80,6 +80,7 @@ public final class ItemEvents {
         int RIGHT = 1;
 
         int type();
+        boolean holding();
     }
 
     public interface SwapHand<I extends Item> extends ItemEvent<I>, Cancellable {

@@ -1,10 +1,10 @@
 package com.gitlab.aecsocket.calibre.core.rule;
 
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
+import com.gitlab.aecsocket.calibre.core.rule.visitor.Visitor;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Required;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 @ConfigSerializable
@@ -23,6 +23,8 @@ public final class ConstantRule implements Rule {
     public boolean value() { return value; }
 
     @Override public boolean applies(CalibreComponent<?> component) { return value; }
+
+    @Override public void visit(Visitor visitor) { visitor.visit(this); }
 
     @Override
     public boolean equals(Object o) {

@@ -80,7 +80,7 @@ public abstract class FireModeSystem extends AbstractSystem {
     @Override public void setup(CalibreComponent<?> parent) throws SystemSetupException {
         super.setup(parent);
         if (dependencies != null) {
-            fireModes = deserialize(dependencies.fireModes, new TypeToken<>(){}, "fireModes");
+            fireModes = deserialize(dependencies.fireModes, new TypeToken<>(){});
             dependencies = null;
         }
         require(StatRenderer.class);

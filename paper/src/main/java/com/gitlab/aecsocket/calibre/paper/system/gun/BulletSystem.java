@@ -64,7 +64,7 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
             entityPenetration = stats.<NumberDescriptor.Double>val("entity_penetration").apply();
 
             ricochetChance = stats.<NumberDescriptor.Double>val("ricochet_chance").apply();
-            ricochetAngle = stats.<NumberDescriptor.Double>val("ricochet_angle").apply() + 90;
+            ricochetAngle = stats.<NumberDescriptor.Double>val("ricochet_angle").apply();
 
             Vector2D rangeStat = stats.<Vector2DDescriptor>val("range").apply(new Vector2D());
             dropoff = rangeStat.x();
@@ -103,8 +103,9 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
         @Override
         protected void step(TickContext tickContext, BukkitRayTrace ray, Vector3D from, Vector3D delta, double deltaLength) {
             super.step(tickContext, ray, from, delta, deltaLength);
-            if (travelled() >= range)
+            if (travelled() >= range) {
                 tickContext.remove();
+            }
         }
 
         @Override
@@ -114,17 +115,38 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
         }
 
         protected boolean ricochets(BukkitRayTrace ray) {
-            double angle = velocity.angle(ray.collisionNormal());
-            if (Math.toDegrees(angle) > ricochetAngle)
+            Vector3D flat;
+            switch (ray.face()) {
+                case EAST:
+                case WEST:
+                    flat = velocity.x(0);
+                    break;
+                case NORTH:
+                case SOUTH:
+                    flat = velocity.z(0);
+                    break;
+                case UP:
+                case DOWN:
+                    flat = velocity.y(0);
+                    break;
+                default:
+                    return false;
+            }
+            double angle = Math.toDegrees(velocity.angle(flat));
+            if (angle > ricochetAngle)
                 return false;
 
             double chance = ricochetChance * Utils.square(damage / originalDamage);
             return ThreadLocalRandom.current().nextDouble() < chance;
         }
 
+        @Override
         protected HitResult collideBlock(TickContext tickContext, BukkitRayTrace ray, Location location, Block block) {
-            super.collideBlock(tickContext, ray, location, block);
             double hardness = plugin.hardness(block);
+            if (hardness < 0)
+                // pass through the block
+                return HitResult.IGNORE;
+            super.collideBlock(tickContext, ray, location, block);
             // if this block is too hard
             if (hardness > blockPenetration) {
                 if (ricochets(ray))
@@ -140,6 +162,7 @@ public class BulletSystem extends AbstractSystem implements ProjectileSystem, Pa
             }
         }
 
+        @Override
         protected HitResult collideEntity(TickContext tickContext, BukkitRayTrace ray, Location location, Entity entity) {
             super.collideEntity(tickContext, ray, location, entity);
             if (entity instanceof Hanging) {

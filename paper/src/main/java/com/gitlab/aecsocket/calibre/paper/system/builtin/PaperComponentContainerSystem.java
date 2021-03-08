@@ -16,7 +16,7 @@ import com.gitlab.aecsocket.unifiedframework.paper.util.data.SoundData;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
-public class PaperComponentContainerSystem extends ComponentContainerSystem implements PaperSystem {
+public final class PaperComponentContainerSystem extends ComponentContainerSystem implements PaperSystem {
     @FromMaster(fromDefault = true)
     private transient CalibrePlugin plugin;
 
@@ -31,7 +31,7 @@ public class PaperComponentContainerSystem extends ComponentContainerSystem impl
     /**
      * Used for deserialization.
      */
-    public PaperComponentContainerSystem() {
+    private PaperComponentContainerSystem() {
         plugin = null;
     }
 

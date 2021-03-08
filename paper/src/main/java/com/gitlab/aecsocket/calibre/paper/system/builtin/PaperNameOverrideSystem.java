@@ -8,7 +8,7 @@ import com.gitlab.aecsocket.calibre.paper.system.PaperSystem;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
-public class PaperNameOverrideSystem extends NameOverrideSystem implements PaperSystem {
+public final class PaperNameOverrideSystem extends NameOverrideSystem implements PaperSystem {
     @FromMaster(fromDefault = true)
     private transient CalibrePlugin plugin;
 
@@ -23,7 +23,7 @@ public class PaperNameOverrideSystem extends NameOverrideSystem implements Paper
     /**
      * Used for deserialization.
      */
-    public PaperNameOverrideSystem() {
+    private PaperNameOverrideSystem() {
         plugin = null;
     }
 

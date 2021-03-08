@@ -204,6 +204,7 @@ public abstract class GunInfoSystem extends AbstractSystem {
                     sightGen = gen(locale, "system." + ID + ".sight.value." + sight.id);
             }
 
+            Component resting = gen(locale, "system." + ID + "." + (gun.resting ? "resting" : "not_resting"));
             if (showStamina && user instanceof StabilizableUser) {
                 StabilizableUser stabilizable = (StabilizableUser) user;
                 ((SenderUser) user).sendInfo(gen(locale, "system." + ID + ".action_bar.stamina",
@@ -212,14 +213,16 @@ public abstract class GunInfoSystem extends AbstractSystem {
                         "ammo", Utils.join(gen(locale, "system." + ID + ".ammo.separator"), ammo),
                         "chamber", chamber,
                         "fire_mode", fireModeGen,
-                        "sight", sightGen
+                        "sight", sightGen,
+                        "resting", resting
                 ));
             } else {
                 ((SenderUser) user).sendInfo(gen(locale, "system." + ID + ".action_bar.no_stamina",
                         "ammo", Utils.join(gen(locale, "system." + ID + ".ammo.separator"), ammo),
                         "chamber", chamber,
                         "fire_mode", fireModeGen,
-                        "sight", sightGen
+                        "sight", sightGen,
+                        "resting", resting
                 ));
             }
         }

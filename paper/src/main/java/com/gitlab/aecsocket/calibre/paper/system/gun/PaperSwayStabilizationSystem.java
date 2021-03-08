@@ -7,7 +7,7 @@ import com.gitlab.aecsocket.calibre.core.system.gun.SwayStabilizationSystem;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
-public class PaperSwayStabilizationSystem extends SwayStabilizationSystem implements PaperSystem {
+public final class PaperSwayStabilizationSystem extends SwayStabilizationSystem implements PaperSystem {
     @FromMaster(fromDefault = true)
     private transient CalibrePlugin plugin;
 
@@ -22,7 +22,7 @@ public class PaperSwayStabilizationSystem extends SwayStabilizationSystem implem
     /**
      * Used for deserialization.
      */
-    public PaperSwayStabilizationSystem() {
+    private PaperSwayStabilizationSystem() {
         plugin = null;
     }
 

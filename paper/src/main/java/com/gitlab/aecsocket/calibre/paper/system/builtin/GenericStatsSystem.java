@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @ConfigSerializable
-public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
+public final class GenericStatsSystem extends AbstractSystem implements PaperSystem {
     public static final String ID = "generic_stats";
     public static final int LISTENER_PRIORITY = 100000;
     public static final UUID ATTR_MOVE_SPEED = new UUID(3871, 4920);
@@ -83,7 +83,7 @@ public class GenericStatsSystem extends AbstractSystem implements PaperSystem {
     /**
      * Used for deserialization.
      */
-    public GenericStatsSystem() {
+    private GenericStatsSystem() {
         super(LISTENER_PRIORITY);
         plugin = null;
     }

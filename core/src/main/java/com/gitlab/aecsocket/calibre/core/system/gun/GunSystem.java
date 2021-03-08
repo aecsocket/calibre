@@ -25,8 +25,10 @@ import com.gitlab.aecsocket.unifiedframework.core.event.EventDispatcher;
 import com.gitlab.aecsocket.unifiedframework.core.loop.MinecraftSyncLoop;
 import com.gitlab.aecsocket.unifiedframework.core.loop.TickContext;
 import com.gitlab.aecsocket.unifiedframework.core.stat.Stat;
+import com.gitlab.aecsocket.unifiedframework.core.stat.StatMap;
 import com.gitlab.aecsocket.unifiedframework.core.stat.impl.BooleanStat;
 import com.gitlab.aecsocket.unifiedframework.core.stat.impl.EnumStat;
+import com.gitlab.aecsocket.unifiedframework.core.stat.impl.StringStat;
 import com.gitlab.aecsocket.unifiedframework.core.stat.impl.descriptor.NumberDescriptorStat;
 import com.gitlab.aecsocket.unifiedframework.core.stat.impl.descriptor.Vector2DDescriptorStat;
 import com.gitlab.aecsocket.unifiedframework.core.stat.impl.descriptor.Vector3DDescriptorStat;
@@ -77,8 +79,8 @@ public abstract class GunSystem extends AbstractSystem {
             .init("resting_offset", new Vector3DDescriptorStat(new Vector3D()))
 
             // Target slot types
-            .init("slot_type_chamber", NumberDescriptorStat.of(0))
-            .init("slot_type_ammo", NumberDescriptorStat.of(0))
+            .init("slot_tag_chamber", new StringStat("chamber"))
+            .init("slot_tag_ammo", new StringStat("ammo"))
 
             // Toggles
             .init("auto_chamber", new BooleanStat(true))
@@ -133,8 +135,6 @@ public abstract class GunSystem extends AbstractSystem {
             .init(Rules.HasSight.TYPE, Rules.HasSight.class)
             .init(Rules.HasFireMode.TYPE, Rules.HasFireMode.class)
             .get();
-    public static final String SLOT_TAG_CHAMBER = "chamber";
-    public static final String SLOT_TAG_AMMO = "ammo";
 
     @ConfigSerializable
     private static class Dependencies {
@@ -209,6 +209,14 @@ public abstract class GunSystem extends AbstractSystem {
         if (sight != null && sight.stats != null) {
             stats.combine(sight.stats.build(parent));
         }
+
+        // TODO dirty * hack. do something about this. please.
+        for (CalibreSlot slot : collectChamberSlots(stats.flatten())) {
+            ProjectileSystem projectile = getProjectile(slot).c();
+            if (projectile != null && projectile.stats() != null) {
+                stats.combine(projectile.stats().build(parent));
+            }
+        }
     }
 
     private <T extends ContainerPath<?>, S extends CalibreSystem> List<T> collect(Class<S> systemType, Function<S, List<?>> listGetter, BiFunction<String[], Integer, T> provider) {
@@ -233,16 +241,18 @@ public abstract class GunSystem extends AbstractSystem {
         return this.collect(FireModeSystem.class, sys -> sys.fireModes, FireModePath::new);
     }
 
-    public List<CalibreSlot> collectChamberSlots() {
-        return parent.collectSlots(SLOT_TAG_CHAMBER, tree().<NumberDescriptor.Integer>stat("slot_type_chamber").apply());
+    public List<CalibreSlot> collectChamberSlots(StatMap stats) {
+        return parent.collectSlots(stats.val("slot_tag_chamber"));
     }
+    public List<CalibreSlot> collectChamberSlots() { return collectChamberSlots(tree().stats()); }
     public List<ChamberSystem> collectChambers(List<CalibreSlot> slots) {
         return parent.fromSlots(slots, ChamberSystem.class);
     }
 
-    public List<CalibreSlot> collectAmmoSlots() {
-        return parent.collectSlots(SLOT_TAG_AMMO, tree().<NumberDescriptor.Integer>stat("slot_type_ammo").apply());
+    public List<CalibreSlot> collectAmmoSlots(StatMap stats) {
+        return parent.collectSlots(stats.val("slot_tag_ammo"));
     }
+    public List<CalibreSlot> collectAmmoSlots() { return collectAmmoSlots(tree().stats()); }
     public List<ComponentContainerSystem> collectAmmo(List<CalibreSlot> slots) {
         return parent.fromSlots(slots, ComponentContainerSystem.class);
     }

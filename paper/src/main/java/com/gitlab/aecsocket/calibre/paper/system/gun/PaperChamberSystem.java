@@ -7,7 +7,7 @@ import com.gitlab.aecsocket.calibre.core.system.gun.ChamberSystem;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
-public class PaperChamberSystem extends ChamberSystem implements PaperSystem {
+public final class PaperChamberSystem extends ChamberSystem implements PaperSystem {
     @FromMaster(fromDefault = true)
     private transient CalibrePlugin plugin;
 
@@ -15,7 +15,7 @@ public class PaperChamberSystem extends ChamberSystem implements PaperSystem {
         this.plugin = plugin;
     }
 
-    public PaperChamberSystem() {}
+    private PaperChamberSystem() {}
 
     public PaperChamberSystem(PaperChamberSystem o) {
         super(o);

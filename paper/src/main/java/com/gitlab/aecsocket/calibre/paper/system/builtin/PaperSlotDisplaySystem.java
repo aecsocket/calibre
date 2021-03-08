@@ -7,7 +7,7 @@ import com.gitlab.aecsocket.calibre.core.system.builtin.SlotDisplaySystem;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
-public class PaperSlotDisplaySystem extends SlotDisplaySystem implements PaperSystem {
+public final class PaperSlotDisplaySystem extends SlotDisplaySystem implements PaperSystem {
     @FromMaster(fromDefault = true)
     private transient CalibrePlugin plugin;
 
@@ -22,7 +22,7 @@ public class PaperSlotDisplaySystem extends SlotDisplaySystem implements PaperSy
     /**
      * Used for deserialization.
      */
-    public PaperSlotDisplaySystem() {
+    private PaperSlotDisplaySystem() {
         plugin = null;
     }
 

@@ -21,7 +21,7 @@ import org.bukkit.entity.Player;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class PaperInsertReloadSystem extends InsertReloadSystem implements PaperSystem {
+public final class PaperInsertReloadSystem extends InsertReloadSystem implements PaperSystem {
     public static final Map<String, Stat<?>> STAT_TYPES = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init(InsertReloadSystem.STAT_TYPES)
             .init("load_sound", new SoundDataStat())
@@ -38,7 +38,7 @@ public class PaperInsertReloadSystem extends InsertReloadSystem implements Paper
         this.plugin = plugin;
     }
 
-    public PaperInsertReloadSystem() {}
+    private PaperInsertReloadSystem() {}
 
     public PaperInsertReloadSystem(PaperInsertReloadSystem o) {
         super(o);

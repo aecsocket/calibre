@@ -20,7 +20,7 @@ import org.bukkit.entity.Player;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class PaperRemoveReloadSystem extends RemoveReloadSystem implements PaperSystem {
+public final class PaperRemoveReloadSystem extends RemoveReloadSystem implements PaperSystem {
     public static final Map<String, Stat<?>> STAT_TYPES = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init(RemoveReloadSystem.STAT_TYPES)
             .init("unload_sound", new SoundDataStat())
@@ -34,7 +34,7 @@ public class PaperRemoveReloadSystem extends RemoveReloadSystem implements Paper
         this.plugin = plugin;
     }
 
-    public PaperRemoveReloadSystem() {}
+    private PaperRemoveReloadSystem() {}
 
     public PaperRemoveReloadSystem(PaperRemoveReloadSystem o) {
         super(o);

@@ -7,7 +7,7 @@ import com.gitlab.aecsocket.calibre.core.system.gun.SightSystem;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
-public class PaperSightSystem extends SightSystem implements PaperSystem {
+public final class PaperSightSystem extends SightSystem implements PaperSystem {
     @FromMaster(fromDefault = true)
     private transient CalibrePlugin plugin;
 
@@ -22,7 +22,7 @@ public class PaperSightSystem extends SightSystem implements PaperSystem {
     /**
      * Used for deserialization.
      */
-    public PaperSightSystem() {
+    private PaperSightSystem() {
         plugin = null;
     }
 

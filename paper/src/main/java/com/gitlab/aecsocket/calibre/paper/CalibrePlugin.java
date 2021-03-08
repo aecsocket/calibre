@@ -15,6 +15,10 @@ import com.gitlab.aecsocket.calibre.core.system.builtin.*;
 import com.gitlab.aecsocket.calibre.core.system.builtin.Formatter;
 import com.gitlab.aecsocket.calibre.core.system.gun.*;
 import com.gitlab.aecsocket.calibre.paper.blueprint.PaperBlueprint;
+import com.gitlab.aecsocket.calibre.paper.system.gun.projectile.BulletSystem;
+import com.gitlab.aecsocket.calibre.paper.system.gun.projectile.ExplosiveProjectileSystem;
+import com.gitlab.aecsocket.calibre.paper.system.gun.projectile.IncendiaryProjectileSystem;
+import com.gitlab.aecsocket.calibre.paper.system.gun.projectile.PaperProjectileSystem;
 import com.gitlab.aecsocket.calibre.paper.system.gun.reload.external.PaperRemoveReloadSystem;
 import com.gitlab.aecsocket.calibre.paper.system.gun.reload.external.PaperSingleChamberReloadSystem;
 import com.gitlab.aecsocket.calibre.paper.system.gun.reload.internal.PaperInsertReloadSystem;
@@ -276,7 +280,10 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
         registry.register(new PaperSingleChamberReloadSystem(this));
         registry.register(new PaperInsertReloadSystem(this));
         registry.register(new PaperRemoveReloadSystem(this));
+        registry.register(new PaperProjectileSystem(this));
         registry.register(new BulletSystem(this));
+        registry.register(new IncendiaryProjectileSystem(this));
+        registry.register(new ExplosiveProjectileSystem(this));
     }
 
     protected void createCommandManager() {

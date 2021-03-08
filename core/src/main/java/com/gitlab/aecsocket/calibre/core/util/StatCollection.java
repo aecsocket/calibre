@@ -54,4 +54,12 @@ public class StatCollection extends HashMap<Integer, StatMap> {
         result.putAll(this);
         return result;
     }
+
+    public StatMap flatten() {
+        StatMap result = new StatMap();
+        for (var entry : ordered().entrySet()) {
+            result.modAll(entry.getValue());
+        }
+        return result;
+    }
 }

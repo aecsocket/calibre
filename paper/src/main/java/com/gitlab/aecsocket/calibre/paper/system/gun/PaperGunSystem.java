@@ -39,6 +39,7 @@ import com.gitlab.aecsocket.unifiedframework.paper.util.data.ParticleData;
 import com.gitlab.aecsocket.unifiedframework.paper.util.data.SoundData;
 import com.gitlab.aecsocket.unifiedframework.core.util.descriptor.NumberDescriptor;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector3D;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -58,7 +59,7 @@ import java.util.List;
 import java.util.Map;
 
 @ConfigSerializable
-public class PaperGunSystem extends GunSystem implements PaperSystem {
+public final class PaperGunSystem extends GunSystem implements PaperSystem {
     public static final PotionEffect EFFECT_HASTE = new PotionEffect(PotionEffectType.FAST_DIGGING, 5, 127, false, false, false);
     public static final int ITEM_DESPAWN = 5 * 60 * 20;
     public static final Map<String, Stat<?>> STAT_TYPES = MapInit.of(new LinkedHashMap<String, Stat<?>>())
@@ -109,7 +110,7 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
     /**
      * Used for deserialization.
      */
-    public PaperGunSystem() {
+    private PaperGunSystem() {
         plugin = null;
     }
 
@@ -159,11 +160,12 @@ public class PaperGunSystem extends GunSystem implements PaperSystem {
     @Override
     public double calculateInaccuracy(InaccuracyUser user) {
         double result = super.calculateInaccuracy(user);
-        if (user instanceof PlayerUser)
+        if (user instanceof PlayerUser) {
             // use #lengthSquared because #length is expensive
             result += plugin.velocityTracker().velocity(((PlayerUser) user).entity()).lengthSquared()
                     * MinecraftSyncLoop.TICKS_PER_SECOND
                     * tree().<NumberDescriptor.Double>stat("inaccuracy_velocity").apply();
+        }
         return result;
     }
 

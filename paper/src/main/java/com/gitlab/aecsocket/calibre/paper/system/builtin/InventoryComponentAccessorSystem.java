@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 @ConfigSerializable
-public class InventoryComponentAccessorSystem extends AbstractSystem implements ComponentAccessorSystem, PaperSystem {
+public final class InventoryComponentAccessorSystem extends AbstractSystem implements ComponentAccessorSystem, PaperSystem {
     public static class InventoryResult implements Result {
         private final PaperComponent component;
         private final ItemStack item;
@@ -59,7 +59,7 @@ public class InventoryComponentAccessorSystem extends AbstractSystem implements 
     /**
      * Used for deserialization.
      */
-    public InventoryComponentAccessorSystem() {
+    private InventoryComponentAccessorSystem() {
         super(0);
         plugin = null;
     }

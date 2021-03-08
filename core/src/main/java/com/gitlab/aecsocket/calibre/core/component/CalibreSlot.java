@@ -27,8 +27,6 @@ public class CalibreSlot implements Slot {
     protected boolean required;
     /** If this slot can be modified in the field. This is implementation detail. */
     protected boolean fieldModifiable;
-    /** The integer type of this slot, used to switch between different slots for different functions at runtime. */
-    protected int type;
     /** List of tags that this slot holds. This is implementation detail, but is mainly used for determining
      * for what a slot can be used for. */
     protected final List<String> tags;
@@ -65,9 +63,6 @@ public class CalibreSlot implements Slot {
 
     public boolean fieldModifiable() { return fieldModifiable; }
     public CalibreSlot fieldModifiable(boolean fieldModifiable) { this.fieldModifiable = fieldModifiable; return this; }
-
-    public int type() { return type; }
-    public CalibreSlot type(int type) { this.type = type; return this; }
 
     public List<String> tags() { return tags; }
 

@@ -7,7 +7,7 @@ import com.gitlab.aecsocket.calibre.core.system.builtin.NameFromChildSystem;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
-public class PaperNameFromChildSystem extends NameFromChildSystem implements PaperSystem {
+public final class PaperNameFromChildSystem extends NameFromChildSystem implements PaperSystem {
     @FromMaster(fromDefault = true)
     private transient CalibrePlugin plugin;
 
@@ -22,7 +22,7 @@ public class PaperNameFromChildSystem extends NameFromChildSystem implements Pap
     /**
      * Used for deserialization.
      */
-    public PaperNameFromChildSystem() {
+    private PaperNameFromChildSystem() {
         plugin = null;
     }
 

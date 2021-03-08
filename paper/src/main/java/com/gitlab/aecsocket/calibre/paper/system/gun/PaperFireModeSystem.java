@@ -7,7 +7,7 @@ import com.gitlab.aecsocket.calibre.core.system.gun.FireModeSystem;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
-public class PaperFireModeSystem extends FireModeSystem implements PaperSystem {
+public final class PaperFireModeSystem extends FireModeSystem implements PaperSystem {
     @FromMaster(fromDefault = true)
     private transient CalibrePlugin plugin;
 
@@ -22,7 +22,7 @@ public class PaperFireModeSystem extends FireModeSystem implements PaperSystem {
     /**
      * Used for deserialization.
      */
-    public PaperFireModeSystem() {
+    private PaperFireModeSystem() {
         plugin = null;
     }
 

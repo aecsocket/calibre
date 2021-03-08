@@ -324,16 +324,13 @@ public abstract class CalibreComponent<I extends Item> implements Component, Cal
     /**
      * Collects a list of slots which meet the criteria provided.
      * @param tag The tag that the slot requires. Can be null.
-     * @param type The type that the slot requires. Can be null.
      * @return The slots.
      */
-    public List<CalibreSlot> collectSlots(String tag, Integer type) {
+    public List<CalibreSlot> collectSlots(String tag) {
         List<CalibreSlot> result = new ArrayList<>();
         walk(data -> {
             CalibreSlot slot = data.slot();
             if (tag != null && !slot.tags.contains(tag))
-                return;
-            if (type != null && slot.type != type)
                 return;
             result.add(slot);
         });

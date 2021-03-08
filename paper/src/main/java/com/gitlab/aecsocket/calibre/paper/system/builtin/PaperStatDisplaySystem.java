@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @ConfigSerializable
-public class PaperStatDisplaySystem extends StatDisplaySystem implements PaperSystem {
+public final class PaperStatDisplaySystem extends StatDisplaySystem implements PaperSystem {
     @FromMaster(fromDefault = true)
     private transient final CalibrePlugin plugin;
     private static final Map<Locale, String> padding = new HashMap<>();
@@ -32,7 +32,7 @@ public class PaperStatDisplaySystem extends StatDisplaySystem implements PaperSy
     /**
      * Used for deserialization.
      */
-    public PaperStatDisplaySystem() {
+    private PaperStatDisplaySystem() {
         plugin = null;
     }
 

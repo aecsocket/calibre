@@ -10,7 +10,7 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import java.util.Locale;
 
 @ConfigSerializable
-public class PaperGunInfoSystem extends GunInfoSystem implements PaperSystem {
+public final class PaperGunInfoSystem extends GunInfoSystem implements PaperSystem {
     @FromMaster(fromDefault = true)
     private transient CalibrePlugin plugin;
     @FromMaster private final int staminaBarWidth;
@@ -27,7 +27,7 @@ public class PaperGunInfoSystem extends GunInfoSystem implements PaperSystem {
     /**
      * Used for deserialization.
      */
-    public PaperGunInfoSystem() {
+    private PaperGunInfoSystem() {
         plugin = null;
         staminaBarWidth = 50;
     }

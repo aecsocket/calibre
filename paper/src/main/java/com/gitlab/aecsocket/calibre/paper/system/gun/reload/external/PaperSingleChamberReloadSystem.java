@@ -21,7 +21,7 @@ import com.gitlab.aecsocket.unifiedframework.paper.util.data.SoundData;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class PaperSingleChamberReloadSystem extends SingleChamberReloadSystem implements PaperSystem {
+public final class PaperSingleChamberReloadSystem extends SingleChamberReloadSystem implements PaperSystem {
     public static final Map<String, Stat<?>> STAT_TYPES = MapInit.of(new LinkedHashMap<String, Stat<?>>())
             .init(SingleChamberReloadSystem.STAT_TYPES)
             .init("reload_sound", new SoundDataStat())
@@ -41,7 +41,7 @@ public class PaperSingleChamberReloadSystem extends SingleChamberReloadSystem im
         this.plugin = plugin;
     }
 
-    public PaperSingleChamberReloadSystem() {}
+    private PaperSingleChamberReloadSystem() {}
 
     public PaperSingleChamberReloadSystem(PaperSingleChamberReloadSystem o) {
         super(o);

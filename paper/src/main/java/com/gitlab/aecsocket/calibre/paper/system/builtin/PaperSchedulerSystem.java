@@ -15,7 +15,7 @@ import com.gitlab.aecsocket.unifiedframework.core.event.EventDispatcher;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
-public class PaperSchedulerSystem extends SchedulerSystem implements PaperSystem {
+public final class PaperSchedulerSystem extends SchedulerSystem implements PaperSystem {
     @FromMaster(fromDefault = true)
     private transient CalibrePlugin plugin;
 
@@ -32,7 +32,7 @@ public class PaperSchedulerSystem extends SchedulerSystem implements PaperSystem
     /**
      * Used for deserialization.
      */
-    public PaperSchedulerSystem() {
+    private PaperSchedulerSystem() {
         plugin = null;
     }
 

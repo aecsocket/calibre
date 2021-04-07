@@ -50,7 +50,8 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
     public enum HitResult {
         STOP,
         BOUNCE,
-        CONTINUE
+        CONTINUE,
+        CANCEL
     }
     public static final String ID = "projectile";
     public static final int LISTENER_PRIORITY = 1090;
@@ -167,11 +168,16 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
             return;
         BukkitItemUser bukkitUser = (BukkitItemUser) user;
 
-        PaperProjectile projectile = new PaperProjectile(this, bukkitUser.world(), position, velocity);
+        // TODO see below: store the trees instead
+        EventDispatcher events = new EventDispatcher(tree().events());
+        EventDispatcher localEvents = parent.copy().buildTree().tree().events(); // TODO hack?
+
+        PaperProjectile projectile = new PaperProjectile(this, events, localEvents, bukkitUser.world(), position, velocity);
         applyTo(projectile, tree().stats());
         projectile.source(user instanceof EntityUser ? ((EntityUser) user).entity() : null);
 
-        tree().call(new Events.Create(projectile, user, position, velocity));
+        events.call(new Events.Create(projectile, false, user, position, velocity));
+        localEvents.call(new Events.Create(projectile, true, user, position, velocity));
 
         // raycast the first specified amount metres
         SchedulerLoop loop = plugin.schedulerLoop();
@@ -190,6 +196,7 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
             if (context.removed())
                 return;
         }
+
         loop.register(projectile);
     }
 
@@ -205,7 +212,12 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
 
     public static class PaperProjectile extends BukkitProjectile {
         protected final ProjectileSystem system;
+        // TODO: For some reason not even god knows, storing the tree will store a really screwed up copy of the tree when fired.
+        // Therefore, fix it so that you can store the entire component tree this projectile was fired from, not just the
+        // event dispatcher.
         protected final EventDispatcher events;
+        // Component parent, and subcomponents, of the projectile.
+        protected final EventDispatcher localEvents;
         protected final StatMap stats;
         protected ParticleData[] trailParticle;
         protected double trailDistance;
@@ -222,10 +234,11 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
         protected SoundData[] hitEntitySound;
         protected SoundData[] hitEntitySoundSource;
 
-        public PaperProjectile(PaperProjectileSystem system, World world, Vector3D position, Vector3D velocity) {
+        public PaperProjectile(PaperProjectileSystem system, EventDispatcher events, EventDispatcher localEvents, World world, Vector3D position, Vector3D velocity) {
             super(world, position, velocity);
             this.system = system;
-            events = new EventDispatcher(system.tree().events());
+            this.events = events;
+            this.localEvents = localEvents;
             stats = new StatMap(system.tree().stats());
 
             trailParticle = stats.val("trail_particle");
@@ -246,6 +259,7 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
 
         public ProjectileSystem system() { return system; }
         public StatMap stats() { return stats; }
+        public EventDispatcher localEvents() { return localEvents; }
 
         public ParticleData[] trailParticle() { return trailParticle; }
         public PaperProjectile trailParticle(ParticleData[] trailParticle) { this.trailParticle = trailParticle; return this; }
@@ -294,13 +308,15 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
                 }, trailParticle);
                 current.add(step);
             }
-            events.call(new Events.Step(this, tickContext, ray, from, delta, deltaLength));
+            events.call(new Events.Step(this, false, tickContext, ray, from, delta, deltaLength));
+            localEvents.call(new Events.Step(this, true, tickContext, ray, from, delta, deltaLength));
         }
 
         @Override
         public void tick(TickContext tickContext) {
             super.tick(tickContext);
-            events.call(new Events.Tick(this, tickContext));
+            events.call(new Events.Tick(this, false, tickContext));
+            localEvents.call(new Events.Tick(this, true, tickContext));
         }
 
         @Override
@@ -312,9 +328,9 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
                 result = bounce > 0 ? HitResult.BOUNCE : HitResult.CONTINUE;
             } else
                 result = HitResult.STOP;
-            Events.Collide event = events.call(new Events.Collide(this, tickContext, ray, collided, result));
-            result = event.result;
-            if (!event.cancelled) {
+            result = events.call(new Events.Collide(this, false, tickContext, ray, collided, result)).result;
+            result = localEvents.call(new Events.Collide(this, true, tickContext, ray, collided, result)).result;
+            if (result != HitResult.CANCEL) {
                 if (collided.isBlock()) {
                     Block block = collided.block();
                     ParticleData.spawn(location, block.getBlockData(), hitBlockParticle);
@@ -344,15 +360,19 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
 
         @Override
         public void bounce(BukkitRayTrace ray) {
-            if (!events.call(new Events.Bounce(this, ray)).cancelled) {
+            if (
+                    !events.call(new Events.Bounce(this, false, ray)).cancelled
+                    && !localEvents.call(new Events.Bounce(this, true, ray).cancelled)
+            ) {
                 super.bounce(ray);
             }
         }
 
         @Override
-        protected void remove() {
-            super.remove();
-            events.call(new Events.Remove(this));
+        protected void remove(int reason) {
+            super.remove(reason);
+            events.call(new Events.Remove(this, false));
+            localEvents.call(new Events.Remove(this, true));
         }
     }
 
@@ -367,35 +387,45 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
     public static final class Events {
         private Events() {}
 
-        public static class Create {
+        public static class Base {
             private final PaperProjectile projectile;
+            private final boolean local;
+
+            public Base(PaperProjectile projectile, boolean local) {
+                this.projectile = projectile;
+                this.local = local;
+            }
+
+            public PaperProjectile projectile() { return projectile; }
+            public boolean local() { return local; }
+        }
+
+        public static class Create extends Base {
             private final ItemUser user;
             private final Vector3D position;
             private final Vector3D velocity;
 
-            public Create(PaperProjectile projectile, ItemUser user, Vector3D position, Vector3D velocity) {
-                this.projectile = projectile;
+            public Create(PaperProjectile projectile, boolean byThis, ItemUser user, Vector3D position, Vector3D velocity) {
+                super(projectile, byThis);
                 this.user = user;
                 this.position = position;
                 this.velocity = velocity;
             }
 
-            public PaperProjectile projectile() { return projectile; }
             public ItemUser user() { return user; }
             public Vector3D position() { return position; }
             public Vector3D velocity() { return velocity; }
         }
 
-        public static class Step {
-            private final PaperProjectile projectile;
+        public static class Step extends Base {
             private final TickContext tickContext;
             private final BukkitRayTrace ray;
             private final Vector3D from;
             private final Vector3D delta;
             private final double deltaLength;
 
-            public Step(PaperProjectile projectile, TickContext tickContext, BukkitRayTrace ray, Vector3D from, Vector3D delta, double deltaLength) {
-                this.projectile = projectile;
+            public Step(PaperProjectile projectile, boolean byThis, TickContext tickContext, BukkitRayTrace ray, Vector3D from, Vector3D delta, double deltaLength) {
+                super(projectile, byThis);
                 this.tickContext = tickContext;
                 this.ray = ray;
                 this.from = from;
@@ -403,7 +433,6 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
                 this.deltaLength = deltaLength;
             }
 
-            public PaperProjectile projectile() { return projectile; }
             public TickContext tickContext() { return tickContext; }
             public BukkitRayTrace ray() { return ray; }
             public Vector3D from() { return from; }
@@ -411,72 +440,58 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
             public double deltaLength() { return deltaLength; }
         }
 
-        public static class Tick {
-            private final PaperProjectile projectile;
+        public static class Tick extends Base {
             private final TickContext tickContext;
 
-            public Tick(PaperProjectile projectile, TickContext tickContext) {
-                this.projectile = projectile;
+            public Tick(PaperProjectile projectile, boolean byThis, TickContext tickContext) {
+                super(projectile, byThis);
                 this.tickContext = tickContext;
             }
 
-            public PaperProjectile projectile() { return projectile; }
             public TickContext tickContext() { return tickContext; }
         }
 
-        public static class Collide implements Cancellable {
-            private final PaperProjectile projectile;
+        public static class Collide extends Base {
             private final TickContext tickContext;
             private final BukkitRayTrace ray;
             private final BukkitCollidable collided;
             private HitResult result;
-            private boolean cancelled;
 
-            public Collide(PaperProjectile projectile, TickContext tickContext, BukkitRayTrace ray, BukkitCollidable collided, HitResult result) {
-                this.projectile = projectile;
+            public Collide(PaperProjectile projectile, boolean byThis, TickContext tickContext, BukkitRayTrace ray, BukkitCollidable collided, HitResult result) {
+                super(projectile, byThis);
                 this.tickContext = tickContext;
                 this.ray = ray;
                 this.collided = collided;
                 this.result = result;
             }
 
-            public PaperProjectile projectile() { return projectile; }
             public TickContext tickContext() { return tickContext; }
             public BukkitRayTrace ray() { return ray; }
             public BukkitCollidable collided() { return collided; }
 
             public HitResult result() { return result; }
             public void result(HitResult result) { this.result = result; }
-
-            @Override public boolean cancelled() { return cancelled; }
-            @Override public void cancel() { cancelled = true; }
         }
 
-        public static class Bounce implements Cancellable {
-            private final PaperProjectile projectile;
+        public static class Bounce extends Base implements Cancellable {
             private final BukkitRayTrace ray;
             private boolean cancelled;
 
-            public Bounce(PaperProjectile projectile, BukkitRayTrace ray) {
-                this.projectile = projectile;
+            public Bounce(PaperProjectile projectile, boolean byThis, BukkitRayTrace ray) {
+                super(projectile, byThis);
                 this.ray = ray;
             }
 
-            public PaperProjectile projectile() { return projectile; }
             public BukkitRayTrace ray() { return ray; }
 
             @Override public boolean cancelled() { return cancelled; }
             @Override public void cancel() { cancelled = true; }
         }
 
-        public static class Remove {
-            private final PaperProjectile projectile;
-
-            public Remove(PaperProjectile projectile) {
-                this.projectile = projectile;
+        public static class Remove extends Base {
+            public Remove(PaperProjectile projectile, boolean byThis) {
+                super(projectile, byThis);
             }
-
-            public PaperProjectile projectile() { return projectile; }
         }
     }
 }

@@ -6,9 +6,14 @@ import com.gitlab.aecsocket.calibre.core.world.user.*;
 import com.gitlab.aecsocket.calibre.paper.util.CalibreProtocol;
 import com.gitlab.aecsocket.unifiedframework.core.loop.TickContext;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector2D;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.Title;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
+import java.time.Duration;
 import java.util.Locale;
 
 public interface PlayerUser extends LivingEntityUser, MovementUser, CameraUser, RecoilableUser, InaccuracyUser, StabilizableUser, InventoryUser {
@@ -17,6 +22,16 @@ public interface PlayerUser extends LivingEntityUser, MovementUser, CameraUser, 
     default CalibrePlayerData playerData() { return CalibrePlugin.instance().playerData(entity()); }
 
     @Override default Locale locale() { return entity().locale(); }
+
+    @Override
+    default void showTitle(Component title, Component subtitle, long fadeIn, long stay, long fadeOut) {
+        entity().showTitle(Title.title(
+                title, subtitle,
+                Title.Times.of(
+                        Duration.ofMillis(fadeIn), Duration.ofMillis(stay), Duration.ofMillis(fadeOut)
+                )
+        ));
+    }
 
     @Override default boolean sneaking() { return entity().isSneaking(); }
     @Override default boolean sprinting() { return entity().isSprinting(); }

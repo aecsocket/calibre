@@ -116,6 +116,7 @@ public final class GenericStatsSystem extends AbstractSystem implements PaperSys
         EventDispatcher events = tree.events();
         events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.UpdateItem.class, this::onEvent, listenerPriority);
+        events.registerListener(ItemEvents.Equipped.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.Jump.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.ToggleSprint.class, this::onEvent, listenerPriority);
         events.registerListener(ItemEvents.Switch.class, this::onEvent, listenerPriority);
@@ -126,8 +127,8 @@ public final class GenericStatsSystem extends AbstractSystem implements PaperSys
     private void update(ItemUser user) {
         if (user instanceof CameraUser)
             ((CameraUser) user).zoom(tree().<NumberDescriptor.Double>stat("zoom").apply());
-        if (user instanceof PlayerUser)
-            CalibreProtocol.allowSprint(((PlayerUser) user).entity(), tree().<Boolean>stat("allow_sprint"));
+        if (user instanceof PlayerUser && tree().<Boolean>stat("allow_sprint"))
+            CalibreProtocol.allowSprint(((PlayerUser) user).entity(), true);
     }
 
     private void reset(ItemUser user) {
@@ -141,8 +142,11 @@ public final class GenericStatsSystem extends AbstractSystem implements PaperSys
         if (!(event.item() instanceof BukkitItem))
             return;
         BukkitUtils.modMeta(((BukkitItem) event.item()).item(), meta -> {
-            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTR_MOVE_SPEED, "generic.movement_speed",
-                    tree().<NumberDescriptor.Double>stat("move_speed").apply() - 1, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
+            double moveSpeed = tree().<NumberDescriptor.Double>stat("move_speed").apply();
+            if (moveSpeed != 1) {
+                meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(ATTR_MOVE_SPEED, "generic.movement_speed",
+                        moveSpeed - 1, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
+            }
             meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(ATTR_ATTACK_DAMAGE, "generic.attack_damage",
                     tree().<NumberDescriptor.Double>stat("attack_damage").apply(), AttributeModifier.Operation.ADD_NUMBER));
         });
@@ -158,6 +162,12 @@ public final class GenericStatsSystem extends AbstractSystem implements PaperSys
             return;
 
         plugin.itemManager().hide(((BukkitItem) event.item()).item(), true);
+    }
+
+    public <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {
+        ItemUser user = event.user();
+        if (user instanceof PlayerUser && !tree().<Boolean>stat("allow_sprint"))
+            CalibreProtocol.allowSprint(((PlayerUser) user).entity(), false);
     }
 
     public <I extends Item> void onEvent(ItemEvents.Jump<I> event) {

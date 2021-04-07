@@ -13,6 +13,7 @@ import com.gitlab.aecsocket.unifiedframework.paper.util.VectorUtils;
 import com.gitlab.aecsocket.unifiedframework.paper.util.data.ParticleData;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector2D;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector3D;
+import com.gitlab.aecsocket.unifiedframework.paper.util.plugin.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -20,18 +21,20 @@ import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
-import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.UUID;
 
-public final class CalibrePlayerData implements Tickable {
+public final class CalibrePlayerData implements PlayerData {
     public static final ParticleData[] OFFSET_PARTICLE = {
             new ParticleData().particle(Particle.FIREWORKS_SPARK)
     };
 
     private final CalibrePlugin plugin;
-    private final Player player;
+    private final UUID uuid;
+    private Player player;
+
     private final EnumMap<EquipmentSlot, PaperComponent> componentCache = new EnumMap<>(EquipmentSlot.class);
 
     private Vector3D offset;
@@ -57,11 +60,16 @@ public final class CalibrePlayerData implements Tickable {
     private long recoilRecoveryAt;
     private Vector2D recoilToRecover = new Vector2D();
 
-    public CalibrePlayerData(CalibrePlugin plugin, Player player) {
+    public CalibrePlayerData(CalibrePlugin plugin, UUID uuid) {
         this.plugin = plugin;
-        this.player = player;
+        this.uuid = uuid;
         maxStamina = plugin.setting(n -> n.getDouble(5000), "stamina", "max");
         stamina = maxStamina;
+    }
+
+    public CalibrePlayerData(CalibrePlugin plugin, Player player) {
+        this(plugin, player.getUniqueId());
+        this.player = player;
     }
 
     public void reset() {
@@ -130,6 +138,16 @@ public final class CalibrePlayerData implements Tickable {
 
     public Vector2D recoilToRecover() { return recoilToRecover; }
     public void recoilToRecover(Vector2D recoilRecoveryRemaining) { this.recoilToRecover = recoilRecoveryRemaining; }
+
+    @Override public PlayerData load() { return this; }
+    @Override public PlayerData save() { return this; }
+
+    @Override
+    public PlayerData join(Player player) {
+        this.player = player;
+        return this;
+    }
+
 
     public void applyRecoil(Vector2D recoil, double recoilSpeed, double recoilRecovery, double recoilRecoverySpeed, long recoilRecoveryAfter) {
         this.recoil = this.recoil.add(recoil.y(-recoil.y()));
@@ -237,6 +255,9 @@ public final class CalibrePlayerData implements Tickable {
 
     @Override
     public void tick(TickContext tickContext) {
+        if (player == null)
+            return;
+
         if (player.isDead())
             return;
         if (player.getGameMode() == GameMode.SPECTATOR)

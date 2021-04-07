@@ -62,6 +62,7 @@ import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector3I;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.Title;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -84,6 +85,7 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 import org.spongepowered.configurate.util.NamingSchemes;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
@@ -112,7 +114,7 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
 
     private final List<CalibreHook> hooks = new ArrayList<>();
     private final PlayerDataManager<CalibrePlayerData> playerData = new PlayerDataManager<>() {
-        @Override protected CalibrePlayerData createData(Player player) { return new CalibrePlayerData(CalibrePlugin.this, player); }
+        @Override protected CalibrePlayerData createData(UUID uuid) { return new CalibrePlayerData(CalibrePlugin.this, uuid); }
     };
     private final ItemManager itemManager = new ItemManager(this);
     private final SchedulerSystem.Scheduler systemScheduler = new SchedulerSystem.Scheduler(10000, 100);
@@ -268,6 +270,7 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
         registry.register(new PaperNameFromChildSystem(this));
         registry.register(new PaperNameOverrideSystem(this));
         registry.register(new PaperSchedulerSystem(this, systemScheduler));
+        registry.register(new PaperRangefinderSystem(this));
 
         registry.register(new GenericStatsSystem(this));
         registry.register(new InventoryComponentAccessorSystem(this));
@@ -280,6 +283,7 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
         registry.register(new PaperSingleChamberReloadSystem(this));
         registry.register(new PaperInsertReloadSystem(this));
         registry.register(new PaperRemoveReloadSystem(this));
+
         registry.register(new PaperProjectileSystem(this));
         registry.register(new BulletSystem(this));
         registry.register(new IncendiaryProjectileSystem(this));

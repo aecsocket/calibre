@@ -37,9 +37,19 @@ public class CasingManager implements Tickable {
 
         public boolean wasOnGround() { return wasOnGround; }
         public void wasOnGround(boolean wasOnGround) { this.wasOnGround = wasOnGround; }
+
+        @Override
+        public String toString() {
+            return "Casing{" +
+                    "category=" + category +
+                    ", wasOnGround=" + wasOnGround +
+                    '}';
+        }
     }
 
     public static class Category {
+        public static final Category DEFAULT = new Category(Collections.emptyMap(), true);
+
         @ConfigSerializable
         public static class MaterialData {
             public static final MaterialData EMPTY = new MaterialData(null, null);
@@ -156,9 +166,8 @@ public class CasingManager implements Tickable {
 
     public void register(Item entity, String categoryName) {
         Category category = categories.get(categoryName);
-        if (category == null)
-            return;
-        casings.put(entity.getUniqueId(), new Casing(category));
+        Casing casing = new Casing(category == null ? Category.DEFAULT : category);
+        casings.put(entity.getUniqueId(), casing);
     }
 
     @Override
@@ -184,10 +193,10 @@ public class CasingManager implements Tickable {
                 if (casing.category.removeOnLand) {
                     item.remove();
                     iter.remove();
-                    return;
-                } else
+                    continue;
+                } else {
                     casing.wasOnGround = true;
-
+                }
             }
 
             if (casing.wasOnGround && !item.isOnGround())

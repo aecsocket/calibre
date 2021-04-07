@@ -8,6 +8,7 @@ import com.gitlab.aecsocket.unifiedframework.core.util.Utils;
 import com.gitlab.aecsocket.unifiedframework.core.util.data.Tuple2;
 import com.gitlab.aecsocket.unifiedframework.core.util.log.LogLevel;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector3D;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -154,6 +155,11 @@ public class LocationalDamageManager {
             return 0;
         if (entity.isInvulnerable())
             return 0;
+        if (entity instanceof HumanEntity) {
+            GameMode gameMode = ((HumanEntity) entity).getGameMode();
+            if (gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR)
+                return 0;
+        }
 
         double result = damage;
         PotionEffect resistance = entity.getPotionEffect(PotionEffectType.DAMAGE_RESISTANCE);

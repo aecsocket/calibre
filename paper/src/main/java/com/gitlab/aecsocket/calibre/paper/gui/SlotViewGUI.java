@@ -1,11 +1,13 @@
 package com.gitlab.aecsocket.calibre.paper.gui;
 
+import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.paper.util.item.ComponentCreationException;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.paper.component.PaperComponent;
 import com.gitlab.aecsocket.calibre.paper.component.PaperSlot;
 import com.gitlab.aecsocket.calibre.core.world.slot.ItemSlot;
 import com.gitlab.aecsocket.calibre.paper.wrapper.BukkitItem;
+import com.gitlab.aecsocket.calibre.paper.wrapper.slot.BukkitSlot;
 import com.gitlab.aecsocket.unifiedframework.paper.gui.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -136,5 +138,13 @@ public class SlotViewGUI extends GUI {
         if (slot != null)
             slot.set(component.create(view.getPlayer().locale(), slot.get().amount()));
         view.reopen();
+    }
+
+    public static SlotViewGUI of(CalibrePlugin plugin, PaperComponent component, ItemSlot<BukkitItem> slot) {
+        return new SlotViewGUI(
+                plugin, component,
+                plugin.setting(n -> n.getBoolean(true), "slot_view", "modification"),
+                plugin.setting(n -> n.getBoolean(true), "slot_view", "limited"),
+                slot);
     }
 }

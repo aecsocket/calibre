@@ -172,12 +172,7 @@ public class CalibreListener implements Listener {
 
         if (clicked != null && cursor == null && type == ClickType.RIGHT && plugin.setting(n -> n.getBoolean(true), "slot_view", "enabled")) {
             event.setCancelled(true);
-            new SlotViewGUI(
-                    plugin, clicked,
-                    plugin.setting(n -> n.getBoolean(true), "slot_view", "modification"),
-                    plugin.setting(n -> n.getBoolean(true), "slot_view", "limited"),
-                    BukkitSlot.of(event::getCurrentItem, event::setCurrentItem)
-            ).open(player);
+            SlotViewGUI.of(plugin, clicked, BukkitSlot.of(event::getCurrentItem, event::setCurrentItem)).open(player);
             return;
         }
 

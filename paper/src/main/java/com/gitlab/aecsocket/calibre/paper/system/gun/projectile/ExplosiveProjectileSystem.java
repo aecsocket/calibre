@@ -7,6 +7,7 @@ import com.gitlab.aecsocket.calibre.core.system.FromMaster;
 import com.gitlab.aecsocket.calibre.core.system.SystemSetupException;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.paper.system.PaperSystem;
+import com.gitlab.aecsocket.calibre.paper.util.Explosion;
 import com.gitlab.aecsocket.unifiedframework.core.event.EventDispatcher;
 import com.gitlab.aecsocket.unifiedframework.core.loop.MinecraftSyncLoop;
 import com.gitlab.aecsocket.unifiedframework.core.stat.Stat;
@@ -16,6 +17,8 @@ import com.gitlab.aecsocket.unifiedframework.core.stat.impl.descriptor.NumberDes
 import com.gitlab.aecsocket.unifiedframework.core.util.MapInit;
 import com.gitlab.aecsocket.unifiedframework.core.util.descriptor.NumberDescriptor;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector3D;
+import com.gitlab.aecsocket.unifiedframework.paper.util.VectorUtils;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
 import java.util.LinkedHashMap;
@@ -25,9 +28,10 @@ public class ExplosiveProjectileSystem extends AbstractSystem implements PaperSy
     public static final String ID = "explosive_projectile";
     public static final int LISTENER_PRIORITY = 0;
     public static final Map<String, Stat<?>> STAT_TYPES = MapInit.of(new LinkedHashMap<String, Stat<?>>())
-            .init("explosion_power", NumberDescriptorStat.of(0f))
-            .init("explosion_set_fire", new BooleanStat(false))
-            .init("explosion_break_blocks", new BooleanStat(false))
+            .init("explosion_power", NumberDescriptorStat.of(0d))
+            .init("explosion_damage", NumberDescriptorStat.of(0d))
+            .init("explosion_dropoff", NumberDescriptorStat.of(0d))
+            .init("explosion_range", NumberDescriptorStat.of(0d))
 
             .init("arm_distance", NumberDescriptorStat.of(0d))
             .get();
@@ -82,14 +86,18 @@ public class ExplosiveProjectileSystem extends AbstractSystem implements PaperSy
     }
 
     protected void onEvent(PaperProjectileSystem.Events.Collide event) {
+        if (!event.local())
+            return;
         PaperProjectileSystem.PaperProjectile projectile = event.projectile();
         StatMap stats = projectile.stats;
-        if (projectile.travelled() > stats.<NumberDescriptor.Double>val("arm_distance").apply()) {
+        if (projectile.travelled() >= stats.<NumberDescriptor.Double>val("arm_distance").apply()) {
             Vector3D position = projectile.position();
-            projectile.world().createExplosion(position.x(), position.y(), position.z(),
-                    stats.<NumberDescriptor.Float>val("explosion_power").apply(),
-                    stats.<Boolean>val("explosion_set_fire"),
-                    stats.<Boolean>val("explosion_break_blocks"));
+            new Explosion(plugin)
+                    .power(stats.<NumberDescriptor.Double>val("explosion_power").apply())
+                    .damage(stats.<NumberDescriptor.Double>val("explosion_damage").apply())
+                    .dropoff(stats.<NumberDescriptor.Double>val("explosion_dropoff").apply())
+                    .range(stats.<NumberDescriptor.Double>val("explosion_range").apply())
+                    .spawn(VectorUtils.toBukkit(position).toLocation(projectile.world()), projectile.source());
         }
         event.tickContext().remove();
     }

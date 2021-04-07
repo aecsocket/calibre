@@ -22,7 +22,7 @@ public class IncendiaryProjectileSystem extends AbstractSystem implements PaperS
     public static final String ID = "incendiary_projectile";
     public static final int LISTENER_PRIORITY = 0;
     public static final Map<String, Stat<?>> STAT_TYPES = MapInit.of(new LinkedHashMap<String, Stat<?>>())
-            .init("fire_seconds", NumberDescriptorStat.of(0d))
+            .init("fire_time", NumberDescriptorStat.of(0L))
             .get();
 
     @FromMaster(fromDefault = true)
@@ -75,9 +75,11 @@ public class IncendiaryProjectileSystem extends AbstractSystem implements PaperS
     }
 
     protected void onEvent(PaperProjectileSystem.Events.Collide event) {
+        if (!event.local())
+            return;
         if (event.collided().isEntity()) {
             Entity entity = event.collided().entity();
-            entity.setFireTicks(entity.getFireTicks() + (int) (tree().<NumberDescriptor.Double>stat("fire_seconds").apply() * MinecraftSyncLoop.TICKS_PER_SECOND));
+            entity.setFireTicks(entity.getFireTicks() + (int) (tree().<NumberDescriptor.Double>stat("fire_time").apply() / MinecraftSyncLoop.MS_PER_TICK));
         }
     }
 

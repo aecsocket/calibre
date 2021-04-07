@@ -85,6 +85,7 @@ public abstract class GunSystem extends AbstractSystem {
             // Toggles
             .init("auto_chamber", new BooleanStat(true))
             .init("auto_eject", new BooleanStat(true))
+            .init("casing_enable", new BooleanStat(true))
             .init("can_fire_underwater", new BooleanStat(false))
             .init("chamber_handling", new EnumStat<>(ChamberHandling.NORMAL, ChamberHandling.class))
             .init("sprint_disables", new BooleanStat(false))
@@ -582,6 +583,8 @@ public abstract class GunSystem extends AbstractSystem {
     }
 
     public <I extends Item> void ejectCasing(CalibreComponent<I> chamber, ItemUser user, ItemSlot<I> slot) {
+        if (!tree().<Boolean>stat("casing_enable"))
+            return;
         Vector3D offset = tree().<Vector3DDescriptor>stat("eject_offset").apply();
         Vector3D position = offset(user, slot, offset);
         Vector3D velocity = offset(user, slot, offset.add(tree().<Vector3DDescriptor>stat("eject_velocity").apply())).subtract(position);

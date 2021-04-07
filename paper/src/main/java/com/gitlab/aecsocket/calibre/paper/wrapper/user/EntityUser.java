@@ -19,15 +19,13 @@ public interface EntityUser extends ItemUser, SenderUser, BukkitItemUser {
     @Override
     default World world() { return entity().getWorld(); }
 
-    @Override
-    default void sendMessage(Component component) {
+    @Override default void sendMessage(Component component) {
         entity().sendMessage(component);
     }
-
-    @Override
-    default void sendInfo(Component component) {
+    @Override default void sendInfo(Component component) {
         entity().sendActionBar(component);
     }
+    @Override default void showTitle(Component title, Component subtitle, long fadeIn, long stay, long fadeOut) {}
 
     @Override
     default Locale locale() { return CalibrePlugin.instance().defaultLocale(); }

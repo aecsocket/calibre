@@ -172,10 +172,14 @@ public final class BulletSystem extends AbstractSystem implements PaperSystem {
     }
 
     protected void onEvent(PaperProjectileSystem.Events.Create event) {
+        if (!event.local())
+            return;
         data.put(event.projectile(), new ProjectileData());
     }
 
     protected void onEvent(PaperProjectileSystem.Events.Step event) {
+        if (!event.local())
+            return;
         PaperProjectileSystem.PaperProjectile projectile = event.projectile();
         ProjectileData data = BulletSystem.data.get(projectile);
         if (projectile.travelled() > data.range) {
@@ -184,10 +188,16 @@ public final class BulletSystem extends AbstractSystem implements PaperSystem {
     }
 
     protected void onEvent(PaperProjectileSystem.Events.Remove event) {
+        if (!event.local())
+            return;
         data.remove(event.projectile());
     }
 
     protected void onEvent(PaperProjectileSystem.Events.Collide event) {
+        if (!event.local())
+            return;
+        if (!event.local())
+            return;
         PaperProjectileSystem.PaperProjectile projectile = event.projectile();
         ProjectileData data = BulletSystem.data.get(projectile);
         if (event.collided().isBlock()) {
@@ -195,7 +205,7 @@ public final class BulletSystem extends AbstractSystem implements PaperSystem {
             double hardness = plugin.hardness(block);
             if (hardness < 0) {
                 // pass through the block
-                event.cancel();
+                event.result(PaperProjectileSystem.HitResult.CANCEL);
                 return;
             }
 
@@ -232,6 +242,8 @@ public final class BulletSystem extends AbstractSystem implements PaperSystem {
     }
 
     protected void onEvent(PaperProjectileSystem.Events.Bounce event) {
+        if (!event.local())
+            return;
         PaperProjectileSystem.PaperProjectile projectile = event.projectile();
         ProjectileData data = BulletSystem.data.get(projectile);
         data.damage *= projectile.bounce();

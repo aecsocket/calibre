@@ -9,6 +9,8 @@ import com.gitlab.aecsocket.calibre.paper.util.ItemDescriptor;
 import com.gitlab.aecsocket.calibre.paper.wrapper.BukkitItem;
 import com.gitlab.aecsocket.unifiedframework.paper.gui.GUIVector;
 import com.gitlab.aecsocket.unifiedframework.paper.util.BukkitUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.inventory.ItemStack;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -67,10 +69,17 @@ public class PaperSlot extends CalibreSlot {
         }
 
         return BukkitUtils.modMeta(item, meta -> {
-            // TODO wait for Paper to update
-            meta.setDisplayName(LegacyComponentSerializer.legacySection().serialize(plugin.gen(locale, "slot_view.slot",
-                    "key", plugin.gen(locale, "slot." + slotKey))));
+            meta.displayName(Component.text()
+                    .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                    .append(name(locale, slotKey))
+                    .build()
+            );
         });
+    }
+
+    public Component name(Locale locale, String slotKey) {
+        return plugin.gen(locale, "slot_view.slot",
+            "key", plugin.gen(locale, "slot." + slotKey));
     }
 
     @Override

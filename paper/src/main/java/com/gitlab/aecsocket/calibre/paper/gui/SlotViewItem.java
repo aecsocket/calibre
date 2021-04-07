@@ -1,10 +1,12 @@
 package com.gitlab.aecsocket.calibre.paper.gui;
 
 import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
+import com.gitlab.aecsocket.calibre.core.util.CalibreIdentifiable;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
 import com.gitlab.aecsocket.calibre.paper.component.PaperSlot;
 import com.gitlab.aecsocket.calibre.paper.wrapper.BukkitItem;
+import com.gitlab.aecsocket.unifiedframework.core.registry.Ref;
 import com.gitlab.aecsocket.unifiedframework.paper.gui.GUIItem;
 import com.gitlab.aecsocket.unifiedframework.paper.gui.GUIView;
 import com.gitlab.aecsocket.unifiedframework.paper.util.BukkitUtils;
@@ -12,7 +14,9 @@ import com.gitlab.aecsocket.unifiedframework.paper.util.data.SoundData;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -115,6 +119,27 @@ public class SlotViewItem implements GUIItem {
         event.setCancelled(true);
         if (slot == null)
             return;
+
+        if (event.getClick() == ClickType.RIGHT) {
+            if (plugin.setting(n -> n.getBoolean(true), "slot_view", "show_compatible_components")) {
+                Player player = (Player) event.getWhoClicked();
+                Locale locale = player.locale();
+                player.sendMessage(plugin.gen(locale, "slot_view.compatible.header",
+                        "slot", slot.name(locale, slotKey)));
+                for (Ref<CalibreIdentifiable> ref : plugin.registry().getRegistry().values()) {
+                    CalibreIdentifiable id = ref.get();
+                    if (id instanceof CalibreComponent) {
+                        CalibreComponent<?> component = (CalibreComponent<?>) id;
+                        if (slot.isCompatible(component)) {
+                            player.sendMessage(plugin.gen(locale, "slot_view.compatible.entry",
+                                    "name", component.name(locale)));
+                        }
+                    }
+                }
+            }
+            return;
+        }
+
         if (!modification || (limited && !slot.fieldModifiable()))
             return;
 
@@ -134,6 +159,9 @@ public class SlotViewItem implements GUIItem {
                 return;
             CalibreComponent<BukkitItem> component = plugin.itemManager().get(rawCursor);
             if (component == null || !slot.isCompatible(component))
+                return;
+
+            if (slot.get() != null && rawCursor.getAmount() > 1)
                 return;
 
             SoundData.play(player::getLocation, component.tree().stat("insert_sound"));

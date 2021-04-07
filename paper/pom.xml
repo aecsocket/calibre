@@ -108,6 +108,12 @@
                 <configuration>
                     <filters>
                         <filter>
+                            <artifact>org.spongepowered.configurate:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/versions/16</exclude>
+                            </excludes>
+                        </filter>
+                        <filter>
                             <artifact>*:*</artifact>
                             <excludes>
                                 <exclude>module-info.class</exclude>
@@ -115,6 +121,7 @@
                                 <exclude>META-INF/*.DSA</exclude>
                                 <exclude>META-INF/*.RSA</exclude>
                                 <exclude>META-INF/MANIFEST.MF</exclude>
+                                <exclude>META-INF/versions/16/**</exclude>
                             </excludes>
                         </filter>
                     </filters>
@@ -130,6 +137,10 @@
                         <relocation>
                             <pattern>org.bstats</pattern>
                             <shadedPattern>${project.groupId}</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.gitlab.aecsocket.unifiedframework</pattern>
+                            <shadedPattern>${project.groupId}.unifiedframework</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

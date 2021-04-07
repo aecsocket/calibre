@@ -8,13 +8,20 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.Pair;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.paper.component.PaperComponent;
+import com.gitlab.aecsocket.calibre.paper.gui.SlotViewGUI;
 import com.gitlab.aecsocket.calibre.paper.system.BukkitItemEvents;
+import com.gitlab.aecsocket.calibre.paper.wrapper.slot.BukkitSlot;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.advancement.Advancement;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -26,6 +33,7 @@ public class CalibrePacketAdapter extends PacketAdapter {
                 PacketType.Play.Server.SET_SLOT,
                 PacketType.Play.Server.WINDOW_ITEMS,
                 PacketType.Play.Server.ENTITY_EQUIPMENT,
+                PacketType.Play.Client.ADVANCEMENTS,
                 PacketType.Play.Server.ANIMATION);
         this.plugin = plugin;
     }
@@ -64,6 +72,24 @@ public class CalibrePacketAdapter extends PacketAdapter {
                 event.setCancelled(true);
             if (handleAnimation(EquipmentSlot.OFF_HAND, player, holder))
                 event.setCancelled(true);
+        }
+    }
+
+    @Override
+    public void onPacketReceiving(PacketEvent event) {
+        PacketType type = event.getPacketType();
+        Player player = event.getPlayer();
+
+        if (type == PacketType.Play.Client.ADVANCEMENTS && plugin.setting(n -> n.getBoolean(true), "quick_slot_view")) {
+            event.setCancelled(true);
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                PlayerInventory inv = player.getInventory();
+                ItemStack hand = inv.getItemInMainHand();
+                PaperComponent component = plugin.itemManager().get(hand);
+                if (component != null) {
+                    SlotViewGUI.of(plugin, component, BukkitSlot.of(inv::getItemInMainHand, inv::setItemInMainHand)).open(player);
+                }
+            });
         }
     }
 

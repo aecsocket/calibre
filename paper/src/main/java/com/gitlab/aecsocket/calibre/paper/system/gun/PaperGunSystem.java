@@ -69,7 +69,7 @@ public final class PaperGunSystem extends GunSystem implements PaperSystem {
             .init("inaccuracy_velocity", NumberDescriptorStat.of(0d))
 
             .init("casing_can_pick_up", new BooleanStat(false))
-            .init("casing_lifetime", NumberDescriptorStat.of(0d))
+            .init("casing_lifetime", NumberDescriptorStat.of(0L))
             .init("casing_category", new StringStat())
 
             .init("fire_particle", new ParticleDataStat())
@@ -214,7 +214,7 @@ public final class PaperGunSystem extends GunSystem implements PaperSystem {
                 ((BukkitItem) created).item()
         );
         entity.setVelocity(VectorUtils.toBukkit(velocity));
-        entity.setTicksLived(ITEM_DESPAWN - (int) (tree().<NumberDescriptor.Double>stat("casing_lifetime").apply() * MinecraftSyncLoop.TICKS_PER_SECOND));
+        entity.setTicksLived(ITEM_DESPAWN - (int) (tree().<NumberDescriptor.Long>stat("casing_lifetime").apply() / MinecraftSyncLoop.MS_PER_TICK));
         entity.setCanMobPickup(false);
         if (!tree().<Boolean>stat("casing_can_pick_up"))
             entity.setPickupDelay(Integer.MAX_VALUE);

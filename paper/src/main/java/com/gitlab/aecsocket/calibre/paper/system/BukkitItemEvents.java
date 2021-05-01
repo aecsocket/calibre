@@ -16,7 +16,7 @@ import com.gitlab.aecsocket.calibre.paper.component.PaperComponent;
 import com.gitlab.aecsocket.calibre.paper.wrapper.BukkitItem;
 import com.gitlab.aecsocket.calibre.paper.wrapper.slot.BukkitSlot;
 import com.gitlab.aecsocket.unifiedframework.core.event.Cancellable;
-import com.gitlab.aecsocket.unifiedframework.core.loop.TickContext;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.TaskContext;
 import com.gitlab.aecsocket.unifiedframework.paper.util.BukkitUtils;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector3I;
 import org.bukkit.Bukkit;
@@ -43,17 +43,17 @@ public final class BukkitItemEvents {
     }
 
     public static class BukkitEquipped extends Base implements ItemEvents.Equipped<BukkitItem> {
-        private final TickContext tickContext;
+        private final TaskContext taskContext;
 
-        public BukkitEquipped(CalibreComponent<BukkitItem> component, ItemUser user, ItemSlot<BukkitItem> slot, TickContext tickContext) {
+        public BukkitEquipped(CalibreComponent<BukkitItem> component, ItemUser user, ItemSlot<BukkitItem> slot, TaskContext taskContext) {
             super(component, user, slot);
-            this.tickContext = tickContext;
+            this.taskContext = taskContext;
         }
 
-        @Override public TickContext tickContext() { return tickContext; }
+        @Override public TaskContext taskContext() { return taskContext; }
 
-        public static BukkitEquipped of(PaperComponent component, Player player, EquipmentSlot slot, TickContext tickContext) {
-            return new BukkitEquipped(component, PlayerUser.of(player), EntityEquipmentSlot.of(player, slot), tickContext);
+        public static BukkitEquipped of(PaperComponent component, Player player, EquipmentSlot slot, TaskContext taskContext) {
+            return new BukkitEquipped(component, PlayerUser.of(player), EntityEquipmentSlot.of(player, slot), taskContext);
         }
     }
 

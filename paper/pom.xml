@@ -63,11 +63,6 @@
             <version>0.5.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>net.kyori</groupId>
-            <artifactId>adventure-platform-bukkit</artifactId>
-            <version>4.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
             <version>3.14.0</version>
@@ -141,6 +136,10 @@
                         <relocation>
                             <pattern>com.gitlab.aecsocket.unifiedframework</pattern>
                             <shadedPattern>${project.groupId}.unifiedframework</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.spongepowered.configurate</pattern>
+                            <shadedPattern>${project.groupId}.configurate</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

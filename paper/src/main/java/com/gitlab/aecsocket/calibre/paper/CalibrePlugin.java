@@ -24,19 +24,23 @@ import com.gitlab.aecsocket.calibre.paper.system.gun.reload.external.PaperSingle
 import com.gitlab.aecsocket.calibre.paper.system.gun.reload.internal.PaperInsertReloadSystem;
 import com.gitlab.aecsocket.calibre.core.util.*;
 import com.gitlab.aecsocket.calibre.paper.util.*;
+import com.gitlab.aecsocket.calibre.paper.util.LocationalDamageManager;
 import com.gitlab.aecsocket.calibre.paper.util.item.ItemManager;
 import com.gitlab.aecsocket.calibre.paper.system.builtin.*;
 import com.gitlab.aecsocket.calibre.paper.system.gun.*;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.Task;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.ThreadScheduler;
 import com.gitlab.aecsocket.unifiedframework.core.util.result.LoggingEntry;
 import com.gitlab.aecsocket.unifiedframework.paper.serialization.configurate.*;
 import com.gitlab.aecsocket.unifiedframework.paper.util.VelocityTracker;
 import com.gitlab.aecsocket.unifiedframework.paper.util.plugin.BasePlugin;
 import com.gitlab.aecsocket.unifiedframework.paper.util.plugin.PlayerDataManager;
+import com.gitlab.aecsocket.unifiedframework.paper.util.plugin.PluginHook;
+import com.gitlab.aecsocket.unifiedframework.paper.util.plugin.RegistryBasePlugin;
 import io.leangen.geantyref.TypeToken;
 import com.gitlab.aecsocket.calibre.paper.component.PaperComponent;
 import com.gitlab.aecsocket.unifiedframework.paper.gui.GUIManager;
 import com.gitlab.aecsocket.unifiedframework.paper.gui.GUIVector;
-import com.gitlab.aecsocket.unifiedframework.core.loop.ThreadLoop;
 import com.gitlab.aecsocket.unifiedframework.core.registry.Ref;
 import com.gitlab.aecsocket.unifiedframework.core.serialization.configurate.*;
 import com.gitlab.aecsocket.unifiedframework.core.serialization.configurate.descriptor.NumberDescriptorSerializer;
@@ -59,10 +63,11 @@ import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector2D;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector2I;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector3D;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector3I;
+import io.papermc.paper.text.PaperComponents;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.title.Title;
+import net.kyori.adventure.text.flattener.FlattenerListener;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -76,29 +81,31 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapFont;
 import org.bukkit.map.MinecraftFont;
 import org.bukkit.util.Vector;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.ConfigurationOptions;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
 import org.spongepowered.configurate.objectmapping.ObjectMapper;
 import org.spongepowered.configurate.serialize.TypeSerializer;
+import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 import org.spongepowered.configurate.util.NamingSchemes;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
  * Core plugin class for Paper servers.
  */
-public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
-    public static final int THREAD_LOOP_PERIOD = 10;
+public class CalibrePlugin extends RegistryBasePlugin<CalibreIdentifiable> {
+    public static final int PRECISE_INTERVAL = 10;
     public static final int BSTATS_PLUGIN_ID = 10479; // TODO
     public static final List<String> DEFAULT_RESOURCES = Collections.unmodifiableList(ListInit.of(new ArrayList<String>())
             .init(BasePlugin.DEFAULT_RESOURCES)
@@ -112,7 +119,7 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
     private static CalibrePlugin instance;
     public static CalibrePlugin instance() { return instance; }
 
-    private final List<CalibreHook> hooks = new ArrayList<>();
+    private final List<PluginHook> hooks = new ArrayList<>();
     private final PlayerDataManager<CalibrePlayerData> playerData = new PlayerDataManager<>() {
         @Override protected CalibrePlayerData createData(UUID uuid) { return new CalibrePlayerData(CalibrePlugin.this, uuid); }
     };
@@ -122,7 +129,7 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
     private final LocationalDamageManager locationalDamageManager = new LocationalDamageManager(this);
     private final VelocityTracker velocityTracker = new VelocityTracker();
     private final Map<Class<?>, com.gitlab.aecsocket.calibre.core.system.builtin.Formatter<?>> statFormatters = new HashMap<>();
-    private final ThreadLoop threadLoop = new ThreadLoop(THREAD_LOOP_PERIOD);
+    private final ThreadScheduler preciseScheduler = new ThreadScheduler(Executors.newFixedThreadPool(8));
     private PaperCommandManager commandManager;
     private GUIManager guiManager;
     private ProtocolManager protocol;
@@ -144,33 +151,26 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
         Bukkit.getPluginManager().registerEvents(new CalibreListener(this), this);
         playerData.setup(this);
         protocol.addPacketListener(new CalibrePacketAdapter(this));
-
-        schedulerLoop.register(playerData);
-        schedulerLoop.register(systemScheduler);
-        schedulerLoop.register(casingManager);
-        schedulerLoop.register(velocityTracker);
-
-        threadLoop.register(playerData);
     }
 
     @Override
     public void onDisable() {
         super.onDisable();
-        hooks.forEach(CalibreHook::calibreDisable);
-        if (threadLoop.running())
-            threadLoop.stop();
+        preciseScheduler.cancel();
     }
 
     @Override
     @EventHandler(priority = EventPriority.MONITOR)
-    public void serverLoad(ServerLoadEvent event) {
-        hooks.forEach(CalibreHook::serverLoad);
-        createConfigOptions();
-        super.serverLoad(event);
-        threadLoop.start();
+    public boolean serverLoad(ServerLoadEvent event) {
+        if (super.serverLoad(event)) {
+            scheduler.run(playerData, systemScheduler, casingManager, velocityTracker);
+            preciseScheduler.run(Task.repeating(playerData::tick, PRECISE_INTERVAL));
+            return true;
+        }
+        return false;
     }
 
-    public List<CalibreHook> hooks() { return hooks; }
+    public List<PluginHook> hooks() { return hooks; }
     public LabelledLogger pluginLogger() { return logger; }
     public ItemManager itemManager() { return itemManager; }
     public SchedulerSystem.Scheduler systemScheduler() { return systemScheduler; }
@@ -178,7 +178,6 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
     public LocationalDamageManager locationalDamageManager() { return locationalDamageManager; }
     public VelocityTracker velocityTracker() { return velocityTracker; }
     public Map<Class<?>, com.gitlab.aecsocket.calibre.core.system.builtin.Formatter<?>> statFormatters() { return statFormatters; }
-    public ThreadLoop threadLoop() { return threadLoop; }
     public ConfigurationOptions configOptions() { return configOptions; }
     public PaperCommandManager commandManager() { return commandManager; }
     public GUIManager guiManager() { return guiManager; }
@@ -187,69 +186,66 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
     public StatMapSerializer statMapSerializer() { return statMapSerializer; }
     public Rule.Serializer ruleSerializer() { return ruleSerializer; }
 
-    public void addHook(CalibreHook hook) { hooks.add(hook); }
-
     @SuppressWarnings("unchecked")
     public <T> Formatter<T> statFormatter(Class<T> type) { return (Formatter<T>) statFormatters.get(type); }
     public <T> CalibrePlugin statFormatter(Class<T> type, Formatter<T> formatter) { statFormatters.put(type, formatter); return this; }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    protected void createConfigOptions() {
-        configOptions = configOptions.serializers(builder -> {
-            hooks.forEach(hook -> hook.registerSerializers(builder));
-            statMapSerializer = new StatMapSerializer();
-            ruleSerializer = new Rule.Serializer();
-            ObjectMapper.Factory mapper = ObjectMapper.factoryBuilder()
-                    .defaultNamingScheme(NamingSchemes.SNAKE_CASE)
-                    .build();
-            TypeSerializer systemSerializer = new CalibreSystem.Serializer(Utils.delegate(CalibreSystem.class, builder, mapper), NamingSchemes.SNAKE_CASE);
-            builder
-                    .register(Color.class, ColorSerializer.INSTANCE)
-                    .register(BlockData.class, BlockDataSerializer.INSTANCE)
-                    .register(Particle.DustOptions.class, DustOptionsSerializer.INSTANCE)
-                    .register(ItemStack.class, ItemStackSerializer.INSTANCE)
-                    .register(Location.class, LocationSerializer.INSTANCE)
-                    .register(NamespacedKey.class, NamespacedKeySerializer.INSTANCE)
+    @Override
+    @SuppressWarnings("unchecked")
+    protected void configOptionDefaults(TypeSerializerCollection.Builder serializers, ObjectMapper.Factory.Builder mapperFactory) {
+        ObjectMapper.Factory mapper = ObjectMapper.factoryBuilder()
+                .defaultNamingScheme(NamingSchemes.SNAKE_CASE)
+                .build();
+        statMapSerializer = new StatMapSerializer();
+        ruleSerializer = new Rule.Serializer();
+        @SuppressWarnings("rawtypes")
+        TypeSerializer systemSerializer = new CalibreSystem.Serializer(Utils.delegate(CalibreSystem.class, serializers, mapper), NamingSchemes.SNAKE_CASE);
+        serializers
+                .register(Color.class, ColorSerializer.INSTANCE)
+                .register(BlockData.class, BlockDataSerializer.INSTANCE)
+                .register(Particle.DustOptions.class, DustOptionsSerializer.INSTANCE)
+                .register(ItemStack.class, ItemStackSerializer.INSTANCE)
+                .register(Location.class, LocationSerializer.INSTANCE)
+                .register(NamespacedKey.class, NamespacedKeySerializer.INSTANCE)
 
-                    .register(NumberDescriptor.Byte.class, NumberDescriptorSerializer.Byte.INSTANCE)
-                    .register(NumberDescriptor.Short.class, NumberDescriptorSerializer.Short.INSTANCE)
-                    .register(NumberDescriptor.Integer.class, NumberDescriptorSerializer.Integer.INSTANCE)
-                    .register(NumberDescriptor.Long.class, NumberDescriptorSerializer.Long.INSTANCE)
-                    .register(NumberDescriptor.Float.class, NumberDescriptorSerializer.Float.INSTANCE)
-                    .register(NumberDescriptor.Double.class, NumberDescriptorSerializer.Double.INSTANCE)
-                    .register(Vector2DDescriptor.class, Vector2DDescriptorSerializer.INSTANCE)
-                    .register(Vector3DDescriptor.class, Vector3DDescriptorSerializer.INSTANCE)
+                .register(NumberDescriptor.Byte.class, NumberDescriptorSerializer.Byte.INSTANCE)
+                .register(NumberDescriptor.Short.class, NumberDescriptorSerializer.Short.INSTANCE)
+                .register(NumberDescriptor.Integer.class, NumberDescriptorSerializer.Integer.INSTANCE)
+                .register(NumberDescriptor.Long.class, NumberDescriptorSerializer.Long.INSTANCE)
+                .register(NumberDescriptor.Float.class, NumberDescriptorSerializer.Float.INSTANCE)
+                .register(NumberDescriptor.Double.class, NumberDescriptorSerializer.Double.INSTANCE)
+                .register(Vector2DDescriptor.class, Vector2DDescriptorSerializer.INSTANCE)
+                .register(Vector3DDescriptor.class, Vector3DDescriptorSerializer.INSTANCE)
 
-                    .register(Vector.class, VectorSerializer.INSTANCE)
-                    .register(GUIVector.class, GUIVectorSerializer.INSTANCE)
-                    .register(Vector3D.class, Vector3DSerializer.INSTANCE)
-                    .register(Vector3I.class, Vector3ISerializer.INSTANCE)
-                    .register(Vector2D.class, Vector2DSerializer.INSTANCE)
-                    .register(Vector2I.class, Vector2ISerializer.INSTANCE)
+                .register(Vector.class, VectorSerializer.INSTANCE)
+                .register(GUIVector.class, GUIVectorSerializer.INSTANCE)
+                .register(Vector3D.class, Vector3DSerializer.INSTANCE)
+                .register(Vector3I.class, Vector3ISerializer.INSTANCE)
+                .register(Vector2D.class, Vector2DSerializer.INSTANCE)
+                .register(Vector2I.class, Vector2ISerializer.INSTANCE)
 
-                    .register(ParticleData.class, ParticleDataSerializer.INSTANCE)
-                    .register(SoundData.class, new SoundDataSerializer(this))
+                .register(ParticleData.class, ParticleDataSerializer.INSTANCE)
+                .register(SoundData.class, new SoundDataSerializer(this))
 
-                    .register(StatMap.class, statMapSerializer)
-                    .registerExact(Rule.class, ruleSerializer)
-                    .register(StatCollection.class, StatCollection.Serializer.INSTANCE)
-                    .register(RuledStatCollectionList.class, RuledStatCollectionList.Serializer.INSTANCE)
-                    .register(CasingManager.Category.class, new CasingManager.Category.Serializer(this, Utils.delegate(CasingManager.Category.class, builder, mapper)))
+                .register(StatMap.class, statMapSerializer)
+                .registerExact(Rule.class, ruleSerializer)
+                .register(StatCollection.class, StatCollection.Serializer.INSTANCE)
+                .register(RuledStatCollectionList.class, RuledStatCollectionList.Serializer.INSTANCE)
+                .register(CasingManager.Category.class, new CasingManager.Category.Serializer(this, Utils.delegate(CasingManager.Category.class, serializers, mapper)))
 
-                    .register(ComponentContainerSystem.class, new ComponentContainerSystem.Serializer((TypeSerializer<ComponentContainerSystem>) systemSerializer))
-                    .register(SchedulerSystem.class, new SchedulerSystem.Serializer((TypeSerializer<SchedulerSystem>) systemSerializer))
-                    .register(CalibreSystem.class, systemSerializer)
+                .register(ComponentContainerSystem.class, new ComponentContainerSystem.Serializer((TypeSerializer<ComponentContainerSystem>) systemSerializer))
+                .register(SchedulerSystem.class, new SchedulerSystem.Serializer((TypeSerializer<SchedulerSystem>) systemSerializer))
+                .register(CalibreSystem.class, systemSerializer)
 
-                    .register(new TypeToken<Quantifier<ComponentTree>>(){}, new QuantifierSerializer<>())
-                    .register(ItemAnimation.class, new ItemAnimation.Serializer(this))
-                    .register(SightPath.class, SightPath.Serializer.INSTANCE)
-                    .register(FireModePath.class, FireModePath.Serializer.INSTANCE)
-                    .register(PaperComponent.class, new PaperComponent.Serializer(Utils.delegate(PaperComponent.class, builder, mapper)))
-                    .register(ComponentTree.class, new ComponentTree.AbstractSerializer() {
-                        @Override protected <T extends CalibreIdentifiable> T byId(String id, Class<T> type) { return registry.get(id, type); }
-                    })
-                    .registerAnnotatedObjects(mapper);
-        });
+                .register(new TypeToken<Quantifier<ComponentTree>>(){}, new QuantifierSerializer<>())
+                .register(ItemAnimation.class, new ItemAnimation.Serializer(this))
+                .register(SightPath.class, SightPath.Serializer.INSTANCE)
+                .register(FireModePath.class, FireModePath.Serializer.INSTANCE)
+                .register(PaperComponent.class, new PaperComponent.Serializer(Utils.delegate(PaperComponent.class, serializers, mapper)))
+                .register(ComponentTree.class, new ComponentTree.AbstractSerializer() {
+                    @Override protected <T extends CalibreIdentifiable> T byId(String id, Class<T> type) { return registry.get(id, type); }
+                })
+                .registerAnnotatedObjects(mapper);
     }
 
     @Override
@@ -369,7 +365,7 @@ public class CalibrePlugin extends BasePlugin<CalibreIdentifiable> {
         if (settings.root() != null) {
             setting(ConfigurationNode::childrenMap, "font_map").forEach((key, node) ->
                     font.setChar(key.toString().charAt(0), new MapFont.CharacterSprite(node.getInt(), 0, new boolean[0])));
-            systemScheduler.cleanDelay(setting(ConfigurationNode::getLong, "scheduler", "clean_delay"));
+            systemScheduler.cleanInterval(setting(ConfigurationNode::getLong, "scheduler", "clean_interval"));
             systemScheduler.cleanThreshold(setting(ConfigurationNode::getLong, "scheduler", "clean_threshold"));
 
             casingManager.load();

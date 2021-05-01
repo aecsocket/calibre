@@ -5,12 +5,16 @@ import com.gitlab.aecsocket.calibre.core.system.FromMaster;
 import com.gitlab.aecsocket.calibre.paper.system.PaperSystem;
 import com.gitlab.aecsocket.calibre.core.system.builtin.Formatter;
 import com.gitlab.aecsocket.calibre.core.system.builtin.StatDisplaySystem;
+import io.papermc.paper.text.PaperComponents;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import org.bukkit.map.MapFont;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 @ConfigSerializable
@@ -47,7 +51,8 @@ public final class PaperStatDisplaySystem extends StatDisplaySystem implements P
 
     @Override public CalibrePlugin calibre() { return plugin; }
 
-    @Override protected int getWidth(String text) {
+    @Override protected int getWidth(Component component) {
+        String text = PlainComponentSerializer.plain().serialize(component);
         MapFont font = plugin.font();
         if (!font.isValid(text))
             throw new IllegalArgumentException("Invalid characters in text: not added to font map?");

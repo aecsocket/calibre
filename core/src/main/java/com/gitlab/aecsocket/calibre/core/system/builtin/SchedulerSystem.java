@@ -9,9 +9,8 @@ import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.system.FromMaster;
 import com.gitlab.aecsocket.calibre.core.system.ItemEvents;
 import com.gitlab.aecsocket.unifiedframework.core.event.EventDispatcher;
-import com.gitlab.aecsocket.unifiedframework.core.loop.MinecraftSyncLoop;
-import com.gitlab.aecsocket.unifiedframework.core.loop.TickContext;
-import com.gitlab.aecsocket.unifiedframework.core.loop.Tickable;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.HasTasks;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.MinecraftScheduler;
 import com.gitlab.aecsocket.unifiedframework.core.util.data.Tuple2;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -46,28 +45,27 @@ public abstract class SchedulerSystem extends AbstractSystem {
         }
     }
 
-    public static class Scheduler implements Tickable {
+    public static class Scheduler implements HasTasks {
         protected final Map<Integer, Task<?, ?>> tasks = new HashMap<>();
         protected int taskId;
-        protected long cleanDelay;
+
         protected long cleanThreshold;
+        protected long cleanInterval;
 
-        protected long nextClean;
-
-        public Scheduler(long cleanDelay, long cleanThreshold) {
-            this.cleanDelay = cleanDelay;
+        public Scheduler(long cleanThreshold, long cleanInterval) {
             this.cleanThreshold = cleanThreshold;
+            this.cleanInterval = cleanInterval;
         }
 
         public Map<Integer, Task<?, ?>> tasks() { return tasks; }
         public int taskId() { return taskId; }
-        public int nextTaskId() { return ++taskId; }
-
-        public long cleanDelay() { return cleanDelay; }
-        public void cleanDelay(long cleanDelay) { this.cleanDelay = cleanDelay; }
+        protected int nextTaskId() { return ++taskId; }
 
         public long cleanThreshold() { return cleanThreshold; }
         public void cleanThreshold(long cleanThreshold) { this.cleanThreshold = cleanThreshold; }
+
+        public long cleanInterval() { return cleanInterval; }
+        public void cleanInterval(long cleanInterval) { this.cleanInterval = cleanInterval; }
 
         public <S extends CalibreSystem, I extends Item> Tuple2<Integer, Task<S, I>> schedule(S system, long delay, TaskFunction<S, I> function) {
             Task<S, I> task = new Task<>(system.parent().path(), system.id(), System.currentTimeMillis() + delay, function);
@@ -77,18 +75,14 @@ public abstract class SchedulerSystem extends AbstractSystem {
         }
         public Task<?, ?> unschedule(int id) { return tasks.remove(id); }
 
+        @Override
+        public void runTasks(com.gitlab.aecsocket.unifiedframework.core.scheduler.Scheduler scheduler) {
+            scheduler.run(com.gitlab.aecsocket.unifiedframework.core.scheduler.Task.repeating(ctx -> clean(), cleanInterval));
+        }
+
         public void clean() {
             long time = System.currentTimeMillis();
             tasks.entrySet().removeIf(entry -> time > entry.getValue().runAt + cleanThreshold);
-        }
-
-        @Override
-        public void tick(TickContext tickContext) {
-            nextClean += tickContext.delta();
-            if (nextClean > cleanDelay) {
-                clean();
-                nextClean %= Math.max(1, cleanDelay);
-            }
         }
     }
 
@@ -238,7 +232,7 @@ public abstract class SchedulerSystem extends AbstractSystem {
     }
 
     protected <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {
-        if (event.tickContext().loop() instanceof MinecraftSyncLoop) {
+        if (event.taskContext().scheduler() instanceof MinecraftScheduler) {
             if (checkTasks(event))
                 update(event);
         }

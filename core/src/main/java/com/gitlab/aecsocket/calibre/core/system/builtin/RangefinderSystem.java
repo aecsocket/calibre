@@ -8,7 +8,7 @@ import com.gitlab.aecsocket.calibre.core.system.ItemEvents;
 import com.gitlab.aecsocket.calibre.core.world.user.ItemUser;
 import com.gitlab.aecsocket.calibre.core.world.user.SenderUser;
 import com.gitlab.aecsocket.unifiedframework.core.event.EventDispatcher;
-import com.gitlab.aecsocket.unifiedframework.core.loop.MinecraftSyncLoop;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.MinecraftScheduler;
 import net.kyori.adventure.text.Component;
 
 import java.util.Objects;
@@ -57,7 +57,7 @@ public abstract class RangefinderSystem extends AbstractSystem {
     }
 
     protected void onEvent(ItemEvents.Equipped<?> event) {
-        if (!(event.tickContext().loop() instanceof MinecraftSyncLoop))
+        if (!(event.taskContext().scheduler() instanceof MinecraftScheduler))
             return;
 
         ItemUser user = event.user();

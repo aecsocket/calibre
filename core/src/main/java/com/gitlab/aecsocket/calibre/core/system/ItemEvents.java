@@ -5,7 +5,7 @@ import com.gitlab.aecsocket.calibre.core.world.item.Item;
 import com.gitlab.aecsocket.calibre.core.world.slot.ItemSlot;
 import com.gitlab.aecsocket.calibre.core.world.user.ItemUser;
 import com.gitlab.aecsocket.unifiedframework.core.event.Cancellable;
-import com.gitlab.aecsocket.unifiedframework.core.loop.TickContext;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.TaskContext;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector3I;
 
 public final class ItemEvents {
@@ -55,7 +55,7 @@ public final class ItemEvents {
     }
 
     public interface Equipped<I extends Item> extends ItemEvent<I> {
-        TickContext tickContext();
+        TaskContext taskContext();
     }
 
     public interface Jump<I extends Item> extends ItemEvent<I>, Cancellable {}

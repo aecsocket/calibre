@@ -8,10 +8,10 @@ import com.gitlab.aecsocket.calibre.core.system.SystemSetupException;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.paper.system.PaperSystem;
 import com.gitlab.aecsocket.unifiedframework.core.event.EventDispatcher;
-import com.gitlab.aecsocket.unifiedframework.core.loop.MinecraftSyncLoop;
 import com.gitlab.aecsocket.unifiedframework.core.stat.Stat;
 import com.gitlab.aecsocket.unifiedframework.core.stat.impl.descriptor.NumberDescriptorStat;
 import com.gitlab.aecsocket.unifiedframework.core.util.MapInit;
+import com.gitlab.aecsocket.unifiedframework.core.util.Utils;
 import com.gitlab.aecsocket.unifiedframework.core.util.descriptor.NumberDescriptor;
 import org.bukkit.entity.Entity;
 
@@ -79,7 +79,7 @@ public class IncendiaryProjectileSystem extends AbstractSystem implements PaperS
             return;
         if (event.collided().isEntity()) {
             Entity entity = event.collided().entity();
-            entity.setFireTicks(entity.getFireTicks() + (int) (tree().<NumberDescriptor.Double>stat("fire_time").apply() / MinecraftSyncLoop.MS_PER_TICK));
+            entity.setFireTicks(entity.getFireTicks() + (int) (tree().<NumberDescriptor.Double>stat("fire_time").apply() / Utils.MSPT));
         }
     }
 

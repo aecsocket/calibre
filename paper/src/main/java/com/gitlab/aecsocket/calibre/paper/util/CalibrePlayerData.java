@@ -4,10 +4,9 @@ import com.gitlab.aecsocket.calibre.paper.gui.SlotViewGUI;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.paper.component.PaperComponent;
 import com.gitlab.aecsocket.calibre.paper.system.BukkitItemEvents;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.MinecraftScheduler;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.TaskContext;
 import com.gitlab.aecsocket.unifiedframework.paper.gui.GUIView;
-import com.gitlab.aecsocket.unifiedframework.core.loop.MinecraftSyncLoop;
-import com.gitlab.aecsocket.unifiedframework.core.loop.TickContext;
-import com.gitlab.aecsocket.unifiedframework.core.loop.Tickable;
 import com.gitlab.aecsocket.unifiedframework.core.util.Utils;
 import com.gitlab.aecsocket.unifiedframework.paper.util.VectorUtils;
 import com.gitlab.aecsocket.unifiedframework.paper.util.data.ParticleData;
@@ -139,14 +138,10 @@ public final class CalibrePlayerData implements PlayerData {
     public Vector2D recoilToRecover() { return recoilToRecover; }
     public void recoilToRecover(Vector2D recoilRecoveryRemaining) { this.recoilToRecover = recoilRecoveryRemaining; }
 
-    @Override public PlayerData load() { return this; }
-    @Override public PlayerData save() { return this; }
+    @Override public void load() {}
+    @Override public void save() {}
 
-    @Override
-    public PlayerData join(Player player) {
-        this.player = player;
-        return this;
-    }
+    @Override public void join(Player player) { this.player = player; }
 
 
     public void applyRecoil(Vector2D recoil, double recoilSpeed, double recoilRecovery, double recoilRecoverySpeed, long recoilRecoveryAfter) {
@@ -174,14 +169,14 @@ public final class CalibrePlayerData implements PlayerData {
         return player.isSneaking() && !stabilizeBlocked;
     }
 
-    public void bukkitSyncTick(TickContext tickContext) {
+    public void minecraftSyncTick(TaskContext ctx) {
         // equipped
         EntityEquipment equipment = player.getEquipment();
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             PaperComponent component = plugin.itemManager().get(equipment.getItem(slot));
             componentCache.put(slot, null);
             if (component != null) {
-                component.tree().call(BukkitItemEvents.BukkitEquipped.of(component, player, slot, tickContext));
+                component.tree().call(BukkitItemEvents.BukkitEquipped.of(component, player, slot, ctx));
                 componentCache.put(slot, component);
             }
         }
@@ -205,7 +200,7 @@ public final class CalibrePlayerData implements PlayerData {
         }
 
         // inaccuracy
-        inaccuracy -= tickContext.delta() / 1000d;
+        inaccuracy -= ctx.delta() / 1000d;
         if (inaccuracy < 0)
             inaccuracy = 0;
 
@@ -215,7 +210,7 @@ public final class CalibrePlayerData implements PlayerData {
 
         if (stamina < maxStamina) {
             if (System.currentTimeMillis() >= staminaRecoverAt) {
-                stamina += plugin.setting(n -> n.getDouble(1000), "stamina", "recover") * (tickContext.delta() / 1000d);
+                stamina += plugin.setting(n -> n.getDouble(1000), "stamina", "recover") * (ctx.delta() / 1000d);
                 if (stamina > maxStamina)
                     stamina = maxStamina;
             }
@@ -226,16 +221,16 @@ public final class CalibrePlayerData implements PlayerData {
 
         // animation
         if (animation != null) {
-            tickContext.tick(animation);
+            ctx.run(animation::tick);
         }
     }
 
-    public void threadTick(TickContext tickContext) {
+    public void threadTick(TaskContext ctx) {
         // equipped
         for (var entry : Collections.unmodifiableMap(componentCache).entrySet()) {
             PaperComponent component = entry.getValue();
             if (component != null)
-                component.tree().call(BukkitItemEvents.BukkitEquipped.of(component, player, entry.getKey(), tickContext));
+                component.tree().call(BukkitItemEvents.BukkitEquipped.of(component, player, entry.getKey(), ctx));
         }
 
         // recoil
@@ -254,7 +249,7 @@ public final class CalibrePlayerData implements PlayerData {
     }
 
     @Override
-    public void tick(TickContext tickContext) {
+    public void tick(TaskContext ctx) {
         if (player == null)
             return;
 
@@ -263,10 +258,10 @@ public final class CalibrePlayerData implements PlayerData {
         if (player.getGameMode() == GameMode.SPECTATOR)
             return;
 
-        if (tickContext.loop() instanceof MinecraftSyncLoop) {
-            bukkitSyncTick(tickContext);
+        if (ctx.scheduler() instanceof MinecraftScheduler) {
+            minecraftSyncTick(ctx);
         } else {
-            threadTick(tickContext);
+            threadTick(ctx);
         }
     }
 }

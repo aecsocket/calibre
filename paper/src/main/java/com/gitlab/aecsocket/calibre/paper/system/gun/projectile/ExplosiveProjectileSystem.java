@@ -9,17 +9,13 @@ import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.paper.system.PaperSystem;
 import com.gitlab.aecsocket.calibre.paper.util.Explosion;
 import com.gitlab.aecsocket.unifiedframework.core.event.EventDispatcher;
-import com.gitlab.aecsocket.unifiedframework.core.loop.MinecraftSyncLoop;
 import com.gitlab.aecsocket.unifiedframework.core.stat.Stat;
 import com.gitlab.aecsocket.unifiedframework.core.stat.StatMap;
-import com.gitlab.aecsocket.unifiedframework.core.stat.impl.BooleanStat;
 import com.gitlab.aecsocket.unifiedframework.core.stat.impl.descriptor.NumberDescriptorStat;
 import com.gitlab.aecsocket.unifiedframework.core.util.MapInit;
 import com.gitlab.aecsocket.unifiedframework.core.util.descriptor.NumberDescriptor;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector3D;
 import com.gitlab.aecsocket.unifiedframework.paper.util.VectorUtils;
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -99,7 +95,7 @@ public class ExplosiveProjectileSystem extends AbstractSystem implements PaperSy
                     .range(stats.<NumberDescriptor.Double>val("explosion_range").apply())
                     .spawn(VectorUtils.toBukkit(position).toLocation(projectile.world()), projectile.source());
         }
-        event.tickContext().remove();
+        event.taskContext().cancel();
     }
 
     @Override public ExplosiveProjectileSystem copy() { return new ExplosiveProjectileSystem(this); }

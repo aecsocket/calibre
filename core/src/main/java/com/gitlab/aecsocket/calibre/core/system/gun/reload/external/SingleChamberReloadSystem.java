@@ -12,7 +12,7 @@ import com.gitlab.aecsocket.calibre.core.system.builtin.ComponentAccessorSystem;
 import com.gitlab.aecsocket.calibre.core.system.builtin.SchedulerSystem;
 import com.gitlab.aecsocket.calibre.core.world.slot.ItemSlot;
 import com.gitlab.aecsocket.calibre.core.world.user.ItemUser;
-import com.gitlab.aecsocket.unifiedframework.core.loop.TickContext;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.TaskContext;
 import com.gitlab.aecsocket.unifiedframework.core.stat.Stat;
 import com.gitlab.aecsocket.unifiedframework.core.stat.impl.descriptor.NumberDescriptorStat;
 import com.gitlab.aecsocket.unifiedframework.core.util.MapInit;
@@ -67,27 +67,27 @@ public abstract class SingleChamberReloadSystem extends AbstractSystem implement
         accessor = require(ComponentAccessorSystem.class);
     }
 
-    protected <I extends Item> boolean reloadSingle(ItemUser user, ItemSlot<I> slot, TickContext tickContext, SchedulerSystem scheduler, GunSystem.Events.ExternalReload<I> event) {
+    protected <I extends Item> boolean reloadSingle(ItemUser user, ItemSlot<I> slot, TaskContext ctx, SchedulerSystem scheduler, GunSystem.Events.ExternalReload<I> event) {
         int remaining = container.remaining();
         if (remaining <= 0) {
-            finishReload(user, slot, tickContext, event);
+            finishReload(user, slot, ctx, event);
             return true;
         }
         long singleAfter = tree().<NumberDescriptor.Long>stat("reload_single_after").apply();
         int amount = singleAfter == 0
                 ? remaining
-                : singleAfter < tickContext.delta() ? (int) (tickContext.delta() / singleAfter) : 1;
+                : singleAfter < ctx.delta() ? (int) (ctx.delta() / singleAfter) : 1;
         for (int i = 0; i < amount; i++) {
             ComponentAccessorSystem.Result result = collectChamber(user);
             if (result == null) {
-                finishReload(user, slot, tickContext, event);
+                finishReload(user, slot, ctx, event);
                 return true;
             } else {
                 container.push(result.component());
                 result.removeItem();
                 scheduler.delay(tree().<NumberDescriptor.Long>stat("reload_single_delay").apply());
                 scheduler.<SingleChamberReloadSystem, I>schedule(this, singleAfter,
-                        (self, equip, ctx) -> self.reloadSingle(equip.user(), equip.slot(), equip.tickContext(), ctx.system(event.system().scheduler()), event));
+                        (self, equip, ctx2) -> self.reloadSingle(equip.user(), equip.slot(), equip.taskContext(), ctx2.system(event.system().scheduler()), event));
                 update(user, slot, event);
                 return false;
             }
@@ -99,7 +99,7 @@ public abstract class SingleChamberReloadSystem extends AbstractSystem implement
         return accessor.collectComponent(user, component -> GunSystem.getProjectile(component).c() != null && container.accepts(component), null);
     }
 
-    protected <I extends Item> void finishReload(ItemUser user, ItemSlot<I> slot, TickContext tickContext, GunSystem.Events.ExternalReload<I> event) {}
+    protected <I extends Item> void finishReload(ItemUser user, ItemSlot<I> slot, TaskContext ctx, GunSystem.Events.ExternalReload<I> event) {}
 
     @Override
     public <I extends Item> void reload(GunSystem.Events.ExternalReload<I> event) {
@@ -110,7 +110,7 @@ public abstract class SingleChamberReloadSystem extends AbstractSystem implement
         SchedulerSystem scheduler = event.system().scheduler();
         scheduler.delay(tree().<NumberDescriptor.Long>stat("reload_delay").apply());
         scheduler.<SingleChamberReloadSystem, I>schedule(this, tree().<NumberDescriptor.Long>stat("reload_after").apply(),
-                (self, equip, ctx) -> self.reloadSingle(equip.user(), equip.slot(), equip.tickContext(), ctx.system(scheduler), event));
+                (self, equip, ctx) -> self.reloadSingle(equip.user(), equip.slot(), equip.taskContext(), ctx.system(scheduler), event));
         update(event);
         event.result(ItemEvents.Result.SUCCESS);
     }

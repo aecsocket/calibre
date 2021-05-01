@@ -168,7 +168,9 @@ public class LocationalDamageManager {
 
         // Deal damage
         entity.damage(1e-16, source);
-        entity.setHealth(Math.max(0, entity.getHealth() - result));
+        double health = entity.getHealth();
+        health = Math.max(0, health - result);
+        entity.setHealth(health);
         entity.setNoDamageTicks(0);
         entity.setVelocity(new Vector());
 

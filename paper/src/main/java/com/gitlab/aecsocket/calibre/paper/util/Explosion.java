@@ -1,17 +1,15 @@
 package com.gitlab.aecsocket.calibre.paper.util;
 
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
-import com.gitlab.aecsocket.unifiedframework.core.loop.TickContext;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.TaskContext;
 import com.gitlab.aecsocket.unifiedframework.core.util.Utils;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector3D;
-import com.gitlab.aecsocket.unifiedframework.paper.util.RayTraceUtils;
 import com.gitlab.aecsocket.unifiedframework.paper.util.VectorUtils;
 import com.gitlab.aecsocket.unifiedframework.paper.util.data.ParticleData;
 import com.gitlab.aecsocket.unifiedframework.paper.util.data.SoundData;
 import com.gitlab.aecsocket.unifiedframework.paper.util.projectile.BukkitCollidable;
 import com.gitlab.aecsocket.unifiedframework.paper.util.projectile.BukkitProjectile;
 import com.gitlab.aecsocket.unifiedframework.paper.util.projectile.BukkitRayTrace;
-import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -36,8 +34,8 @@ public class Explosion {
         public ParticleData[] trail() { return trail; }
 
         @Override
-        protected void step(TickContext tickContext, BukkitRayTrace ray, Vector3D from, Vector3D delta, double deltaLength) {
-            super.step(tickContext, ray, from, delta, deltaLength);
+        protected void step(TaskContext ctx, BukkitRayTrace ray, Vector3D from, Vector3D delta, double deltaLength) {
+            super.step(ctx, ray, from, delta, deltaLength);
             Random rng = ThreadLocalRandom.current();
             /*if (rng.nextDouble() < (travelled() / 20)) {
                 tickContext.remove();
@@ -52,8 +50,8 @@ public class Explosion {
         }
 
         @Override
-        protected void collide(TickContext tickContext, BukkitRayTrace ray, BukkitCollidable collided) {
-            super.collide(tickContext, ray, collided);
+        protected void collide(TaskContext ctx, BukkitRayTrace ray, BukkitCollidable collided) {
+            super.collide(ctx, ray, collided);
             if (collided.isEntity()) {
                 Entity entity = collided.entity();
                 if (entity instanceof LivingEntity) {
@@ -65,7 +63,7 @@ public class Explosion {
                 //Block block = collided.block();
                 //block.setType(Material.AIR);
             }
-            tickContext.remove();
+            ctx.cancel();
         }
     }
 

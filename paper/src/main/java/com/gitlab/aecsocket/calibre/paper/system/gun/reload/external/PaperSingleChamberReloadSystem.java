@@ -12,7 +12,7 @@ import com.gitlab.aecsocket.calibre.core.system.ItemEvents;
 import com.gitlab.aecsocket.calibre.paper.util.ItemAnimation;
 import com.gitlab.aecsocket.calibre.core.world.slot.ItemSlot;
 import com.gitlab.aecsocket.calibre.core.world.user.ItemUser;
-import com.gitlab.aecsocket.unifiedframework.core.loop.TickContext;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.TaskContext;
 import com.gitlab.aecsocket.unifiedframework.core.stat.Stat;
 import com.gitlab.aecsocket.unifiedframework.paper.stat.impl.data.SoundDataStat;
 import com.gitlab.aecsocket.unifiedframework.core.util.MapInit;
@@ -63,8 +63,8 @@ public final class PaperSingleChamberReloadSystem extends SingleChamberReloadSys
     }
 
     @Override
-    protected <I extends Item> boolean reloadSingle(ItemUser user, ItemSlot<I> slot, TickContext tickContext, SchedulerSystem scheduler, GunSystem.Events.ExternalReload<I> event) {
-        boolean result = super.reloadSingle(user, slot, tickContext, scheduler, event);
+    protected <I extends Item> boolean reloadSingle(ItemUser user, ItemSlot<I> slot, TaskContext ctx, SchedulerSystem scheduler, GunSystem.Events.ExternalReload<I> event) {
+        boolean result = super.reloadSingle(user, slot, ctx, scheduler, event);
         if (!result) {
             if (user instanceof BukkitItemUser) {
                 SoundData.play(((BukkitItemUser) user)::location, tree().stat("reload_single_sound"));
@@ -75,8 +75,8 @@ public final class PaperSingleChamberReloadSystem extends SingleChamberReloadSys
     }
 
     @Override
-    protected <I extends Item> void finishReload(ItemUser user, ItemSlot<I> slot, TickContext tickContext, GunSystem.Events.ExternalReload<I> event) {
-        super.finishReload(user, slot, tickContext, event);
+    protected <I extends Item> void finishReload(ItemUser user, ItemSlot<I> slot, TaskContext ctx, GunSystem.Events.ExternalReload<I> event) {
+        super.finishReload(user, slot, ctx, event);
         if (user instanceof BukkitItemUser) {
             SoundData.play(((BukkitItemUser) user)::location, tree().stat("reload_end_sound"));
             ItemAnimation.start(user, slot, tree().stat("reload_end_animation"));

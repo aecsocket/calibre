@@ -14,7 +14,7 @@ import com.gitlab.aecsocket.calibre.core.world.user.ItemUser;
 import com.gitlab.aecsocket.calibre.core.world.user.SenderUser;
 import com.gitlab.aecsocket.calibre.core.world.user.StabilizableUser;
 import com.gitlab.aecsocket.unifiedframework.core.event.EventDispatcher;
-import com.gitlab.aecsocket.unifiedframework.core.loop.MinecraftSyncLoop;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.MinecraftScheduler;
 import com.gitlab.aecsocket.unifiedframework.core.util.Utils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -110,7 +110,7 @@ public abstract class GunInfoSystem extends AbstractSystem {
     protected abstract Component bar(Locale locale, String key, double percent);
 
     protected <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {
-        if (!(event.tickContext().loop() instanceof MinecraftSyncLoop))
+        if (!(event.taskContext().scheduler() instanceof MinecraftScheduler))
             return;
 
         Locale locale = event.user().locale();
@@ -152,14 +152,14 @@ public abstract class GunInfoSystem extends AbstractSystem {
             switch (chamberStyle) {
                 case NUMBER:
                     chamber = Component.text(gun.collectChamberSlots().stream()
-                            .filter(slot -> slot.get() != null && (!strict || gun.getProjectile(slot).c() != null))
+                            .filter(slot -> slot.get() != null && (!strict || GunSystem.getProjectile(slot).c() != null))
                             .count());
                     break;
                 case ICONS:
                     TextComponent.Builder builder = Component.text();
                     gun.collectChamberSlots()
                             .forEach(slot -> {
-                                if (slot.get() != null && (!strict || gun.getProjectile(slot).c() != null))
+                                if (slot.get() != null && (!strict || GunSystem.getProjectile(slot).c() != null))
                                     builder.append(genFor(locale, slot.get()));
                                 else
                                     builder.append(gen(locale, "system." + ID + ".chamber.empty"));

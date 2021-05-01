@@ -3,7 +3,7 @@ package com.gitlab.aecsocket.calibre.core.system.gun;
 import com.gitlab.aecsocket.calibre.core.system.AbstractSystem;
 import com.gitlab.aecsocket.calibre.core.world.user.ItemUser;
 import com.gitlab.aecsocket.calibre.core.world.user.StabilizableUser;
-import com.gitlab.aecsocket.unifiedframework.core.loop.TickContext;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.TaskContext;
 import com.gitlab.aecsocket.unifiedframework.core.stat.Stat;
 import com.gitlab.aecsocket.unifiedframework.core.stat.impl.descriptor.NumberDescriptorStat;
 import com.gitlab.aecsocket.unifiedframework.core.util.MapInit;
@@ -36,11 +36,11 @@ public abstract class SwayStabilizationSystem extends AbstractSystem implements 
     @Override public Map<String, Stat<?>> statTypes() { return STAT_TYPES; }
 
     @Override
-    public boolean stabilizes(TickContext tickContext, ItemUser raw) {
+    public boolean stabilizes(TaskContext ctx, ItemUser raw) {
         if (raw instanceof StabilizableUser) {
             StabilizableUser user = (StabilizableUser) raw;
-            if (user.stabilize(tickContext) && user.stamina() > 0) {
-                user.reduceStamina(tree().<NumberDescriptor.Double>stat("sway_stabilization_cost").apply() * (tickContext.delta() / 1000d));
+            if (user.stabilize(ctx) && user.stamina() > 0) {
+                user.reduceStamina(tree().<NumberDescriptor.Double>stat("sway_stabilization_cost").apply() * (ctx.delta() / 1000d));
                 return true;
             }
         }

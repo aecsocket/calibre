@@ -17,11 +17,13 @@ import com.gitlab.aecsocket.calibre.paper.wrapper.user.BukkitItemUser;
 import com.gitlab.aecsocket.calibre.paper.wrapper.user.EntityUser;
 import com.gitlab.aecsocket.unifiedframework.core.event.Cancellable;
 import com.gitlab.aecsocket.unifiedframework.core.event.EventDispatcher;
-import com.gitlab.aecsocket.unifiedframework.core.loop.TickContext;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.Scheduler;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.Task;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.TaskContext;
 import com.gitlab.aecsocket.unifiedframework.core.stat.Stat;
 import com.gitlab.aecsocket.unifiedframework.core.stat.StatMap;
+import com.gitlab.aecsocket.unifiedframework.core.util.Utils;
 import com.gitlab.aecsocket.unifiedframework.core.util.log.LogLevel;
-import com.gitlab.aecsocket.unifiedframework.paper.loop.SchedulerLoop;
 import com.gitlab.aecsocket.unifiedframework.paper.stat.impl.data.ParticleDataStat;
 import com.gitlab.aecsocket.unifiedframework.paper.stat.impl.data.SoundDataStat;
 import com.gitlab.aecsocket.unifiedframework.core.stat.impl.descriptor.NumberDescriptorStat;
@@ -168,36 +170,36 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
             return;
         BukkitItemUser bukkitUser = (BukkitItemUser) user;
 
-        // TODO see below: store the trees instead
-        EventDispatcher events = new EventDispatcher(tree().events());
-        EventDispatcher localEvents = parent.copy().buildTree().tree().events(); // TODO hack?
-
-        PaperProjectile projectile = new PaperProjectile(this, events, localEvents, bukkitUser.world(), position, velocity);
+        ComponentTree fullTree = tree().root().copy().buildTree().tree();
+        ComponentTree localTree = parent.copy().buildTree().tree();
+        PaperProjectile projectile = new PaperProjectile(this, fullTree, localTree, bukkitUser.world(), position, velocity);
         applyTo(projectile, tree().stats());
         projectile.source(user instanceof EntityUser ? ((EntityUser) user).entity() : null);
 
-        events.call(new Events.Create(projectile, false, user, position, velocity));
-        localEvents.call(new Events.Create(projectile, true, user, position, velocity));
+        fullTree.call(new Events.Create(projectile, false, user, position, velocity));
+        localTree.call(new Events.Create(projectile, true, user, position, velocity));
 
         // raycast the first specified amount metres
-        SchedulerLoop loop = plugin.schedulerLoop();
-        long period = loop.period();
+        Scheduler scheduler = plugin.scheduler();
 
         double raycastDistance = tree().<NumberDescriptor.Double>stat("raycast_distance").apply();
         // max tick time of 1000ms, as a failsafe
         long end = System.currentTimeMillis() + 1000;
-        while (projectile.travelled() < raycastDistance) {
+        for (int i = 0; projectile.travelled() < raycastDistance; i++) {
             if (System.currentTimeMillis() >= end) {
                 plugin.log(LogLevel.WARN, new Throwable(), "Projectile raycast ticked for longer than 1000ms");
                 break;
             }
-            TickContext context = loop.context(projectile, period);
+
+            TaskContext context = new TaskContext.Generic((long) Utils.MSPT * i, Utils.MSPT, i) {
+                @Override public Scheduler scheduler() { return scheduler; }
+            };
             projectile.tick(context);
-            if (context.removed())
+            if (context.cancelled())
                 return;
         }
 
-        loop.register(projectile);
+        scheduler.run(Task.repeating(projectile::tick, Utils.MSPT));
     }
 
     @Override public PaperProjectileSystem copy() { return new PaperProjectileSystem(this); }
@@ -212,12 +214,9 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
 
     public static class PaperProjectile extends BukkitProjectile {
         protected final ProjectileSystem system;
-        // TODO: For some reason not even god knows, storing the tree will store a really screwed up copy of the tree when fired.
-        // Therefore, fix it so that you can store the entire component tree this projectile was fired from, not just the
-        // event dispatcher.
-        protected final EventDispatcher events;
+        protected final ComponentTree fullTree;
         // Component parent, and subcomponents, of the projectile.
-        protected final EventDispatcher localEvents;
+        protected final ComponentTree localTree;
         protected final StatMap stats;
         protected ParticleData[] trailParticle;
         protected double trailDistance;
@@ -234,11 +233,11 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
         protected SoundData[] hitEntitySound;
         protected SoundData[] hitEntitySoundSource;
 
-        public PaperProjectile(PaperProjectileSystem system, EventDispatcher events, EventDispatcher localEvents, World world, Vector3D position, Vector3D velocity) {
+        public PaperProjectile(PaperProjectileSystem system, ComponentTree fullTree, ComponentTree localTree, World world, Vector3D position, Vector3D velocity) {
             super(world, position, velocity);
             this.system = system;
-            this.events = events;
-            this.localEvents = localEvents;
+            this.fullTree = fullTree;
+            this.localTree = localTree;
             stats = new StatMap(system.tree().stats());
 
             trailParticle = stats.val("trail_particle");
@@ -259,7 +258,8 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
 
         public ProjectileSystem system() { return system; }
         public StatMap stats() { return stats; }
-        public EventDispatcher localEvents() { return localEvents; }
+        public ComponentTree fullTree() { return fullTree; }
+        public ComponentTree localTree() { return localTree; }
 
         public ParticleData[] trailParticle() { return trailParticle; }
         public PaperProjectile trailParticle(ParticleData[] trailParticle) { this.trailParticle = trailParticle; return this; }
@@ -295,11 +295,11 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
         public PaperProjectile hitEntitySoundSource(SoundData[] hitEntitySoundSource) { this.hitEntitySoundSource = hitEntitySoundSource; return this; }
 
         @Override
-        protected void step(TickContext tickContext, BukkitRayTrace ray, Vector3D from, Vector3D delta, double deltaLength) {
-            super.step(tickContext, ray, from, delta, deltaLength);
+        protected void step(TaskContext ctx, BukkitRayTrace ray, Vector3D from, Vector3D delta, double deltaLength) {
+            super.step(ctx, ray, from, delta, deltaLength);
             Vector step = VectorUtils.toBukkit(delta.normalize().multiply(trailDistance));
             Location current = VectorUtils.toBukkit(from).toLocation(world);
-            double trailMult = tickContext.delta() / 1000d;
+            double trailMult = ctx.delta() / 1000d;
             for (double d = 0; d < deltaLength; d += trailDistance) {
                 ParticleData.spawn(current, data -> {
                     if (data.count() == 0)
@@ -308,19 +308,19 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
                 }, trailParticle);
                 current.add(step);
             }
-            events.call(new Events.Step(this, false, tickContext, ray, from, delta, deltaLength));
-            localEvents.call(new Events.Step(this, true, tickContext, ray, from, delta, deltaLength));
+            fullTree.call(new Events.Step(this, false, ctx, ray, from, delta, deltaLength));
+            localTree.call(new Events.Step(this, true, ctx, ray, from, delta, deltaLength));
         }
 
         @Override
-        public void tick(TickContext tickContext) {
-            super.tick(tickContext);
-            events.call(new Events.Tick(this, false, tickContext));
-            localEvents.call(new Events.Tick(this, true, tickContext));
+        public void tick(TaskContext ctx) {
+            super.tick(ctx);
+            fullTree.call(new Events.Tick(this, false, ctx));
+            localTree.call(new Events.Tick(this, true, ctx));
         }
 
         @Override
-        protected void collide(TickContext tickContext, BukkitRayTrace ray, BukkitCollidable collided) {
+        protected void collide(TaskContext ctx, BukkitRayTrace ray, BukkitCollidable collided) {
             Location location = VectorUtils.toBukkit(ray.position()).toLocation(world);
 
             HitResult result;
@@ -328,8 +328,8 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
                 result = bounce > 0 ? HitResult.BOUNCE : HitResult.CONTINUE;
             } else
                 result = HitResult.STOP;
-            result = events.call(new Events.Collide(this, false, tickContext, ray, collided, result)).result;
-            result = localEvents.call(new Events.Collide(this, true, tickContext, ray, collided, result)).result;
+            result = fullTree.call(new Events.Collide(this, false, ctx, ray, collided, result)).result;
+            result = localTree.call(new Events.Collide(this, true, ctx, ray, collided, result)).result;
             if (result != HitResult.CANCEL) {
                 if (collided.isBlock()) {
                     Block block = collided.block();
@@ -353,7 +353,7 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
                 if (result == HitResult.BOUNCE && bounce > 0) {
                     bounce(ray);
                 } else if (result != HitResult.CONTINUE) {
-                    tickContext.remove();
+                    ctx.cancel();
                 }
             }
         }
@@ -361,8 +361,8 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
         @Override
         public void bounce(BukkitRayTrace ray) {
             if (
-                    !events.call(new Events.Bounce(this, false, ray)).cancelled
-                    && !localEvents.call(new Events.Bounce(this, true, ray).cancelled)
+                    !fullTree.call(new Events.Bounce(this, false, ray)).cancelled
+                    && !localTree.call(new Events.Bounce(this, true, ray).cancelled)
             ) {
                 super.bounce(ray);
             }
@@ -371,8 +371,8 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
         @Override
         protected void remove(int reason) {
             super.remove(reason);
-            events.call(new Events.Remove(this, false));
-            localEvents.call(new Events.Remove(this, true));
+            fullTree.call(new Events.Remove(this, false));
+            localTree.call(new Events.Remove(this, true));
         }
     }
 
@@ -418,22 +418,22 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
         }
 
         public static class Step extends Base {
-            private final TickContext tickContext;
+            private final TaskContext taskContext;
             private final BukkitRayTrace ray;
             private final Vector3D from;
             private final Vector3D delta;
             private final double deltaLength;
 
-            public Step(PaperProjectile projectile, boolean byThis, TickContext tickContext, BukkitRayTrace ray, Vector3D from, Vector3D delta, double deltaLength) {
+            public Step(PaperProjectile projectile, boolean byThis, TaskContext taskContext, BukkitRayTrace ray, Vector3D from, Vector3D delta, double deltaLength) {
                 super(projectile, byThis);
-                this.tickContext = tickContext;
+                this.taskContext = taskContext;
                 this.ray = ray;
                 this.from = from;
                 this.delta = delta;
                 this.deltaLength = deltaLength;
             }
 
-            public TickContext tickContext() { return tickContext; }
+            public TaskContext taskContext() { return taskContext; }
             public BukkitRayTrace ray() { return ray; }
             public Vector3D from() { return from; }
             public Vector3D delta() { return delta; }
@@ -441,31 +441,31 @@ public final class PaperProjectileSystem extends AbstractSystem implements Paper
         }
 
         public static class Tick extends Base {
-            private final TickContext tickContext;
+            private final TaskContext taskContext;
 
-            public Tick(PaperProjectile projectile, boolean byThis, TickContext tickContext) {
+            public Tick(PaperProjectile projectile, boolean byThis, TaskContext taskContext) {
                 super(projectile, byThis);
-                this.tickContext = tickContext;
+                this.taskContext = taskContext;
             }
 
-            public TickContext tickContext() { return tickContext; }
+            public TaskContext taskContext() { return taskContext; }
         }
 
         public static class Collide extends Base {
-            private final TickContext tickContext;
+            private final TaskContext taskContext;
             private final BukkitRayTrace ray;
             private final BukkitCollidable collided;
             private HitResult result;
 
-            public Collide(PaperProjectile projectile, boolean byThis, TickContext tickContext, BukkitRayTrace ray, BukkitCollidable collided, HitResult result) {
+            public Collide(PaperProjectile projectile, boolean byThis, TaskContext taskContext, BukkitRayTrace ray, BukkitCollidable collided, HitResult result) {
                 super(projectile, byThis);
-                this.tickContext = tickContext;
+                this.taskContext = taskContext;
                 this.ray = ray;
                 this.collided = collided;
                 this.result = result;
             }
 
-            public TickContext tickContext() { return tickContext; }
+            public TaskContext taskContext() { return taskContext; }
             public BukkitRayTrace ray() { return ray; }
             public BukkitCollidable collided() { return collided; }
 

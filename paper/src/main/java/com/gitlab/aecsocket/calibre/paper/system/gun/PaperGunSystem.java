@@ -21,12 +21,13 @@ import com.gitlab.aecsocket.calibre.paper.wrapper.slot.EntityEquipmentSlot;
 import com.gitlab.aecsocket.calibre.paper.wrapper.user.BukkitItemUser;
 import com.gitlab.aecsocket.calibre.paper.wrapper.user.LivingEntityUser;
 import com.gitlab.aecsocket.calibre.paper.wrapper.user.PlayerUser;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.MinecraftScheduler;
+import com.gitlab.aecsocket.unifiedframework.core.util.Utils;
 import com.google.protobuf.Any;
 import com.gitlab.aecsocket.calibre.paper.util.CalibreProtocol;
 import com.gitlab.aecsocket.calibre.paper.util.ItemAnimation;
 import com.gitlab.aecsocket.calibre.paper.wrapper.BukkitItem;
 import com.gitlab.aecsocket.unifiedframework.core.event.EventDispatcher;
-import com.gitlab.aecsocket.unifiedframework.core.loop.MinecraftSyncLoop;
 import com.gitlab.aecsocket.unifiedframework.core.stat.Stat;
 import com.gitlab.aecsocket.unifiedframework.core.stat.impl.BooleanStat;
 import com.gitlab.aecsocket.unifiedframework.core.stat.impl.StringStat;
@@ -39,7 +40,6 @@ import com.gitlab.aecsocket.unifiedframework.paper.util.data.ParticleData;
 import com.gitlab.aecsocket.unifiedframework.paper.util.data.SoundData;
 import com.gitlab.aecsocket.unifiedframework.core.util.descriptor.NumberDescriptor;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector3D;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -163,7 +163,7 @@ public final class PaperGunSystem extends GunSystem implements PaperSystem {
         if (user instanceof PlayerUser) {
             // use #lengthSquared because #length is expensive
             result += plugin.velocityTracker().velocity(((PlayerUser) user).entity()).lengthSquared()
-                    * MinecraftSyncLoop.TICKS_PER_SECOND
+                    * Utils.TPS
                     * tree().<NumberDescriptor.Double>stat("inaccuracy_velocity").apply();
         }
         return result;
@@ -173,7 +173,7 @@ public final class PaperGunSystem extends GunSystem implements PaperSystem {
     protected <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {
         super.onEvent(event);
 
-        if (event.tickContext().loop() instanceof MinecraftSyncLoop) {
+        if (event.taskContext().scheduler() instanceof MinecraftScheduler) {
             if (!(event.user() instanceof LivingEntityUser))
                 return;
             ((LivingEntityUser) event.user()).entity().addPotionEffect(EFFECT_HASTE);
@@ -214,7 +214,7 @@ public final class PaperGunSystem extends GunSystem implements PaperSystem {
                 ((BukkitItem) created).item()
         );
         entity.setVelocity(VectorUtils.toBukkit(velocity));
-        entity.setTicksLived(ITEM_DESPAWN - (int) (tree().<NumberDescriptor.Long>stat("casing_lifetime").apply() / MinecraftSyncLoop.MS_PER_TICK));
+        entity.setTicksLived(ITEM_DESPAWN - (int) (tree().<NumberDescriptor.Long>stat("casing_lifetime").apply() / Utils.MSPT));
         entity.setCanMobPickup(false);
         if (!tree().<Boolean>stat("casing_can_pick_up"))
             entity.setPickupDelay(Integer.MAX_VALUE);

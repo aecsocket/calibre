@@ -11,7 +11,6 @@ import com.gitlab.aecsocket.unifiedframework.core.stat.StatInstance;
 import com.gitlab.aecsocket.unifiedframework.core.stat.StatMap;
 import com.gitlab.aecsocket.unifiedframework.core.util.data.Tuple2;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
@@ -92,7 +91,7 @@ public abstract class StatDisplaySystem extends AbstractSystem implements StatRe
         events.registerListener(CalibreComponent.Events.ItemCreate.class, this::onEvent, listenerPriority);
     }
 
-    protected abstract int getWidth(String text);
+    protected abstract int getWidth(Component component);
     protected abstract String pad(Locale locale, int width);
 
     protected boolean drawn(StatInstance<?> inst) {
@@ -134,7 +133,7 @@ public abstract class StatDisplaySystem extends AbstractSystem implements StatRe
                     continue;
 
                 Component generatedKey = generateKey(locale, inst, element);
-                int keyWidth = getWidth(PlainComponentSerializer.plain().serialize(generatedKey));
+                int keyWidth = getWidth(generatedKey);
                 generatedKeys.put(key, Tuple2.of(generatedKey, keyWidth));
                 if (keyWidth > columnWidth)
                     columnWidth = keyWidth;

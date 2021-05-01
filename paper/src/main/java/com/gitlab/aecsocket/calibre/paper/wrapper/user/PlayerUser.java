@@ -4,10 +4,8 @@ import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.paper.util.CalibrePlayerData;
 import com.gitlab.aecsocket.calibre.core.world.user.*;
 import com.gitlab.aecsocket.calibre.paper.util.CalibreProtocol;
-import com.gitlab.aecsocket.unifiedframework.core.loop.TickContext;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.TaskContext;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector2D;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.entity.Player;
@@ -48,7 +46,7 @@ public interface PlayerUser extends LivingEntityUser, MovementUser, CameraUser, 
     @Override default double inaccuracy() { return playerData().inaccuracy(); }
     @Override default void addInaccuracy(double amount) { playerData().inaccuracy(playerData().inaccuracy() + amount); }
 
-    @Override default boolean stabilize(TickContext tickContext) { return playerData().stabilize(); }
+    @Override default boolean stabilize(TaskContext taskContext) { return playerData().stabilize(); }
     @Override default double stamina() { return playerData().stamina(); }
     @Override default double maxStamina() { return playerData().maxStamina(); }
     @Override default void reduceStamina(double amount) { playerData().reduceStamina(amount); }

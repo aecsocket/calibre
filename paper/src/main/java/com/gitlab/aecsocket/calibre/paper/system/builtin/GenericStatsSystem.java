@@ -18,7 +18,6 @@ import com.gitlab.aecsocket.calibre.core.world.user.MovementUser;
 import com.gitlab.aecsocket.calibre.paper.wrapper.BukkitItem;
 import com.gitlab.aecsocket.calibre.paper.wrapper.user.PlayerUser;
 import com.gitlab.aecsocket.unifiedframework.core.event.EventDispatcher;
-import com.gitlab.aecsocket.unifiedframework.core.loop.MinecraftSyncLoop;
 import com.gitlab.aecsocket.unifiedframework.core.stat.Stat;
 import com.gitlab.aecsocket.unifiedframework.core.stat.impl.BooleanStat;
 import com.gitlab.aecsocket.unifiedframework.paper.stat.impl.data.SoundDataStat;

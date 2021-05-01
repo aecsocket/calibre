@@ -22,8 +22,8 @@ import com.gitlab.aecsocket.calibre.core.world.slot.HandSlot;
 import com.gitlab.aecsocket.calibre.core.world.slot.ItemSlot;
 import com.gitlab.aecsocket.unifiedframework.core.event.Cancellable;
 import com.gitlab.aecsocket.unifiedframework.core.event.EventDispatcher;
-import com.gitlab.aecsocket.unifiedframework.core.loop.MinecraftSyncLoop;
-import com.gitlab.aecsocket.unifiedframework.core.loop.TickContext;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.MinecraftScheduler;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.TaskContext;
 import com.gitlab.aecsocket.unifiedframework.core.stat.Stat;
 import com.gitlab.aecsocket.unifiedframework.core.stat.StatMap;
 import com.gitlab.aecsocket.unifiedframework.core.stat.impl.BooleanStat;
@@ -346,7 +346,7 @@ public abstract class GunSystem extends AbstractSystem {
     protected <I extends Item> void onEvent(ItemEvents.Equipped<I> event) {
         ItemUser user = event.user();
 
-        if (event.tickContext().loop() instanceof MinecraftSyncLoop) {
+        if (event.taskContext().scheduler() instanceof MinecraftScheduler) {
             boolean update = false;
 
             boolean pre = resting;
@@ -376,7 +376,7 @@ public abstract class GunSystem extends AbstractSystem {
         } else {
             if (user instanceof CameraUser) {
                 // sway
-                TickContext ctx = event.tickContext();
+                TaskContext ctx = event.taskContext();
                 Vector2D sway = tree().<Vector2DDescriptor>stat("sway").apply()
                         .multiply(ctx.delta() / 1000d);
                 long cycle = tree().<NumberDescriptor.Long>stat("sway_cycle").apply();

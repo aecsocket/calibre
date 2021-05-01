@@ -6,9 +6,8 @@ import com.gitlab.aecsocket.calibre.core.world.user.ItemUser;
 import com.gitlab.aecsocket.calibre.paper.wrapper.slot.EntityEquipmentSlot;
 import com.gitlab.aecsocket.calibre.paper.wrapper.slot.InventorySlot;
 import com.gitlab.aecsocket.calibre.paper.wrapper.user.PlayerUser;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.TaskContext;
 import io.leangen.geantyref.TypeToken;
-import com.gitlab.aecsocket.unifiedframework.core.loop.TickContext;
-import com.gitlab.aecsocket.unifiedframework.core.loop.Tickable;
 import com.gitlab.aecsocket.unifiedframework.core.serialization.configurate.ConfigurateSerializer;
 import com.gitlab.aecsocket.unifiedframework.core.stat.AbstractStat;
 import com.gitlab.aecsocket.unifiedframework.core.stat.serialization.ConfigurateStat;
@@ -110,7 +109,7 @@ public class ItemAnimation {
         }
     }
 
-    public class Instance implements Tickable {
+    public class Instance {
         private final CalibrePlugin plugin;
         private final Player player;
         private final int slot;
@@ -151,11 +150,10 @@ public class ItemAnimation {
 
         public Frame updateFrame() { frame = frames.get(index); return frame; }
 
-        @Override
-        public void tick(TickContext tickContext) {
+        public void tick(TaskContext ctx) {
             if (finished())
                 return;
-            frameTime += tickContext.delta();
+            frameTime += ctx.delta();
             while (!finished() && frameTime >= frame.duration) {
                 frameTime -= frame.duration;
                 nextFrame();

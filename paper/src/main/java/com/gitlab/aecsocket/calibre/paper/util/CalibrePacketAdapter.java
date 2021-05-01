@@ -12,6 +12,7 @@ import com.gitlab.aecsocket.calibre.paper.gui.SlotViewGUI;
 import com.gitlab.aecsocket.calibre.paper.system.BukkitItemEvents;
 import com.gitlab.aecsocket.calibre.paper.wrapper.slot.BukkitSlot;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.entity.Entity;

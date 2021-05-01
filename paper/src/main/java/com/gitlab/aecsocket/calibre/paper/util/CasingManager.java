@@ -1,9 +1,12 @@
 package com.gitlab.aecsocket.calibre.paper.util;
 
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.HasTasks;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.Scheduler;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.Task;
+import com.gitlab.aecsocket.unifiedframework.core.scheduler.TaskContext;
+import com.gitlab.aecsocket.unifiedframework.core.util.Utils;
 import io.leangen.geantyref.TypeToken;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
-import com.gitlab.aecsocket.unifiedframework.core.loop.TickContext;
-import com.gitlab.aecsocket.unifiedframework.core.loop.Tickable;
 import com.gitlab.aecsocket.unifiedframework.core.serialization.configurate.ConfigurateSerializer;
 import com.gitlab.aecsocket.unifiedframework.paper.util.data.ParticleData;
 import com.gitlab.aecsocket.unifiedframework.paper.util.data.SoundData;
@@ -24,7 +27,7 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 import java.lang.reflect.Type;
 import java.util.*;
 
-public class CasingManager implements Tickable {
+public class CasingManager implements HasTasks {
     public static class Casing {
         private final Category category;
         private boolean wasOnGround;
@@ -171,7 +174,11 @@ public class CasingManager implements Tickable {
     }
 
     @Override
-    public void tick(TickContext tickContext) {
+    public void runTasks(Scheduler scheduler) {
+        scheduler.run(Task.repeating(this::tick, Utils.MSPT));
+    }
+
+    public void tick(TaskContext ctx) {
         var iter = casings.entrySet().iterator();
         while (iter.hasNext()) {
             var entry = iter.next();

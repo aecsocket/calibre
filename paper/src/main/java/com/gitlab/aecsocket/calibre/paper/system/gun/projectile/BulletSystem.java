@@ -47,16 +47,16 @@ public final class BulletSystem extends AbstractSystem implements PaperSystem {
 
         public double damage;
 
-        public ProjectileData() {
-            originalDamage = tree().<NumberDescriptor.Double>stat("damage").apply();
-            armorPenetration = tree().<NumberDescriptor.Double>stat("armor_penetration").apply();
-            blockPenetration = tree().<NumberDescriptor.Double>stat("block_penetration").apply();
-            entityPenetration = tree().<NumberDescriptor.Double>stat("entity_penetration").apply();
+        public ProjectileData(ComponentTree tree) {
+            originalDamage = tree.<NumberDescriptor.Double>stat("damage").apply();
+            armorPenetration = tree.<NumberDescriptor.Double>stat("armor_penetration").apply();
+            blockPenetration = tree.<NumberDescriptor.Double>stat("block_penetration").apply();
+            entityPenetration = tree.<NumberDescriptor.Double>stat("entity_penetration").apply();
 
-            ricochetChance = tree().<NumberDescriptor.Double>stat("ricochet_chance").apply();
-            ricochetAngle = tree().<NumberDescriptor.Double>stat("ricochet_angle").apply();
+            ricochetChance = tree.<NumberDescriptor.Double>stat("ricochet_chance").apply();
+            ricochetAngle = tree.<NumberDescriptor.Double>stat("ricochet_angle").apply();
 
-            Vector2D rangeStat = tree().<Vector2DDescriptor>stat("range").apply(new Vector2D());
+            Vector2D rangeStat = tree.<Vector2DDescriptor>stat("range").apply(new Vector2D());
             dropoff = rangeStat.x();
             range = rangeStat.y();
 
@@ -174,7 +174,7 @@ public final class BulletSystem extends AbstractSystem implements PaperSystem {
     protected void onEvent(PaperProjectileSystem.Events.Create event) {
         if (!event.local())
             return;
-        data.put(event.projectile(), new ProjectileData());
+        data.put(event.projectile(), new ProjectileData(event.projectile().fullTree));
     }
 
     protected void onEvent(PaperProjectileSystem.Events.Step event) {
@@ -183,7 +183,7 @@ public final class BulletSystem extends AbstractSystem implements PaperSystem {
         PaperProjectileSystem.PaperProjectile projectile = event.projectile();
         ProjectileData data = BulletSystem.data.get(projectile);
         if (projectile.travelled() > data.range) {
-            event.tickContext().remove();
+            event.taskContext().cancel();
         }
     }
 

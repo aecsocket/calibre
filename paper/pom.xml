@@ -138,8 +138,20 @@
                             <shadedPattern>${project.groupId}.unifiedframework</shadedPattern>
                         </relocation>
                         <relocation>
+                            <pattern>io.leangen.geantyref</pattern>
+                            <shadedPattern>${project.groupId}.geantyref</shadedPattern>
+                        </relocation>
+                        <relocation>
                             <pattern>org.spongepowered.configurate</pattern>
                             <shadedPattern>${project.groupId}.configurate</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.typesafe.config</pattern>
+                            <shadedPattern>${project.groupId}.config</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>net.kyori.adventure.text.minimessage</pattern>
+                            <shadedPattern>${project.groupId}.minimessage</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

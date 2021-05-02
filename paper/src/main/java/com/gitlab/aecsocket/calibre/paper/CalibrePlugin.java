@@ -333,7 +333,6 @@ public class CalibrePlugin extends RegistryBasePlugin<CalibreIdentifiable> {
         });
         commandManager.getCommandContexts().registerContext(ComponentTree.class, ctx -> {
             CommandSender sender = ctx.getSender();
-            Locale locale = locale(sender);
             String input = ctx.popFirstArg();
 
             ComponentTree tree;

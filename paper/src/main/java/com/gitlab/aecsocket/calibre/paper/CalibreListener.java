@@ -5,6 +5,7 @@ import com.gitlab.aecsocket.calibre.core.component.CalibreComponent;
 import com.gitlab.aecsocket.calibre.core.component.CalibreSlot;
 import com.gitlab.aecsocket.calibre.core.world.user.ItemUser;
 import com.gitlab.aecsocket.calibre.paper.gui.SlotViewGUI;
+import com.gitlab.aecsocket.calibre.paper.util.CalibrePacketAdapter;
 import com.gitlab.aecsocket.calibre.paper.util.CalibrePlayerData;
 import com.gitlab.aecsocket.calibre.paper.wrapper.slot.EntityEquipmentSlot;
 import com.gitlab.aecsocket.calibre.paper.wrapper.slot.InventorySlot;
@@ -31,6 +32,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityDropItemEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
@@ -124,6 +127,18 @@ public class CalibreListener implements Listener {
         data.cancelInteract();
         boolean inventoryDrop = data.isInventoryDrop();
         callOn(event.getItemDrop().getItemStack(), comp -> comp.tree().call(BukkitItemEvents.BukkitDrop.of(event, comp, !inventoryDrop)));
+    }
+
+    @EventHandler
+    public void onEvent(EntityDropItemEvent event) {
+        ItemStack item = event.getItemDrop().getItemStack();
+        plugin.itemManager().hide(item, false);
+    }
+
+    @EventHandler
+    public void onEvent(EntityPickupItemEvent event) {
+        ItemStack item = event.getItem().getItemStack();
+        plugin.itemManager().hide(item, false);
     }
 
     @EventHandler

@@ -1,11 +1,22 @@
 package com.gitlab.aecsocket.calibre.paper;
 
-import co.aikar.commands.BaseCommand;
-import co.aikar.commands.CommandHelp;
-import co.aikar.commands.annotation.*;
+import cloud.commandframework.ArgumentDescription;
+import cloud.commandframework.Command;
+import cloud.commandframework.arguments.standard.DoubleArgument;
+import cloud.commandframework.arguments.standard.IntegerArgument;
+import cloud.commandframework.arguments.standard.StringArgument;
+import cloud.commandframework.bukkit.arguments.selector.MultiplePlayerSelector;
+import cloud.commandframework.bukkit.parsers.selector.MultiplePlayerSelectorArgument;
+import cloud.commandframework.captions.FactoryDelegatingCaptionRegistry;
+import cloud.commandframework.context.CommandContext;
+import cloud.commandframework.minecraft.extras.MinecraftHelp;
+import cloud.commandframework.paper.PaperCommandManager;
+import cloud.commandframework.types.tuples.Triplet;
 import com.gitlab.aecsocket.calibre.core.util.*;
 import com.gitlab.aecsocket.calibre.paper.util.CalibrePlayerData;
 import com.gitlab.aecsocket.calibre.paper.util.CalibreProtocol;
+import com.gitlab.aecsocket.calibre.paper.util.IdentifiableArgument;
+import com.gitlab.aecsocket.calibre.paper.util.TreeArgument;
 import com.gitlab.aecsocket.calibre.paper.util.item.ComponentCreationException;
 import com.gitlab.aecsocket.calibre.core.component.ComponentTree;
 import com.gitlab.aecsocket.calibre.paper.component.PaperComponent;
@@ -16,12 +27,12 @@ import com.gitlab.aecsocket.unifiedframework.paper.util.BukkitUtils;
 import com.gitlab.aecsocket.unifiedframework.core.util.TextUtils;
 import com.gitlab.aecsocket.unifiedframework.core.util.log.LogLevel;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector3D;
+import io.leangen.geantyref.TypeToken;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -33,21 +44,22 @@ import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
 import java.io.BufferedWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@CommandAlias("calibre|cal")
-public class CalibreCommand extends BaseCommand {
+public class CalibreCommand {
     public static final String WILDCARD = "*";
 
     private final CalibrePlugin plugin;
+    private MinecraftHelp<CommandSender> help;
 
     public CalibreCommand(CalibrePlugin plugin) {
         this.plugin = plugin;
     }
 
-    public CalibrePlugin getPlugin() { return plugin; }
+    public CalibrePlugin plugin() { return plugin; }
 
     private Locale locale(CommandSender sender) { return plugin.locale(sender); }
 
@@ -64,36 +76,111 @@ public class CalibreCommand extends BaseCommand {
         plugin.log(LogLevel.WARN, e, e.getMessage());
     }
 
-    @CatchUnknown
-    public void unknown(CommandSender sender) {
-        send(sender, "command.unknown");
+    protected void register(PaperCommandManager<CommandSender> manager) {
+        manager.registerBrigadier();
+        manager.registerAsynchronousCompletions();
+        FactoryDelegatingCaptionRegistry<CommandSender> captions = (FactoryDelegatingCaptionRegistry<CommandSender>) manager.getCaptionRegistry();
+        captions.registerMessageFactory(IdentifiableArgument.ARGUMENT_PARSE_FAILURE_IDENTIFIABLE, (cap, sender) -> "'{input}' is not a valid identifiable of type {type}");
+        captions.registerMessageFactory(TreeArgument.ARGUMENT_PARSE_FAILURE_TREE, (cap, sender) -> "'{input}' could not be parsed as a component tree: {error}");
+
+        BukkitAudiences audiences = BukkitAudiences.create(plugin);
+        help = new MinecraftHelp<>("/calibre help", audiences::sender, manager);
+
+        Command.Builder<CommandSender> cmdRoot = manager.commandBuilder("calibre", ArgumentDescription.of("Calibre's main command."), "cal");
+
+        manager.command(cmdRoot
+                .literal("help", ArgumentDescription.of("Lists help information."))
+                .argument(StringArgument.optional("query", StringArgument.StringMode.GREEDY))
+                .handler(ctx -> help.queryCommands(ctx.getOrDefault("query", ""), ctx.getSender()))
+        );
+        manager.command(cmdRoot
+                .literal("version", ArgumentDescription.of("Gets version information."))
+                .handler(this::version)
+        );
+        manager.command(cmdRoot
+                .literal("reload", ArgumentDescription.of("Reloads all plugin data."))
+                .permission("calibre.command.reload")
+                .handler(this::reload)
+        );
+        manager.command(cmdRoot
+                .literal("list", ArgumentDescription.of("Lists all registered objects."))
+                .argument(StringArgument.<CommandSender>newBuilder("id-filter").withSuggestionsProvider((ctx, arg) -> Collections.singletonList(WILDCARD)), ArgumentDescription.of("The filter for the ID."))
+                .argument(StringArgument.<CommandSender>newBuilder("class-filter").withSuggestionsProvider((ctx, arg) -> Collections.singletonList(WILDCARD)), ArgumentDescription.of("The filter for the object class."))
+                .argument(StringArgument.<CommandSender>newBuilder("name-filter").withSuggestionsProvider((ctx, arg) -> Collections.singletonList(WILDCARD)), ArgumentDescription.of("The filter for the object name."))
+                .permission("calibre.command.list")
+                .handler(this::list)
+        );
+        manager.command(cmdRoot
+                .literal("info", ArgumentDescription.of("Displays detailed info for an object."))
+                .argument(IdentifiableArgument.of("object", plugin), ArgumentDescription.of("The object to get info for."))
+                .permission("calibre.command.info")
+                .handler(this::info)
+        );
+        manager.command(cmdRoot
+                .literal("give", ArgumentDescription.of("Gives a registered item to player(s)."))
+                .argument(MultiplePlayerSelectorArgument.of("targets"), ArgumentDescription.of("The player(s) to give to."))
+                .argument(IntegerArgument.<CommandSender>newBuilder("amount").withMin(1).build(), ArgumentDescription.of("The amount to give of."))
+                .argument(IdentifiableArgument.<CommandSender>newBuilder("object", plugin).withTargetType(ItemSupplier.class).build(), ArgumentDescription.of("The object to give."))
+                .permission("calibre.command.give")
+                .handler(this::give)
+        );
+        manager.command(cmdRoot
+                .literal("create", ArgumentDescription.of("Creates a component tree and gives it to player(s)."))
+                .argument(MultiplePlayerSelectorArgument.of("targets"), ArgumentDescription.of("The player(s) to give to."))
+                .argument(IntegerArgument.<CommandSender>newBuilder("amount").withMin(1).build(), ArgumentDescription.of("The amount to give of."))
+                .argument(TreeArgument.of("object", plugin), ArgumentDescription.of("The tree to give."))
+                .permission("calibre.command.create")
+                .handler(this::create)
+        );
+        manager.command(cmdRoot
+                .literal("tree", ArgumentDescription.of("Prints the formatted tree of the currently held item."))
+                .senderType(Player.class)
+                .permission("calibre.command.tree")
+                .handler(this::tree)
+        );
+        manager.command(cmdRoot
+                .literal("dump-tree", ArgumentDescription.of("Displays the raw Protocol Buffer bytes of the currently held item (does not have to be a valid component)."))
+                .senderType(Player.class)
+                .permission("calibre.command.dump-tree")
+                .handler(this::dumpTree)
+        );
+        manager.command(cmdRoot
+                .literal("zoom", ArgumentDescription.of("Sets your FOV zoom using Minecraft's algorithm."))
+                .senderType(Player.class)
+                .argument(DoubleArgument.of("zoom"), ArgumentDescription.of("The zoom amount."))
+                .permission("calibre.command.zoom")
+                .handler(this::zoom)
+        );
+        manager.command(cmdRoot
+                .literal("offset", ArgumentDescription.of("Shows an offset from your camera, helpful for finding barrel offsets. Specify <0, 0, 0> to remove."))
+                .senderType(Player.class)
+                .argumentTriplet("offset", TypeToken.get(Vector3D.class),
+                        Triplet.of("x", "y", "z"),
+                        Triplet.of(double.class, double.class, double.class),
+                        (s, d) -> new Vector3D(d.getFirst(), d.getSecond(), d.getThird()),
+                        ArgumentDescription.of("The offset."))
+                .permission("calibre.command.offset")
+                .handler(this::offset)
+        );
+        manager.command(cmdRoot
+                .literal("inaccuracy", ArgumentDescription.of("Toggles displaying current inaccuracy."))
+                .senderType(Player.class)
+                .permission("calibre.command.inaccuracy")
+                .handler(this::inaccuracy)
+        );
     }
 
-    @HelpCommand
-    @Description("Displays help for command usage.")
-    @Syntax("")
-    public void help(CommandSender sender, CommandHelp help) {
-        send(sender, "command.help.header");
-        help.getHelpEntries().forEach(entry -> send(sender, "command.help.entry",
-                "command", entry.getCommand(),
-                "syntax", entry.getParameterSyntax(),
-                "description", entry.getDescription()));
-    }
-
-    @Subcommand("version|ver")
-    @Description("Displays version info for Calibre.")
-    public void version(CommandSender sender) {
-        PluginDescriptionFile description = plugin.getDescription();
+    private void version(CommandContext<CommandSender> ctx) {
+        CommandSender sender = ctx.getSender();
+        PluginDescriptionFile desc = plugin.getDescription();
         send(sender, "command.version",
-                "name", description.getName(),
-                "version", description.getVersion(),
-                "authors", String.join(", ", description.getAuthors()));
+                "name", desc.getName(),
+                "version", desc.getVersion(),
+                "authors", String.join(", ", desc.getAuthors()));
     }
 
-    @Subcommand("reload")
-    @Description("Reloads all plugin data.")
-    @CommandPermission("calibre.command.reload")
-    public void reload(CommandSender sender) {
+    private void reload(CommandContext<CommandSender> ctx) {
+        CommandSender sender = ctx.getSender();
         send(sender, "command.reload.start");
         AtomicInteger warnings = new AtomicInteger(0);
         List<LoggingEntry> result = new ArrayList<>();
@@ -115,22 +202,14 @@ public class CalibreCommand extends BaseCommand {
     }
 
     private String createFilter(String filter) {
-        if (filter != null) {
-            if (filter.equals(WILDCARD)) return null;
-            else return filter.toLowerCase(Locale.ROOT);
-        }
-        return null;
+        return filter.equals(WILDCARD) ? null : filter.toLowerCase(Locale.ROOT);
     }
 
-    @Subcommand("list")
-    @Description("Lists all registered objects.")
-    @CommandPermission("calibre.command.list")
-    @CommandCompletion("[id-filter]|* [class-filter]|* [name-filter]|*")
-    @Syntax("[id-filter]|* [class-filter]|* [name-filter]|*")
-    public void list(CommandSender sender, @Optional String idFilter, @Optional String classFilter, @Optional String nameFilter) {
-        idFilter = createFilter(idFilter);
-        classFilter = createFilter(classFilter);
-        nameFilter = createFilter(nameFilter);
+    private void list(CommandContext<CommandSender> ctx) {
+        CommandSender sender = ctx.getSender();
+        String idFilter = createFilter(ctx.getOrDefault("id-filter", WILDCARD));
+        String classFilter = createFilter(ctx.getOrDefault("class-filter", WILDCARD));
+        String nameFilter = createFilter(ctx.getOrDefault("name-filter", WILDCARD));
 
         Locale locale = locale(sender);
         int results = 0;
@@ -158,12 +237,9 @@ public class CalibreCommand extends BaseCommand {
             send(sender, "command.list.no_results");
     }
 
-    @Subcommand("info")
-    @Description("Displays detailed info for an object.")
-    @CommandPermission("calibre.command.info")
-    @CommandCompletion("@registry")
-    @Syntax("<id>")
-    public void info(CommandSender sender, CalibreIdentifiable object) {
+    public void info(CommandContext<CommandSender> ctx) {
+        CommandSender sender = ctx.getSender();
+        CalibreIdentifiable object = ctx.get("object");
         Locale locale = locale(sender);
         send(sender, "command.object",
                 "type", object.getClass().getSimpleName(),
@@ -180,7 +256,7 @@ public class CalibreCommand extends BaseCommand {
         }
     }
 
-    private void internalGive(CommandSender sender, String selector, ItemSupplier<BukkitItem> item, Integer amount) {
+    private void internalGive(CommandSender sender, MultiplePlayerSelector selector, ItemSupplier<BukkitItem> item, Integer amount) {
         if (amount == null) amount = 1;
         if (amount < 1) {
             send(sender, "command.error.less_than",
@@ -188,27 +264,7 @@ public class CalibreCommand extends BaseCommand {
             return;
         }
 
-        List<Entity> targets;
-        try {
-            targets = Bukkit.selectEntities(sender, selector);
-        } catch (IllegalArgumentException e) {
-            sendError(sender, e, "command.error.selector",
-                    "error", TextUtils.combineMessages(e));
-            return;
-        }
-        if (targets.size() == 0) {
-            send(sender, "command.error.no_targets");
-            return;
-        }
-
-        for (Entity entity : targets) {
-            if (!(entity instanceof Player)) {
-                send(sender, "command.error.not_player",
-                        "name", entity.getName());
-                continue;
-            }
-
-            Player target = (Player) entity;
+        for (Player target : selector.getPlayers()) {
             Locale locale = target.locale();
 
             BukkitItem wrapCreated;
@@ -230,44 +286,25 @@ public class CalibreCommand extends BaseCommand {
         }
     }
 
-    @Subcommand("give")
-    @Description("Gives a registered item to player targets.")
-    @CommandPermission("calibre.command.give")
-    @CommandCompletion("<selector> @registry:type=com.gitlab.aecsocket.calibre.core.util.ItemSupplier [amount]")
-    @Syntax("<selector> <item> [amount]")
-    public void create(CommandSender sender, String selector, CalibreIdentifiable item, @Optional Integer amount) {
-        @SuppressWarnings("unchecked")
-        ItemSupplier<BukkitItem> supplier = (ItemSupplier<BukkitItem>) item;
-        internalGive(sender, selector, supplier, amount);
+    public void give(CommandContext<CommandSender> ctx) {
+        internalGive(ctx.getSender(), ctx.get("targets"), ctx.get("object"), ctx.get("amount"));
     }
 
-    @Subcommand("create")
-    @Description("Creates a component tree and gives it to a player.")
-    @CommandPermission("calibre.command.create")
-    @CommandCompletion("<selector> @registry:type=com.gitlab.aecsocket.calibre.core.util.ItemSupplier [amount]")
-    @Syntax("<selector> <tree> [amount]")
-    public void create(CommandSender sender, String selector, ComponentTree tree, @Optional Integer amount) {
-        internalGive(sender, selector, tree.<PaperComponent>root(), amount);
+    public void create(CommandContext<CommandSender> ctx) {
+        internalGive(ctx.getSender(), ctx.get("targets"), ((ComponentTree) ctx.get("object")).<PaperComponent>root(), ctx.get("amount"));
     }
 
-    @Subcommand("tree")
-    @Description("Displays the component tree of the currently held item.")
-    @CommandPermission("calibre.command.tree")
-    public void tree(CommandSender sender) {
-        if (!(sender instanceof Player)) {
-            send(sender, "command.error.sender_not_player");
-            return;
-        }
-
-        ItemStack hand = ((Player) sender).getInventory().getItemInMainHand();
+    public void tree(CommandContext<CommandSender> ctx) {
+        Player player = (Player) ctx.getSender();
+        ItemStack hand = player.getInventory().getItemInMainHand();
         if (BukkitUtils.empty(hand)) {
-            send(sender, "command.error.no_held_item");
+            send(player, "command.error.no_held_item");
             return;
         }
 
-        Locale locale = locale(sender);
+        Locale locale = locale(player);
         try {
-            PaperComponent component = plugin.itemManager().get(((Player) sender).getInventory().getItemInMainHand());
+            PaperComponent component = plugin.itemManager().get(player.getInventory().getItemInMainHand());
             ComponentTree tree = component.tree();
 
             // Save into pretty printed HOCON
@@ -283,38 +320,31 @@ public class CalibreCommand extends BaseCommand {
 
             // Print
             String[] lines = writer.toString().split("\n");
-            send(sender, "command.object",
+            send(player, "command.object",
                     "type", component.getClass().getSimpleName(),
                     "id", component.id(),
                     "name", component.name(locale));
             for (String line : lines)
-                send(sender, "command.tree.line",
+                send(player, "command.tree.line",
                         "line", line);
         } catch (ComponentCreationException | ConfigurateException e) {
-            sendError(sender, e, "command.error.get_item",
+            sendError(player, e, "command.error.get_item",
                     "error", TextUtils.combineMessages(e));
         }
     }
 
-    @Subcommand("dump-tree")
-    @Description("Displays the raw Protocol Buffer bytes of the currently held item (does not have to be a valid component)")
-    @CommandPermission("calibre.command.dump-tree")
-    public void dumpTree(CommandSender sender) {
-        if (!(sender instanceof Player)) {
-            send(sender, "command.error.sender_not_player");
-            return;
-        }
-
-        ItemStack hand = ((Player) sender).getInventory().getItemInMainHand();
+    public void dumpTree(CommandContext<CommandSender> ctx) {
+        Player player = (Player) ctx.getSender();
+        ItemStack hand = player.getInventory().getItemInMainHand();
         if (BukkitUtils.empty(hand)) {
-            send(sender, "command.error.no_held_item");
+            send(player, "command.error.no_held_item");
             return;
         }
 
-        Component spacing = gen(sender, "command.dump_tree.spacing");
+        Component spacing = gen(player, "command.dump_tree.spacing");
 
         long start = System.nanoTime();
-        byte[] bytes = plugin.itemManager().tree(((Player) sender).getInventory().getItemInMainHand());
+        byte[] bytes = plugin.itemManager().tree(player.getInventory().getItemInMainHand());
         long time = System.nanoTime() - start;
 
         int lineIndex = 0;
@@ -332,59 +362,32 @@ public class CalibreCommand extends BaseCommand {
                         .append(spacing)
                 );
             }
-            send(sender, "command.dump_tree.line",
+            send(player, "command.dump_tree.line",
                     "index", String.format("%08x", lineIndex),
                     "bytes", line.build());
             lineIndex += lineLength;
         }
-        send(sender, "command.dump_tree.footer",
+        send(player, "command.dump_tree.footer",
                 "size_int", String.format("%,d", bytes.length),
                 "size_hex", String.format("%x", bytes.length),
                 "time", String.format("%,d", time));
     }
 
-    @Subcommand("zoom")
-    @Description("Sets your FOV zoom using Minecraft's formula")
-    @CommandPermission("calibre.command.zoom")
-    @CommandCompletion("<zoom>")
-    @Syntax("<zoom>")
-    public void zoom(CommandSender sender, double zoom) {
-        if (!(sender instanceof Player)) {
-            send(sender, "command.error.sender_not_player");
-            return;
-        }
-
-        CalibreProtocol.fov((Player) sender, zoom);
+    public void zoom(CommandContext<CommandSender> ctx) {
+        CalibreProtocol.fov((Player) ctx.getSender(), ctx.get("zoom"));
     }
 
-    @Subcommand("offset")
-    @Description("Shows an offset from your camera, helpful for finding barrel offsets")
-    @CommandPermission("calibre.command.offset")
-    @CommandCompletion("<x> <y> <z>")
-    @Syntax("<x> <y> <z>")
-    public void offset(CommandSender sender, @Optional Double x, @Optional Double y, @Optional Double z) {
-        if (!(sender instanceof Player)) {
-            send(sender, "command.error.sender_not_player");
-            return;
-        }
-
-        Player player = (Player) sender;
-        if (x == null || y == null || z == null)
-            plugin.playerData(player).offset(null);
-        else
-            plugin.playerData(player).offset(new Vector3D(x, y, z));
+    public void offset(CommandContext<CommandSender> ctx) {
+        Vector3D offset = ctx.get("offset");
+        plugin.playerData((Player) ctx.getSender()).offset(
+                offset.x() == 0 && offset.y() == 0 && offset.z() == 0
+                        ? null
+                        : offset
+        );
     }
 
-    @Subcommand("inaccuracy")
-    @Description("Toggles showing your inaccuracy in the subtitle")
-    @CommandPermission("calibre.command.inaccuracy")
-    public void inaccuracy(CommandSender sender) {
-        if (!(sender instanceof Player)) {
-            send(sender, "command.error.sender_not_player");
-            return;
-        }
-
-        CalibrePlayerData data = plugin.playerData((Player) sender);
+    public void inaccuracy(CommandContext<CommandSender> ctx) {
+        CalibrePlayerData data = plugin.playerData((Player) ctx.getSender());
         data.showInaccuracy(!data.showInaccuracy());
     }
 }

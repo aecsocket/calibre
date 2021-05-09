@@ -1,7 +1,7 @@
 package com.gitlab.aecsocket.calibre.paper;
 
-import co.aikar.commands.InvalidCommandArgument;
-import co.aikar.commands.PaperCommandManager;
+import cloud.commandframework.execution.CommandExecutionCoordinator;
+import cloud.commandframework.paper.PaperCommandManager;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
@@ -41,7 +41,6 @@ import io.leangen.geantyref.TypeToken;
 import com.gitlab.aecsocket.calibre.paper.component.PaperComponent;
 import com.gitlab.aecsocket.unifiedframework.paper.gui.GUIManager;
 import com.gitlab.aecsocket.unifiedframework.paper.gui.GUIVector;
-import com.gitlab.aecsocket.unifiedframework.core.registry.Ref;
 import com.gitlab.aecsocket.unifiedframework.core.serialization.configurate.*;
 import com.gitlab.aecsocket.unifiedframework.core.serialization.configurate.descriptor.NumberDescriptorSerializer;
 import com.gitlab.aecsocket.unifiedframework.core.serialization.configurate.descriptor.Vector2DDescriptorSerializer;
@@ -63,11 +62,9 @@ import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector2D;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector2I;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector3D;
 import com.gitlab.aecsocket.unifiedframework.core.util.vector.Vector3I;
-import io.papermc.paper.text.PaperComponents;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.flattener.FlattenerListener;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -81,25 +78,20 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapFont;
 import org.bukkit.map.MinecraftFont;
 import org.bukkit.util.Vector;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.ConfigurationOptions;
-import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
 import org.spongepowered.configurate.objectmapping.ObjectMapper;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 import org.spongepowered.configurate.util.NamingSchemes;
 
-import java.io.BufferedReader;
-import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 /**
  * Core plugin class for Paper servers.
@@ -130,7 +122,7 @@ public class CalibrePlugin extends RegistryBasePlugin<CalibreIdentifiable> {
     private final VelocityTracker velocityTracker = new VelocityTracker();
     private final Map<Class<?>, com.gitlab.aecsocket.calibre.core.system.builtin.Formatter<?>> statFormatters = new HashMap<>();
     private final ThreadScheduler preciseScheduler = new ThreadScheduler(Executors.newFixedThreadPool(8));
-    private PaperCommandManager commandManager;
+    private PaperCommandManager<CommandSender> commandManager;
     private GUIManager guiManager;
     private ProtocolManager protocol;
     private MapFont font;
@@ -146,7 +138,18 @@ public class CalibrePlugin extends RegistryBasePlugin<CalibreIdentifiable> {
         protocol = ProtocolLibrary.getProtocolManager();
         font = new MinecraftFont();
 
-        createCommandManager();
+        try {
+            commandManager = new PaperCommandManager<>(
+                    this,
+                    CommandExecutionCoordinator.simpleCoordinator(),
+                    Function.identity(),
+                    Function.identity()
+            );
+            CalibreCommand command = new CalibreCommand(this);
+            command.register(commandManager);
+        } catch (Exception e) {
+            log(LogLevel.ERROR, e, "Could not initialize command manager - command functionality will be disabled");
+        }
 
         Bukkit.getPluginManager().registerEvents(new CalibreListener(this), this);
         playerData.setup(this);
@@ -179,7 +182,7 @@ public class CalibrePlugin extends RegistryBasePlugin<CalibreIdentifiable> {
     public VelocityTracker velocityTracker() { return velocityTracker; }
     public Map<Class<?>, com.gitlab.aecsocket.calibre.core.system.builtin.Formatter<?>> statFormatters() { return statFormatters; }
     public ConfigurationOptions configOptions() { return configOptions; }
-    public PaperCommandManager commandManager() { return commandManager; }
+    public PaperCommandManager<CommandSender> commandManager() { return commandManager; }
     public GUIManager guiManager() { return guiManager; }
     public ProtocolManager protocol() { return protocol; }
     public MapFont font() { return font; }
@@ -284,78 +287,6 @@ public class CalibrePlugin extends RegistryBasePlugin<CalibreIdentifiable> {
         registry.register(new BulletSystem(this));
         registry.register(new IncendiaryProjectileSystem(this));
         registry.register(new ExplosiveProjectileSystem(this));
-    }
-
-    protected void createCommandManager() {
-        commandManager = new PaperCommandManager(this);
-        commandManager.enableUnstableAPI("help");
-        commandManager.getCommandCompletions().registerCompletion("registry", ctx -> {
-            String sType = ctx.getConfig("type");
-            Class<?> type = null;
-            if (sType != null) {
-                try {
-                    type = Class.forName(sType);
-                } catch (ClassNotFoundException | ClassCastException ignore) {}
-            }
-
-            final Class<?> fType = type;
-            return registry.getRegistry().entrySet().stream()
-                    .filter(entry -> fType == null || fType.isInstance(entry.getValue().get()))
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
-        });
-        commandManager.getCommandContexts().registerContext(CalibreIdentifiable.class, ctx -> {
-            String sType = ctx.getFlagValue("type", (String) null);
-            Class<?> type = null;
-            if (sType != null) {
-                try {
-                    type = Class.forName(sType);
-                } catch (ClassNotFoundException | ClassCastException ignore) {}
-            }
-
-            CommandSender sender = ctx.getSender();
-            String id = ctx.popFirstArg();
-            Ref<? extends CalibreIdentifiable> result = registry.getRef(id);
-            if (result == null) {
-                sendMessage(sender, "command.error.no_object",
-                        "id", id);
-                throw new InvalidCommandArgument(false);
-            }
-            CalibreIdentifiable obj = result.get();
-            if (type != null && !type.isInstance(result.get())) {
-                sendMessage(sender, "command.error.not_type",
-                        "id", id,
-                        "found", obj.getClass().getSimpleName(),
-                        "expected", type.getSimpleName());
-                throw new InvalidCommandArgument(false);
-            }
-            return obj;
-        });
-        commandManager.getCommandContexts().registerContext(ComponentTree.class, ctx -> {
-            CommandSender sender = ctx.getSender();
-            String input = ctx.popFirstArg();
-
-            ComponentTree tree;
-            try {
-                HoconConfigurationLoader loader = HoconConfigurationLoader.builder()
-                        .source(() -> new BufferedReader(new StringReader(input)))
-                        .build();
-                tree = loader.load().get(ComponentTree.class);
-            } catch (ConfigurateException e) {
-                sendMessage(sender, "command.error.parse_tree",
-                        "error", TextUtils.combineMessages(e));
-                throw new InvalidCommandArgument(false);
-            }
-
-            if (tree == null) {
-                sendMessage(sender, "command.error.parse_tree",
-                        "error", "null");
-                throw new InvalidCommandArgument(false);
-            }
-
-            return tree;
-        });
-        commandManager.registerCommand(new CalibreCommand(this));
     }
 
     @Override

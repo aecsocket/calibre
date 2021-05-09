@@ -67,9 +67,7 @@ public interface Formatter<T> {
             // `function`
             String function = config.node("function").getString();
             if (function != null) {
-                MathExpressionNode expr = MathParser.parses(function);
-                expr.setVariable("n", value);
-                value = expr.value();
+                value = MathParser.parses(function).set("n", value).value();
             }
 
             // `min`, `max`

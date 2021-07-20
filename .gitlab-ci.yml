@@ -20,7 +20,6 @@ build:
     policy: pull-push
     paths:
       - "*/build"
-      - ".gradle"
       - ".m2/repository"
   artifacts:
     paths:
@@ -41,7 +40,6 @@ pages:
     policy: pull
     paths:
       - "*/build"
-      - ".gradle"
       - ".m2/repository"
   artifacts:
     paths:

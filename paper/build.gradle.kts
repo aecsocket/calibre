@@ -35,7 +35,7 @@ tasks {
                 "https://aecsocket.gitlab.io/minecommons/javadoc/core/",
                 "https://aecsocket.gitlab.io/minecommons/javadoc/paper/",
                 "https://aecsocket.gitlab.io/sokol/javadoc/core/",
-                "https://aecsocket.gitlab.io/paper/javadoc/core/",
+                "https://aecsocket.gitlab.io/sokol/javadoc/paper/",
                 "https://configurate.aoeu.xyz/4.1.1/apidocs/",
                 "https://jd.adventure.kyori.net/api/4.8.1/",
                 "https://papermc.io/javadocs/paper/1.17/",

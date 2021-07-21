@@ -1,0 +1,39 @@
+package com.gitlab.aecsocket.calibre.core.gun;
+
+import com.gitlab.aecsocket.minecommons.core.serializers.Serializers;
+import com.gitlab.aecsocket.sokol.core.system.AbstractSystem;
+import com.gitlab.aecsocket.sokol.core.tree.TreeNode;
+import io.leangen.geantyref.TypeToken;
+import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.serialize.SerializationException;
+
+import java.util.List;
+
+public abstract class SightsSystem extends AbstractSystem {
+    public static final String ID = "sights";
+    public static final Key<Instance> KEY = new Key<>(ID, Instance.class);
+
+    public abstract class Instance extends AbstractSystem.Instance {
+        public Instance(TreeNode parent) {
+            super(parent);
+        }
+
+        @Override public abstract SightsSystem base();
+    }
+
+    protected final List<Sight> sights;
+
+    public SightsSystem(int listenerPriority, List<Sight> sights) {
+        super(listenerPriority);
+        this.sights = sights;
+    }
+
+    public List<Sight> sights() { return sights; }
+
+    @Override public String id() { return ID; }
+
+    @Override
+    public void loadSelf(ConfigurationNode cfg) throws SerializationException {
+        sights.addAll(Serializers.require(cfg, new TypeToken<List<Sight>>() {}));
+    }
+}

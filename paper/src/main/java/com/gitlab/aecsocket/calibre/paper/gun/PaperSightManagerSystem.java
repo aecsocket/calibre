@@ -1,18 +1,32 @@
 package com.gitlab.aecsocket.calibre.paper.gun;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.wrappers.Pair;
 import com.gitlab.aecsocket.calibre.core.gun.SightManagerSystem;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
+import com.gitlab.aecsocket.minecommons.core.CollectionBuilder;
+import com.gitlab.aecsocket.minecommons.paper.display.PreciseSound;
 import com.gitlab.aecsocket.minecommons.paper.persistence.Persistence;
+import com.gitlab.aecsocket.minecommons.paper.plugin.ProtocolConstants;
+import com.gitlab.aecsocket.minecommons.paper.plugin.ProtocolLibAPI;
 import com.gitlab.aecsocket.sokol.core.SokolPlatform;
+import com.gitlab.aecsocket.sokol.core.stat.Stat;
 import com.gitlab.aecsocket.sokol.core.system.util.InputMapper;
 import com.gitlab.aecsocket.sokol.core.system.util.SystemPath;
 import com.gitlab.aecsocket.sokol.core.tree.TreeNode;
+import com.gitlab.aecsocket.sokol.core.wrapper.ItemSlot;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemUser;
 import com.gitlab.aecsocket.sokol.paper.PaperTreeNode;
 import com.gitlab.aecsocket.sokol.paper.SokolPlugin;
 import com.gitlab.aecsocket.sokol.paper.system.PaperSystem;
+import com.gitlab.aecsocket.sokol.paper.wrapper.ItemDescriptor;
+import com.gitlab.aecsocket.sokol.paper.wrapper.slot.EquipSlot;
+import com.gitlab.aecsocket.sokol.paper.wrapper.user.PaperUser;
 import com.gitlab.aecsocket.sokol.paper.wrapper.user.PlayerUser;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -20,8 +34,23 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.gitlab.aecsocket.sokol.paper.wrapper.ItemDescriptor.Stat.*;
+import static com.gitlab.aecsocket.sokol.paper.stat.SoundsStat.*;
+
 public final class PaperSightManagerSystem extends SightManagerSystem implements PaperSystem {
     public static final Key<Instance> KEY = new Key<>(ID, Instance.class);
+    public static final Map<String, Stat<?>> STATS = CollectionBuilder.map(new HashMap<String, Stat<?>>())
+            .put(SightManagerSystem.STATS)
+            .put("aim_item", itemStat())
+            .put("aim_in_sound", soundsStat())
+            .put("aim_out_sound", soundsStat())
+            .put("change_sight_sound", soundsStat())
+            .build();
 
     private static final String keyAiming = "aiming";
     private static final String keyTargetSystem = "target_system";
@@ -44,6 +73,53 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
                 return;
             Player handle = player.handle();
             calibre.zoom(handle, (handle.getWalkSpeed() / 2) + (float) (zoom));
+        }
+
+        @Override
+        protected void aim(ItemUser user, ItemSlot slot, Action action, String key) {
+            super.aim(user, slot, action, key);
+            if (!(user instanceof PaperUser paper))
+                return;
+            parent.stats().<List<PreciseSound>>desc("aim_" + key + "_sound")
+                    .ifPresent(v -> v.forEach(s -> s.play(platform, paper.location())));
+            if (!(paper instanceof PlayerUser player) || !(slot instanceof EquipSlot equip))
+                return;
+
+            if (action == Action.AIMING_IN) {
+                parent.stats().<ItemDescriptor>val("aim_item")
+                        .ifPresent(desc -> {
+                            player.sendMessage(Component.text("aim item = " + desc));
+                            ItemStack item = desc.createRaw();
+                            PacketContainer equipPacket = calibre.protocol().build(PacketType.Play.Server.ENTITY_EQUIPMENT, packet -> {
+                                packet.getIntegers().write(0, player.handle().getEntityId());
+                                packet.getSlotStackPairLists().write(0, Collections.singletonList(new Pair<>(
+                                        ProtocolConstants.SLOTS.get(equip.slot()), item
+                                )));
+                            });
+                            PacketContainer metaPacket = calibre.protocol().build(PacketType.Play.Server.ENTITY_METADATA, packet -> {
+                                packet.getIntegers().write(0, player.handle().getEntityId());
+                                packet.getWatchableCollectionModifier().write(0, ProtocolLibAPI.watcherObjects()
+                                        .add(8, // bow animation
+                                                Byte.class, (byte) 1)
+                                        .get()
+                                );
+                            });
+                            for (Player viewer : player.handle().getTrackedPlayers()) {
+                                viewer.sendMessage(Component.text("recv item"));
+                                calibre.protocol().send(viewer, equipPacket);
+                                calibre.protocol().send(viewer, metaPacket);
+                            }
+                        });
+            }
+        }
+
+        @Override
+        public void cycleSight(ItemUser user, int direction) {
+            super.cycleSight(user, direction);
+            if (!(user instanceof PaperUser paper))
+                return;
+            parent.stats().<List<PreciseSound>>desc("change_sight_sound")
+                    .ifPresent(v -> v.forEach(s -> s.play(platform, paper.location())));
         }
 
         @Override
@@ -80,6 +156,8 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
 
     public SokolPlugin platform() { return platform; }
     public CalibrePlugin calibre() { return calibre; }
+
+    @Override public Map<String, Stat<?>> statTypes() { return STATS; }
 
     @Override
     public Instance create(TreeNode node) {

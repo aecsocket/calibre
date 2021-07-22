@@ -12,6 +12,7 @@ import com.gitlab.aecsocket.sokol.core.system.util.InputMapper;
 import com.gitlab.aecsocket.sokol.core.system.util.SystemPath;
 import com.gitlab.aecsocket.sokol.core.tree.TreeNode;
 import com.gitlab.aecsocket.sokol.core.tree.event.ItemTreeEvent;
+import com.gitlab.aecsocket.sokol.core.wrapper.ItemSlot;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemStack;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemUser;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -97,6 +98,7 @@ public abstract class SightManagerSystem extends AbstractSystem {
         public void build(StatLists stats) {
             scheduler = depend(SchedulerSystem.KEY);
             parent.events().register(ItemTreeEvent.InputEvent.class, this::event, listenerPriority);
+            parent.events().register(ItemTreeEvent.ShowItem.class, this::event, listenerPriority);
             parent.events().register(ItemTreeEvent.Hold.class, this::event, listenerPriority);
 
             sight().ifPresentOrElse(
@@ -149,18 +151,30 @@ public abstract class SightManagerSystem extends AbstractSystem {
             return -1;
         }
 
-        private void aim(Action action, String key) {
+        protected void aim(ItemUser user, ItemSlot slot, Action action, String key) {
             if (sight().isEmpty())
                 return;
             action(action, parent.stats().<Long>desc("aim_" + key + "_delay").orElse(0L));
         }
 
-        public void aimIn() {
-            aim(Action.AIMING_IN, "in");
+        public void aimIn(ItemUser user, ItemSlot slot) {
+            aim(user, slot, Action.AIMING_IN, "in");
         }
 
-        public void aimOut() {
-            aim(Action.AIMING_OUT, "out");
+        public void aimOut(ItemUser user, ItemSlot slot) {
+            aim(user, slot, Action.AIMING_OUT, "out");
+        }
+
+        public void cycleSight(ItemUser user, int direction) {
+            List<SightReference> sights = collectSights();
+            if (sights.size() == 0)
+                return;
+            int newIdx = (sightIndex(sights) + direction) % sights.size();
+            if (newIdx < 0) newIdx += sights.size();
+            SightReference ref = sights.get(newIdx);
+            targetSystem = SystemPath.path(ref.system);
+            targetIndex = ref.index;
+            zoom(user, ref.sight.zoom());
         }
 
         private void event(ItemTreeEvent.InputEvent event) {
@@ -171,48 +185,33 @@ public abstract class SightManagerSystem extends AbstractSystem {
             inputs.run(this, event, handlers -> handlers
                     .put("toggle_aiming", () -> {
                         if ((!aiming && action != Action.AIMING_IN) || (aiming && action == Action.AIMING_OUT))
-                            aimIn();
+                            aimIn(event.user(), event.slot());
                         else
-                            aimOut();
+                            aimOut(event.user(), event.slot());
                         event.cancel();
                         event.queueUpdate();
                     })
                     .put("aim_in", () -> {
-                        if (aiming || action == Action.AIMING_IN)
+                        if (action != Action.AIMING_OUT && (aiming || action == Action.AIMING_IN))
                             return;
-                        aimIn();
+                        aimIn(event.user(), event.slot());
                         event.cancel();
                         event.queueUpdate();
                     })
                     .put("aim_out", () -> {
-                        if (!aiming || action == Action.AIMING_OUT)
+                        if (action != Action.AIMING_IN && (!aiming || action == Action.AIMING_OUT))
                             return;
-                        aimOut();
+                        aimOut(event.user(), event.slot());
                         event.cancel();
                         event.queueUpdate();
                     })
                     .put("next_sight", () -> {
-                        List<SightReference> sights = collectSights();
-                        if (sights.size() == 0)
-                            return;
-                        int newIdx = (sightIndex(sights) + 1) % sights.size();
-                        SightReference ref = sights.get(newIdx);
-                        targetSystem = SystemPath.path(ref.system);
-                        targetIndex = ref.index;
-                        zoom(event.user(), ref.sight.zoom());
+                        cycleSight(event.user(), 1);
                         event.cancel();
                         event.queueUpdate();
                     })
                     .put("previous_sight", () -> {
-                        List<SightReference> sights = collectSights();
-                        if (sights.size() == 0)
-                            return;
-                        int newIdx = sightIndex(sights) - 1;
-                        if (newIdx < 0) newIdx += sights.size();
-                        SightReference ref = sights.get(newIdx);
-                        targetSystem = SystemPath.path(ref.system);
-                        targetIndex = ref.index;
-                        zoom(event.user(), ref.sight.zoom());
+                        cycleSight(event.user(), -1);
                         event.cancel();
                         event.queueUpdate();
                     })
@@ -221,22 +220,38 @@ public abstract class SightManagerSystem extends AbstractSystem {
 
         protected abstract void zoom(ItemUser user, double zoom);
 
+        private void event(ItemTreeEvent.ShowItem event) {
+            if (action == Action.AIMING_IN || (aiming && action == null))
+                event.cancel();
+        }
+
         private void event(ItemTreeEvent.Hold event) {
             if (!parent.isRoot())
                 return;
-            if (action == null)
-                return;
-
             if (!event.sync())
                 return;
-            sight().ifPresent(sight -> {
-                double progress = (double) (System.currentTimeMillis() - actionStart) / (actionEnd - actionStart);
-                zoom(event.user(), sight.zoom() * Numbers.sqr(Numbers.clamp01(action == Action.AIMING_IN ? progress : 1 - progress)));
+
+            sight().ifPresentOrElse(sight -> {
+                if (action == null)
+                    return;
+                double progress = Numbers.clamp01((double) (System.currentTimeMillis() - actionStart) / (actionEnd - actionStart));
+                double multiplier = action == Action.AIMING_IN ? progress : 1 - progress;
+                double zoom = sight.zoom();
+                if (zoom >= 0) {
+                    zoom(event.user(), zoom * (multiplier * multiplier));
+                } else {
+                    zoom(event.user(), zoom - ((0.25 / Math.max(multiplier, 1e-3)) - 0.25));
+                }
                 if (progress >= 1) {
                     aiming = action == Action.AIMING_IN;
+                    if (!aiming)
+                        zoom(event.user(), 0);
                     action = null;
                     event.queueUpdate(ItemStack::hideUpdate);
                 }
+            }, () -> {
+                if (aiming || action == Action.AIMING_IN)
+                    aimOut(event.user(), event.slot());
             });
         }
     }

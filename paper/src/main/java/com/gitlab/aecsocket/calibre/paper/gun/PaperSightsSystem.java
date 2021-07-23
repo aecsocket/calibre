@@ -2,7 +2,6 @@ package com.gitlab.aecsocket.calibre.paper.gun;
 
 import com.gitlab.aecsocket.calibre.core.gun.Sight;
 import com.gitlab.aecsocket.calibre.core.gun.SightsSystem;
-import com.gitlab.aecsocket.sokol.core.SokolPlatform;
 import com.gitlab.aecsocket.sokol.core.tree.TreeNode;
 import com.gitlab.aecsocket.sokol.paper.PaperTreeNode;
 import com.gitlab.aecsocket.sokol.paper.SokolPlugin;
@@ -23,7 +22,7 @@ public final class PaperSightsSystem extends SightsSystem implements PaperSystem
         }
 
         @Override public PaperSightsSystem base() { return PaperSightsSystem.this; }
-        @Override public SokolPlatform platform() { return platform; }
+        @Override public SokolPlugin platform() { return platform; }
     }
 
     private final SokolPlugin platform;

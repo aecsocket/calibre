@@ -5,12 +5,12 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.Pair;
 import com.gitlab.aecsocket.calibre.core.gun.SightManagerSystem;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
+import com.gitlab.aecsocket.calibre.paper.PlayerData;
 import com.gitlab.aecsocket.minecommons.core.CollectionBuilder;
 import com.gitlab.aecsocket.minecommons.paper.display.PreciseSound;
 import com.gitlab.aecsocket.minecommons.paper.persistence.Persistence;
 import com.gitlab.aecsocket.minecommons.paper.plugin.ProtocolConstants;
 import com.gitlab.aecsocket.minecommons.paper.plugin.ProtocolLibAPI;
-import com.gitlab.aecsocket.sokol.core.SokolPlatform;
 import com.gitlab.aecsocket.sokol.core.stat.Stat;
 import com.gitlab.aecsocket.sokol.core.system.util.InputMapper;
 import com.gitlab.aecsocket.sokol.core.system.util.SystemPath;
@@ -20,11 +20,10 @@ import com.gitlab.aecsocket.sokol.core.wrapper.ItemUser;
 import com.gitlab.aecsocket.sokol.paper.PaperTreeNode;
 import com.gitlab.aecsocket.sokol.paper.SokolPlugin;
 import com.gitlab.aecsocket.sokol.paper.system.PaperSystem;
-import com.gitlab.aecsocket.sokol.paper.wrapper.ItemDescriptor;
+import com.gitlab.aecsocket.sokol.paper.wrapper.item.ItemDescriptor;
 import com.gitlab.aecsocket.sokol.paper.wrapper.slot.EquipSlot;
 import com.gitlab.aecsocket.sokol.paper.wrapper.user.PaperUser;
 import com.gitlab.aecsocket.sokol.paper.wrapper.user.PlayerUser;
-import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataAdapterContext;
@@ -39,8 +38,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.gitlab.aecsocket.sokol.paper.wrapper.ItemDescriptor.Stat.*;
+import static com.gitlab.aecsocket.sokol.paper.stat.ItemStat.*;
 import static com.gitlab.aecsocket.sokol.paper.stat.SoundsStat.*;
+import static com.gitlab.aecsocket.sokol.paper.stat.AnimationStat.*;
 
 public final class PaperSightManagerSystem extends SightManagerSystem implements PaperSystem {
     public static final Key<Instance> KEY = new Key<>(ID, Instance.class);
@@ -49,6 +49,7 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
             .put("aim_item", itemStat())
             .put("aim_in_sound", soundsStat())
             .put("aim_out_sound", soundsStat())
+            .put("aim_out_animation", animationStat())
             .put("change_sight_sound", soundsStat())
             .build();
 
@@ -65,7 +66,7 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
         }
 
         @Override public PaperSightManagerSystem base() { return PaperSightManagerSystem.this; }
-        @Override public SokolPlatform platform() { return platform; }
+        @Override public SokolPlugin platform() { return platform; }
 
         @Override
         protected void zoom(ItemUser user, double zoom) {
@@ -75,20 +76,46 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
             calibre.zoom(handle, (handle.getWalkSpeed() / 2) + (float) (zoom));
         }
 
+        protected @Nullable ItemStack defaultShaderDataItem() {
+            return defaultShaderData == null ? null : defaultShaderData.createRaw();
+        }
+
         @Override
-        protected void aim(ItemUser user, ItemSlot slot, Action action, String key) {
-            super.aim(user, slot, action, key);
+        protected void applySight(ItemUser user, ItemSlot slot, SightReference ref) {
+            super.applySight(user, slot, ref);
             if (!(user instanceof PaperUser paper))
                 return;
+            if (!(ref.sight() instanceof PaperSight sight))
+                return;
+            if (sight.applySound() != null)
+                sight.applySound().forEach(s -> s.play(platform, paper.location()));
+            if (user instanceof PlayerUser player) {
+                PlayerData data = calibre.playerData(player.handle());
+                data.shaderData(defaultShaderDataItem());
+                if (sight.shaderData() != null)
+                    scheduler.schedule(this, sight.shaderDataDelay(), (self, evt, ctx) ->
+                            data.shaderData(sight.shaderData().createRaw()));
+                if (sight.applyAnimation() != null &&  slot instanceof EquipSlot equip) {
+                    sight.applyAnimation().start(platform, player.handle(), equip);
+                }
+            }
+        }
+
+        @Override
+        protected void aim(ItemUser user, ItemSlot slot, boolean aiming, Action action, String key) {
+            super.aim(user, slot, aiming, action, key);
+            if (!(user instanceof PaperUser paper))
+                return;
+
             parent.stats().<List<PreciseSound>>desc("aim_" + key + "_sound")
                     .ifPresent(v -> v.forEach(s -> s.play(platform, paper.location())));
+
             if (!(paper instanceof PlayerUser player) || !(slot instanceof EquipSlot equip))
                 return;
 
-            if (action == Action.AIMING_IN) {
+            if (aiming) {
                 parent.stats().<ItemDescriptor>val("aim_item")
                         .ifPresent(desc -> {
-                            player.sendMessage(Component.text("aim item = " + desc));
                             ItemStack item = desc.createRaw();
                             PacketContainer equipPacket = calibre.protocol().build(PacketType.Play.Server.ENTITY_EQUIPMENT, packet -> {
                                 packet.getIntegers().write(0, player.handle().getEntityId());
@@ -105,17 +132,17 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
                                 );
                             });
                             for (Player viewer : player.handle().getTrackedPlayers()) {
-                                viewer.sendMessage(Component.text("recv item"));
                                 calibre.protocol().send(viewer, equipPacket);
                                 calibre.protocol().send(viewer, metaPacket);
                             }
                         });
-            }
+            } else
+                calibre.playerData(player.handle()).shaderData(null);
         }
 
         @Override
-        public void cycleSight(ItemUser user, int direction) {
-            super.cycleSight(user, direction);
+        public void cycleSight(ItemUser user, ItemSlot slot, int direction) {
+            super.cycleSight(user, slot, direction);
             if (!(user instanceof PaperUser paper))
                 return;
             parent.stats().<List<PreciseSound>>desc("change_sight_sound")
@@ -147,15 +174,18 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
 
     private final SokolPlugin platform;
     private final CalibrePlugin calibre;
+    private final @Nullable ItemDescriptor defaultShaderData;
 
-    public PaperSightManagerSystem(SokolPlugin platform, CalibrePlugin calibre, int listenerPriority, @Nullable InputMapper inputs) {
+    public PaperSightManagerSystem(SokolPlugin platform, CalibrePlugin calibre, int listenerPriority, @Nullable InputMapper inputs, @Nullable ItemDescriptor defaultShaderData) {
         super(listenerPriority, inputs);
         this.platform = platform;
         this.calibre = calibre;
+        this.defaultShaderData = defaultShaderData;
     }
 
     public SokolPlugin platform() { return platform; }
     public CalibrePlugin calibre() { return calibre; }
+    public ItemDescriptor defaultShaderData() { return defaultShaderData; }
 
     @Override public Map<String, Stat<?>> statTypes() { return STATS; }
 
@@ -189,6 +219,7 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
     public static PaperSystem.Type type(SokolPlugin platform, CalibrePlugin calibre) {
         return cfg -> new PaperSightManagerSystem(platform, calibre,
                 cfg.node(keyListenerPriority).getInt(),
-                null);
+                null,
+                cfg.node("default_shader_data").get(ItemDescriptor.class));
     }
 }

@@ -68,6 +68,7 @@ public class CalibrePlugin extends BasePlugin<CalibrePlugin> implements Listener
 
     @EventHandler
     private void event(PlayerQuitEvent event) {
+        playerData(event.getPlayer()).disable();
         playerData.remove(event.getPlayer().getUniqueId());
     }
 

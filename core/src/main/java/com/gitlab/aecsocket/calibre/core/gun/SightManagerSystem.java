@@ -64,6 +64,8 @@ public abstract class SightManagerSystem extends AbstractSystem {
         protected long actionStart;
         protected long actionEnd;
 
+        protected SightReference sight;
+
         public Instance(TreeNode parent, boolean aiming, @Nullable SystemPath targetSystem, int targetIndex, @Nullable Action action, long actionStart, long actionEnd) {
             super(parent);
             this.aiming = aiming;
@@ -123,7 +125,11 @@ public abstract class SightManagerSystem extends AbstractSystem {
         }
 
         public Optional<SightReference> sight() {
-            return targetSystem == null ? Optional.empty() : sight(targetSystem, targetIndex);
+            if (sight != null)
+                return Optional.of(sight);
+            Optional<SightReference> result = targetSystem == null ? Optional.empty() : sight(targetSystem, targetIndex);
+            result.ifPresent(v -> sight = v);
+            return result;
         }
 
         public List<SightReference> collectSights() {
@@ -174,6 +180,7 @@ public abstract class SightManagerSystem extends AbstractSystem {
                 return;
             targetSystem = SystemPath.path(newSight.system);
             targetIndex = newSight.index;
+            sight = newSight;
             zoom(user, newSight.sight.zoom());
             applySight(user, slot, newSight);
         }
@@ -192,44 +199,54 @@ public abstract class SightManagerSystem extends AbstractSystem {
             changeSight(user, slot, sights.get(newIdx));
         }
 
+        protected void toggleAiming(ItemTreeEvent.Input event) {
+            if ((!aiming && action != Action.AIMING_IN) || (aiming && action == Action.AIMING_OUT))
+                aimIn(event.user(), event.slot());
+            else
+                aimOut(event.user(), event.slot());
+            event.cancel();
+            event.queueUpdate();
+        }
+
+        protected void aimIn(ItemTreeEvent.Input event) {
+            if (action != Action.AIMING_OUT && (aiming || action == Action.AIMING_IN))
+                return;
+            aimIn(event.user(), event.slot());
+            event.cancel();
+            event.queueUpdate();
+        }
+
+        protected void aimOut(ItemTreeEvent.Input event) {
+            if (action != Action.AIMING_IN && (!aiming || action == Action.AIMING_OUT))
+                return;
+            aimOut(event.user(), event.slot());
+            event.cancel();
+            event.queueUpdate();
+        }
+
+        protected void nextSight(ItemTreeEvent.Input event) {
+            cycleSight(event.user(), event.slot(), 1);
+            event.cancel();
+            event.queueUpdate();
+        }
+
+        protected void previousSight(ItemTreeEvent.Input event) {
+            cycleSight(event.user(), event.slot(), -1);
+            event.cancel();
+            event.queueUpdate();
+        }
+
         private void event(ItemTreeEvent.Input event) {
             if (!parent.isRoot())
                 return;
             if (!scheduler.available())
                 return;
             inputs.run(this, event, handlers -> handlers
-                    .put("toggle_aiming", () -> {
-                        if ((!aiming && action != Action.AIMING_IN) || (aiming && action == Action.AIMING_OUT))
-                            aimIn(event.user(), event.slot());
-                        else
-                            aimOut(event.user(), event.slot());
-                        event.cancel();
-                        event.queueUpdate();
-                    })
-                    .put("aim_in", () -> {
-                        if (action != Action.AIMING_OUT && (aiming || action == Action.AIMING_IN))
-                            return;
-                        aimIn(event.user(), event.slot());
-                        event.cancel();
-                        event.queueUpdate();
-                    })
-                    .put("aim_out", () -> {
-                        if (action != Action.AIMING_IN && (!aiming || action == Action.AIMING_OUT))
-                            return;
-                        aimOut(event.user(), event.slot());
-                        event.cancel();
-                        event.queueUpdate();
-                    })
-                    .put("next_sight", () -> {
-                        cycleSight(event.user(), event.slot(), 1);
-                        event.cancel();
-                        event.queueUpdate();
-                    })
-                    .put("previous_sight", () -> {
-                        cycleSight(event.user(), event.slot(), -1);
-                        event.cancel();
-                        event.queueUpdate();
-                    })
+                    .put("toggle_aiming", () -> toggleAiming(event))
+                    .put("aim_in", () -> aimIn(event))
+                    .put("aim_out", () -> aimOut(event))
+                    .put("next_sight", () -> nextSight(event))
+                    .put("previous_sight", () -> previousSight(event))
             );
         }
 

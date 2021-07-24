@@ -15,6 +15,7 @@ import com.gitlab.aecsocket.sokol.core.stat.Stat;
 import com.gitlab.aecsocket.sokol.core.system.util.InputMapper;
 import com.gitlab.aecsocket.sokol.core.system.util.SystemPath;
 import com.gitlab.aecsocket.sokol.core.tree.TreeNode;
+import com.gitlab.aecsocket.sokol.core.tree.event.ItemTreeEvent;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemSlot;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemUser;
 import com.gitlab.aecsocket.sokol.paper.PaperTreeNode;
@@ -59,10 +60,14 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
     private static final String keyAction = "action";
     private static final String keyActionStart = "action_start";
     private static final String keyActionEnd = "action_end";
+    private static final String keyLastShaderDataTask = "last_shader_data_task";
 
     public final class Instance extends SightManagerSystem.Instance implements PaperSystem.Instance {
-        public Instance(TreeNode parent, boolean aiming, @Nullable SystemPath targetSystem, int targetIndex, @Nullable Action action, long actionStart, long actionEnd) {
+        private int lastShaderDataTask;
+
+        public Instance(TreeNode parent, boolean aiming, @Nullable SystemPath targetSystem, int targetIndex, @Nullable Action action, long actionStart, long actionEnd, int lastShaderDataTask) {
             super(parent, aiming, targetSystem, targetIndex, action, actionStart, actionEnd);
+            this.lastShaderDataTask = lastShaderDataTask;
         }
 
         @Override public PaperSightManagerSystem base() { return PaperSightManagerSystem.this; }
@@ -91,10 +96,12 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
                 sight.applySound().forEach(s -> s.play(platform, paper.location()));
             if (user instanceof PlayerUser player) {
                 PlayerData data = calibre.playerData(player.handle());
+                if (lastShaderDataTask > -1)
+                    scheduler.unschedule(lastShaderDataTask);
                 data.shaderData(defaultShaderDataItem());
-                if (sight.shaderData() != null)
-                    scheduler.schedule(this, sight.shaderDataDelay(), (self, evt, ctx) ->
-                            data.shaderData(sight.shaderData().createRaw()));
+                lastShaderDataTask = sight.shaderData() == null ? -1
+                        : scheduler.schedule(this, sight.shaderDataDelay(), (self, evt, ctx) ->
+                                data.shaderData(sight.shaderData().createRaw()));
                 if (sight.applyAnimation() != null &&  slot instanceof EquipSlot equip) {
                     sight.applyAnimation().start(platform, player.handle(), equip);
                 }
@@ -149,6 +156,14 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
                     .ifPresent(v -> v.forEach(s -> s.play(platform, paper.location())));
         }
 
+        private void sightChangeUpdate(ItemTreeEvent.Input event) {
+            if (event.updateQueued())
+                sight().ifPresent(s -> {
+                    if (s.sight() instanceof PaperSight sight && sight.applyAnimation() != null)
+                        event.queueUpdate(com.gitlab.aecsocket.sokol.core.wrapper.ItemStack::hideUpdate);
+                });
+        }
+
         @Override
         public PersistentDataContainer save(PersistentDataAdapterContext ctx) throws IllegalArgumentException {
             PersistentDataContainer data = ctx.newPersistentDataContainer();
@@ -158,6 +173,7 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
             if (action != null) Persistence.setEnum(data, platform.key(keyAction), action);
             data.set(platform.key(keyActionStart), PersistentDataType.LONG, actionStart);
             data.set(platform.key(keyActionEnd), PersistentDataType.LONG, actionEnd);
+            data.set(platform.key(keyLastShaderDataTask), PersistentDataType.INTEGER, lastShaderDataTask);
             return data;
         }
 
@@ -169,6 +185,7 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
             node.node(keyAction).set(action);
             node.node(keyActionStart).set(actionStart);
             node.node(keyActionEnd).set(actionEnd);
+            node.node(keyLastShaderDataTask).set(lastShaderDataTask);
         }
     }
 
@@ -191,7 +208,7 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
 
     @Override
     public Instance create(TreeNode node) {
-        return new Instance(node, false, null, 0, null, 0, 0);
+        return new Instance(node, false, null, 0, null, 0, 0, -1);
     }
 
     @Override
@@ -202,7 +219,8 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
                 data.getOrDefault(platform.key(keyTargetIndex), PersistentDataType.INTEGER, 0),
                 Persistence.getEnum(data, platform.key(keyAction), SightManagerSystem.Instance.Action.class).orElse(null),
                 data.getOrDefault(platform.key(keyActionStart), PersistentDataType.LONG, 0L),
-                data.getOrDefault(platform.key(keyActionEnd), PersistentDataType.LONG, 0L));
+                data.getOrDefault(platform.key(keyActionEnd), PersistentDataType.LONG, 0L),
+                data.getOrDefault(platform.key(keyLastShaderDataTask), PersistentDataType.INTEGER, -1));
     }
 
     @Override
@@ -213,7 +231,8 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
                 cfg.node(keyTargetIndex).getInt(),
                 cfg.node(keyAction).get(SightManagerSystem.Instance.Action.class),
                 cfg.node(keyActionStart).getLong(),
-                cfg.node(keyActionEnd).getLong());
+                cfg.node(keyActionEnd).getLong(),
+                cfg.node(keyLastShaderDataTask).getInt(-1));
     }
 
     public static PaperSystem.Type type(SokolPlugin platform, CalibrePlugin calibre) {

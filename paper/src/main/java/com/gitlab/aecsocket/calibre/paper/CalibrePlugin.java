@@ -48,7 +48,6 @@ public class CalibrePlugin extends BasePlugin<CalibrePlugin> implements Listener
             for (var data : playerData.values())
                 data.paperTick(ctx);
         }, Ticks.MSPT));
-        protocol.manager().updateEntity();
     }
 
     @Override

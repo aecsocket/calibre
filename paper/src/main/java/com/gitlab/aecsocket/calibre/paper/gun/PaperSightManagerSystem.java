@@ -7,6 +7,7 @@ import com.gitlab.aecsocket.calibre.core.gun.SightManagerSystem;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.paper.PlayerData;
 import com.gitlab.aecsocket.minecommons.core.CollectionBuilder;
+import com.gitlab.aecsocket.minecommons.core.vector.cartesian.Vector2;
 import com.gitlab.aecsocket.minecommons.paper.display.PreciseSound;
 import com.gitlab.aecsocket.minecommons.paper.persistence.Persistence;
 import com.gitlab.aecsocket.minecommons.paper.plugin.ProtocolConstants;
@@ -79,6 +80,13 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
                 return;
             Player handle = player.handle();
             calibre.zoom(handle, (handle.getWalkSpeed() / 2) + (float) (zoom));
+        }
+
+        @Override
+        protected void sway(ItemUser user, Vector2 vector) {
+            if (!(user instanceof PlayerUser player))
+                return;
+            calibre.rotate(player.handle(), vector.x(), vector.y());
         }
 
         protected @Nullable ItemStack defaultShaderDataItem() {

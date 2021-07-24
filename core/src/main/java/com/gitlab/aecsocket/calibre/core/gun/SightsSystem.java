@@ -23,8 +23,8 @@ public abstract class SightsSystem extends AbstractSystem {
 
     protected final List<Sight> sights;
 
-    public SightsSystem(int listenerPriority, List<Sight> sights) {
-        super(listenerPriority);
+    public SightsSystem(List<Sight> sights) {
+        super(0);
         this.sights = sights;
     }
 

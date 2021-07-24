@@ -28,7 +28,7 @@ public final class PaperSightsSystem extends SightsSystem implements PaperSystem
     private final SokolPlugin platform;
 
     public PaperSightsSystem(SokolPlugin platform, List<Sight> sights) {
-        super(0, sights);
+        super(sights);
         this.platform = platform;
     }
 

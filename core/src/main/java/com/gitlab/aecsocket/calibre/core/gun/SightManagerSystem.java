@@ -4,9 +4,11 @@ import com.gitlab.aecsocket.minecommons.core.CollectionBuilder;
 import com.gitlab.aecsocket.minecommons.core.Numbers;
 import com.gitlab.aecsocket.minecommons.core.event.Cancellable;
 import com.gitlab.aecsocket.minecommons.core.serializers.Serializers;
+import com.gitlab.aecsocket.minecommons.core.vector.cartesian.Vector2;
 import com.gitlab.aecsocket.sokol.core.rule.Rule;
 import com.gitlab.aecsocket.sokol.core.stat.Stat;
 import com.gitlab.aecsocket.sokol.core.stat.StatLists;
+import com.gitlab.aecsocket.sokol.core.stat.StatMap;
 import com.gitlab.aecsocket.sokol.core.system.AbstractSystem;
 import com.gitlab.aecsocket.sokol.core.system.inbuilt.SchedulerSystem;
 import com.gitlab.aecsocket.sokol.core.system.util.InputMapper;
@@ -25,6 +27,7 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import java.util.*;
 
 import static com.gitlab.aecsocket.sokol.core.stat.inbuilt.PrimitiveStat.*;
+import static com.gitlab.aecsocket.sokol.core.stat.inbuilt.VectorStat.*;
 
 public abstract class SightManagerSystem extends AbstractSystem {
     public static final String ID = "sight_manager";
@@ -32,6 +35,8 @@ public abstract class SightManagerSystem extends AbstractSystem {
     public static final Map<String, Stat<?>> STATS = CollectionBuilder.map(new HashMap<String, Stat<?>>())
             .put("aim_in_after", longStat())
             .put("aim_out_after", longStat())
+            .put("sway", vector2Stat())
+            .put("sway_cycle", longStat())
             .build();
     public static final Map<String, Class<? extends Rule>> RULES = CollectionBuilder.map(new HashMap<String, Class<? extends Rule>>())
             .put(Rules.Aiming.TYPE, Rules.Aiming.class)
@@ -56,6 +61,7 @@ public abstract class SightManagerSystem extends AbstractSystem {
         }
 
         protected SchedulerSystem<?>.Instance scheduler;
+        protected SwayStabilizer swayStabilizer;
         protected boolean aiming;
         protected @Nullable SystemPath targetSystem;
         protected int targetIndex;
@@ -89,6 +95,7 @@ public abstract class SightManagerSystem extends AbstractSystem {
         @Override
         public void build(StatLists stats) {
             scheduler = depend(SchedulerSystem.KEY);
+            swayStabilizer = softDepend(SwayStabilizer.class);
             parent.events().register(ItemTreeEvent.Input.class, this::event, listenerPriority);
             parent.events().register(ItemTreeEvent.ShowItem.class, this::event, listenerPriority);
             parent.events().register(ItemTreeEvent.Hold.class, this::event, listenerPriority);
@@ -251,6 +258,7 @@ public abstract class SightManagerSystem extends AbstractSystem {
         }
 
         protected abstract void zoom(ItemUser user, double zoom);
+        protected abstract void sway(ItemUser user, Vector2 vector);
 
         private void event(ItemTreeEvent.ShowItem event) {
             if (action == Action.AIMING_IN || (aiming && action == null))
@@ -260,31 +268,45 @@ public abstract class SightManagerSystem extends AbstractSystem {
         private void event(ItemTreeEvent.Hold event) {
             if (!parent.isRoot())
                 return;
-            if (!event.sync())
-                return;
-
-            sight().ifPresentOrElse(sight -> {
-                if (action == null)
+            if (event.sync()) {
+                sight().ifPresentOrElse(sight -> {
+                    if (action == null)
+                        return;
+                    double progress = Numbers.clamp01((double) (System.currentTimeMillis() - actionStart) / (actionEnd - actionStart));
+                    double multiplier = action == Action.AIMING_IN ? progress : 1 - progress;
+                    double zoom = sight.sight.zoom();
+                    if (zoom >= 0) {
+                        zoom(event.user(), zoom * (multiplier * multiplier));
+                    } else {
+                        zoom(event.user(), zoom - ((0.25 / Math.max(multiplier, 1e-3)) - 0.25));
+                    }
+                    if (progress >= 1) {
+                        aiming = action == Action.AIMING_IN;
+                        if (!aiming)
+                            zoom(event.user(), 0);
+                        action = null;
+                        event.queueUpdate(ItemStack::hideUpdate);
+                    }
+                }, () -> {
+                    if (aiming || action == Action.AIMING_IN)
+                        aimOut(event.user(), event.slot());
+                });
+            } else {
+                if (!aiming)
                     return;
-                double progress = Numbers.clamp01((double) (System.currentTimeMillis() - actionStart) / (actionEnd - actionStart));
-                double multiplier = action == Action.AIMING_IN ? progress : 1 - progress;
-                double zoom = sight.sight.zoom();
-                if (zoom >= 0) {
-                    zoom(event.user(), zoom * (multiplier * multiplier));
-                } else {
-                    zoom(event.user(), zoom - ((0.25 / Math.max(multiplier, 1e-3)) - 0.25));
-                }
-                if (progress >= 1) {
-                    aiming = action == Action.AIMING_IN;
-                    if (!aiming)
-                        zoom(event.user(), 0);
-                    action = null;
-                    event.queueUpdate(ItemStack::hideUpdate);
-                }
-            }, () -> {
-                if (aiming || action == Action.AIMING_IN)
-                    aimOut(event.user(), event.slot());
-            });
+                StatMap stats = parent.stats();
+                stats.<Vector2>desc("sway").ifPresent(sway -> stats.<Long>desc("sway_cycle").ifPresent(swayCycle -> {
+                    double angle = ((double) System.currentTimeMillis() / (swayCycle / 2d)) * Math.PI;
+                    Vector2 vector = new Vector2(
+                            sway.x() * Math.cos(angle),
+                            sway.y() * Math.sin(angle)
+                    );
+                    if (swayStabilizer != null)
+                        vector = vector.multiply(swayStabilizer.stabilization(event));
+                    if (vector.manhattanLength() > 0)
+                        sway(event.user(), vector);
+                }));
+            }
         }
     }
 

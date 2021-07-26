@@ -4,13 +4,8 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.reflect.EquivalentConverter;
 import com.comphenix.protocol.utility.MinecraftReflection;
 import com.comphenix.protocol.wrappers.EnumWrappers;
-import com.gitlab.aecsocket.calibre.core.gun.Sight;
-import com.gitlab.aecsocket.calibre.core.gun.SightManagerSystem;
-import com.gitlab.aecsocket.calibre.core.gun.SightsSystem;
-import com.gitlab.aecsocket.calibre.paper.gun.PaperSight;
-import com.gitlab.aecsocket.calibre.paper.gun.PaperSightManagerSystem;
-import com.gitlab.aecsocket.calibre.paper.gun.PaperSightsSystem;
-import com.gitlab.aecsocket.calibre.paper.gun.SwayStabilizerSystem;
+import com.gitlab.aecsocket.calibre.core.gun.*;
+import com.gitlab.aecsocket.calibre.paper.gun.*;
 import com.gitlab.aecsocket.minecommons.core.Ticks;
 import com.gitlab.aecsocket.minecommons.core.scheduler.Task;
 import com.gitlab.aecsocket.minecommons.core.serializers.ProxySerializer;
@@ -41,9 +36,13 @@ public class CalibrePlugin extends BasePlugin<CalibrePlugin> implements Listener
         sokol
                 .registerSystemType(SightManagerSystem.ID, PaperSightManagerSystem.type(sokol, this))
                 .registerSystemType(SightsSystem.ID, PaperSightsSystem.type(sokol))
-                .registerSystemType(SwayStabilizerSystem.ID, SwayStabilizerSystem.type(sokol, this));
+                .registerSystemType(SwayStabilizerSystem.ID, SwayStabilizerSystem.type(sokol, this))
+                .registerSystemType(ModeManagerSystem.ID, PaperModeManagerSystem.type(sokol, this))
+                .registerSystemType(ModesSystem.ID, PaperModesSystem.type(sokol));
         sokol.configOptionInitializer((serializers, mapper) -> serializers
-                .registerExact(Sight.class, new ProxySerializer<>(new TypeToken<PaperSight>() {})));
+                .registerExact(Sight.class, new ProxySerializer<>(new TypeToken<PaperSight>() {}))
+                .registerExact(Mode.class, new ProxySerializer<>(new TypeToken<PaperMode>() {}))
+        );
         sokol.schedulers().paperScheduler().run(Task.repeating(ctx -> {
             for (var data : playerData.values())
                 data.paperTick(ctx);

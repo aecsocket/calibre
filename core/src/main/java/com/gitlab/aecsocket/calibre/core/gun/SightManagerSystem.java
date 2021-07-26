@@ -19,12 +19,14 @@ import com.gitlab.aecsocket.sokol.core.tree.event.TreeEvent;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemSlot;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemStack;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemUser;
+import com.gitlab.aecsocket.sokol.core.wrapper.PlayerUser;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 import static com.gitlab.aecsocket.sokol.core.stat.inbuilt.PrimitiveStat.*;
 import static com.gitlab.aecsocket.sokol.core.stat.inbuilt.VectorStat.*;
@@ -41,6 +43,8 @@ public abstract class SightManagerSystem extends AbstractSystem {
     public static final Map<String, Class<? extends Rule>> RULES = CollectionBuilder.map(new HashMap<String, Class<? extends Rule>>())
             .put(Rules.Aiming.TYPE, Rules.Aiming.class)
             .put(Rules.InAction.TYPE, Rules.InAction.class)
+            .put(Rules.AimingIn.TYPE, Rules.AimingIn.class)
+            .put(Rules.AimingOut.TYPE, Rules.AimingOut.class)
             .put(Rules.HasTarget.TYPE, Rules.HasTarget.class)
             .build();
 
@@ -55,7 +59,7 @@ public abstract class SightManagerSystem extends AbstractSystem {
     -> LoadingSystem: handles ammo containers, reloading ammo containers, loading from ammo into chamber
      */
 
-    public abstract class Instance extends AbstractSystem.Instance {
+    public abstract class Instance extends SelectorManagerSystem<SightsSystem.Instance, Sight> {
         public enum Action {
             AIMING_IN, AIMING_OUT
         }
@@ -63,17 +67,13 @@ public abstract class SightManagerSystem extends AbstractSystem {
         protected SchedulerSystem<?>.Instance scheduler;
         protected SwayStabilizer swayStabilizer;
         protected boolean aiming;
-        protected @Nullable SystemPath targetSystem;
-        protected int targetIndex;
 
         protected @Nullable Action action;
         protected long actionStart;
         protected long actionEnd;
 
-        protected SightReference sight;
-
         public Instance(TreeNode parent, boolean aiming, @Nullable SystemPath targetSystem, int targetIndex, @Nullable Action action, long actionStart, long actionEnd) {
-            super(parent);
+            super(parent, targetSystem, targetIndex);
             this.aiming = aiming;
             this.targetSystem = targetSystem;
             this.targetIndex = targetIndex;
@@ -86,11 +86,11 @@ public abstract class SightManagerSystem extends AbstractSystem {
 
         public SchedulerSystem<?>.Instance scheduler() { return scheduler; }
         public boolean aiming() { return aiming; }
-        public Optional<SystemPath> targetSystem() { return Optional.ofNullable(targetSystem); }
-        public int targetIndex() { return targetIndex; }
         public Action action() { return action; }
         public long actionStart() { return actionStart; }
         public long actionEnd() { return actionEnd; }
+
+        @Override protected Key<SightsSystem.Instance> holderKey() { return SightsSystem.KEY; }
 
         @Override
         public void build(StatLists stats) {
@@ -99,18 +99,19 @@ public abstract class SightManagerSystem extends AbstractSystem {
             parent.events().register(ItemTreeEvent.Input.class, this::event, listenerPriority);
             parent.events().register(ItemTreeEvent.ShowItem.class, this::event, listenerPriority);
             parent.events().register(ItemTreeEvent.Hold.class, this::event, listenerPriority);
+            parent.events().register(ItemTreeEvent.Unequip.class, this::event, listenerPriority);
 
-            sight().ifPresentOrElse(
+            selected().ifPresentOrElse(
                     sight -> {
-                        if (sight.sight.stats() != null)
-                            stats.add(sight.sight.stats());
+                        if (sight.selection().stats() != null)
+                            stats.add(sight.selection().stats());
                     },
                     () -> {
-                        List<SightReference> sights = collectSights();
+                        List<Reference<SightsSystem.Instance, Sight>> sights = collect();
                         if (sights.size() > 0) {
-                            SightReference ref = sights.get(0);
-                            targetSystem = SystemPath.path(ref.system);
-                            targetIndex = ref.index;
+                            var ref = sights.get(0);
+                            targetSystem = SystemPath.path(ref.system());
+                            targetIndex = ref.index();
                         }
                     });
         }
@@ -122,55 +123,28 @@ public abstract class SightManagerSystem extends AbstractSystem {
             actionEnd = actionStart + ms;
         }
 
-        public record SightReference(SightsSystem.Instance system, int index, Sight sight) {}
-
-        public Optional<SightReference> sight(SystemPath targetSystem, int targetIndex) {
-            return targetSystem.<SightsSystem.Instance>get(parent)
-                    .map(sys -> targetIndex >= sys.base().sights.size()
-                            ? null
-                            : new SightReference(sys, targetIndex, sys.base().sights.get(targetIndex)));
+        public boolean aimingIn() {
+            return (aiming && action != Action.AIMING_OUT) || action == Action.AIMING_IN;
         }
 
-        public Optional<SightReference> sight() {
-            if (sight != null)
-                return Optional.of(sight);
-            Optional<SightReference> result = targetSystem == null ? Optional.empty() : sight(targetSystem, targetIndex);
-            result.ifPresent(v -> sight = v);
-            return result;
+        public boolean aimingOut() {
+            return (!aiming && action != Action.AIMING_IN) || action == Action.AIMING_OUT;
         }
 
-        public List<SightReference> collectSights() {
-            List<SightReference> result = new ArrayList<>();
-            parent.visitNodes((node, path) -> node.system(SightsSystem.KEY).ifPresent(sys -> {
-                List<Sight> sights = sys.base().sights;
-                for (int i = 0; i < sights.size(); i++) {
-                    result.add(new SightReference(sys, i, sights.get(i)));
-                }
-            }));
-            return result;
-        }
+        protected void apply(ItemUser user, ItemSlot slot, Reference<SightsSystem.Instance, Sight> sight) {}
 
-        public int sightIndex(List<SightReference> sights) {
-            if (targetSystem == null)
-                return -1;
-            for (int i = 0; i < sights.size(); i++) {
-                SightReference ref = sights.get(i);
-                if (ref.index == targetIndex && Arrays.equals(ref.system.parent().path(), targetSystem.nodes()))
-                    return i;
-            }
-            return -1;
+        protected void aim0(ItemUser user, ItemSlot slot, boolean aiming, Action action, String key, Reference<SightsSystem.Instance, Sight> sight) {
+            runAction(scheduler, user, slot, "aim_" + key);
+            action(action, parent.stats().<Long>desc("aim_" + key + "_after").orElse(0L));
+            if (aiming)
+                apply(user, slot, sight);
         }
-
-        protected void applySight(ItemUser user, ItemSlot slot, SightReference sight) {}
 
         protected void aim(ItemUser user, ItemSlot slot, boolean aiming, Action action, String key) {
-            sight().ifPresent(sight -> {
+            selected().ifPresent(sight -> {
                 if (new Events.Aim(this, user, slot, aiming).call())
                     return;
-                runAction(scheduler, user, slot, "aim_" + key);
-                action(action, parent.stats().<Long>desc("aim_" + key + "_after").orElse(0L));
-                if (aiming)
-                    applySight(user, slot, sight);
+                aim0(user, slot, aiming, action, key, sight);
             });
         }
 
@@ -182,32 +156,38 @@ public abstract class SightManagerSystem extends AbstractSystem {
             aim(user, slot, false, Action.AIMING_OUT, "out");
         }
 
-        public void changeSight(ItemUser user, ItemSlot slot, SightReference newSight) {
-            if (new Events.ChangeSight(this, user, slot, sight().orElse(null), newSight).call())
-                return;
-            targetSystem = SystemPath.path(newSight.system);
-            targetIndex = newSight.index;
-            sight = newSight;
-            zoom(user, newSight.sight.zoom());
-            applySight(user, slot, newSight);
+        protected boolean changeSight0(ItemUser user, ItemSlot slot, Reference<SightsSystem.Instance, Sight> newSight) {
+            runAction(scheduler, user, slot, "change_sight");
+            targetSystem = SystemPath.path(newSight.system());
+            targetIndex = newSight.index();
+            selected = newSight;
+            zoom(user, newSight.selection().zoom());
+            apply(user, slot, newSight);
+            return true;
         }
 
-        public void changeSight(ItemUser user, ItemSlot slot, SystemPath targetSystem, int targetIndex) {
-            changeSight(user, slot, sight(targetSystem, targetIndex)
-                    .orElseThrow(() -> new IllegalArgumentException("Provided path " + targetIndex + " @ " + targetSystem + " has no sight")));
+        public boolean changeSight(ItemUser user, ItemSlot slot, Reference<SightsSystem.Instance, Sight> newSight) {
+            if (new Events.ChangeSight(this, user, slot, selected().orElse(null), newSight).call())
+                return false;
+            return changeSight0(user, slot, newSight);
         }
 
-        public void cycleSight(ItemUser user, ItemSlot slot, int direction) {
-            List<SightReference> sights = collectSights();
-            if (sights.size() == 0)
-                return;
-            int newIdx = (sightIndex(sights) + direction) % sights.size();
+        public boolean changeSight(ItemUser user, ItemSlot slot, SystemPath targetSystem, int targetIndex) {
+            return changeSight(user, slot, selected(targetSystem, targetIndex)
+                    .orElseThrow(() -> new IllegalArgumentException("Provided path " + targetIndex + " @ " + targetSystem + " has no selection")));
+        }
+
+        public boolean cycleSight(ItemUser user, ItemSlot slot, int direction) {
+            var sights = collect();
+            if (sights.size() <= 1)
+                return false;
+            int newIdx = (selectedIndex(sights) + direction) % sights.size();
             if (newIdx < 0) newIdx += sights.size();
-            changeSight(user, slot, sights.get(newIdx));
+            return changeSight(user, slot, sights.get(newIdx));
         }
 
         protected void toggleAiming(ItemTreeEvent.Input event) {
-            if ((!aiming && action != Action.AIMING_IN) || (aiming && action == Action.AIMING_OUT))
+            if (aimingOut())
                 aimIn(event.user(), event.slot());
             else
                 aimOut(event.user(), event.slot());
@@ -216,7 +196,7 @@ public abstract class SightManagerSystem extends AbstractSystem {
         }
 
         protected void aimIn(ItemTreeEvent.Input event) {
-            if (action != Action.AIMING_OUT && (aiming || action == Action.AIMING_IN))
+            if (aimingIn())
                 return;
             aimIn(event.user(), event.slot());
             event.cancel();
@@ -224,89 +204,112 @@ public abstract class SightManagerSystem extends AbstractSystem {
         }
 
         protected void aimOut(ItemTreeEvent.Input event) {
-            if (action != Action.AIMING_IN && (!aiming || action == Action.AIMING_OUT))
+            if (aimingOut())
                 return;
             aimOut(event.user(), event.slot());
             event.cancel();
             event.queueUpdate();
         }
 
-        protected void nextSight(ItemTreeEvent.Input event) {
-            cycleSight(event.user(), event.slot(), 1);
+        protected boolean changeSight(ItemTreeEvent.Input event, int direction) {
             event.cancel();
-            event.queueUpdate();
+            if (cycleSight(event.user(), event.slot(), direction)) {
+                event.queueUpdate();
+                return true;
+            }
+            return false;
         }
 
-        protected void previousSight(ItemTreeEvent.Input event) {
-            cycleSight(event.user(), event.slot(), -1);
-            event.cancel();
-            event.queueUpdate();
+        protected boolean nextSight(ItemTreeEvent.Input event) {
+            return changeSight(event, 1);
         }
 
-        private void event(ItemTreeEvent.Input event) {
-            if (!parent.isRoot())
-                return;
-            if (!scheduler.available())
-                return;
-            inputs.run(this, event, handlers -> handlers
-                    .put("toggle_aiming", () -> toggleAiming(event))
-                    .put("aim_in", () -> aimIn(event))
-                    .put("aim_out", () -> aimOut(event))
-                    .put("next_sight", () -> nextSight(event))
-                    .put("previous_sight", () -> previousSight(event))
-            );
+        protected boolean previousSight(ItemTreeEvent.Input event) {
+            return changeSight(event, -1);
         }
 
         protected abstract void zoom(ItemUser user, double zoom);
         protected abstract void sway(ItemUser user, Vector2 vector);
 
-        private void event(ItemTreeEvent.ShowItem event) {
+        private void handle(ItemTreeEvent.Input event, Consumer<ItemTreeEvent.Input> function) {
+            event.cancel();
+            if (scheduler.available())
+                function.accept(event);
+        }
+
+        protected void event(ItemTreeEvent.Input event) {
+            if (!parent.isRoot())
+                return;
+            inputs.run(this, event, handlers -> handlers
+                    .put("toggle_aiming", () -> handle(event, this::toggleAiming))
+                    .put("aim_in", () -> handle(event, this::aimIn))
+                    .put("aim_out", () -> handle(event, this::aimOut))
+                    .put("next_sight", () -> handle(event, this::nextSight))
+                    .put("previous_sight", () -> handle(event, this::previousSight))
+            );
+        }
+
+        protected void event(ItemTreeEvent.ShowItem event) {
             if (action == Action.AIMING_IN || (aiming && action == null))
                 event.cancel();
         }
 
-        private void event(ItemTreeEvent.Hold event) {
+        protected void event(ItemTreeEvent.Hold event) {
             if (!parent.isRoot())
                 return;
             if (event.sync()) {
-                sight().ifPresentOrElse(sight -> {
+                selected().ifPresentOrElse(sight -> {
                     if (action == null)
                         return;
                     double progress = Numbers.clamp01((double) (System.currentTimeMillis() - actionStart) / (actionEnd - actionStart));
-                    double multiplier = action == Action.AIMING_IN ? progress : 1 - progress;
-                    double zoom = sight.sight.zoom();
-                    if (zoom >= 0) {
-                        zoom(event.user(), zoom * (multiplier * multiplier));
-                    } else {
-                        zoom(event.user(), zoom - ((0.25 / Math.max(multiplier, 1e-3)) - 0.25));
-                    }
+                    double mult = action == Action.AIMING_IN ? progress : 1 - progress;
+                    double zoom = sight.selection().zoom();
+
+                    if (zoom < 0) {
+                        double val = zoom - ((0.2 / Math.max(mult, 1e-3)) - 0.2);
+                        zoom(event.user(), val);
+                    } else if (zoom >= 0.1) {
+                        double val = 0.1 + ((zoom - 0.1) * (mult*mult));
+                        zoom(event.user(), val);
+                    } else
+                        zoom(event.user(), 0);
+
                     if (progress >= 1) {
                         aiming = action == Action.AIMING_IN;
                         if (!aiming)
                             zoom(event.user(), 0);
                         action = null;
                         event.queueUpdate(ItemStack::hideUpdate);
+                        new Events.FinishAim(this, event.user(), event.slot(), aiming).call();
                     }
                 }, () -> {
                     if (aiming || action == Action.AIMING_IN)
                         aimOut(event.user(), event.slot());
                 });
             } else {
-                if (!aiming)
-                    return;
-                StatMap stats = parent.stats();
-                stats.<Vector2>desc("sway").ifPresent(sway -> stats.<Long>desc("sway_cycle").ifPresent(swayCycle -> {
-                    double angle = ((double) System.currentTimeMillis() / (swayCycle / 2d)) * Math.PI;
-                    Vector2 vector = new Vector2(
-                            sway.x() * Math.cos(angle),
-                            sway.y() * Math.sin(angle)
-                    );
-                    if (swayStabilizer != null)
-                        vector = vector.multiply(swayStabilizer.stabilization(event));
-                    if (vector.manhattanLength() > 0)
-                        sway(event.user(), vector);
-                }));
+                if (aimingIn()) {
+                    StatMap stats = parent.stats();
+                    stats.<Vector2>desc("sway").ifPresent(sway -> stats.<Long>desc("sway_cycle").ifPresent(swayCycle -> {
+                        double angle = ((double) System.currentTimeMillis() / (swayCycle / 2d)) * Math.PI;
+                        Vector2 vector = new Vector2(
+                                sway.x() * Math.cos(angle),
+                                sway.y() * Math.sin(angle)
+                        );
+                        if (swayStabilizer != null)
+                            vector = vector.multiply(swayStabilizer.stabilization(event));
+                        if (vector.manhattanLength() > 0)
+                            sway(event.user(), vector);
+                    }));
+                }
             }
+        }
+
+        protected void event(ItemTreeEvent.Unequip event) {
+            if (!parent.isRoot())
+                return;
+            aiming = false;
+            action = null;
+            event.queueUpdate();
         }
     }
 
@@ -377,6 +380,42 @@ public abstract class SightManagerSystem extends AbstractSystem {
         }
 
         @ConfigSerializable
+        public static final class AimingIn extends Rule.Singleton {
+            public static final String TYPE = namespace + "aiming_in";
+
+            public static final Aiming INSTANCE = new Aiming();
+
+            private AimingIn() {}
+
+            @Override public String type() { return TYPE; }
+
+            @Override
+            public boolean applies(TreeNode node) {
+                return node.system(KEY)
+                        .map(Instance::aimingIn)
+                        .orElse(false);
+            }
+        }
+
+        @ConfigSerializable
+        public static final class AimingOut extends Rule.Singleton {
+            public static final String TYPE = namespace + "aiming_out";
+
+            public static final Aiming INSTANCE = new Aiming();
+
+            private AimingOut() {}
+
+            @Override public String type() { return TYPE; }
+
+            @Override
+            public boolean applies(TreeNode node) {
+                return node.system(KEY)
+                        .map(Instance::aimingOut)
+                        .orElse(false);
+            }
+        }
+
+        @ConfigSerializable
         public static final class HasTarget extends Rule.Singleton {
             public static final String TYPE = namespace + "has_target";
 
@@ -429,9 +468,8 @@ public abstract class SightManagerSystem extends AbstractSystem {
             @Override public void cancelled(boolean cancelled) { this.cancelled = cancelled; }
         }
 
-        public static final class FinishAim extends Base implements Cancellable {
+        public static final class FinishAim extends Base {
             private final boolean aiming;
-            private boolean cancelled;
 
             public FinishAim(Instance system, ItemUser user, ItemSlot slot, boolean aiming) {
                 super(system, user, slot);
@@ -439,24 +477,21 @@ public abstract class SightManagerSystem extends AbstractSystem {
             }
 
             public boolean aiming() { return aiming; }
-
-            @Override public boolean cancelled() { return cancelled; }
-            @Override public void cancelled(boolean cancelled) { this.cancelled = cancelled; }
         }
 
         public static final class ChangeSight extends Base implements Cancellable {
-            private final Instance.@Nullable SightReference oldSight;
-            private final Instance.SightReference newSight;
+            private final Instance.@Nullable Reference<SightsSystem.Instance, Sight> oldSight;
+            private final Instance.Reference<SightsSystem.Instance, Sight> newSight;
             private boolean cancelled;
 
-            public ChangeSight(Instance system, ItemUser user, ItemSlot slot, Instance.@Nullable SightReference oldSight, Instance.SightReference newSight) {
+            public ChangeSight(Instance system, ItemUser user, ItemSlot slot, Instance.@Nullable Reference<SightsSystem.Instance, Sight> oldSight, Instance.Reference<SightsSystem.Instance, Sight> newSight) {
                 super(system, user, slot);
                 this.oldSight = oldSight;
                 this.newSight = newSight;
             }
 
-            public Optional<Instance.SightReference> oldSight() { return Optional.ofNullable(oldSight); }
-            public Instance.SightReference newSight() { return newSight; }
+            public Optional<Instance.Reference<SightsSystem.Instance, Sight>> oldSight() { return Optional.ofNullable(oldSight); }
+            public Instance.Reference<SightsSystem.Instance, Sight> newSight() { return newSight; }
 
             @Override public boolean cancelled() { return cancelled; }
             @Override public void cancelled(boolean cancelled) { this.cancelled = cancelled; }

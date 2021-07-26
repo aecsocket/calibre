@@ -3,16 +3,18 @@ package com.gitlab.aecsocket.calibre.paper.gun;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.Pair;
+import com.gitlab.aecsocket.calibre.core.gun.Sight;
 import com.gitlab.aecsocket.calibre.core.gun.SightManagerSystem;
+import com.gitlab.aecsocket.calibre.core.gun.SightsSystem;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.paper.PlayerData;
 import com.gitlab.aecsocket.minecommons.core.CollectionBuilder;
 import com.gitlab.aecsocket.minecommons.core.vector.cartesian.Vector2;
-import com.gitlab.aecsocket.minecommons.paper.display.PreciseSound;
 import com.gitlab.aecsocket.minecommons.paper.persistence.Persistence;
 import com.gitlab.aecsocket.minecommons.paper.plugin.ProtocolConstants;
 import com.gitlab.aecsocket.minecommons.paper.plugin.ProtocolLibAPI;
 import com.gitlab.aecsocket.sokol.core.stat.Stat;
+import com.gitlab.aecsocket.sokol.core.stat.StatLists;
 import com.gitlab.aecsocket.sokol.core.system.util.InputMapper;
 import com.gitlab.aecsocket.sokol.core.system.util.SystemPath;
 import com.gitlab.aecsocket.sokol.core.tree.TreeNode;
@@ -37,7 +39,6 @@ import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.gitlab.aecsocket.sokol.paper.stat.ItemStat.*;
@@ -50,6 +51,7 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
             .put(SightManagerSystem.STATS)
             .put("aim_item", itemStat())
             .put("aim_in_sound", soundsStat())
+            .put("aim_in_animation", animationStat())
             .put("aim_out_sound", soundsStat())
             .put("aim_out_animation", animationStat())
             .put("change_sight_sound", soundsStat())
@@ -75,11 +77,16 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
         @Override public SokolPlugin platform() { return platform; }
 
         @Override
+        public void build(StatLists stats) {
+            super.build(stats);
+            parent.events().register(ItemTreeEvent.Unequip.class, this::event, listenerPriority);
+        }
+
+        @Override
         protected void zoom(ItemUser user, double zoom) {
             if (!(user instanceof PlayerUser player))
                 return;
-            Player handle = player.handle();
-            calibre.zoom(handle, (handle.getWalkSpeed() / 2) + (float) (zoom));
+            calibre.zoom(player.handle(), (float) zoom);
         }
 
         @Override
@@ -94,82 +101,88 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
         }
 
         @Override
-        protected void applySight(ItemUser user, ItemSlot slot, SightReference ref) {
-            super.applySight(user, slot, ref);
+        protected void event(ItemTreeEvent.Unequip event) {
+            super.event(event);
+            if (!parent.isRoot())
+                return;
+            if (event.user() instanceof PlayerUser player)
+                calibre.playerData(player.handle()).shaderData(null);
+        }
+
+        @Override
+        protected void apply(ItemUser user, ItemSlot slot, Reference<SightsSystem.Instance, Sight> ref) {
+            super.apply(user, slot, ref);
             if (!(user instanceof PaperUser paper))
                 return;
-            if (!(ref.sight() instanceof PaperSight sight))
+            if (!(ref.selection() instanceof PaperSight sight))
                 return;
             if (sight.applySound() != null)
                 sight.applySound().forEach(s -> s.play(platform, paper.location()));
             if (user instanceof PlayerUser player) {
-                PlayerData data = calibre.playerData(player.handle());
-                if (lastShaderDataTask > -1)
-                    scheduler.unschedule(lastShaderDataTask);
-                data.shaderData(defaultShaderDataItem());
-                lastShaderDataTask = sight.shaderData() == null ? -1
-                        : scheduler.schedule(this, sight.shaderDataDelay(), (self, evt, ctx) ->
+                selected().ifPresent(s -> {
+                    PlayerData data = calibre.playerData(player.handle());
+                    if (lastShaderDataTask > -1)
+                        scheduler.unschedule(lastShaderDataTask);
+                    data.shaderData(defaultShaderDataItem());
+                    lastShaderDataTask = sight.shaderData() == null ? -1
+                            : scheduler.schedule(this, sight.shaderDataDelay(), (self, evt, ctx) ->
                                 data.shaderData(sight.shaderData().createRaw()));
-                if (sight.applyAnimation() != null &&  slot instanceof EquipSlot equip) {
-                    sight.applyAnimation().start(platform, player.handle(), equip);
-                }
+                });
+                if (sight.applyAnimation() != null)
+                    sight.applyAnimation().start(platform, player.handle(), slot);
             }
         }
 
         @Override
         protected void aim(ItemUser user, ItemSlot slot, boolean aiming, Action action, String key) {
             super.aim(user, slot, aiming, action, key);
-            if (!(user instanceof PaperUser paper))
-                return;
-
-            parent.stats().<List<PreciseSound>>desc("aim_" + key + "_sound")
-                    .ifPresent(v -> v.forEach(s -> s.play(platform, paper.location())));
-
-            if (!(paper instanceof PlayerUser player) || !(slot instanceof EquipSlot equip))
+            if (!(user instanceof PlayerUser player))
                 return;
 
             if (aiming) {
-                parent.stats().<ItemDescriptor>val("aim_item")
-                        .ifPresent(desc -> {
-                            ItemStack item = desc.createRaw();
-                            PacketContainer equipPacket = calibre.protocol().build(PacketType.Play.Server.ENTITY_EQUIPMENT, packet -> {
-                                packet.getIntegers().write(0, player.handle().getEntityId());
-                                packet.getSlotStackPairLists().write(0, Collections.singletonList(new Pair<>(
-                                        ProtocolConstants.SLOTS.get(equip.slot()), item
-                                )));
+                if (slot instanceof EquipSlot equip) {
+                    parent.stats().<ItemDescriptor>val("aim_item")
+                            .ifPresent(desc -> {
+                                ItemStack item = desc.createRaw();
+                                PacketContainer equipPacket = calibre.protocol().build(PacketType.Play.Server.ENTITY_EQUIPMENT, packet -> {
+                                    packet.getIntegers().write(0, player.handle().getEntityId());
+                                    packet.getSlotStackPairLists().write(0, Collections.singletonList(new Pair<>(
+                                            ProtocolConstants.SLOTS.get(equip.slot()), item
+                                    )));
+                                });
+                                PacketContainer metaPacket = calibre.protocol().build(PacketType.Play.Server.ENTITY_METADATA, packet -> {
+                                    packet.getIntegers().write(0, player.handle().getEntityId());
+                                    packet.getWatchableCollectionModifier().write(0, ProtocolLibAPI.watcherObjects()
+                                            .add(8, // bow animation
+                                                    Byte.class, (byte) 1)
+                                            .get()
+                                    );
+                                });
+                                for (Player viewer : player.handle().getTrackedPlayers()) {
+                                    calibre.protocol().send(viewer, equipPacket);
+                                    calibre.protocol().send(viewer, metaPacket);
+                                }
                             });
-                            PacketContainer metaPacket = calibre.protocol().build(PacketType.Play.Server.ENTITY_METADATA, packet -> {
-                                packet.getIntegers().write(0, player.handle().getEntityId());
-                                packet.getWatchableCollectionModifier().write(0, ProtocolLibAPI.watcherObjects()
-                                        .add(8, // bow animation
-                                                Byte.class, (byte) 1)
-                                        .get()
-                                );
-                            });
-                            for (Player viewer : player.handle().getTrackedPlayers()) {
-                                calibre.protocol().send(viewer, equipPacket);
-                                calibre.protocol().send(viewer, metaPacket);
-                            }
-                        });
-            } else
+                }
+            } else {
+                if (lastShaderDataTask > -1) {
+                    scheduler.unschedule(lastShaderDataTask);
+                    lastShaderDataTask = -1;
+                }
                 calibre.playerData(player.handle()).shaderData(null);
+            }
         }
 
         @Override
-        public void cycleSight(ItemUser user, ItemSlot slot, int direction) {
-            super.cycleSight(user, slot, direction);
-            if (!(user instanceof PaperUser paper))
-                return;
-            parent.stats().<List<PreciseSound>>desc("change_sight_sound")
-                    .ifPresent(v -> v.forEach(s -> s.play(platform, paper.location())));
-        }
-
-        private void sightChangeUpdate(ItemTreeEvent.Input event) {
-            if (event.updateQueued())
-                sight().ifPresent(s -> {
-                    if (s.sight() instanceof PaperSight sight && sight.applyAnimation() != null)
+        protected boolean changeSight(ItemTreeEvent.Input event, int direction) {
+            if (super.changeSight(event, direction)) {
+                selected().ifPresent(s -> {
+                    if (event.updateQueued() && s.selection() instanceof PaperSight sight && sight.applyAnimation() != null)
                         event.queueUpdate(com.gitlab.aecsocket.sokol.core.wrapper.ItemStack::hideUpdate);
                 });
+                return true;
+            }
+            return false;
         }
 
         @Override

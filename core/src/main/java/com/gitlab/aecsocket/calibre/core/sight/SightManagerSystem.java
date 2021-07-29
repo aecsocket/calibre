@@ -1,10 +1,12 @@
-package com.gitlab.aecsocket.calibre.core.gun;
+package com.gitlab.aecsocket.calibre.core.sight;
 
+import com.gitlab.aecsocket.calibre.core.SelectorManagerSystem;
 import com.gitlab.aecsocket.minecommons.core.CollectionBuilder;
 import com.gitlab.aecsocket.minecommons.core.Numbers;
 import com.gitlab.aecsocket.minecommons.core.event.Cancellable;
 import com.gitlab.aecsocket.minecommons.core.serializers.Serializers;
 import com.gitlab.aecsocket.minecommons.core.vector.cartesian.Vector2;
+import com.gitlab.aecsocket.minecommons.core.vector.cartesian.Vector3;
 import com.gitlab.aecsocket.sokol.core.rule.Rule;
 import com.gitlab.aecsocket.sokol.core.stat.Stat;
 import com.gitlab.aecsocket.sokol.core.stat.StatLists;
@@ -20,6 +22,7 @@ import com.gitlab.aecsocket.sokol.core.wrapper.ItemSlot;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemStack;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemUser;
 import com.gitlab.aecsocket.sokol.core.wrapper.PlayerUser;
+import net.kyori.adventure.text.Component;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
@@ -39,6 +42,8 @@ public abstract class SightManagerSystem extends AbstractSystem {
             .put("aim_out_after", longStat())
             .put("sway", vector2Stat())
             .put("sway_cycle", longStat())
+            .put("rest_offset_a", vector3Stat())
+            .put("rest_offset_b", vector3Stat())
             .build();
     public static final Map<String, Class<? extends Rule>> RULES = CollectionBuilder.map(new HashMap<String, Class<? extends Rule>>())
             .put(Rules.Aiming.TYPE, Rules.Aiming.class)
@@ -46,6 +51,7 @@ public abstract class SightManagerSystem extends AbstractSystem {
             .put(Rules.AimingIn.TYPE, Rules.AimingIn.class)
             .put(Rules.AimingOut.TYPE, Rules.AimingOut.class)
             .put(Rules.HasTarget.TYPE, Rules.HasTarget.class)
+            .put(Rules.Resting.TYPE, Rules.Resting.class)
             .build();
 
     /*
@@ -71,8 +77,10 @@ public abstract class SightManagerSystem extends AbstractSystem {
         protected @Nullable Action action;
         protected long actionStart;
         protected long actionEnd;
+        protected boolean resting;
 
-        public Instance(TreeNode parent, boolean aiming, @Nullable SystemPath targetSystem, int targetIndex, @Nullable Action action, long actionStart, long actionEnd) {
+        public Instance(TreeNode parent, boolean aiming, @Nullable SystemPath targetSystem, int targetIndex,
+                        @Nullable Action action, long actionStart, long actionEnd, boolean resting) {
             super(parent, targetSystem, targetIndex);
             this.aiming = aiming;
             this.targetSystem = targetSystem;
@@ -80,15 +88,24 @@ public abstract class SightManagerSystem extends AbstractSystem {
             this.action = action;
             this.actionStart = actionStart;
             this.actionEnd = actionEnd;
+            this.resting = resting;
+        }
+
+        public Instance(TreeNode parent) {
+            super(parent);
         }
 
         @Override public abstract SightManagerSystem base();
 
         public SchedulerSystem<?>.Instance scheduler() { return scheduler; }
+        public SwayStabilizer swayStabilizer() { return swayStabilizer; }
         public boolean aiming() { return aiming; }
         public Action action() { return action; }
         public long actionStart() { return actionStart; }
         public long actionEnd() { return actionEnd; }
+
+        public boolean resting() { return resting; }
+        public void resting(boolean resting) { this.resting = resting; }
 
         @Override protected Key<SightsSystem.Instance> holderKey() { return SightsSystem.KEY; }
 
@@ -191,30 +208,27 @@ public abstract class SightManagerSystem extends AbstractSystem {
                 aimIn(event.user(), event.slot());
             else
                 aimOut(event.user(), event.slot());
-            event.cancel();
-            event.queueUpdate();
+            event.update();
         }
 
         protected void aimIn(ItemTreeEvent.Input event) {
             if (aimingIn())
                 return;
             aimIn(event.user(), event.slot());
-            event.cancel();
-            event.queueUpdate();
+            event.update();
         }
 
         protected void aimOut(ItemTreeEvent.Input event) {
             if (aimingOut())
                 return;
             aimOut(event.user(), event.slot());
-            event.cancel();
-            event.queueUpdate();
+            event.update();
         }
 
         protected boolean changeSight(ItemTreeEvent.Input event, int direction) {
             event.cancel();
             if (cycleSight(event.user(), event.slot(), direction)) {
-                event.queueUpdate();
+                event.update();
                 return true;
             }
             return false;
@@ -230,6 +244,7 @@ public abstract class SightManagerSystem extends AbstractSystem {
 
         protected abstract void zoom(ItemUser user, double zoom);
         protected abstract void sway(ItemUser user, Vector2 vector);
+        protected abstract boolean resting(ItemUser user, Vector3 offsetA, Vector3 offsetB);
 
         private void handle(ItemTreeEvent.Input event, Consumer<ItemTreeEvent.Input> function) {
             event.cancel();
@@ -259,29 +274,36 @@ public abstract class SightManagerSystem extends AbstractSystem {
                 return;
             if (event.sync()) {
                 selected().ifPresentOrElse(sight -> {
-                    if (action == null)
-                        return;
-                    double progress = Numbers.clamp01((double) (System.currentTimeMillis() - actionStart) / (actionEnd - actionStart));
-                    double mult = action == Action.AIMING_IN ? progress : 1 - progress;
-                    double zoom = sight.selection().zoom();
+                    parent.stats().<Vector3>desc("rest_offset_a").ifPresent(offset ->
+                        resting = resting(event.user(), offset, parent.stats().reqDesc("rest_offset_b")));
+                    ((PlayerUser) event.user()).sendActionBar(Component.text("resting? " + resting));
 
-                    if (zoom < 0) {
-                        double val = zoom - ((0.2 / Math.max(mult, 1e-3)) - 0.2);
-                        zoom(event.user(), val);
-                    } else if (zoom >= 0.1) {
-                        double val = 0.1 + ((zoom - 0.1) * (mult*mult));
-                        zoom(event.user(), val);
-                    } else
-                        zoom(event.user(), 0);
+                    if (action != null) {
+                        double progress = Numbers.clamp01((double) (System.currentTimeMillis() - actionStart) / (actionEnd - actionStart));
+                        double mult = action == Action.AIMING_IN ? progress : 1 - progress;
+                        double zoom = sight.selection().zoom();
 
-                    if (progress >= 1) {
-                        aiming = action == Action.AIMING_IN;
-                        if (!aiming)
+                        if (zoom < 0) {
+                            double val = zoom - ((0.2 / Math.max(mult, 1e-3)) - 0.2);
+                            zoom(event.user(), val);
+                        } else if (zoom >= 0.1) {
+                            double val = 0.1 + ((zoom - 0.1) * (mult * mult));
+                            zoom(event.user(), val);
+                        } else
                             zoom(event.user(), 0);
-                        action = null;
-                        event.queueUpdate(ItemStack::hideUpdate);
-                        new Events.FinishAim(this, event.user(), event.slot(), aiming).call();
+
+                        if (progress >= 1) {
+                            aiming = action == Action.AIMING_IN;
+                            if (!aiming)
+                                zoom(event.user(), 0);
+                            action = null;
+                            event.update(ItemStack::hideUpdate);
+                            new Events.FinishAim(this, event.user(), event.slot(), aiming).call();
+                        }
                     }
+
+                    if (aiming)
+                        event.update();
                 }, () -> {
                     if (aiming || action == Action.AIMING_IN)
                         aimOut(event.user(), event.slot());
@@ -309,7 +331,8 @@ public abstract class SightManagerSystem extends AbstractSystem {
                 return;
             aiming = false;
             action = null;
-            event.queueUpdate();
+            zoom(event.user(), 0.1);
+            event.update();
         }
     }
 
@@ -428,7 +451,25 @@ public abstract class SightManagerSystem extends AbstractSystem {
             @Override
             public boolean applies(TreeNode node) {
                 return node.system(KEY)
-                        .map(sys -> sys.targetSystem != null)
+                        .map(sys -> sys.targetSystem().isPresent())
+                        .orElse(false);
+            }
+        }
+
+        @ConfigSerializable
+        public static final class Resting extends Rule.Singleton {
+            public static final String TYPE = namespace + "resting";
+
+            public static final Resting INSTANCE = new Resting();
+
+            private Resting() {}
+
+            @Override public String type() { return TYPE; }
+
+            @Override
+            public boolean applies(TreeNode node) {
+                return node.system(KEY)
+                        .map(sys -> sys.resting)
                         .orElse(false);
             }
         }

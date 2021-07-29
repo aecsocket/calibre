@@ -1,5 +1,6 @@
-package com.gitlab.aecsocket.calibre.core.gun;
+package com.gitlab.aecsocket.calibre.core.mode;
 
+import com.gitlab.aecsocket.calibre.core.SelectorHolderSystem;
 import com.gitlab.aecsocket.minecommons.core.serializers.Serializers;
 import com.gitlab.aecsocket.sokol.core.system.AbstractSystem;
 import com.gitlab.aecsocket.sokol.core.tree.TreeNode;
@@ -9,32 +10,32 @@ import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.List;
 
-public abstract class SightsSystem extends AbstractSystem {
-    public static final String ID = "sights";
+public abstract class ModesSystem extends AbstractSystem {
+    public static final String ID = "modes";
     public static final Key<Instance> KEY = new Key<>(ID, Instance.class);
 
-    public abstract class Instance extends AbstractSystem.Instance implements SelectorHolderSystem<Sight> {
+    public abstract class Instance extends AbstractSystem.Instance implements SelectorHolderSystem<Mode> {
         public Instance(TreeNode parent) {
             super(parent);
         }
 
-        @Override public abstract SightsSystem base();
-        @Override public List<Sight> selections() { return base().sights; }
+        @Override public abstract ModesSystem base();
+        @Override public List<Mode> selections() { return base().modes; }
     }
 
-    protected final List<Sight> sights;
+    protected final List<Mode> modes;
 
-    public SightsSystem(List<Sight> sights) {
+    public ModesSystem(List<Mode> modes) {
         super(0);
-        this.sights = sights;
+        this.modes = modes;
     }
 
-    public List<Sight> sights() { return sights; }
+    public List<Mode> sights() { return modes; }
 
     @Override public String id() { return ID; }
 
     @Override
     public void loadSelf(ConfigurationNode cfg) throws SerializationException {
-        sights.addAll(Serializers.require(cfg, new TypeToken<List<Sight>>() {}));
+        modes.addAll(Serializers.require(cfg, new TypeToken<List<Mode>>() {}));
     }
 }

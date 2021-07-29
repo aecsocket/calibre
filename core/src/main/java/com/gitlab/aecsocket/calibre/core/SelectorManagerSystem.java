@@ -1,4 +1,4 @@
-package com.gitlab.aecsocket.calibre.core.gun;
+package com.gitlab.aecsocket.calibre.core;
 
 import com.gitlab.aecsocket.sokol.core.system.AbstractSystem;
 import com.gitlab.aecsocket.sokol.core.system.System;
@@ -20,6 +20,10 @@ public abstract class SelectorManagerSystem<S extends SelectorHolderSystem<T>, T
         super(parent);
         this.targetSystem = targetSystem;
         this.targetIndex = targetIndex;
+    }
+
+    public SelectorManagerSystem(TreeNode parent) {
+        this(parent, null, 0);
     }
 
     public Optional<SystemPath> targetSystem() { return Optional.ofNullable(targetSystem); }

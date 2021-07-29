@@ -1,4 +1,4 @@
-package com.gitlab.aecsocket.calibre.core.gun;
+package com.gitlab.aecsocket.calibre.core.sight;
 
 import com.gitlab.aecsocket.sokol.core.stat.StatLists;
 

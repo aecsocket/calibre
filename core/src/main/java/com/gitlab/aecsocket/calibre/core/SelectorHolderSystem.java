@@ -1,4 +1,4 @@
-package com.gitlab.aecsocket.calibre.core.gun;
+package com.gitlab.aecsocket.calibre.core;
 
 import com.gitlab.aecsocket.sokol.core.system.System;
 

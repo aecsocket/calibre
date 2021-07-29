@@ -1,11 +1,12 @@
-package com.gitlab.aecsocket.calibre.paper.gun;
+package com.gitlab.aecsocket.calibre.paper.mode;
 
-import com.gitlab.aecsocket.calibre.core.gun.Mode;
-import com.gitlab.aecsocket.calibre.core.gun.ModeManagerSystem;
-import com.gitlab.aecsocket.calibre.core.gun.ModesSystem;
+import com.gitlab.aecsocket.calibre.core.mode.Mode;
+import com.gitlab.aecsocket.calibre.core.mode.ModeManagerSystem;
+import com.gitlab.aecsocket.calibre.core.mode.ModesSystem;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.minecommons.core.CollectionBuilder;
 import com.gitlab.aecsocket.sokol.core.stat.Stat;
+import com.gitlab.aecsocket.sokol.core.system.LoadProvider;
 import com.gitlab.aecsocket.sokol.core.system.util.InputMapper;
 import com.gitlab.aecsocket.sokol.core.system.util.SystemPath;
 import com.gitlab.aecsocket.sokol.core.tree.TreeNode;
@@ -35,6 +36,7 @@ public final class PaperModeManagerSystem extends ModeManagerSystem implements P
             .put("change_mode_sound", soundsStat())
             .put("change_mode_animation", animationStat())
             .build();
+    public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofBoth(STATS, RULES);
 
     private static final String keyTargetSystem = "target_system";
     private static final String keyTargetIndex = "target_index";
@@ -56,8 +58,8 @@ public final class PaperModeManagerSystem extends ModeManagerSystem implements P
         protected boolean changeMode(ItemTreeEvent.Input event, int direction) {
             if (super.changeMode(event, direction)) {
                 selected().ifPresent(s -> {
-                    if (event.updateQueued() && s.selection() instanceof PaperMode mode && mode.applyAnimation() != null)
-                        event.queueUpdate(com.gitlab.aecsocket.sokol.core.wrapper.ItemStack::hideUpdate);
+                    if (event.updated() && s.selection() instanceof PaperMode mode && mode.applyAnimation() != null)
+                        event.update(com.gitlab.aecsocket.sokol.core.wrapper.ItemStack::hideUpdate);
                 });
                 return true;
             }
@@ -112,7 +114,7 @@ public final class PaperModeManagerSystem extends ModeManagerSystem implements P
                 cfg.node(keyTargetIndex).getInt());
     }
 
-    public static Type type(SokolPlugin platform, CalibrePlugin calibre) {
+    public static ConfigType type(SokolPlugin platform, CalibrePlugin calibre) {
         return cfg -> new PaperModeManagerSystem(platform, calibre,
                 cfg.node(keyListenerPriority).getInt(),
                 null);

@@ -1,10 +1,9 @@
-package com.gitlab.aecsocket.calibre.paper.gun;
+package com.gitlab.aecsocket.calibre.paper.mode;
 
-import com.gitlab.aecsocket.calibre.core.gun.Sight;
+import com.gitlab.aecsocket.calibre.core.mode.Mode;
 import com.gitlab.aecsocket.minecommons.paper.display.PreciseSound;
 import com.gitlab.aecsocket.sokol.core.stat.StatLists;
 import com.gitlab.aecsocket.sokol.paper.wrapper.item.Animation;
-import com.gitlab.aecsocket.sokol.paper.wrapper.item.ItemDescriptor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Required;
@@ -12,12 +11,9 @@ import org.spongepowered.configurate.objectmapping.meta.Required;
 import java.util.List;
 
 @ConfigSerializable
-public record PaperSight(
+public record PaperMode(
         @Required String id,
-        double zoom,
         @Nullable List<PreciseSound> applySound,
         @Nullable Animation applyAnimation,
-        @Nullable ItemDescriptor shaderData,
-        long shaderDataDelay,
         @Nullable StatLists stats
-) implements Sight {}
+) implements Mode {}

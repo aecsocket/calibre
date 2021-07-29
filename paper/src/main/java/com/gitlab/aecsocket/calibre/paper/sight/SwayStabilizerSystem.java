@@ -1,12 +1,13 @@
-package com.gitlab.aecsocket.calibre.paper.gun;
+package com.gitlab.aecsocket.calibre.paper.sight;
 
-import com.gitlab.aecsocket.calibre.core.gun.SwayStabilizer;
+import com.gitlab.aecsocket.calibre.core.sight.SwayStabilizer;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.paper.PlayerData;
 import com.gitlab.aecsocket.minecommons.core.CollectionBuilder;
 import com.gitlab.aecsocket.minecommons.core.vector.cartesian.Vector2;
 import com.gitlab.aecsocket.sokol.core.stat.Stat;
 import com.gitlab.aecsocket.sokol.core.system.AbstractSystem;
+import com.gitlab.aecsocket.sokol.core.system.LoadProvider;
 import com.gitlab.aecsocket.sokol.core.tree.TreeNode;
 import com.gitlab.aecsocket.sokol.core.tree.event.ItemTreeEvent;
 import com.gitlab.aecsocket.sokol.paper.PaperTreeNode;
@@ -32,6 +33,7 @@ public final class SwayStabilizerSystem extends AbstractSystem implements PaperS
             .put("sway_stabilization", vector2Stat())
             .put("sway_stamina_drain", longStat())
             .build();
+    public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofStats(STATS);
 
     public final class Instance extends AbstractSystem.Instance implements PaperSystem.Instance, SwayStabilizer {
         public Instance(TreeNode parent) {
@@ -88,7 +90,7 @@ public final class SwayStabilizerSystem extends AbstractSystem implements PaperS
         return new Instance(node);
     }
 
-    public static Type type(SokolPlugin platform, CalibrePlugin calibre) {
+    public static ConfigType type(SokolPlugin platform, CalibrePlugin calibre) {
         return cfg -> new SwayStabilizerSystem(platform, calibre);
     }
 }

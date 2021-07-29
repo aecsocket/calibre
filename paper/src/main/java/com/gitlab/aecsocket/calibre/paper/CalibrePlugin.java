@@ -4,29 +4,52 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.reflect.EquivalentConverter;
 import com.comphenix.protocol.utility.MinecraftReflection;
 import com.comphenix.protocol.wrappers.EnumWrappers;
-import com.gitlab.aecsocket.calibre.core.gun.*;
-import com.gitlab.aecsocket.calibre.paper.gun.*;
+import com.gitlab.aecsocket.calibre.core.projectile.ProjectileLaunchSystem;
+import com.gitlab.aecsocket.calibre.core.mode.Mode;
+import com.gitlab.aecsocket.calibre.core.mode.ModeManagerSystem;
+import com.gitlab.aecsocket.calibre.core.mode.ModesSystem;
+import com.gitlab.aecsocket.calibre.core.sight.Sight;
+import com.gitlab.aecsocket.calibre.core.sight.SightManagerSystem;
+import com.gitlab.aecsocket.calibre.core.sight.SightsSystem;
+import com.gitlab.aecsocket.calibre.paper.fire.PaperProjectileLaunchSystem;
+import com.gitlab.aecsocket.calibre.paper.fire.ProjectileProviderSystem;
+import com.gitlab.aecsocket.calibre.paper.mode.PaperMode;
+import com.gitlab.aecsocket.calibre.paper.mode.PaperModeManagerSystem;
+import com.gitlab.aecsocket.calibre.paper.mode.PaperModesSystem;
+import com.gitlab.aecsocket.calibre.paper.sight.PaperSight;
+import com.gitlab.aecsocket.calibre.paper.sight.PaperSightManagerSystem;
+import com.gitlab.aecsocket.calibre.paper.sight.PaperSightsSystem;
+import com.gitlab.aecsocket.calibre.paper.sight.SwayStabilizerSystem;
 import com.gitlab.aecsocket.minecommons.core.Ticks;
 import com.gitlab.aecsocket.minecommons.core.scheduler.Task;
+import com.gitlab.aecsocket.minecommons.core.scheduler.ThreadScheduler;
 import com.gitlab.aecsocket.minecommons.core.serializers.ProxySerializer;
 import com.gitlab.aecsocket.minecommons.paper.plugin.BasePlugin;
 import com.gitlab.aecsocket.minecommons.paper.plugin.ProtocolLibAPI;
+import com.gitlab.aecsocket.minecommons.paper.raycast.PaperRaycast;
+import com.gitlab.aecsocket.minecommons.paper.scheduler.PaperScheduler;
 import com.gitlab.aecsocket.sokol.paper.SokolPlugin;
 import io.leangen.geantyref.TypeToken;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.*;
+import java.util.concurrent.Executors;
 
 public class CalibrePlugin extends BasePlugin<CalibrePlugin> implements Listener {
     /** The ID for this plugin on https://bstats.org. */
     public static final int BSTATS_ID = 10479;
 
+    private final PaperScheduler paperScheduler = new PaperScheduler(this);
+    private final ThreadScheduler threadScheduler = new ThreadScheduler(Executors.newSingleThreadExecutor());
     private final Map<UUID, PlayerData> playerData = new HashMap<>();
+    private final Materials materials = new Materials(this);
+    private PaperRaycast.Builder raycast;
 
     @Override
     public void onEnable() {
@@ -34,19 +57,28 @@ public class CalibrePlugin extends BasePlugin<CalibrePlugin> implements Listener
         Bukkit.getPluginManager().registerEvents(this, this);
         SokolPlugin sokol = SokolPlugin.instance();
         sokol
-                .registerSystemType(SightManagerSystem.ID, PaperSightManagerSystem.type(sokol, this))
-                .registerSystemType(SightsSystem.ID, PaperSightsSystem.type(sokol))
-                .registerSystemType(SwayStabilizerSystem.ID, SwayStabilizerSystem.type(sokol, this))
-                .registerSystemType(ModeManagerSystem.ID, PaperModeManagerSystem.type(sokol, this))
-                .registerSystemType(ModesSystem.ID, PaperModesSystem.type(sokol));
+                .registerSystemType(SightManagerSystem.ID, PaperSightManagerSystem.type(sokol, this), () -> PaperSightManagerSystem.LOAD_PROVIDER)
+                .registerSystemType(SightsSystem.ID, PaperSightsSystem.type(sokol), () -> PaperSightsSystem.LOAD_PROVIDER)
+                .registerSystemType(SwayStabilizerSystem.ID, SwayStabilizerSystem.type(sokol, this), () -> SwayStabilizerSystem.LOAD_PROVIDER)
+                .registerSystemType(ModeManagerSystem.ID, PaperModeManagerSystem.type(sokol, this), () -> PaperModeManagerSystem.LOAD_PROVIDER)
+                .registerSystemType(ModesSystem.ID, PaperModesSystem.type(sokol), () -> PaperModesSystem.LOAD_PROVIDER)
+                .registerSystemType(ProjectileLaunchSystem.ID, PaperProjectileLaunchSystem.type(sokol, this), () -> PaperProjectileLaunchSystem.LOAD_PROVIDER)
+                .registerSystemType(ProjectileProviderSystem.ID, ProjectileProviderSystem.type(sokol, this), () -> ProjectileProviderSystem.LOAD_PROVIDER);
         sokol.configOptionInitializer((serializers, mapper) -> serializers
                 .registerExact(Sight.class, new ProxySerializer<>(new TypeToken<PaperSight>() {}))
-                .registerExact(Mode.class, new ProxySerializer<>(new TypeToken<PaperMode>() {}))
-        );
-        sokol.schedulers().paperScheduler().run(Task.repeating(ctx -> {
+                .registerExact(Mode.class, new ProxySerializer<>(new TypeToken<PaperMode>() {})));
+
+        paperScheduler.run(Task.repeating(ctx -> {
             for (var data : playerData.values())
                 data.paperTick(ctx);
         }, Ticks.MSPT));
+        threadScheduler.run(Task.repeating(ctx -> {
+            for (var data : playerData.values())
+                data.threadTick(ctx);
+        }, 10));
+
+        // TODO configs for raycaster
+        raycast = PaperRaycast.builder();
     }
 
     @Override
@@ -55,8 +87,15 @@ public class CalibrePlugin extends BasePlugin<CalibrePlugin> implements Listener
             data.disable();
     }
 
-    public Map<UUID, PlayerData> playerData() { return playerData; }
+    @Override
+    public void load() {
+        super.load();
+        materials.load();
+    }
+
+    public PaperScheduler paperScheduler() { return paperScheduler; }
     public PlayerData playerData(Player player) { return playerData.computeIfAbsent(player.getUniqueId(), u -> new PlayerData(this, player)); }
+    public Materials materials() { return materials; }
 
     private enum PlayerTeleportFlag {
         X, Y, Z, Y_ROT, X_ROT
@@ -106,6 +145,10 @@ public class CalibrePlugin extends BasePlugin<CalibrePlugin> implements Listener
                     .get()
             );
         });
+    }
+
+    public PaperRaycast raycast(World world) {
+        return raycast.build(world);
     }
 
     @EventHandler

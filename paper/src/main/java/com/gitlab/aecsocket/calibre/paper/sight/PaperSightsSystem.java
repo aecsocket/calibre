@@ -1,7 +1,8 @@
-package com.gitlab.aecsocket.calibre.paper.gun;
+package com.gitlab.aecsocket.calibre.paper.sight;
 
-import com.gitlab.aecsocket.calibre.core.gun.Sight;
-import com.gitlab.aecsocket.calibre.core.gun.SightsSystem;
+import com.gitlab.aecsocket.calibre.core.sight.Sight;
+import com.gitlab.aecsocket.calibre.core.sight.SightsSystem;
+import com.gitlab.aecsocket.sokol.core.system.LoadProvider;
 import com.gitlab.aecsocket.sokol.core.tree.TreeNode;
 import com.gitlab.aecsocket.sokol.paper.PaperTreeNode;
 import com.gitlab.aecsocket.sokol.paper.SokolPlugin;
@@ -15,6 +16,7 @@ import java.util.List;
 
 public final class PaperSightsSystem extends SightsSystem implements PaperSystem {
     public static final Key<Instance> KEY = new Key<>(ID, Instance.class);
+    public static final LoadProvider LOAD_PROVIDER = LoadProvider.empty();
 
     public final class Instance extends SightsSystem.Instance implements PaperSystem.Instance {
         public Instance(TreeNode parent) {
@@ -49,7 +51,7 @@ public final class PaperSightsSystem extends SightsSystem implements PaperSystem
         return new Instance(node);
     }
 
-    public static Type type(SokolPlugin platform) {
+    public static ConfigType type(SokolPlugin platform) {
         return cfg -> new PaperSightsSystem(platform,
                 new ArrayList<>());
     }

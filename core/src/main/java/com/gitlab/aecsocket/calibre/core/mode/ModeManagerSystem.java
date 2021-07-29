@@ -1,5 +1,6 @@
-package com.gitlab.aecsocket.calibre.core.gun;
+package com.gitlab.aecsocket.calibre.core.mode;
 
+import com.gitlab.aecsocket.calibre.core.SelectorManagerSystem;
 import com.gitlab.aecsocket.minecommons.core.CollectionBuilder;
 import com.gitlab.aecsocket.minecommons.core.event.Cancellable;
 import com.gitlab.aecsocket.minecommons.core.serializers.Serializers;
@@ -15,8 +16,6 @@ import com.gitlab.aecsocket.sokol.core.tree.event.ItemTreeEvent;
 import com.gitlab.aecsocket.sokol.core.tree.event.TreeEvent;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemSlot;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemUser;
-import com.gitlab.aecsocket.sokol.core.wrapper.PlayerUser;
-import net.kyori.adventure.text.Component;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
@@ -58,12 +57,6 @@ public abstract class ModeManagerSystem extends AbstractSystem {
         public void build(StatLists stats) {
             scheduler = depend(SchedulerSystem.KEY);
             parent.events().register(ItemTreeEvent.Input.class, this::event, listenerPriority);
-            parent.events().register(ItemTreeEvent.Hold.class, event -> {
-                // TODO
-                selected().ifPresent(ref -> {
-                    ((PlayerUser) event.user()).sendActionBar(Component.text(ref.selection().id()));
-                });
-            });
 
             selected().ifPresentOrElse(
                     mode -> {
@@ -112,9 +105,8 @@ public abstract class ModeManagerSystem extends AbstractSystem {
         }
 
         protected boolean changeMode(ItemTreeEvent.Input event, int direction) {
-            event.cancel();
             if (cycleMode(event.user(), event.slot(), direction)) {
-                event.queueUpdate();
+                event.update();
                 return true;
             }
             return false;
@@ -180,7 +172,7 @@ public abstract class ModeManagerSystem extends AbstractSystem {
             @Override
             public boolean applies(TreeNode node) {
                 return node.system(KEY)
-                        .map(sys -> sys.targetSystem != null)
+                        .map(sys -> sys.targetSystem().isPresent())
                         .orElse(false);
             }
         }

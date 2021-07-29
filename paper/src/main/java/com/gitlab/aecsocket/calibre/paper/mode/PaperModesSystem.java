@@ -1,7 +1,8 @@
-package com.gitlab.aecsocket.calibre.paper.gun;
+package com.gitlab.aecsocket.calibre.paper.mode;
 
-import com.gitlab.aecsocket.calibre.core.gun.Mode;
-import com.gitlab.aecsocket.calibre.core.gun.ModesSystem;
+import com.gitlab.aecsocket.calibre.core.mode.Mode;
+import com.gitlab.aecsocket.calibre.core.mode.ModesSystem;
+import com.gitlab.aecsocket.sokol.core.system.LoadProvider;
 import com.gitlab.aecsocket.sokol.core.tree.TreeNode;
 import com.gitlab.aecsocket.sokol.paper.PaperTreeNode;
 import com.gitlab.aecsocket.sokol.paper.SokolPlugin;
@@ -15,6 +16,7 @@ import java.util.List;
 
 public final class PaperModesSystem extends ModesSystem implements PaperSystem {
     public static final Key<Instance> KEY = new Key<>(ID, Instance.class);
+    public static final LoadProvider LOAD_PROVIDER = LoadProvider.empty();
 
     public final class Instance extends ModesSystem.Instance implements PaperSystem.Instance {
         public Instance(TreeNode parent) {
@@ -49,7 +51,7 @@ public final class PaperModesSystem extends ModesSystem implements PaperSystem {
         return new Instance(node);
     }
 
-    public static Type type(SokolPlugin platform) {
+    public static ConfigType type(SokolPlugin platform) {
         return cfg -> new PaperModesSystem(platform,
                 new ArrayList<>());
     }

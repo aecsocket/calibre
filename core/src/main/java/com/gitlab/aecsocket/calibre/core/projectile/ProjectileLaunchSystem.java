@@ -4,16 +4,19 @@ import com.gitlab.aecsocket.minecommons.core.CollectionBuilder;
 import com.gitlab.aecsocket.minecommons.core.serializers.Serializers;
 import com.gitlab.aecsocket.minecommons.core.vector.cartesian.Vector2;
 import com.gitlab.aecsocket.minecommons.core.vector.cartesian.Vector3;
+import com.gitlab.aecsocket.minecommons.core.vector.polar.Coord3;
 import com.gitlab.aecsocket.sokol.core.rule.Rule;
 import com.gitlab.aecsocket.sokol.core.stat.Stat;
 import com.gitlab.aecsocket.sokol.core.stat.StatLists;
 import com.gitlab.aecsocket.sokol.core.system.AbstractSystem;
 import com.gitlab.aecsocket.sokol.core.system.inbuilt.SchedulerSystem;
+import com.gitlab.aecsocket.sokol.core.system.util.Availability;
 import com.gitlab.aecsocket.sokol.core.system.util.InputMapper;
 import com.gitlab.aecsocket.sokol.core.tree.TreeNode;
 import com.gitlab.aecsocket.sokol.core.tree.event.ItemTreeEvent;
 import com.gitlab.aecsocket.sokol.core.tree.event.TreeEvent;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemSlot;
+import com.gitlab.aecsocket.sokol.core.wrapper.ItemStack;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemUser;
 import com.gitlab.aecsocket.sokol.core.wrapper.PlayerUser;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -24,7 +27,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static com.gitlab.aecsocket.sokol.core.stat.inbuilt.PrimitiveStat.*;
 import static com.gitlab.aecsocket.sokol.core.stat.inbuilt.StringStat.*;
@@ -37,6 +42,12 @@ public abstract class ProjectileLaunchSystem extends AbstractSystem {
             .put("slot_tag_chamber", stringStat())
             .put("launch_offset", vector3Stat())
             .put("launch_velocity", doubleStat())
+            .put("launch_delay", longStat())
+            .put("launch_after", longStat())
+            .put("launches", intStat())
+            .put("launch_interval", longStat())
+
+            .put("spread", vector2Stat())
 
             .put("recoil", vector2Stat())
             .put("recoil_random", vector2Stat())
@@ -48,9 +59,15 @@ public abstract class ProjectileLaunchSystem extends AbstractSystem {
     public static final Map<String, Class<? extends Rule>> RULES = CollectionBuilder.map(new HashMap<String, Class<? extends Rule>>())
             .build();
 
-    public abstract class Instance extends AbstractSystem.Instance {
+    public abstract class Instance extends AbstractSystem.Instance implements Availability {
         protected SchedulerSystem<?>.Instance scheduler;
         protected ProjectileProvider provider;
+        protected long availableAt;
+
+        public Instance(TreeNode parent, long availableAt) {
+            super(parent);
+            this.availableAt = availableAt;
+        }
 
         public Instance(TreeNode parent) {
             super(parent);
@@ -61,20 +78,34 @@ public abstract class ProjectileLaunchSystem extends AbstractSystem {
         public SchedulerSystem<?>.Instance scheduler() { return scheduler; }
         public ProjectileProvider provider() { return provider; }
 
+        @Override public boolean available() { return System.currentTimeMillis() >= availableAt; }
+        @Override public void delay(long ms) { availableAt = System.currentTimeMillis() + ms; }
+
         @Override
         public void build(StatLists stats) {
             scheduler = depend(SchedulerSystem.KEY);
             provider = softDepend(ProjectileProvider.class);
-            parent.events().register(ItemTreeEvent.Input.class, this::event);
+            parent.events().register(ItemTreeEvent.Input.class, this::event, listenerPriority);
         }
 
         protected abstract void recoil(ItemUser user, Vector2 recoil, double speed, double recovery,
                                        double recoverySpeed, long recoveryAfter);
 
-        protected void launchProjectile(ProjectileProvider provider, ItemUser user, Vector3 position, Vector3 velocity) {
+        protected void launchProjectiles(ProjectileProvider provider, ItemUser user, Vector3 position, Vector3 direction) {
+            Vector2 spread = parent.stats().<Vector2>val("spread").orElse(null);
+            if (spread != null) {
+                Random rng = ThreadLocalRandom.current();
+                Coord3 coord = direction.spherical();
+                direction = coord
+                        .yaw(coord.yaw() + rng.nextGaussian() * Math.toRadians(spread.x()))
+                        .pitch(coord.pitch() + rng.nextGaussian() * Math.toRadians(spread.y()))
+                        .cartesian();
+            }
+            Vector3 velocity = direction.multiply(parent.stats().<Double>req("launch_velocity"));
+
             provider.launchProjectile(user, position, velocity);
-            parent.stats().<Vector2>desc("recoil").ifPresent(recoil -> {
-                Vector2 random = parent.stats().<Vector2>desc("recoil_random").orElse(null);
+            parent.stats().<Vector2>val("recoil").ifPresent(recoil -> {
+                Vector2 random = parent.stats().<Vector2>val("recoil_random").orElse(null);
                 if (random != null) {
                     Random rng = ThreadLocalRandom.current();
                     recoil = recoil.add(
@@ -84,44 +115,61 @@ public abstract class ProjectileLaunchSystem extends AbstractSystem {
                 }
 
                 recoil(user, recoil,
-                        parent.stats().<Double>desc("recoil_speed").orElse(1d),
-                        parent.stats().<Double>desc("recoil_recovery").orElse(0d),
-                        parent.stats().<Double>desc("recoil_recovery_speed").orElse(0d),
-                        parent.stats().<Long>desc("recoil_recovery_after").orElse(0L));
+                        parent.stats().<Double>val("recoil_speed").orElse(1d),
+                        parent.stats().<Double>val("recoil_recovery").orElse(0d),
+                        parent.stats().<Double>val("recoil_recovery_speed").orElse(0d),
+                        parent.stats().<Long>val("recoil_recovery_after").orElse(0L));
             });
         }
 
-        protected void launch(ItemTreeEvent.Input event) {
-            ItemUser user = event.user();
-            Vector3 dir = user.direction();
-            Vector3 pos = user.position().add(parent.stats().<Vector3>desc("launch_offset")
-                    .map(offset -> Vector3.offset(dir, user instanceof PlayerUser player && player.leftHanded()
+        public Function<ItemStack, ItemStack> launchSingle(ItemUser user, ItemSlot slot) {
+            Vector3 direction = user.direction();
+            Vector3 pos = user.position().add(parent.stats().<Vector3>val("launch_offset")
+                    .map(offset -> Vector3.offset(direction, user instanceof PlayerUser player && player.leftHanded()
                             ? offset.x(-offset.x()) : offset))
-                    .orElse(dir));
-            Vector3 velocity = dir.multiply(parent.stats().<Double>reqDesc("launch_velocity"));
+                    .orElse(direction));
             // TODO converge, zero
 
+            runAction(this, user, slot, "launch");
+
+            // TODO some better way of doing this overall
+            // TODO this is an INSANE mess. please fix later, me.
+            AtomicReference<Function<ItemStack, ItemStack>> result = new AtomicReference<>();
             parent.stats().<String>val("slot_tag_chamber").ifPresentOrElse(tag -> {
-                parent.visitSlots((parent, slot, child, path) -> {
-                    if (!slot.tagged(tag) || child == null)
+                parent.visitSlots((parent, s, child, path) -> {
+                    if (!s.tagged(tag) || child == null)
                         return;
                     child.system(ProjectileProvider.class).ifPresent(provider -> {
                         // TODO parent.removeChild(slot.key());
-                        launchProjectile(provider, user, pos, velocity);
+                        launchProjectiles(provider, user, pos, direction);
                     });
                 });
-                event.update();
+                result.set(is -> is);
             }, () -> {
                 if (provider == null)
                     throw new IllegalStateException("Trying to launch root component as projectile, but component [" + parent.value().id() + "] has no system [" + ProjectileProvider.class.getSimpleName() + "]");
-                launchProjectile(provider, user, pos, velocity);
-                event.update(is -> is.add(-1));
+                launchProjectiles(provider, user, pos, direction);
+                result.set(is -> is.add(-1));
             });
+            return result.get();
+        }
+
+        protected void launch(ItemTreeEvent.Input event) {
+            long after = parent.stats().<Long>val("launch_after").orElse(0L);
+            long interval = parent.stats().<Long>val("launch_interval").orElse(0L);
+            for (int i = 0; i < parent.stats().<Integer>val("launches").orElse(1); i++) {
+                scheduler.schedule(this, after + i * interval, (self, evt, ctx) -> {
+                    var result = self.launchSingle(evt.user(), evt.slot());
+                    if (result != null)
+                        evt.update(result);
+                });
+            }
+            event.update(ItemStack::hideUpdate);
         }
 
         private void handle(ItemTreeEvent.Input event, Consumer<ItemTreeEvent.Input> function) {
             event.cancel();
-            if (scheduler.available())
+            if (scheduler.available() && available())
                 function.accept(event);
         }
 
@@ -144,8 +192,8 @@ public abstract class ProjectileLaunchSystem extends AbstractSystem {
     public InputMapper inputs() { return inputs; }
 
     @Override public String id() { return ID; }
-    @Override public Map<String, Class<? extends Rule>> ruleTypes() { return RULES; }
     @Override public Map<String, Stat<?>> statTypes() { return STATS; }
+    @Override public Map<String, Class<? extends Rule>> ruleTypes() { return RULES; }
 
     @Override
     public void loadSelf(ConfigurationNode cfg) throws SerializationException {

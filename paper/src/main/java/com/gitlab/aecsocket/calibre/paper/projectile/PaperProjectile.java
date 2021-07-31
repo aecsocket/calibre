@@ -1,9 +1,10 @@
-package com.gitlab.aecsocket.calibre.paper.fire;
+package com.gitlab.aecsocket.calibre.paper.projectile;
 
 import com.gitlab.aecsocket.calibre.core.projectile.Projectile;
 import com.gitlab.aecsocket.minecommons.core.raycast.Raycast;
 import com.gitlab.aecsocket.minecommons.core.scheduler.TaskContext;
 import com.gitlab.aecsocket.minecommons.core.vector.cartesian.Vector3;
+import com.gitlab.aecsocket.minecommons.paper.PaperUtils;
 import com.gitlab.aecsocket.minecommons.paper.raycast.PaperRaycast;
 import com.gitlab.aecsocket.sokol.core.tree.TreeNode;
 import org.bukkit.World;
@@ -31,19 +32,14 @@ public class PaperProjectile extends Projectile<PaperRaycast.PaperBoundable> {
     protected Predicate<PaperRaycast.PaperBoundable> test() {
         return b -> {
             if (b.entity() != null)
-                return b.entity().getType() != EntityType.DROPPED_ITEM;
+                return !b.entity().isDead() && b.entity().getType() != EntityType.DROPPED_ITEM;
             return true;
         };
     }
 
     @Override
-    protected OnHit initialHitResult(TaskContext ctx, Raycast.Result<PaperRaycast.PaperBoundable> ray, Raycast.Hit<PaperRaycast.PaperBoundable> hit) {
-        return OnHit.REMOVE;
-    }
-
-    @Override
     public void tick(TaskContext ctx) {
-        if (world.isChunkLoaded((int) (position.x() / 16), (int) (position.z() / 16)))
+        if (PaperUtils.toBukkit(position, world).isChunkLoaded())
             super.tick(ctx);
         else
             ctx.cancel();

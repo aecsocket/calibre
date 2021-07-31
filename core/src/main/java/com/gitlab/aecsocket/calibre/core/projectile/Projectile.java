@@ -1,11 +1,13 @@
 package com.gitlab.aecsocket.calibre.core.projectile;
 
+import com.gitlab.aecsocket.minecommons.core.event.Cancellable;
 import com.gitlab.aecsocket.minecommons.core.raycast.Boundable;
 import com.gitlab.aecsocket.minecommons.core.raycast.Raycast;
 import com.gitlab.aecsocket.minecommons.core.scheduler.TaskContext;
 import com.gitlab.aecsocket.minecommons.core.vector.cartesian.Vector3;
 import com.gitlab.aecsocket.sokol.core.tree.TreeNode;
 import com.gitlab.aecsocket.sokol.core.tree.event.TreeEvent;
+import com.gitlab.aecsocket.sokol.core.wrapper.ItemUser;
 
 import java.util.function.Predicate;
 
@@ -55,8 +57,6 @@ public abstract class Projectile<B extends Boundable> {
 
     protected abstract Predicate<B> test();
 
-    protected abstract OnHit initialHitResult(TaskContext ctx, Raycast.Result<B> ray, Raycast.Hit<B> hit);
-
     public void tick(TaskContext ctx) {
         double step = ctx.delta() / 1000d;
 
@@ -81,10 +81,13 @@ public abstract class Projectile<B extends Boundable> {
             }
             endTick(ctx, ray, step, oPosition, oVelocity);
         }
+
+        if (ctx.cancelled())
+            remove(ctx);
     }
 
     protected void hit(TaskContext ctx, Raycast.Result<B> ray, Raycast.Hit<B> hit, double step, Vector3 oPosition, Vector3 oVelocity) {
-        OnHit result = initialHitResult(ctx, ray, hit);
+        OnHit result = OnHit.REMOVE;
         result = fullTree.events().call(new Events.Hit(fullTree, this, false, ctx, step, ray, oPosition, oVelocity, hit, result)).result;
         result = localTree.events().call(new Events.Hit(localTree, this, true, ctx, step, ray, oPosition, oVelocity, hit, result)).result;
         switch (result) {
@@ -108,6 +111,10 @@ public abstract class Projectile<B extends Boundable> {
         new Events.Tick(localTree, this, true, ctx, step, ray, oPosition, oVelocity).call();
     }
 
+    protected void remove(TaskContext ctx) {
+
+    }
+
     public static final class Events {
         private Events() {}
 
@@ -125,6 +132,27 @@ public abstract class Projectile<B extends Boundable> {
             @Override public TreeNode node() { return node; }
             public Projectile<?> projectile() { return projectile; }
             public boolean local() { return local; }
+        }
+
+        public static final class Create extends Base implements Cancellable {
+            private final ItemUser user;
+            private final Vector3 origin;
+            private final Vector3 velocity;
+            private boolean cancelled;
+
+            public Create(TreeNode node, Projectile<?> projectile, boolean local, ItemUser user, Vector3 origin, Vector3 velocity) {
+                super(node, projectile, local);
+                this.user = user;
+                this.origin = origin;
+                this.velocity = velocity;
+            }
+
+            public ItemUser user() { return user; }
+            public Vector3 origin() { return origin; }
+            public Vector3 velocity() { return velocity; }
+
+            @Override public boolean cancelled() { return cancelled; }
+            @Override public void cancelled(boolean cancelled) { this.cancelled = cancelled; }
         }
 
         public static abstract class TickBased extends Base {

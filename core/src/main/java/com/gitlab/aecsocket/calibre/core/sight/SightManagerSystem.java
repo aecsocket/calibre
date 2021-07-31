@@ -21,8 +21,6 @@ import com.gitlab.aecsocket.sokol.core.tree.event.TreeEvent;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemSlot;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemStack;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemUser;
-import com.gitlab.aecsocket.sokol.core.wrapper.PlayerUser;
-import net.kyori.adventure.text.Component;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
@@ -152,7 +150,7 @@ public abstract class SightManagerSystem extends AbstractSystem {
 
         protected void aim0(ItemUser user, ItemSlot slot, boolean aiming, Action action, String key, Reference<SightsSystem.Instance, Sight> sight) {
             runAction(scheduler, user, slot, "aim_" + key);
-            action(action, parent.stats().<Long>desc("aim_" + key + "_after").orElse(0L));
+            action(action, parent.stats().<Long>val("aim_" + key + "_after").orElse(0L));
             if (aiming)
                 apply(user, slot, sight);
         }
@@ -274,9 +272,8 @@ public abstract class SightManagerSystem extends AbstractSystem {
                 return;
             if (event.sync()) {
                 selected().ifPresentOrElse(sight -> {
-                    parent.stats().<Vector3>desc("rest_offset_a").ifPresent(offset ->
-                        resting = resting(event.user(), offset, parent.stats().reqDesc("rest_offset_b")));
-                    ((PlayerUser) event.user()).sendActionBar(Component.text("resting? " + resting));
+                    parent.stats().<Vector3>val("rest_offset_a").ifPresent(offset ->
+                        resting = resting(event.user(), offset, parent.stats().req("rest_offset_b")));
 
                     if (action != null) {
                         double progress = Numbers.clamp01((double) (System.currentTimeMillis() - actionStart) / (actionEnd - actionStart));
@@ -311,7 +308,7 @@ public abstract class SightManagerSystem extends AbstractSystem {
             } else {
                 if (aimingIn()) {
                     StatMap stats = parent.stats();
-                    stats.<Vector2>desc("sway").ifPresent(sway -> stats.<Long>desc("sway_cycle").ifPresent(swayCycle -> {
+                    stats.<Vector2>val("sway").ifPresent(sway -> stats.<Long>val("sway_cycle").ifPresent(swayCycle -> {
                         double angle = ((double) System.currentTimeMillis() / (swayCycle / 2d)) * Math.PI;
                         Vector2 vector = new Vector2(
                                 sway.x() * Math.cos(angle),
@@ -346,8 +343,8 @@ public abstract class SightManagerSystem extends AbstractSystem {
     public InputMapper inputs() { return inputs; }
 
     @Override public String id() { return ID; }
-    @Override public Map<String, Class<? extends Rule>> ruleTypes() { return RULES; }
     @Override public Map<String, Stat<?>> statTypes() { return STATS; }
+    @Override public Map<String, Class<? extends Rule>> ruleTypes() { return RULES; }
 
     @Override
     public void loadSelf(ConfigurationNode cfg) throws SerializationException {

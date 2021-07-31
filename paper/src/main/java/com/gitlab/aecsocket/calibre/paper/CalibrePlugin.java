@@ -4,6 +4,7 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.reflect.EquivalentConverter;
 import com.comphenix.protocol.utility.MinecraftReflection;
 import com.comphenix.protocol.wrappers.EnumWrappers;
+import com.gitlab.aecsocket.calibre.core.projectile.BulletSystem;
 import com.gitlab.aecsocket.calibre.core.projectile.ProjectileLaunchSystem;
 import com.gitlab.aecsocket.calibre.core.mode.Mode;
 import com.gitlab.aecsocket.calibre.core.mode.ModeManagerSystem;
@@ -11,8 +12,9 @@ import com.gitlab.aecsocket.calibre.core.mode.ModesSystem;
 import com.gitlab.aecsocket.calibre.core.sight.Sight;
 import com.gitlab.aecsocket.calibre.core.sight.SightManagerSystem;
 import com.gitlab.aecsocket.calibre.core.sight.SightsSystem;
-import com.gitlab.aecsocket.calibre.paper.fire.PaperProjectileLaunchSystem;
-import com.gitlab.aecsocket.calibre.paper.fire.ProjectileProviderSystem;
+import com.gitlab.aecsocket.calibre.paper.projectile.PaperBulletSystem;
+import com.gitlab.aecsocket.calibre.paper.projectile.PaperProjectileLaunchSystem;
+import com.gitlab.aecsocket.calibre.paper.projectile.ProjectileProviderSystem;
 import com.gitlab.aecsocket.calibre.paper.mode.PaperMode;
 import com.gitlab.aecsocket.calibre.paper.mode.PaperModeManagerSystem;
 import com.gitlab.aecsocket.calibre.paper.mode.PaperModesSystem;
@@ -21,6 +23,7 @@ import com.gitlab.aecsocket.calibre.paper.sight.PaperSightManagerSystem;
 import com.gitlab.aecsocket.calibre.paper.sight.PaperSightsSystem;
 import com.gitlab.aecsocket.calibre.paper.sight.SwayStabilizerSystem;
 import com.gitlab.aecsocket.minecommons.core.Ticks;
+import com.gitlab.aecsocket.minecommons.core.bounds.Compound;
 import com.gitlab.aecsocket.minecommons.core.scheduler.Task;
 import com.gitlab.aecsocket.minecommons.core.scheduler.ThreadScheduler;
 import com.gitlab.aecsocket.minecommons.core.serializers.ProxySerializer;
@@ -32,6 +35,7 @@ import com.gitlab.aecsocket.sokol.paper.SokolPlugin;
 import io.leangen.geantyref.TypeToken;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -39,6 +43,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 
 public class CalibrePlugin extends BasePlugin<CalibrePlugin> implements Listener {
@@ -47,7 +52,7 @@ public class CalibrePlugin extends BasePlugin<CalibrePlugin> implements Listener
 
     private final PaperScheduler paperScheduler = new PaperScheduler(this);
     private final ThreadScheduler threadScheduler = new ThreadScheduler(Executors.newSingleThreadExecutor());
-    private final Map<UUID, PlayerData> playerData = new HashMap<>();
+    private final Map<UUID, PlayerData> playerData = new ConcurrentHashMap<>();
     private final Materials materials = new Materials(this);
     private PaperRaycast.Builder raycast;
 
@@ -63,22 +68,32 @@ public class CalibrePlugin extends BasePlugin<CalibrePlugin> implements Listener
                 .registerSystemType(ModeManagerSystem.ID, PaperModeManagerSystem.type(sokol, this), () -> PaperModeManagerSystem.LOAD_PROVIDER)
                 .registerSystemType(ModesSystem.ID, PaperModesSystem.type(sokol), () -> PaperModesSystem.LOAD_PROVIDER)
                 .registerSystemType(ProjectileLaunchSystem.ID, PaperProjectileLaunchSystem.type(sokol, this), () -> PaperProjectileLaunchSystem.LOAD_PROVIDER)
-                .registerSystemType(ProjectileProviderSystem.ID, ProjectileProviderSystem.type(sokol, this), () -> ProjectileProviderSystem.LOAD_PROVIDER);
+                .registerSystemType(ProjectileProviderSystem.ID, ProjectileProviderSystem.type(sokol, this), () -> ProjectileProviderSystem.LOAD_PROVIDER)
+                .registerSystemType(BulletSystem.ID, PaperBulletSystem.type(sokol, this), () -> PaperBulletSystem.LOAD_PROVIDER);
         sokol.configOptionInitializer((serializers, mapper) -> serializers
                 .registerExact(Sight.class, new ProxySerializer<>(new TypeToken<PaperSight>() {}))
                 .registerExact(Mode.class, new ProxySerializer<>(new TypeToken<PaperMode>() {})));
 
         paperScheduler.run(Task.repeating(ctx -> {
-            for (var data : playerData.values())
-                data.paperTick(ctx);
+            for (var data : playerData.values()) {
+                synchronized (data) {
+                    data.paperTick(ctx);
+                }
+            }
         }, Ticks.MSPT));
         threadScheduler.run(Task.repeating(ctx -> {
-            for (var data : playerData.values())
-                data.threadTick(ctx);
+            for (var data : playerData.values()) {
+                synchronized (data) {
+                    data.threadTick(ctx);
+                }
+            }
         }, 10));
 
         // TODO configs for raycaster
         raycast = PaperRaycast.builder();
+        raycast.blockBound(Material.BARRIER, e -> true, raycast.boundsBuilder()
+                .put(Material.BARRIER.getKey().value(), Compound.compound())
+                .get());
     }
 
     @Override
@@ -119,7 +134,7 @@ public class CalibrePlugin extends BasePlugin<CalibrePlugin> implements Listener
             packet.getBooleans().write(1, player.isFlying());
             packet.getBooleans().write(2, player.getAllowFlight());
             packet.getBooleans().write(3, player.getGameMode() == GameMode.CREATIVE);
-            packet.getFloat().write(0, player.getFlySpeed());
+            packet.getFloat().write(0, player.getFlySpeed() / 2);
             packet.getFloat().write(1, zoom);
         });
     }

@@ -16,6 +16,8 @@ import com.gitlab.aecsocket.sokol.core.tree.event.ItemTreeEvent;
 import com.gitlab.aecsocket.sokol.core.tree.event.TreeEvent;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemSlot;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemUser;
+import com.gitlab.aecsocket.sokol.core.wrapper.PlayerUser;
+import net.kyori.adventure.text.Component;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
@@ -57,6 +59,10 @@ public abstract class ModeManagerSystem extends AbstractSystem {
         public void build(StatLists stats) {
             scheduler = depend(SchedulerSystem.KEY);
             parent.events().register(ItemTreeEvent.Input.class, this::event, listenerPriority);
+            parent.events().register(ItemTreeEvent.Hold.class, event -> {
+                // TODO debug
+                ((PlayerUser) event.user()).sendActionBar(Component.text("Mode: " + selected().map(r -> r.selection().id()).orElse("none")));
+            });
 
             selected().ifPresentOrElse(
                     mode -> {
@@ -146,8 +152,8 @@ public abstract class ModeManagerSystem extends AbstractSystem {
     public InputMapper inputs() { return inputs; }
 
     @Override public String id() { return ID; }
-    @Override public Map<String, Class<? extends Rule>> ruleTypes() { return RULES; }
     @Override public Map<String, Stat<?>> statTypes() { return STATS; }
+    @Override public Map<String, Class<? extends Rule>> ruleTypes() { return RULES; }
 
     @Override
     public void loadSelf(ConfigurationNode cfg) throws SerializationException {

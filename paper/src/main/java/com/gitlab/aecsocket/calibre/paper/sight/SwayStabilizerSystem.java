@@ -47,12 +47,12 @@ public final class SwayStabilizerSystem extends AbstractSystem implements PaperS
         public Vector2 stabilization(ItemTreeEvent.Hold event) {
             if (event.user() instanceof PlayerUser player && player.sneaking()) {
                 Player handle = player.handle();
-                Vector2 stabilization = parent.stats().reqDesc("sway_stabilization");
+                Vector2 stabilization = parent.stats().req("sway_stabilization");
                 if (handle.getGameMode() == GameMode.CREATIVE)
                     return stabilization;
                 PlayerData data = calibre.playerData(handle);
                 if (data.canStabilize()) {
-                    data.drainStamina((long) ((parent.stats().<Long>reqDesc("sway_stamina_drain") * (event.delta() / 1000d))));
+                    data.drainStamina((long) ((parent.stats().<Long>req("sway_stamina_drain") * (event.delta() / 1000d))));
                     return stabilization;
                 }
             }

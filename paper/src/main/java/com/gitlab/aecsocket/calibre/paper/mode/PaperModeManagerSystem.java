@@ -36,7 +36,7 @@ public final class PaperModeManagerSystem extends ModeManagerSystem implements P
             .put("change_mode_sounds", soundsStat())
             .put("change_mode_animation", animationStat())
             .build();
-    public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofBoth(STATS, RULES);
+    public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofBoth(ID, STATS, RULES);
 
     private static final String keyTargetSystem = "target_system";
     private static final String keyTargetIndex = "target_index";

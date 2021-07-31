@@ -354,11 +354,9 @@ public abstract class SightManagerSystem extends AbstractSystem {
     public static final class Rules {
         private Rules() {}
 
-        private static final String namespace = ID + ":";
-
         @ConfigSerializable
         public static final class Aiming extends Rule.Singleton {
-            public static final String TYPE = namespace + "aiming";
+            public static final String TYPE = "aiming";
 
             public static final Aiming INSTANCE = new Aiming();
 
@@ -376,7 +374,7 @@ public abstract class SightManagerSystem extends AbstractSystem {
 
         @ConfigSerializable
         public static final class InAction extends Rule.Singleton {
-            public static final String TYPE = namespace + "in_action";
+            public static final String TYPE = "in_action";
 
             private final Instance.Action action;
 
@@ -401,7 +399,7 @@ public abstract class SightManagerSystem extends AbstractSystem {
 
         @ConfigSerializable
         public static final class AimingIn extends Rule.Singleton {
-            public static final String TYPE = namespace + "aiming_in";
+            public static final String TYPE = "aiming_in";
 
             public static final Aiming INSTANCE = new Aiming();
 
@@ -419,7 +417,7 @@ public abstract class SightManagerSystem extends AbstractSystem {
 
         @ConfigSerializable
         public static final class AimingOut extends Rule.Singleton {
-            public static final String TYPE = namespace + "aiming_out";
+            public static final String TYPE = "aiming_out";
 
             public static final Aiming INSTANCE = new Aiming();
 
@@ -437,7 +435,7 @@ public abstract class SightManagerSystem extends AbstractSystem {
 
         @ConfigSerializable
         public static final class HasTarget extends Rule.Singleton {
-            public static final String TYPE = namespace + "has_target";
+            public static final String TYPE = "has_target";
 
             public static final HasTarget INSTANCE = new HasTarget();
 
@@ -455,7 +453,7 @@ public abstract class SightManagerSystem extends AbstractSystem {
 
         @ConfigSerializable
         public static final class Resting extends Rule.Singleton {
-            public static final String TYPE = namespace + "resting";
+            public static final String TYPE = "resting";
 
             public static final Resting INSTANCE = new Resting();
 

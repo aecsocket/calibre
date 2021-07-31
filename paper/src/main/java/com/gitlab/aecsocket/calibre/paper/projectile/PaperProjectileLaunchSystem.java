@@ -69,7 +69,7 @@ public final class PaperProjectileLaunchSystem extends ProjectileLaunchSystem im
 
             .put("entity_awareness", doubleStat())
             .build();
-    public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofBoth(STATS, RULES);
+    public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofBoth(ID, STATS, RULES);
 
     private static final String keyAvailableAt = "available_at";
     private static final String keyIndoorThreshold = "indoor_threshold";

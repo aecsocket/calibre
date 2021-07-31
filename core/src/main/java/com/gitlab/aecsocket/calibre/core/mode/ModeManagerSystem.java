@@ -163,11 +163,9 @@ public abstract class ModeManagerSystem extends AbstractSystem {
     public static final class Rules {
         private Rules() {}
 
-        private static final String namespace = ID + ":";
-
         @ConfigSerializable
         public static final class HasTarget extends Rule.Singleton {
-            public static final String TYPE = namespace + "has_target";
+            public static final String TYPE = "has_target";
 
             public static final HasTarget INSTANCE = new HasTarget();
 

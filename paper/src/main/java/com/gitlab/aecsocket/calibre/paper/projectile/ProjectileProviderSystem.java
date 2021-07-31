@@ -60,7 +60,7 @@ public final class ProjectileProviderSystem extends AbstractSystem implements Pa
             .put("hit_entity_particles", particlesStat())
             .put("hit_entity_sounds", soundsStat())
             .build();
-    public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofStats(STATS);
+    public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofStats(ID, STATS);
     public static final long RAYTRACE_MAX = 1000;
 
     public final class Instance extends AbstractSystem.Instance implements PaperSystem.Instance, ProjectileProvider {

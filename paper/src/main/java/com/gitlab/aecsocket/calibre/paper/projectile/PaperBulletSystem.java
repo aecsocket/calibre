@@ -38,7 +38,7 @@ public final class PaperBulletSystem extends BulletSystem implements PaperSystem
             .put("pass_sounds", soundsStat())
             .put("pass_effects", effectsStat())
             .build();
-    public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofStats(STATS);
+    public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofStats(ID, STATS);
 
     public final class Instance extends BulletSystem.Instance implements PaperSystem.Instance {
         private double passRadius;

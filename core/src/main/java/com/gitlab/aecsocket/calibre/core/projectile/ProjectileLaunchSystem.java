@@ -208,13 +208,6 @@ public abstract class ProjectileLaunchSystem extends AbstractSystem {
         inputs = Serializers.require(cfg.node("inputs"), InputMapper.class);
     }
 
-    public static final class Rules {
-        private Rules() {}
-
-        private static final String namespace = ID + ":";
-
-    }
-
     public static final class Events {
         private Events() {}
 

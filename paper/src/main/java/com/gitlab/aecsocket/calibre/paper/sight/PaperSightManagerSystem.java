@@ -62,7 +62,7 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
             .put("aim_out_animation", animationStat())
             .put("change_sight_sounds", soundsStat())
             .build();
-    public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofBoth(STATS, RULES);
+    public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofBoth(ID, STATS, RULES);
 
     private static final String keyAiming = "aiming";
     private static final String keyTargetSystem = "target_system";

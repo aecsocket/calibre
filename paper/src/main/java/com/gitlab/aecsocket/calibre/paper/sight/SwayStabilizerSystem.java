@@ -33,7 +33,7 @@ public final class SwayStabilizerSystem extends AbstractSystem implements PaperS
             .put("sway_stabilization", vector2Stat())
             .put("sway_stamina_drain", longStat())
             .build();
-    public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofStats(STATS);
+    public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofStats(ID, STATS);
 
     public final class Instance extends AbstractSystem.Instance implements PaperSystem.Instance, SwayStabilizer {
         public Instance(TreeNode parent) {

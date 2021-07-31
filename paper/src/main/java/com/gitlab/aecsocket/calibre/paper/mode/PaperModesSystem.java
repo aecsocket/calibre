@@ -16,7 +16,7 @@ import java.util.List;
 
 public final class PaperModesSystem extends ModesSystem implements PaperSystem {
     public static final Key<Instance> KEY = new Key<>(ID, Instance.class);
-    public static final LoadProvider LOAD_PROVIDER = LoadProvider.empty();
+    public static final LoadProvider LOAD_PROVIDER = LoadProvider.empty(ID);
 
     public final class Instance extends ModesSystem.Instance implements PaperSystem.Instance {
         public Instance(TreeNode parent) {

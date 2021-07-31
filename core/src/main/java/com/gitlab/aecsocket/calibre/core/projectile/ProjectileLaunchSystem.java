@@ -46,10 +46,12 @@ public abstract class ProjectileLaunchSystem extends AbstractSystem {
             .put("launch_after", longStat())
             .put("launches", intStat())
             .put("launch_interval", longStat())
+            .put("projectiles", intStat())
 
             .put("fail_delay", longStat())
 
             .put("spread", vector2Stat())
+            .put("spread_projectile", vector2Stat())
 
             .put("recoil", vector2Stat())
             .put("recoil_random", vector2Stat())
@@ -93,23 +95,32 @@ public abstract class ProjectileLaunchSystem extends AbstractSystem {
         protected abstract void recoil(ItemUser user, Vector2 recoil, double speed, double recovery,
                                        double recoverySpeed, long recoveryAfter);
 
-        protected void launchProjectiles(ProjectileProvider provider, ItemUser user, Vector3 position, Vector3 direction) {
-            Vector2 spread = parent.stats().<Vector2>val("spread").orElse(null);
-            if (spread != null) {
-                Random rng = ThreadLocalRandom.current();
-                Coord3 coord = direction.spherical();
-                direction = coord
-                        .yaw(coord.yaw() + rng.nextGaussian() * Math.toRadians(spread.x()))
-                        .pitch(coord.pitch() + rng.nextGaussian() * Math.toRadians(spread.y()))
-                        .cartesian();
-            }
-            Vector3 velocity = direction.multiply(parent.stats().<Double>req("launch_velocity"));
+        protected Vector3 rotate(Vector3 val, Vector2 bounds) {
+            Random rng = ThreadLocalRandom.current();
+            Coord3 coord = val.spherical();
+            return coord
+                    .yaw(coord.yaw() + rng.nextGaussian() * Math.toRadians(bounds.x()))
+                    .pitch(coord.pitch() + rng.nextGaussian() * Math.toRadians(bounds.y()))
+                    .cartesian();
+        }
 
-            provider.launchProjectile(user, position, velocity);
+        protected void launchProjectiles(ProjectileProvider provider, ItemUser user, Vector3 position, Vector3 direction) {
+            Random rng = ThreadLocalRandom.current();
+            Vector2 spread = parent.stats().<Vector2>val("spread").orElse(null);
+            Vector2 spreadProjectile = parent.stats().<Vector2>val("spread_projectile").orElse(null);
+            double launchVelocity = parent.stats().<Double>req("launch_velocity");
+            if (spread != null)
+                direction = rotate(direction, spread);
+
+            for (int i = 0; i < parent.stats().<Integer>val("projectiles").orElse(1); i++) {
+                Vector3 thisDirection = spreadProjectile == null ? direction : rotate(direction, spreadProjectile);
+                Vector3 velocity = thisDirection.multiply(launchVelocity);
+                provider.launchProjectile(user, position, velocity);
+            }
+
             parent.stats().<Vector2>val("recoil").ifPresent(recoil -> {
                 Vector2 random = parent.stats().<Vector2>val("recoil_random").orElse(null);
                 if (random != null) {
-                    Random rng = ThreadLocalRandom.current();
                     recoil = recoil.add(
                             recoil.x() + rng.nextGaussian() * random.x(),
                             recoil.y() + rng.nextGaussian() * random.y()

@@ -56,11 +56,11 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
     public static final Map<String, Stat<?>> STATS = CollectionBuilder.map(new HashMap<String, Stat<?>>())
             .put(SightManagerSystem.STATS)
             .put("aim_item", itemStat())
-            .put("aim_in_sound", soundsStat())
+            .put("aim_in_sounds", soundsStat())
             .put("aim_in_animation", animationStat())
-            .put("aim_out_sound", soundsStat())
+            .put("aim_out_sounds", soundsStat())
             .put("aim_out_animation", animationStat())
-            .put("change_sight_sound", soundsStat())
+            .put("change_sight_sounds", soundsStat())
             .build();
     public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofBoth(STATS, RULES);
 

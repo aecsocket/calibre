@@ -47,6 +47,8 @@ public abstract class ProjectileLaunchSystem extends AbstractSystem {
             .put("launches", intStat())
             .put("launch_interval", longStat())
 
+            .put("fail_delay", longStat())
+
             .put("spread", vector2Stat())
 
             .put("recoil", vector2Stat())
@@ -130,8 +132,6 @@ public abstract class ProjectileLaunchSystem extends AbstractSystem {
                     .orElse(direction));
             // TODO converge, zero
 
-            runAction(this, user, slot, "launch");
-
             // TODO some better way of doing this overall
             // TODO this is an INSANE mess. please fix later, me.
             AtomicReference<Function<ItemStack, ItemStack>> result = new AtomicReference<>();
@@ -143,14 +143,18 @@ public abstract class ProjectileLaunchSystem extends AbstractSystem {
                         // TODO parent.removeChild(slot.key());
                         launchProjectiles(provider, user, pos, direction);
                     });
+                    result.set(is -> is);
                 });
-                result.set(is -> is);
             }, () -> {
                 if (provider == null)
                     throw new IllegalStateException("Trying to launch root component as projectile, but component [" + parent.value().id() + "] has no system [" + ProjectileProvider.class.getSimpleName() + "]");
                 launchProjectiles(provider, user, pos, direction);
                 result.set(is -> is.add(-1));
             });
+            if (result.get() == null)
+                fail(user, slot, pos);
+            else
+                runAction(this, "launch", user, slot, pos);
             return result.get();
         }
 
@@ -165,6 +169,10 @@ public abstract class ProjectileLaunchSystem extends AbstractSystem {
                 });
             }
             event.update(ItemStack::hideUpdate);
+        }
+
+        protected void fail(ItemUser user, ItemSlot slot, Vector3 position) {
+            runAction(this, "fail", user, slot, position);
         }
 
         private void handle(ItemTreeEvent.Input event, Consumer<ItemTreeEvent.Input> function) {

@@ -149,7 +149,7 @@ public abstract class SightManagerSystem extends AbstractSystem {
         protected void apply(ItemUser user, ItemSlot slot, Reference<SightsSystem.Instance, Sight> sight) {}
 
         protected void aim0(ItemUser user, ItemSlot slot, boolean aiming, Action action, String key, Reference<SightsSystem.Instance, Sight> sight) {
-            runAction(scheduler, user, slot, "aim_" + key);
+            runAction(scheduler, "aim_" + key, user, slot, null);
             action(action, parent.stats().<Long>val("aim_" + key + "_after").orElse(0L));
             if (aiming)
                 apply(user, slot, sight);
@@ -172,7 +172,7 @@ public abstract class SightManagerSystem extends AbstractSystem {
         }
 
         protected boolean changeSight0(ItemUser user, ItemSlot slot, Reference<SightsSystem.Instance, Sight> newSight) {
-            runAction(scheduler, user, slot, "change_sight");
+            runAction(scheduler, "change_sight", user, slot, null);
             targetSystem = SystemPath.path(newSight.system());
             targetIndex = newSight.index();
             selected = newSight;

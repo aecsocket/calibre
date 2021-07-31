@@ -82,7 +82,7 @@ public abstract class ModeManagerSystem extends AbstractSystem {
         protected void apply(ItemUser user, ItemSlot slot, Reference<ModesSystem.Instance, Mode> mode) {}
 
         protected boolean changeMode0(ItemUser user, ItemSlot slot, Reference<ModesSystem.Instance, Mode> newMode) {
-            runAction(scheduler, user, slot, "change_mode");
+            runAction(scheduler, "change_mode", user, slot, null);
             targetSystem = SystemPath.path(newMode.system());
             targetIndex = newMode.index();
             selected = newMode;

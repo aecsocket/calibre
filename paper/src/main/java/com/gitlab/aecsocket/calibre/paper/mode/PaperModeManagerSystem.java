@@ -33,7 +33,7 @@ public final class PaperModeManagerSystem extends ModeManagerSystem implements P
     public static final Key<Instance> KEY = new Key<>(ID, Instance.class);
     public static final Map<String, Stat<?>> STATS = CollectionBuilder.map(new HashMap<String, Stat<?>>())
             .put(ModeManagerSystem.STATS)
-            .put("change_mode_sound", soundsStat())
+            .put("change_mode_sounds", soundsStat())
             .put("change_mode_animation", animationStat())
             .build();
     public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofBoth(STATS, RULES);

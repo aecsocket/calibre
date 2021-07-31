@@ -17,6 +17,7 @@ import com.gitlab.aecsocket.sokol.core.stat.Stat;
 import com.gitlab.aecsocket.sokol.core.system.LoadProvider;
 import com.gitlab.aecsocket.sokol.core.system.util.InputMapper;
 import com.gitlab.aecsocket.sokol.core.tree.TreeNode;
+import com.gitlab.aecsocket.sokol.core.wrapper.ItemSlot;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemUser;
 import com.gitlab.aecsocket.sokol.paper.PaperTreeNode;
 import com.gitlab.aecsocket.sokol.paper.SokolPlugin;
@@ -43,6 +44,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.gitlab.aecsocket.sokol.core.stat.inbuilt.PrimitiveStat.*;
+import static com.gitlab.aecsocket.sokol.core.stat.inbuilt.VectorStat.*;
+import static com.gitlab.aecsocket.sokol.paper.stat.ItemStat.*;
 import static com.gitlab.aecsocket.sokol.paper.stat.ParticlesStat.*;
 import static com.gitlab.aecsocket.sokol.paper.stat.SoundsStat.*;
 
@@ -53,9 +56,17 @@ public final class PaperProjectileLaunchSystem extends ProjectileLaunchSystem im
             .put("launch_particles", particlesStat())
             .put("launch_sounds_indoors", soundsStat())
             .put("launch_sounds_outdoors", soundsStat())
-
             .put("launch_light", intStat())
             .put("launch_light_remove_after", longStat())
+
+            .put("fail_particles", particlesStat())
+            .put("fail_sounds", soundsStat())
+
+            .put("shell_item", itemStat())
+            .put("shell_offset", vector3Stat())
+            .put("shell_velocity", vector3Stat())
+            .put("shell_lifetime", longStat())
+
             .put("entity_awareness", doubleStat())
             .build();
     public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofBoth(STATS, RULES);
@@ -75,6 +86,13 @@ public final class PaperProjectileLaunchSystem extends ProjectileLaunchSystem im
 
         @Override public PaperProjectileLaunchSystem base() { return PaperProjectileLaunchSystem.this; }
         @Override public SokolPlugin platform() { return platform; }
+
+        @Override
+        protected void recoil(ItemUser user, Vector2 recoil, double speed, double recovery, double recoverySpeed, long recoveryAfter) {
+            if (!(user instanceof PlayerUser player))
+                return;
+            calibre.playerData(player.handle()).applyRecoil(recoil, speed, recovery, recoverySpeed, recoveryAfter);
+        }
 
         @Override
         protected void launchProjectiles(ProjectileProvider provider, ItemUser user, Vector3 position, Vector3 direction) {
@@ -121,10 +139,8 @@ public final class PaperProjectileLaunchSystem extends ProjectileLaunchSystem im
         }
 
         @Override
-        protected void recoil(ItemUser user, Vector2 recoil, double speed, double recovery, double recoverySpeed, long recoveryAfter) {
-            if (!(user instanceof PlayerUser player))
-                return;
-            calibre.playerData(player.handle()).applyRecoil(recoil, speed, recovery, recoverySpeed, recoveryAfter);
+        protected void fail(ItemUser user, ItemSlot slot, Vector3 position) {
+            super.fail(user, slot, position);
         }
 
         @Override

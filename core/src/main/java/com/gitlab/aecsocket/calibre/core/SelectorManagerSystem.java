@@ -26,22 +26,27 @@ public abstract class SelectorManagerSystem<S extends SelectorHolderSystem<T>, T
         this(parent, null, 0);
     }
 
+    protected abstract Optional<? extends T> fallback();
     public Optional<SystemPath> targetSystem() { return Optional.ofNullable(targetSystem); }
     public int targetIndex() { return targetIndex; }
 
-    public Optional<Reference<S, T>> selected(SystemPath targetSystem, int targetIndex) {
+    public Optional<Reference<S, T>> selectedRef(SystemPath targetSystem, int targetIndex) {
         return targetSystem.<S>get(parent)
                 .map(sys -> targetIndex >= sys.selections().size()
                         ? null
                         : new Reference<>(sys, targetIndex, sys.selections().get(targetIndex)));
     }
 
-    public Optional<Reference<S, T>> selected() {
+    public Optional<Reference<S, T>> selectedRef() {
         if (selected != null)
             return Optional.of(selected);
-        Optional<Reference<S, T>> result = targetSystem == null ? Optional.empty() : selected(targetSystem, targetIndex);
+        Optional<Reference<S, T>> result = targetSystem == null ? Optional.empty() : selectedRef(targetSystem, targetIndex);
         result.ifPresent(v -> selected = v);
         return result;
+    }
+
+    public Optional<T> selected() {
+        return selectedRef().map(r -> r.selection).or(this::fallback);
     }
 
     protected abstract System.Key<S> holderKey();

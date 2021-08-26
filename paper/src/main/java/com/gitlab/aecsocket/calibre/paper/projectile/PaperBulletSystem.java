@@ -3,17 +3,18 @@ package com.gitlab.aecsocket.calibre.paper.projectile;
 import com.gitlab.aecsocket.calibre.core.projectile.BulletSystem;
 import com.gitlab.aecsocket.calibre.core.projectile.Projectile;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
-import com.gitlab.aecsocket.minecommons.core.CollectionBuilder;
 import com.gitlab.aecsocket.minecommons.paper.PaperUtils;
 import com.gitlab.aecsocket.minecommons.paper.display.PreciseSound;
 import com.gitlab.aecsocket.minecommons.paper.raycast.PaperRaycast;
-import com.gitlab.aecsocket.sokol.core.stat.Stat;
-import com.gitlab.aecsocket.sokol.core.stat.StatLists;
-import com.gitlab.aecsocket.sokol.core.stat.StatMap;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatLists;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatMap;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatTypes;
 import com.gitlab.aecsocket.sokol.core.system.LoadProvider;
 import com.gitlab.aecsocket.sokol.core.tree.TreeNode;
 import com.gitlab.aecsocket.sokol.paper.PaperTreeNode;
 import com.gitlab.aecsocket.sokol.paper.SokolPlugin;
+import com.gitlab.aecsocket.sokol.paper.stat.EffectsStat;
+import com.gitlab.aecsocket.sokol.paper.stat.SoundsStat;
 import com.gitlab.aecsocket.sokol.paper.system.PaperSystem;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -32,11 +33,14 @@ import static com.gitlab.aecsocket.sokol.paper.stat.EffectsStat.*;
 
 public final class PaperBulletSystem extends BulletSystem implements PaperSystem {
     public static final Key<Instance> KEY = new Key<>(ID, Instance.class);
-    public static final Map<String, Stat<?>> STATS = CollectionBuilder.map(new HashMap<String, Stat<?>>())
-            .put(BulletSystem.STATS)
-            .put("pass_radius", doubleStat())
-            .put("pass_sounds", soundsStat())
-            .put("pass_effects", effectsStat())
+
+    public static final SDouble STAT_PASS_RADIUS = doubleStat("pass_radius");
+    public static final SoundsStat STAT_PASS_SOUNDS = soundsStat("pass_sounds");
+    public static final EffectsStat STAT_PASS_EFFECTS = effectsStat("pass_effects");
+
+    public static final StatTypes STATS = StatTypes.builder()
+            .add(BulletSystem.STATS)
+            .add(STAT_PASS_RADIUS, STAT_PASS_SOUNDS, STAT_PASS_EFFECTS)
             .build();
     public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofStats(ID, STATS);
 
@@ -92,10 +96,10 @@ public final class PaperBulletSystem extends BulletSystem implements PaperSystem
         protected void event(Projectile.Events.Create event) {
             super.event(event);
             StatMap stats = event.projectile().fullTree().stats();
-            stats.<Double>val("pass_radius").ifPresent(radius -> {
+            stats.val(STAT_PASS_RADIUS).ifPresent(radius -> {
                 passRadius = radius;
-                passSounds = stats.<List<PreciseSound>>val("pass_sounds").orElse(null);
-                passEffects = stats.<List<PotionEffect>>val("pass_effects").orElse(null);
+                passSounds = stats.val(STAT_PASS_SOUNDS).orElse(null);
+                passEffects = stats.val(STAT_PASS_EFFECTS).orElse(null);
                 passed = new HashSet<>();
             });
         }
@@ -134,7 +138,7 @@ public final class PaperBulletSystem extends BulletSystem implements PaperSystem
     public CalibrePlugin calibre() { return calibre; }
 
     @Override public String id() { return ID; }
-    @Override public Map<String, Stat<?>> statTypes() { return STATS; }
+    @Override public StatTypes statTypes() { return STATS; }
 
     @Override
     public Instance create(TreeNode node) {

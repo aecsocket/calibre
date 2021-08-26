@@ -76,6 +76,7 @@ public class CalibrePlugin extends BasePlugin<CalibrePlugin> implements Listener
 
         paperScheduler.run(Task.repeating(ctx -> {
             for (var data : playerData.values()) {
+                //noinspection SynchronizationOnLocalVariableOrMethodParameter
                 synchronized (data) {
                     data.paperTick(ctx);
                 }
@@ -83,6 +84,7 @@ public class CalibrePlugin extends BasePlugin<CalibrePlugin> implements Listener
         }, Ticks.MSPT));
         threadScheduler.run(Task.repeating(ctx -> {
             for (var data : playerData.values()) {
+                //noinspection SynchronizationOnLocalVariableOrMethodParameter
                 synchronized (data) {
                     data.threadTick(ctx);
                 }

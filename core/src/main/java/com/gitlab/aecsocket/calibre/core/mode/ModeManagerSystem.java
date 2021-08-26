@@ -5,8 +5,8 @@ import com.gitlab.aecsocket.minecommons.core.CollectionBuilder;
 import com.gitlab.aecsocket.minecommons.core.event.Cancellable;
 import com.gitlab.aecsocket.minecommons.core.serializers.Serializers;
 import com.gitlab.aecsocket.sokol.core.rule.Rule;
-import com.gitlab.aecsocket.sokol.core.stat.Stat;
-import com.gitlab.aecsocket.sokol.core.stat.StatLists;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatLists;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatTypes;
 import com.gitlab.aecsocket.sokol.core.system.AbstractSystem;
 import com.gitlab.aecsocket.sokol.core.system.inbuilt.SchedulerSystem;
 import com.gitlab.aecsocket.sokol.core.system.util.InputMapper;
@@ -28,14 +28,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import static com.gitlab.aecsocket.sokol.core.stat.inbuilt.PrimitiveStat.longStat;
+import static com.gitlab.aecsocket.sokol.core.stat.inbuilt.PrimitiveStat.*;
 
 public abstract class ModeManagerSystem extends AbstractSystem {
     public static final String ID = "mode_manager";
     public static final Key<Instance> KEY = new Key<>(ID, Instance.class);
-    public static final Map<String, Stat<?>> STATS = CollectionBuilder.map(new HashMap<String, Stat<?>>())
-            .put("change_mode_delay", longStat())
-            .build();
+
+    public static final SLong STAT_CHANGE_MODE_DELAY = longStat("change_mode_delay");
+
+    public static final StatTypes STATS = StatTypes.of(STAT_CHANGE_MODE_DELAY);
     public static final Map<String, Class<? extends Rule>> RULES = CollectionBuilder.map(new HashMap<String, Class<? extends Rule>>())
             .put(Rules.HasTarget.TYPE, Rules.HasTarget.class)
             .build();
@@ -45,12 +46,11 @@ public abstract class ModeManagerSystem extends AbstractSystem {
 
         public Instance(TreeNode parent, @Nullable SystemPath targetSystem, int targetIndex) {
             super(parent, targetSystem, targetIndex);
-            this.targetSystem = targetSystem;
-            this.targetIndex = targetIndex;
         }
 
         @Override public abstract ModeManagerSystem base();
 
+        @Override protected Optional<? extends Mode> fallback() { return ModeManagerSystem.this.fallback(); }
         public SchedulerSystem<?>.Instance scheduler() { return scheduler; }
 
         @Override protected Key<ModesSystem.Instance> holderKey() { return ModesSystem.KEY; }
@@ -61,13 +61,13 @@ public abstract class ModeManagerSystem extends AbstractSystem {
             parent.events().register(ItemTreeEvent.Input.class, this::event, listenerPriority);
             parent.events().register(ItemTreeEvent.Hold.class, event -> {
                 // TODO debug
-                ((PlayerUser) event.user()).sendActionBar(Component.text("Mode: " + selected().map(r -> r.selection().id()).orElse("none")));
+                ((PlayerUser) event.user()).sendActionBar(Component.text("Mode: " + selected().map(Mode::id).orElse("none")));
             });
 
             selected().ifPresentOrElse(
                     mode -> {
-                        if (mode.selection().stats() != null)
-                            stats.add(mode.selection().stats());
+                        if (mode.stats() != null)
+                            stats.add(mode.stats());
                     },
                     () -> {
                         var modes = collect();
@@ -91,13 +91,13 @@ public abstract class ModeManagerSystem extends AbstractSystem {
         }
 
         public boolean changeMode(ItemUser user, ItemSlot slot, Reference<ModesSystem.Instance, Mode> newMode) {
-            if (new Events.ChangeMode(this, user, slot, selected().orElse(null), newMode).call())
+            if (new Events.ChangeMode(this, user, slot, selectedRef().orElse(null), newMode).call())
                 return false;
             return changeMode0(user, slot, newMode);
         }
 
         public void changeMode(ItemUser user, ItemSlot slot, SystemPath targetSystem, int targetIndex) {
-            changeMode(user, slot, selected(targetSystem, targetIndex)
+            changeMode(user, slot, selectedRef(targetSystem, targetIndex)
                     .orElseThrow(() -> new IllegalArgumentException("Provided path " + targetIndex + " @ " + targetSystem + " has no selection")));
         }
 
@@ -143,21 +143,25 @@ public abstract class ModeManagerSystem extends AbstractSystem {
     }
 
     protected InputMapper inputs;
+    protected @Nullable Mode fallback;
 
-    public ModeManagerSystem(int listenerPriority, @Nullable InputMapper inputs) {
+    public ModeManagerSystem(int listenerPriority, @Nullable InputMapper inputs, @Nullable Mode fallback) {
         super(listenerPriority);
         this.inputs = inputs;
+        this.fallback = fallback;
     }
 
     public InputMapper inputs() { return inputs; }
+    public Optional<? extends Mode> fallback() { return Optional.ofNullable(fallback); }
 
     @Override public String id() { return ID; }
-    @Override public Map<String, Stat<?>> statTypes() { return STATS; }
+    @Override public StatTypes statTypes() { return STATS; }
     @Override public Map<String, Class<? extends Rule>> ruleTypes() { return RULES; }
 
     @Override
     public void loadSelf(ConfigurationNode cfg) throws SerializationException {
         inputs = Serializers.require(cfg.node("inputs"), InputMapper.class);
+        fallback = cfg.node("fallback").get(Mode.class);
     }
 
     public static final class Rules {

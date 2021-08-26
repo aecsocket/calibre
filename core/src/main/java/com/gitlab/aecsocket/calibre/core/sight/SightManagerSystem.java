@@ -8,9 +8,9 @@ import com.gitlab.aecsocket.minecommons.core.serializers.Serializers;
 import com.gitlab.aecsocket.minecommons.core.vector.cartesian.Vector2;
 import com.gitlab.aecsocket.minecommons.core.vector.cartesian.Vector3;
 import com.gitlab.aecsocket.sokol.core.rule.Rule;
-import com.gitlab.aecsocket.sokol.core.stat.Stat;
-import com.gitlab.aecsocket.sokol.core.stat.StatLists;
-import com.gitlab.aecsocket.sokol.core.stat.StatMap;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatLists;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatMap;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatTypes;
 import com.gitlab.aecsocket.sokol.core.system.AbstractSystem;
 import com.gitlab.aecsocket.sokol.core.system.inbuilt.SchedulerSystem;
 import com.gitlab.aecsocket.sokol.core.system.util.InputMapper;
@@ -35,14 +35,21 @@ import static com.gitlab.aecsocket.sokol.core.stat.inbuilt.VectorStat.*;
 public abstract class SightManagerSystem extends AbstractSystem {
     public static final String ID = "sight_manager";
     public static final Key<Instance> KEY = new Key<>(ID, Instance.class);
-    public static final Map<String, Stat<?>> STATS = CollectionBuilder.map(new HashMap<String, Stat<?>>())
-            .put("aim_in_after", longStat())
-            .put("aim_out_after", longStat())
-            .put("sway", vector2Stat())
-            .put("sway_cycle", longStat())
-            .put("rest_offset_a", vector3Stat())
-            .put("rest_offset_b", vector3Stat())
-            .build();
+
+    public static final SLong STAT_AIM_IN_AFTER = longStat("aim_in_after");
+    public static final SLong STAT_AIM_OUT_AFTER = longStat("aim_out_after");
+
+    public static final SVector2 STAT_SWAY = vector2Stat("sway");
+    public static final SLong STAT_SWAY_CYCLE = longStat("sway_cycle");
+
+    public static final SVector3 STAT_REST_OFFSET_A = vector3Stat("rest_offset_a");
+    public static final SVector3 STAT_REST_OFFSET_B = vector3Stat("rest_offset_b");
+
+    public static final StatTypes STATS = StatTypes.of(
+            STAT_AIM_IN_AFTER, STAT_AIM_OUT_AFTER,
+            STAT_SWAY, STAT_SWAY_CYCLE,
+            STAT_REST_OFFSET_A, STAT_REST_OFFSET_B
+    );
     public static final Map<String, Class<? extends Rule>> RULES = CollectionBuilder.map(new HashMap<String, Class<? extends Rule>>())
             .put(Rules.Aiming.TYPE, Rules.Aiming.class)
             .put(Rules.InAction.TYPE, Rules.InAction.class)
@@ -51,17 +58,6 @@ public abstract class SightManagerSystem extends AbstractSystem {
             .put(Rules.HasTarget.TYPE, Rules.HasTarget.class)
             .put(Rules.Resting.TYPE, Rules.Resting.class)
             .build();
-
-    /*
-
-    Let's determine how guns work.
-
-    -> SightManagerSystem: provides zoom capabilities on input, different sights, aiming rule
-       -> SightSystem: actually holds the sights that the SightManager uses
-    -> SelectorSystem: can select different "mode"s for an item, providing rules
-    -> FiringSystem: inputs to fire a gun from a single chamber. No chambering, just shoot projectile.
-    -> LoadingSystem: handles ammo containers, reloading ammo containers, loading from ammo into chamber
-     */
 
     public abstract class Instance extends SelectorManagerSystem<SightsSystem.Instance, Sight> {
         public enum Action {
@@ -81,8 +77,6 @@ public abstract class SightManagerSystem extends AbstractSystem {
                         @Nullable Action action, long actionStart, long actionEnd, boolean resting) {
             super(parent, targetSystem, targetIndex);
             this.aiming = aiming;
-            this.targetSystem = targetSystem;
-            this.targetIndex = targetIndex;
             this.action = action;
             this.actionStart = actionStart;
             this.actionEnd = actionEnd;
@@ -95,6 +89,7 @@ public abstract class SightManagerSystem extends AbstractSystem {
 
         @Override public abstract SightManagerSystem base();
 
+        @Override protected Optional<? extends Sight> fallback() { return SightManagerSystem.this.fallback(); }
         public SchedulerSystem<?>.Instance scheduler() { return scheduler; }
         public SwayStabilizer swayStabilizer() { return swayStabilizer; }
         public boolean aiming() { return aiming; }
@@ -118,8 +113,8 @@ public abstract class SightManagerSystem extends AbstractSystem {
 
             selected().ifPresentOrElse(
                     sight -> {
-                        if (sight.selection().stats() != null)
-                            stats.add(sight.selection().stats());
+                        if (sight.stats() != null)
+                            stats.add(sight.stats());
                     },
                     () -> {
                         List<Reference<SightsSystem.Instance, Sight>> sights = collect();
@@ -146,9 +141,9 @@ public abstract class SightManagerSystem extends AbstractSystem {
             return (!aiming && action != Action.AIMING_IN) || action == Action.AIMING_OUT;
         }
 
-        protected void apply(ItemUser user, ItemSlot slot, Reference<SightsSystem.Instance, Sight> sight) {}
+        protected void apply(ItemUser user, ItemSlot slot, Sight sight) {}
 
-        protected void aim0(ItemUser user, ItemSlot slot, boolean aiming, Action action, String key, Reference<SightsSystem.Instance, Sight> sight) {
+        protected void aim0(ItemUser user, ItemSlot slot, boolean aiming, Action action, String key, Sight sight) {
             runAction(scheduler, "aim_" + key, user, slot, null);
             action(action, parent.stats().<Long>val("aim_" + key + "_after").orElse(0L));
             if (aiming)
@@ -177,18 +172,18 @@ public abstract class SightManagerSystem extends AbstractSystem {
             targetIndex = newSight.index();
             selected = newSight;
             zoom(user, newSight.selection().zoom());
-            apply(user, slot, newSight);
+            apply(user, slot, newSight.selection());
             return true;
         }
 
         public boolean changeSight(ItemUser user, ItemSlot slot, Reference<SightsSystem.Instance, Sight> newSight) {
-            if (new Events.ChangeSight(this, user, slot, selected().orElse(null), newSight).call())
+            if (new Events.ChangeSight(this, user, slot, selectedRef().orElse(null), newSight).call())
                 return false;
             return changeSight0(user, slot, newSight);
         }
 
         public boolean changeSight(ItemUser user, ItemSlot slot, SystemPath targetSystem, int targetIndex) {
-            return changeSight(user, slot, selected(targetSystem, targetIndex)
+            return changeSight(user, slot, selectedRef(targetSystem, targetIndex)
                     .orElseThrow(() -> new IllegalArgumentException("Provided path " + targetIndex + " @ " + targetSystem + " has no selection")));
         }
 
@@ -272,13 +267,13 @@ public abstract class SightManagerSystem extends AbstractSystem {
                 return;
             if (event.sync()) {
                 selected().ifPresentOrElse(sight -> {
-                    parent.stats().<Vector3>val("rest_offset_a").ifPresent(offset ->
-                        resting = resting(event.user(), offset, parent.stats().req("rest_offset_b")));
+                    parent.stats().val(STAT_REST_OFFSET_A).ifPresent(offset ->
+                        resting = resting(event.user(), offset, parent.stats().req(STAT_REST_OFFSET_B)));
 
                     if (action != null) {
                         double progress = Numbers.clamp01((double) (System.currentTimeMillis() - actionStart) / (actionEnd - actionStart));
                         double mult = action == Action.AIMING_IN ? progress : 1 - progress;
-                        double zoom = sight.selection().zoom();
+                        double zoom = sight.zoom();
 
                         if (zoom < 0) {
                             double val = zoom - ((0.2 / Math.max(mult, 1e-3)) - 0.2);
@@ -308,7 +303,7 @@ public abstract class SightManagerSystem extends AbstractSystem {
             } else {
                 if (aimingIn()) {
                     StatMap stats = parent.stats();
-                    stats.<Vector2>val("sway").ifPresent(sway -> stats.<Long>val("sway_cycle").ifPresent(swayCycle -> {
+                    stats.val(STAT_SWAY).ifPresent(sway -> stats.val(STAT_SWAY_CYCLE).ifPresent(swayCycle -> {
                         double angle = ((double) System.currentTimeMillis() / (swayCycle / 2d)) * Math.PI;
                         Vector2 vector = new Vector2(
                                 sway.x() * Math.cos(angle),
@@ -334,21 +329,25 @@ public abstract class SightManagerSystem extends AbstractSystem {
     }
 
     protected InputMapper inputs;
+    protected @Nullable Sight fallback;
 
-    public SightManagerSystem(int listenerPriority, @Nullable InputMapper inputs) {
+    public SightManagerSystem(int listenerPriority, @Nullable InputMapper inputs, @Nullable Sight fallback) {
         super(listenerPriority);
         this.inputs = inputs;
+        this.fallback = fallback;
     }
 
     public InputMapper inputs() { return inputs; }
+    public Optional<? extends Sight> fallback() { return Optional.ofNullable(fallback); }
 
     @Override public String id() { return ID; }
-    @Override public Map<String, Stat<?>> statTypes() { return STATS; }
+    @Override public StatTypes statTypes() { return STATS; }
     @Override public Map<String, Class<? extends Rule>> ruleTypes() { return RULES; }
 
     @Override
     public void loadSelf(ConfigurationNode cfg) throws SerializationException {
         inputs = Serializers.require(cfg.node("inputs"), InputMapper.class);
+        fallback = cfg.node("fallback").get(Sight.class);
     }
 
     public static final class Rules {

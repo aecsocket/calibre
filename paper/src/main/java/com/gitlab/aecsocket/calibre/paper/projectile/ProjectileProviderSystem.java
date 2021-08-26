@@ -3,7 +3,6 @@ package com.gitlab.aecsocket.calibre.paper.projectile;
 import com.gitlab.aecsocket.calibre.core.projectile.Projectile;
 import com.gitlab.aecsocket.calibre.core.projectile.ProjectileProvider;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
-import com.gitlab.aecsocket.minecommons.core.CollectionBuilder;
 import com.gitlab.aecsocket.minecommons.core.Logging;
 import com.gitlab.aecsocket.minecommons.core.Ticks;
 import com.gitlab.aecsocket.minecommons.core.scheduler.Scheduler;
@@ -14,15 +13,17 @@ import com.gitlab.aecsocket.minecommons.paper.PaperUtils;
 import com.gitlab.aecsocket.minecommons.paper.display.Particles;
 import com.gitlab.aecsocket.minecommons.paper.display.PreciseSound;
 import com.gitlab.aecsocket.minecommons.paper.raycast.PaperRaycast;
-import com.gitlab.aecsocket.sokol.core.stat.Stat;
-import com.gitlab.aecsocket.sokol.core.stat.StatLists;
-import com.gitlab.aecsocket.sokol.core.stat.StatMap;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatLists;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatMap;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatTypes;
 import com.gitlab.aecsocket.sokol.core.system.AbstractSystem;
 import com.gitlab.aecsocket.sokol.core.system.LoadProvider;
 import com.gitlab.aecsocket.sokol.core.tree.TreeNode;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemUser;
 import com.gitlab.aecsocket.sokol.paper.PaperTreeNode;
 import com.gitlab.aecsocket.sokol.paper.SokolPlugin;
+import com.gitlab.aecsocket.sokol.paper.stat.ParticlesStat;
+import com.gitlab.aecsocket.sokol.paper.stat.SoundsStat;
 import com.gitlab.aecsocket.sokol.paper.system.PaperSystem;
 import com.gitlab.aecsocket.sokol.paper.wrapper.user.EntityUser;
 import org.bukkit.Location;
@@ -33,9 +34,7 @@ import org.bukkit.util.Vector;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.gitlab.aecsocket.sokol.core.stat.inbuilt.PrimitiveStat.*;
@@ -45,21 +44,28 @@ import static com.gitlab.aecsocket.sokol.paper.stat.ParticlesStat.*;
 public final class ProjectileProviderSystem extends AbstractSystem implements PaperSystem {
     public static final String ID = "projectile_provider";
     public static final Key<Instance> KEY = new Key<>(ID, Instance.class);
-    public static final Map<String, Stat<?>> STATS = CollectionBuilder.map(new HashMap<String, Stat<?>>())
-            .put("raytrace_distance", doubleStat())
 
-            .put("trail_interval", doubleStat())
-            .put("trail_particles", particlesStat())
+    public static final SDouble STAT_RAYTRACE_DISTANCE = doubleStat("raytrace_distance");
 
-            .put("hit_particles", particlesStat())
-            .put("hit_sounds", soundsStat())
+    public static final SDouble STAT_TRAIL_INTERVAL = doubleStat("trail_interval");
+    public static final ParticlesStat STAT_TRAIL_PARTICLES = particlesStat("trail_particles");
 
-            .put("hit_block_particles", particlesStat())
-            .put("hit_block_sounds", soundsStat())
+    public static final ParticlesStat STAT_HIT_PARTICLES = particlesStat("hit_particles");
+    public static final SoundsStat STAT_HIT_SOUNDS = soundsStat("hit_sounds");
 
-            .put("hit_entity_particles", particlesStat())
-            .put("hit_entity_sounds", soundsStat())
-            .build();
+    public static final ParticlesStat STAT_HIT_BLOCK_PARTICLES = particlesStat("hit_block_particles");
+    public static final SoundsStat STAT_HIT_BLOCK_SOUNDS = soundsStat("hit_block_sounds");
+
+    public static final ParticlesStat STAT_HIT_ENTITY_PARTICLES = particlesStat("hit_entity_particles");
+    public static final SoundsStat STAT_HIT_ENTITY_SOUNDS = soundsStat("hit_entity_sounds");
+
+    public static final StatTypes STATS = StatTypes.of(
+            STAT_RAYTRACE_DISTANCE,
+            STAT_TRAIL_INTERVAL, STAT_TRAIL_PARTICLES,
+            STAT_HIT_PARTICLES, STAT_HIT_SOUNDS,
+            STAT_HIT_BLOCK_PARTICLES, STAT_HIT_BLOCK_SOUNDS,
+            STAT_HIT_ENTITY_PARTICLES, STAT_HIT_ENTITY_SOUNDS
+    );
     public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofStats(ID, STATS);
     public static final long RAYTRACE_MAX = 1000;
 
@@ -106,7 +112,7 @@ public final class ProjectileProviderSystem extends AbstractSystem implements Pa
 
             AtomicBoolean cont = new AtomicBoolean(true);
             scheduler.run(Task.single(ctx -> {
-                parent.stats().<Double>val("raytrace_distance").ifPresent(dist -> {
+                parent.stats().val(STAT_RAYTRACE_DISTANCE).ifPresent(dist -> {
                     long end = System.currentTimeMillis() + RAYTRACE_MAX;
                     for (int i = 0; projectile.travelled() < dist; i++) {
                         if (System.currentTimeMillis() >= end) {
@@ -131,16 +137,16 @@ public final class ProjectileProviderSystem extends AbstractSystem implements Pa
             if (!event.local())
                 return;
             StatMap stats = event.projectile().fullTree().stats();
-            stats.<Double>val("trail_interval").ifPresent(interval -> {
+            stats.val(STAT_TRAIL_INTERVAL).ifPresent(interval -> {
                 trailInterval = interval;
-                trailParticles = stats.<List<Particles>>val("trail_particles").orElse(null);
+                trailParticles = stats.req(STAT_TRAIL_PARTICLES);
             });
-            hitParticles = stats.<List<Particles>>val("hit_particles").orElse(null);
-            hitSounds = stats.<List<PreciseSound>>val("hit_sounds").orElse(null);
-            hitBlockParticles = stats.<List<Particles>>val("hit_block_particles").orElse(null);
-            hitBlockSounds = stats.<List<PreciseSound>>val("hit_block_sounds").orElse(null);
-            hitEntityParticles = stats.<List<Particles>>val("hit_entity_particles").orElse(null);
-            hitEntitySounds = stats.<List<PreciseSound>>val("hit_entity_sounds").orElse(null);
+            hitParticles = stats.val(STAT_HIT_PARTICLES).orElse(null);
+            hitSounds = stats.val(STAT_HIT_SOUNDS).orElse(null);
+            hitBlockParticles = stats.val(STAT_HIT_BLOCK_PARTICLES).orElse(null);
+            hitBlockSounds = stats.val(STAT_HIT_BLOCK_SOUNDS).orElse(null);
+            hitEntityParticles = stats.val(STAT_HIT_ENTITY_PARTICLES).orElse(null);
+            hitEntitySounds = stats.val(STAT_HIT_ENTITY_SOUNDS).orElse(null);
         }
 
         protected void event(Projectile.Events.Tick event) {
@@ -194,7 +200,7 @@ public final class ProjectileProviderSystem extends AbstractSystem implements Pa
     public CalibrePlugin calibre() { return calibre; }
 
     @Override public String id() { return ID; }
-    @Override public Map<String, Stat<?>> statTypes() { return STATS; }
+    @Override public StatTypes statTypes() { return STATS; }
 
     @Override
     public Instance create(TreeNode node) {

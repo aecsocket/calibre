@@ -3,7 +3,6 @@ package com.gitlab.aecsocket.calibre.paper.projectile;
 import com.gitlab.aecsocket.calibre.core.projectile.ProjectileLaunchSystem;
 import com.gitlab.aecsocket.calibre.core.projectile.ProjectileProvider;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
-import com.gitlab.aecsocket.minecommons.core.CollectionBuilder;
 import com.gitlab.aecsocket.minecommons.core.Numbers;
 import com.gitlab.aecsocket.minecommons.core.Ticks;
 import com.gitlab.aecsocket.minecommons.core.Validation;
@@ -11,9 +10,7 @@ import com.gitlab.aecsocket.minecommons.core.scheduler.Task;
 import com.gitlab.aecsocket.minecommons.core.vector.cartesian.Vector2;
 import com.gitlab.aecsocket.minecommons.core.vector.cartesian.Vector3;
 import com.gitlab.aecsocket.minecommons.paper.PaperUtils;
-import com.gitlab.aecsocket.minecommons.paper.display.Particles;
-import com.gitlab.aecsocket.minecommons.paper.display.PreciseSound;
-import com.gitlab.aecsocket.sokol.core.stat.Stat;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatTypes;
 import com.gitlab.aecsocket.sokol.core.system.LoadProvider;
 import com.gitlab.aecsocket.sokol.core.system.util.InputMapper;
 import com.gitlab.aecsocket.sokol.core.tree.TreeNode;
@@ -21,6 +18,9 @@ import com.gitlab.aecsocket.sokol.core.wrapper.ItemSlot;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemUser;
 import com.gitlab.aecsocket.sokol.paper.PaperTreeNode;
 import com.gitlab.aecsocket.sokol.paper.SokolPlugin;
+import com.gitlab.aecsocket.sokol.paper.stat.ItemStat;
+import com.gitlab.aecsocket.sokol.paper.stat.ParticlesStat;
+import com.gitlab.aecsocket.sokol.paper.stat.SoundsStat;
 import com.gitlab.aecsocket.sokol.paper.system.PaperSystem;
 import com.gitlab.aecsocket.sokol.paper.wrapper.user.LivingEntityUser;
 import com.gitlab.aecsocket.sokol.paper.wrapper.user.PaperUser;
@@ -39,10 +39,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import static com.gitlab.aecsocket.sokol.core.stat.inbuilt.PrimitiveStat.*;
 import static com.gitlab.aecsocket.sokol.core.stat.inbuilt.VectorStat.*;
 import static com.gitlab.aecsocket.sokol.paper.stat.ItemStat.*;
@@ -51,23 +47,31 @@ import static com.gitlab.aecsocket.sokol.paper.stat.SoundsStat.*;
 
 public final class PaperProjectileLaunchSystem extends ProjectileLaunchSystem implements PaperSystem {
     public static final Key<Instance> KEY = new Key<>(ID, Instance.class);
-    public static final Map<String, Stat<?>> STATS = CollectionBuilder.map(new HashMap<String, Stat<?>>())
-            .put(ProjectileLaunchSystem.STATS)
-            .put("launch_particles", particlesStat())
-            .put("launch_sounds_indoors", soundsStat())
-            .put("launch_sounds_outdoors", soundsStat())
-            .put("launch_light", intStat())
-            .put("launch_light_remove_after", longStat())
 
-            .put("fail_particles", particlesStat())
-            .put("fail_sounds", soundsStat())
+    public static final ParticlesStat STAT_LAUNCH_PARTICLES = particlesStat("launch_particles");
+    public static final SoundsStat STAT_LAUNCH_SOUNDS_INDOORS = soundsStat("launch_sounds_indoors");
+    public static final SoundsStat STAT_LAUNCH_SOUNDS_OUTDOORS = soundsStat("launch_sounds_outdoors");
+    public static final SInteger STAT_LAUNCH_LIGHT = intStat("launch_light");
+    public static final SLong STAT_LAUNCH_LIGHT_REMOVE_AFTER = longStat("launch_light_remove_after");
 
-            .put("shell_item", itemStat())
-            .put("shell_offset", vector3Stat())
-            .put("shell_velocity", vector3Stat())
-            .put("shell_lifetime", longStat())
+    public static final ParticlesStat STAT_FAIL_PARTICLES = particlesStat("fail_particles");
+    public static final SoundsStat STAT_FAIL_SOUNDS = soundsStat("fail_sounds");
 
-            .put("entity_awareness", doubleStat())
+    public static final ItemStat STAT_SHELL_ITEM = itemStat("shell_item");
+    public static final SVector3 STAT_SHELL_OFFSET = vector3Stat("shell_offset");
+    public static final SVector3 STAT_SHELL_VELOCITY = vector3Stat("shell_velocity");
+    public static final SLong STAT_SHELL_LIFETIME = longStat("shell_lifetime");
+
+    public static final SDouble STAT_ENTITY_AWARENESS = doubleStat("entity_awareness");
+
+    public static final StatTypes STATS = StatTypes.builder()
+            .add(ProjectileLaunchSystem.STATS)
+            .add(
+                    STAT_LAUNCH_PARTICLES, STAT_LAUNCH_SOUNDS_INDOORS, STAT_LAUNCH_SOUNDS_OUTDOORS, STAT_LAUNCH_LIGHT, STAT_LAUNCH_LIGHT_REMOVE_AFTER,
+                    STAT_FAIL_PARTICLES, STAT_FAIL_SOUNDS,
+                    STAT_SHELL_ITEM, STAT_SHELL_OFFSET, STAT_SHELL_VELOCITY, STAT_SHELL_LIFETIME,
+                    STAT_ENTITY_AWARENESS
+            )
             .build();
     public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofBoth(ID, STATS, RULES);
 
@@ -104,14 +108,14 @@ public final class PaperProjectileLaunchSystem extends ProjectileLaunchSystem im
             float skyLight = paper.location().getBlock().getLightFromSky();
             float fac = Numbers.clamp01((skyLight - indoorThreshold) / (outdoorThreshold - indoorThreshold));
 
-            parent.stats().<List<PreciseSound>>val("launch_sounds_outdoors")
+            parent.stats().val(STAT_LAUNCH_SOUNDS_OUTDOORS)
                     .ifPresent(v -> v.forEach(s -> s.volume(s.volume() * fac).play(loc)));
-            parent.stats().<List<PreciseSound>>val("launch_sounds_indoors")
+            parent.stats().val(STAT_LAUNCH_SOUNDS_INDOORS)
                     .ifPresent(v -> v.forEach(s -> s.volume(s.volume() * (1 - fac)).play(loc)));
-            parent.stats().<List<Particles>>val("launch_particles")
+            parent.stats().val(STAT_LAUNCH_PARTICLES)
                     .ifPresent(v -> v.forEach(p -> p.spawn(loc)));
 
-            parent.stats().<Integer>val("launch_light").ifPresent(light -> {
+            parent.stats().val(STAT_LAUNCH_LIGHT).ifPresent(light -> {
                 var lightData = (Light) Material.LIGHT.createBlockData();
                 lightData.setLevel(light);
 
@@ -123,12 +127,12 @@ public final class PaperProjectileLaunchSystem extends ProjectileLaunchSystem im
 
                 calibre.paperScheduler().run(Task.single(
                         ctx -> cLoc.getBlock().getState().update(),
-                        parent.stats().<Long>val("launch_light_remove_after").orElse((long) Ticks.MSPT)));
+                        parent.stats().val(STAT_LAUNCH_LIGHT_REMOVE_AFTER).orElse((long) Ticks.MSPT)));
             });
 
             if (user instanceof LivingEntityUser living && (!(user instanceof PlayerUser player) || player.handle().getGameMode() == GameMode.CREATIVE)) {
                 calibre.paperScheduler().run(Task.single(ctx -> {
-                    parent.stats().<Double>val("entity_awareness").ifPresent(radius -> {
+                    parent.stats().val(STAT_ENTITY_AWARENESS).ifPresent(radius -> {
                         for (Entity entity : paper.location().getNearbyEntities(radius, radius, radius)) {
                             if (entity instanceof Monster monster && monster.getTarget() == null)
                                 monster.setTarget(living.handle());
@@ -177,7 +181,7 @@ public final class PaperProjectileLaunchSystem extends ProjectileLaunchSystem im
     public int indoorThreshold() { return indoorThreshold; }
     public int outdoorThreshold() { return outdoorThreshold; }
 
-    @Override public Map<String, Stat<?>> statTypes() { return STATS; }
+    @Override public StatTypes statTypes() { return STATS; }
 
     @Override
     public Instance create(TreeNode node) {

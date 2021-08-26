@@ -4,8 +4,7 @@ import com.gitlab.aecsocket.calibre.core.mode.Mode;
 import com.gitlab.aecsocket.calibre.core.mode.ModeManagerSystem;
 import com.gitlab.aecsocket.calibre.core.mode.ModesSystem;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
-import com.gitlab.aecsocket.minecommons.core.CollectionBuilder;
-import com.gitlab.aecsocket.sokol.core.stat.Stat;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatTypes;
 import com.gitlab.aecsocket.sokol.core.system.LoadProvider;
 import com.gitlab.aecsocket.sokol.core.system.util.InputMapper;
 import com.gitlab.aecsocket.sokol.core.system.util.SystemPath;
@@ -15,6 +14,8 @@ import com.gitlab.aecsocket.sokol.core.wrapper.ItemSlot;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemUser;
 import com.gitlab.aecsocket.sokol.paper.PaperTreeNode;
 import com.gitlab.aecsocket.sokol.paper.SokolPlugin;
+import com.gitlab.aecsocket.sokol.paper.stat.AnimationStat;
+import com.gitlab.aecsocket.sokol.paper.stat.SoundsStat;
 import com.gitlab.aecsocket.sokol.paper.system.PaperSystem;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -23,18 +24,18 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static com.gitlab.aecsocket.sokol.paper.stat.SoundsStat.*;
 import static com.gitlab.aecsocket.sokol.paper.stat.AnimationStat.*;
 
 public final class PaperModeManagerSystem extends ModeManagerSystem implements PaperSystem {
     public static final Key<Instance> KEY = new Key<>(ID, Instance.class);
-    public static final Map<String, Stat<?>> STATS = CollectionBuilder.map(new HashMap<String, Stat<?>>())
-            .put(ModeManagerSystem.STATS)
-            .put("change_mode_sounds", soundsStat())
-            .put("change_mode_animation", animationStat())
+
+    public static final SoundsStat STAT_CHANGE_MODE_SOUNDS = soundsStat("change_mode_sounds");
+    public static final AnimationStat STAT_CHANGE_MODE_ANIMATION = animationStat("change_mode_animation");
+
+    public static final StatTypes STATS = StatTypes.builder()
+            .add(ModeManagerSystem.STATS)
+            .add(STAT_CHANGE_MODE_SOUNDS, STAT_CHANGE_MODE_ANIMATION)
             .build();
     public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofBoth(ID, STATS, RULES);
 
@@ -58,7 +59,7 @@ public final class PaperModeManagerSystem extends ModeManagerSystem implements P
         protected boolean changeMode(ItemTreeEvent.Input event, int direction) {
             if (super.changeMode(event, direction)) {
                 selected().ifPresent(s -> {
-                    if (event.updated() && s.selection() instanceof PaperMode mode && mode.applyAnimation() != null)
+                    if (event.updated() && s instanceof PaperMode mode && mode.applyAnimation() != null)
                         event.update(com.gitlab.aecsocket.sokol.core.wrapper.ItemStack::hideUpdate);
                 });
                 return true;
@@ -84,8 +85,8 @@ public final class PaperModeManagerSystem extends ModeManagerSystem implements P
     private final SokolPlugin platform;
     private final CalibrePlugin calibre;
 
-    public PaperModeManagerSystem(SokolPlugin platform, CalibrePlugin calibre, int listenerPriority, @Nullable InputMapper inputs) {
-        super(listenerPriority, inputs);
+    public PaperModeManagerSystem(SokolPlugin platform, CalibrePlugin calibre, int listenerPriority, @Nullable InputMapper inputs, @Nullable Mode fallback) {
+        super(listenerPriority, inputs, fallback);
         this.platform = platform;
         this.calibre = calibre;
     }
@@ -93,7 +94,7 @@ public final class PaperModeManagerSystem extends ModeManagerSystem implements P
     public SokolPlugin platform() { return platform; }
     public CalibrePlugin calibre() { return calibre; }
 
-    @Override public Map<String, Stat<?>> statTypes() { return STATS; }
+    @Override public StatTypes statTypes() { return STATS; }
 
     @Override
     public Instance create(TreeNode node) {
@@ -117,6 +118,7 @@ public final class PaperModeManagerSystem extends ModeManagerSystem implements P
     public static ConfigType type(SokolPlugin platform, CalibrePlugin calibre) {
         return cfg -> new PaperModeManagerSystem(platform, calibre,
                 cfg.node(keyListenerPriority).getInt(),
+                null,
                 null);
     }
 }

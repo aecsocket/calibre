@@ -3,9 +3,8 @@ package com.gitlab.aecsocket.calibre.paper.sight;
 import com.gitlab.aecsocket.calibre.core.sight.SwayStabilizer;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.paper.PlayerData;
-import com.gitlab.aecsocket.minecommons.core.CollectionBuilder;
 import com.gitlab.aecsocket.minecommons.core.vector.cartesian.Vector2;
-import com.gitlab.aecsocket.sokol.core.stat.Stat;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatTypes;
 import com.gitlab.aecsocket.sokol.core.system.AbstractSystem;
 import com.gitlab.aecsocket.sokol.core.system.LoadProvider;
 import com.gitlab.aecsocket.sokol.core.tree.TreeNode;
@@ -20,19 +19,17 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static com.gitlab.aecsocket.sokol.core.stat.inbuilt.PrimitiveStat.*;
 import static com.gitlab.aecsocket.sokol.core.stat.inbuilt.VectorStat.*;
 
 public final class SwayStabilizerSystem extends AbstractSystem implements PaperSystem {
     public static final String ID = "sway_stabilizer";
     public static final Key<Instance> KEY = new Key<>(ID, Instance.class);
-    public static final Map<String, Stat<?>> STATS = CollectionBuilder.map(new HashMap<String, Stat<?>>())
-            .put("sway_stabilization", vector2Stat())
-            .put("sway_stamina_drain", longStat())
-            .build();
+
+    public static final SVector2 STAT_SWAY_STABILIZATION = vector2Stat("sway_stabilization");
+    public static final SLong STAT_SWAY_STAMINA_DRAIN = longStat("sway_stamina_drain");
+
+    public static final StatTypes STATS = StatTypes.of(STAT_SWAY_STABILIZATION, STAT_SWAY_STAMINA_DRAIN);
     public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofStats(ID, STATS);
 
     public final class Instance extends AbstractSystem.Instance implements PaperSystem.Instance, SwayStabilizer {
@@ -47,12 +44,12 @@ public final class SwayStabilizerSystem extends AbstractSystem implements PaperS
         public Vector2 stabilization(ItemTreeEvent.Hold event) {
             if (event.user() instanceof PlayerUser player && player.sneaking()) {
                 Player handle = player.handle();
-                Vector2 stabilization = parent.stats().req("sway_stabilization");
+                Vector2 stabilization = parent.stats().req(STAT_SWAY_STABILIZATION);
                 if (handle.getGameMode() == GameMode.CREATIVE)
                     return stabilization;
                 PlayerData data = calibre.playerData(handle);
                 if (data.canStabilize()) {
-                    data.drainStamina((long) ((parent.stats().<Long>req("sway_stamina_drain") * (event.delta() / 1000d))));
+                    data.drainStamina((long) ((parent.stats().req(STAT_SWAY_STAMINA_DRAIN) * (event.delta() / 1000d))));
                     return stabilization;
                 }
             }
@@ -73,7 +70,7 @@ public final class SwayStabilizerSystem extends AbstractSystem implements PaperS
     public CalibrePlugin calibre() { return calibre; }
 
     @Override public String id() { return ID; }
-    @Override public Map<String, Stat<?>> statTypes() { return STATS; }
+    @Override public StatTypes statTypes() { return STATS; }
 
     @Override
     public Instance create(TreeNode node) {

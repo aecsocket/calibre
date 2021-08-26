@@ -1,27 +1,24 @@
 package com.gitlab.aecsocket.calibre.core.projectile;
 
-import com.gitlab.aecsocket.minecommons.core.CollectionBuilder;
 import com.gitlab.aecsocket.minecommons.core.Numbers;
-import com.gitlab.aecsocket.sokol.core.stat.Stat;
-import com.gitlab.aecsocket.sokol.core.stat.StatLists;
-import com.gitlab.aecsocket.sokol.core.stat.StatMap;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatLists;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatMap;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatTypes;
 import com.gitlab.aecsocket.sokol.core.system.AbstractSystem;
 import com.gitlab.aecsocket.sokol.core.tree.TreeNode;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.gitlab.aecsocket.sokol.core.stat.inbuilt.PrimitiveStat.doubleStat;
+import static com.gitlab.aecsocket.sokol.core.stat.inbuilt.PrimitiveStat.*;
 
 public abstract class BulletSystem extends AbstractSystem {
     public static final String ID = "bullet";
     public static final Key<Instance> KEY = new Key<>(ID, Instance.class);
-    public static final Map<String, Stat<?>> STATS = CollectionBuilder.map(new HashMap<String, Stat<?>>())
-            .put("damage", doubleStat())
-            .put("penetration", doubleStat())
-            .put("damage_dropoff", doubleStat())
-            .put("damage_range", doubleStat())
-            .build();
+
+    public static final SDouble STAT_DAMAGE = doubleStat("damage");
+    public static final SDouble STAT_PENETRATION = doubleStat("penetration");
+    public static final SDouble STAT_DAMAGE_DROPOFF = doubleStat("damage_dropoff");
+    public static final SDouble STAT_DAMAGE_RANGE = doubleStat("damage_range");
+
+    public static final StatTypes STATS = StatTypes.of(STAT_DAMAGE, STAT_PENETRATION, STAT_DAMAGE_DROPOFF, STAT_DAMAGE_RANGE);
 
     public abstract class Instance extends AbstractSystem.Instance {
         private double baseDamage;
@@ -47,11 +44,11 @@ public abstract class BulletSystem extends AbstractSystem {
                 return;
             // at this point, `this` is detached from the full tree, so we need the full tree's stats
             StatMap stats = event.projectile().fullTree().stats();
-            damage = stats.<Double>req("damage");
+            damage = stats.req(STAT_DAMAGE);
             baseDamage = damage;
-            penetration = stats.<Double>req("penetration");
-            damageDropoff = stats.<Double>val("damage_dropoff").orElse(Double.MAX_VALUE);
-            damageRange = stats.<Double>val("damage_range").orElse(Double.MAX_VALUE);
+            penetration = stats.req(STAT_PENETRATION);
+            damageDropoff = stats.val(STAT_DAMAGE_DROPOFF).orElse(Double.MAX_VALUE);
+            damageRange = stats.val(STAT_DAMAGE_RANGE).orElse(Double.MAX_VALUE);
         }
 
         protected abstract double hardness(Projectile.Events.Hit event);
@@ -84,5 +81,5 @@ public abstract class BulletSystem extends AbstractSystem {
     }
 
     @Override public String id() { return ID; }
-    @Override public Map<String, Stat<?>> statTypes() { return STATS; }
+    @Override public StatTypes statTypes() { return STATS; }
 }

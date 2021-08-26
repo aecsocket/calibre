@@ -5,10 +5,8 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.Pair;
 import com.gitlab.aecsocket.calibre.core.sight.Sight;
 import com.gitlab.aecsocket.calibre.core.sight.SightManagerSystem;
-import com.gitlab.aecsocket.calibre.core.sight.SightsSystem;
 import com.gitlab.aecsocket.calibre.paper.CalibrePlugin;
 import com.gitlab.aecsocket.calibre.paper.PlayerData;
-import com.gitlab.aecsocket.minecommons.core.CollectionBuilder;
 import com.gitlab.aecsocket.minecommons.core.vector.cartesian.Ray3;
 import com.gitlab.aecsocket.minecommons.core.vector.cartesian.Vector2;
 import com.gitlab.aecsocket.minecommons.core.vector.cartesian.Vector3;
@@ -17,8 +15,8 @@ import com.gitlab.aecsocket.minecommons.paper.persistence.Persistence;
 import com.gitlab.aecsocket.minecommons.paper.plugin.ProtocolConstants;
 import com.gitlab.aecsocket.minecommons.paper.plugin.ProtocolLibAPI;
 import com.gitlab.aecsocket.minecommons.paper.raycast.PaperRaycast;
-import com.gitlab.aecsocket.sokol.core.stat.Stat;
-import com.gitlab.aecsocket.sokol.core.stat.StatLists;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatLists;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatTypes;
 import com.gitlab.aecsocket.sokol.core.system.LoadProvider;
 import com.gitlab.aecsocket.sokol.core.system.util.InputMapper;
 import com.gitlab.aecsocket.sokol.core.system.util.SystemPath;
@@ -28,6 +26,9 @@ import com.gitlab.aecsocket.sokol.core.wrapper.ItemSlot;
 import com.gitlab.aecsocket.sokol.core.wrapper.ItemUser;
 import com.gitlab.aecsocket.sokol.paper.PaperTreeNode;
 import com.gitlab.aecsocket.sokol.paper.SokolPlugin;
+import com.gitlab.aecsocket.sokol.paper.stat.AnimationStat;
+import com.gitlab.aecsocket.sokol.paper.stat.ItemStat;
+import com.gitlab.aecsocket.sokol.paper.stat.SoundsStat;
 import com.gitlab.aecsocket.sokol.paper.system.PaperSystem;
 import com.gitlab.aecsocket.sokol.paper.wrapper.item.ItemDescriptor;
 import com.gitlab.aecsocket.sokol.paper.wrapper.slot.EquipSlot;
@@ -44,8 +45,6 @@ import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.gitlab.aecsocket.sokol.paper.stat.ItemStat.*;
 import static com.gitlab.aecsocket.sokol.paper.stat.SoundsStat.*;
@@ -53,14 +52,23 @@ import static com.gitlab.aecsocket.sokol.paper.stat.AnimationStat.*;
 
 public final class PaperSightManagerSystem extends SightManagerSystem implements PaperSystem {
     public static final Key<Instance> KEY = new Key<>(ID, Instance.class);
-    public static final Map<String, Stat<?>> STATS = CollectionBuilder.map(new HashMap<String, Stat<?>>())
-            .put(SightManagerSystem.STATS)
-            .put("aim_item", itemStat())
-            .put("aim_in_sounds", soundsStat())
-            .put("aim_in_animation", animationStat())
-            .put("aim_out_sounds", soundsStat())
-            .put("aim_out_animation", animationStat())
-            .put("change_sight_sounds", soundsStat())
+
+    public static final ItemStat STAT_AIM_ITEM = itemStat("aim_item");
+
+    public static final SoundsStat STAT_AIM_IN_SOUNDS = soundsStat("aim_in_sounds");
+    public static final AnimationStat STAT_AIM_IN_ANIMATION = animationStat("aim_in_animation");
+    public static final SoundsStat STAT_AIM_OUT_SOUNDS = soundsStat("aim_out_sounds");
+    public static final AnimationStat STAT_AIM_OUT_ANIMATION = animationStat("aim_out_animation");
+
+    public static final SoundsStat STAT_CHANGE_SIGHT_SOUNDS = soundsStat("change_sight_sounds");
+
+    public static final StatTypes STATS = StatTypes.builder()
+            .add(SightManagerSystem.STATS)
+            .add(
+                    STAT_AIM_ITEM,
+                    STAT_AIM_IN_SOUNDS, STAT_AIM_IN_ANIMATION, STAT_AIM_OUT_SOUNDS, STAT_AIM_OUT_ANIMATION,
+                    STAT_CHANGE_SIGHT_SOUNDS
+            )
             .build();
     public static final LoadProvider LOAD_PROVIDER = LoadProvider.ofBoth(ID, STATS, RULES);
 
@@ -143,11 +151,11 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
         }
 
         @Override
-        protected void apply(ItemUser user, ItemSlot slot, Reference<SightsSystem.Instance, Sight> ref) {
-            super.apply(user, slot, ref);
+        protected void apply(ItemUser user, ItemSlot slot, Sight raw) {
+            super.apply(user, slot, raw);
             if (!(user instanceof PaperUser paper))
                 return;
-            if (!(ref.selection() instanceof PaperSight sight))
+            if (!(raw instanceof PaperSight sight))
                 return;
             if (sight.applySound() != null)
                 sight.applySound().forEach(s -> s.play(platform, paper.location()));
@@ -174,7 +182,7 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
 
             if (aiming) {
                 if (slot instanceof EquipSlot equip) {
-                    parent.stats().<ItemDescriptor>val("aim_item")
+                    parent.stats().val(STAT_AIM_ITEM)
                             .ifPresent(desc -> {
                                 ItemStack item = desc.createRaw();
                                 PacketContainer equipPacket = calibre.protocol().build(PacketType.Play.Server.ENTITY_EQUIPMENT, packet -> {
@@ -210,7 +218,7 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
         protected boolean changeSight(ItemTreeEvent.Input event, int direction) {
             if (super.changeSight(event, direction)) {
                 selected().ifPresent(s -> {
-                    if (event.updated() && s.selection() instanceof PaperSight sight && sight.applyAnimation() != null)
+                    if (event.updated() && s instanceof PaperSight sight && sight.applyAnimation() != null)
                         event.update(com.gitlab.aecsocket.sokol.core.wrapper.ItemStack::hideUpdate);
                 });
                 return true;
@@ -248,8 +256,8 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
     private final CalibrePlugin calibre;
     private final @Nullable ItemDescriptor defaultShaderData;
 
-    public PaperSightManagerSystem(SokolPlugin platform, CalibrePlugin calibre, int listenerPriority, @Nullable InputMapper inputs, @Nullable ItemDescriptor defaultShaderData) {
-        super(listenerPriority, inputs);
+    public PaperSightManagerSystem(SokolPlugin platform, CalibrePlugin calibre, int listenerPriority, @Nullable InputMapper inputs, @Nullable Sight fallback, @Nullable ItemDescriptor defaultShaderData) {
+        super(listenerPriority, inputs, fallback);
         this.platform = platform;
         this.calibre = calibre;
         this.defaultShaderData = defaultShaderData;
@@ -259,7 +267,7 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
     public CalibrePlugin calibre() { return calibre; }
     public ItemDescriptor defaultShaderData() { return defaultShaderData; }
 
-    @Override public Map<String, Stat<?>> statTypes() { return STATS; }
+    @Override public StatTypes statTypes() { return STATS; }
 
     @Override
     public Instance create(TreeNode node) {
@@ -295,6 +303,7 @@ public final class PaperSightManagerSystem extends SightManagerSystem implements
     public static ConfigType type(SokolPlugin platform, CalibrePlugin calibre) {
         return cfg -> new PaperSightManagerSystem(platform, calibre,
                 cfg.node(keyListenerPriority).getInt(),
+                null,
                 null,
                 cfg.node("default_shader_data").get(ItemDescriptor.class));
     }

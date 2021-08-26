@@ -1,6 +1,6 @@
 package com.gitlab.aecsocket.calibre.core.mode;
 
-import com.gitlab.aecsocket.sokol.core.stat.StatLists;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatLists;
 
 public interface Mode {
     String id();

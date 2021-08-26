@@ -2,7 +2,7 @@ package com.gitlab.aecsocket.calibre.paper.sight;
 
 import com.gitlab.aecsocket.calibre.core.sight.Sight;
 import com.gitlab.aecsocket.minecommons.paper.display.PreciseSound;
-import com.gitlab.aecsocket.sokol.core.stat.StatLists;
+import com.gitlab.aecsocket.sokol.core.stat.collection.StatLists;
 import com.gitlab.aecsocket.sokol.paper.wrapper.item.Animation;
 import com.gitlab.aecsocket.sokol.paper.wrapper.item.ItemDescriptor;
 import org.checkerframework.checker.nullness.qual.Nullable;

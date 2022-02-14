@@ -1,86 +1,156 @@
-# Calibre
+<div align="center">
+
+<a href="https://aecsocket.github.io/calibre"><h1>Calibre</h1></a> <!-- TODO add banner -->
+
+`2.0.0-SNAPSHOT`:
+[![build](https://github.com/aecsocket/calibre/actions/workflows/build.yml/badge.svg)](https://github.com/aecsocket/calibre/actions/workflows/build.yml)
+
+</div>
 
 Platform-agnostic, customisable and modular gun library, with extensive customisation and developer
 API, based on the Sokol data-driving library.
 
----
+# Features
 
-Calibre provides an alternative to typical Minecraft gun plugins - and even gun mods - by approaching
-the issue from another angle. It provides no inbuilt guns, however hands over all control to the
-server owner. It uses the Sokol data-driving library to allow you to create complex item trees, each
-with their own functions (for example, a laser attachment that can either be placed on a gun, or held
-in a player's hand - either way, it produces a functioning laser beam).
+- [x] Based on the Sokol framework, using a node tree structure for items
+- [x] All licensed under GNU GPL v3 - free and open source
 
-You can find a full comparison to other gun libraries in the wiki: TODO
+# Usage
 
-## Paper
-
-Calibre is exposed as a Paper plugin, however the item configuration is done in Sokol's configuration
-files.
+## Downloads
 
 ### Dependencies
 
-* [Java >=16](https://adoptopenjdk.net/?variant=openjdk16&jvmVariant=hotspot)
-* [Paper >=1.17.1](https://papermc.io/)
-* [Minecommons >=1.2](https://gitlab.com/aecsocket/minecommons)
-* [Sokol >=1.2](https://gitlab.com/aecsocket/sokol)
+<details open>
+<summary>Paper</summary>
+
+* [Java >=17](https://adoptium.net/)
+* [Paper >=1.18.1](https://papermc.io/)
+* [Sokol >=2.0.0](https://github.com/aecsocket/sokol/)
 * [ProtocolLib >=4.7.0](https://www.spigotmc.org/resources/protocollib.1997/)
 
-### [Download](https://gitlab.com/api/v4/projects/20514863/jobs/artifacts/master/raw/paper/build/libs/calibre-paper-1.1.jar?job=build)
+</details>
 
-### Documentation
+### [Stable Releases](https://github.com/aecsocket/calibre/releases)
 
-TODO
+### [Latest Snapshots](https://github.com/aecsocket/calibre/actions/workflows/build.yml)
 
-### Permissions
+## Packages
 
-TODO
+Using any package from the GitHub Packages registry requires you to
+authorize with GitHub Packages.
 
-### Commands
+### To create a token for yourself:
 
-TODO
+1. Visit https://github.com/settings/tokens/new
+2. Create a token with only the `read:packages` scope
+3. Save that token as an environment variable, `GPR_TOKEN`
+4. Save your GitHub username as another environment variable, `GPR_ACTOR`
 
-## Development Setup
+### To use a token in a workflow run:
 
-### Coordinates
+Include the `github.actor` and `secrets.GITHUB_TOKEN` variables in the `env` block of your step:
 
-#### Maven
+```yml
+- name: "Build"
+  run: ./gradlew build
+  env:
+    GPR_ACTOR: "${{ github.actor }}"
+    GPR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+```
+
+### To use the token in your environment variable:
+
+Use the `GPR_ACTOR`, `GPR_TOKEN` environment variables in your build scripts:
+
+```kotlin
+// authenticating with the repository
+credentials {
+    username = System.getenv("GPR_ACTOR")
+    password = System.getenv("GPR_TOKEN")
+}
+```
+
+**Note: Never include your token directly in your build scripts!**
+
+Always use an environment variable (or similar).
+
+<details>
+<summary>Maven</summary>
+
+### [How to authorize](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry)
+
+#### In `~/.m2/settings.xml`
+
+```xml
+<servers>
+  <server>
+    <id>github-calibre</id>
+    <username>[username]</username>
+    <password>[token]</password>
+  </server>
+</servers>
+```
+
+#### In `pom.xml`
 
 Repository
 ```xml
-<repository>
-    <id>gitlab-calibre-minecommons</id>
-    <url>https://gitlab.com/api/v4/projects/20514863/packages/maven</url>
-</repository>
-```
-Dependency
-```xml
-<dependency>
-    <groupId>com.gitlab.aecsocket.calibre</groupId>
-    <artifactId>[MODULE]</artifactId>
-    <version>[VERSION]</version>
-</dependency>
+<repositories>
+  <repository>
+    <id>github-calibre</id>
+    <url>https://maven.pkg.github.com/aecsocket/calibre</url>
+    <snapshots>
+      <enabled>true</enabled>
+    </snapshots>
+  </repository>
+</repositories>
 ```
 
-#### Gradle
+Dependency
+```xml
+<dependencies>
+  <dependency>
+    <groupId>com.github.aecsocket</groupId>
+    <artifactId>calibre-[module]</artifactId>
+    <version>[version]</version>
+  </dependency>
+</dependencies>
+```
+
+</details>
+
+<details>
+<summary>Gradle</summary>
+
+The Kotlin DSL is used here.
+
+### [How to authorize](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry)
 
 Repository
 ```kotlin
-maven("https://gitlab.com/api/v4/projects/20514863/packages/maven")
+repositories {
+    maven {
+        url = uri("https://maven.pkg.github.com/aecsocket/calibre")
+        credentials {
+            username = System.getenv("GPR_ACTOR")
+            password = System.getenv("GPR_TOKEN")
+        }
+    }
+}
 ```
 
 Dependency
 ```kotlin
-implementation("com.gitlab.aecsocket.calibre", "[MODULE]", "[VERSION]")
+dependencies {
+    compileOnly("com.github.aecsocket", "calibre-[module]", "[version]")
+}
 ```
 
-### Usage
+</details>
 
-#### [Javadoc](https://aecsocket.gitlab.io/calibre)
+# Documentation
 
-### Modules
+### [Javadoc](https://aecsocket.github.io/calibre/docs)
 
-* Core `core`
-
-Implementations:
-* Paper `paper`
+### [Wiki](https://github.com/aecsocket/calibre/wiki)

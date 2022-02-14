@@ -1,0 +1,31 @@
+[versions]
+
+junit = "5.7.2"
+minecraft = "1.18.1"
+
+minecommons = "1.4.0-SNAPSHOT"
+sokol = "2.0.0-SNAPSHOT"
+findBugs = "3.0.2"
+bstats = "2.2.1"
+
+paper = "1.18.1-R0.1-SNAPSHOT"
+protocolLib = "4.8.0-SNAPSHOT"
+
+[libraries]
+
+jupiterApi = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
+jupiterEngine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit" }
+
+minecommons = { group = "com.github.aecsocket", name = "minecommons-core", version.ref = "minecommons" }
+sokol = { group = "com.github.aecsocket", name = "sokol-core", version.ref = "sokol" }
+findBugs = { group = "com.google.code.findbugs", name = "jsr305", version.ref = "findBugs" }
+
+paper = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper" }
+bstatsPaper = { group = "org.bstats", name = "bstats-bukkit", version.ref = "bstats" }
+minecommonsPaper = { group = "com.github.aecsocket", name = "minecommons-paper", version.ref = "minecommons" }
+sokolPaper = { group = "com.github.aecsocket", name = "sokol-paper", version.ref = "sokol" }
+protocolLib = { group = "com.comphenix.protocol", name = "ProtocolLib", version.ref = "protocolLib" }
+
+[bundles]
+
+junit = [ "jupiterApi", "jupiterEngine" ]

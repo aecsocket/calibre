@@ -1,177 +1,42 @@
 package com.github.aecsocket.calibre.paper;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.reflect.EquivalentConverter;
-import com.comphenix.protocol.utility.MinecraftReflection;
-import com.comphenix.protocol.wrappers.EnumWrappers;
-import com.github.aecsocket.calibre.core.projectile.BulletSystem;
-import com.github.aecsocket.calibre.core.projectile.ProjectileLaunchSystem;
-import com.github.aecsocket.calibre.core.mode.Mode;
-import com.github.aecsocket.calibre.core.mode.ModeManagerSystem;
-import com.github.aecsocket.calibre.core.mode.ModesSystem;
-import com.github.aecsocket.calibre.core.sight.Sight;
-import com.github.aecsocket.calibre.core.sight.SightManagerSystem;
-import com.github.aecsocket.calibre.core.sight.SightsSystem;
-import com.github.aecsocket.calibre.paper.projectile.PaperBulletSystem;
-import com.github.aecsocket.calibre.paper.projectile.PaperProjectileLaunchSystem;
-import com.github.aecsocket.calibre.paper.projectile.ProjectileProviderSystem;
-import com.github.aecsocket.calibre.paper.mode.PaperMode;
-import com.github.aecsocket.calibre.paper.mode.PaperModeManagerSystem;
-import com.github.aecsocket.calibre.paper.mode.PaperModesSystem;
-import com.github.aecsocket.calibre.paper.sight.PaperSight;
-import com.github.aecsocket.calibre.paper.sight.PaperSightManagerSystem;
-import com.github.aecsocket.calibre.paper.sight.PaperSightsSystem;
-import com.github.aecsocket.calibre.paper.sight.SwayStabilizerSystem;
-import com.gitlab.aecsocket.minecommons.core.Ticks;
-import com.gitlab.aecsocket.minecommons.core.bounds.Compound;
-import com.gitlab.aecsocket.minecommons.core.scheduler.Task;
-import com.gitlab.aecsocket.minecommons.core.scheduler.ThreadScheduler;
-import com.gitlab.aecsocket.minecommons.core.serializers.ProxySerializer;
-import com.gitlab.aecsocket.minecommons.paper.plugin.BasePlugin;
-import com.gitlab.aecsocket.minecommons.paper.plugin.ProtocolLibAPI;
-import com.gitlab.aecsocket.minecommons.paper.raycast.PaperRaycast;
-import com.gitlab.aecsocket.minecommons.paper.scheduler.PaperScheduler;
-import com.gitlab.aecsocket.sokol.paper.SokolPlugin;
-import io.leangen.geantyref.TypeToken;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerQuitEvent;
+import com.github.aecsocket.minecommons.core.effect.SoundEffect;
+import com.github.aecsocket.minecommons.core.vector.cartesian.Vector3;
+import com.github.aecsocket.minecommons.paper.effect.PaperEffectors;
+import com.github.aecsocket.minecommons.paper.effect.PaperParticleEffect;
+import com.github.aecsocket.minecommons.paper.plugin.BasePlugin;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
+import org.bukkit.Particle;
+import org.bukkit.entity.LivingEntity;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
+import java.util.List;
 
-public class CalibrePlugin extends BasePlugin<CalibrePlugin> implements Listener {
-    /** The ID for this plugin on https://bstats.org. */
-    public static final int BSTATS_ID = 10479;
-
-    private final PaperScheduler paperScheduler = new PaperScheduler(this);
-    private final ThreadScheduler threadScheduler = new ThreadScheduler(Executors.newSingleThreadExecutor());
-    private final Map<UUID, PlayerData> playerData = new ConcurrentHashMap<>();
-    private final Materials materials = new Materials(this);
-    private PaperRaycast.Builder raycast;
-
-    @Override
-    public void onEnable() {
-        super.onEnable();
-        Bukkit.getPluginManager().registerEvents(this, this);
-        SokolPlugin sokol = SokolPlugin.instance();
-        sokol
-                .registerSystemType(SightManagerSystem.ID, PaperSightManagerSystem.type(sokol, this), () -> PaperSightManagerSystem.LOAD_PROVIDER)
-                .registerSystemType(SightsSystem.ID, PaperSightsSystem.type(sokol), () -> PaperSightsSystem.LOAD_PROVIDER)
-                .registerSystemType(SwayStabilizerSystem.ID, SwayStabilizerSystem.type(sokol, this), () -> SwayStabilizerSystem.LOAD_PROVIDER)
-                .registerSystemType(ModeManagerSystem.ID, PaperModeManagerSystem.type(sokol, this), () -> PaperModeManagerSystem.LOAD_PROVIDER)
-                .registerSystemType(ModesSystem.ID, PaperModesSystem.type(sokol), () -> PaperModesSystem.LOAD_PROVIDER)
-                .registerSystemType(ProjectileLaunchSystem.ID, PaperProjectileLaunchSystem.type(sokol, this), () -> PaperProjectileLaunchSystem.LOAD_PROVIDER)
-                .registerSystemType(ProjectileProviderSystem.ID, ProjectileProviderSystem.type(sokol, this), () -> ProjectileProviderSystem.LOAD_PROVIDER)
-                .registerSystemType(BulletSystem.ID, PaperBulletSystem.type(sokol, this), () -> PaperBulletSystem.LOAD_PROVIDER);
-        sokol.configOptionInitializer((serializers, mapper) -> serializers
-                .registerExact(Sight.class, new ProxySerializer<>(new TypeToken<PaperSight>() {}))
-                .registerExact(Mode.class, new ProxySerializer<>(new TypeToken<PaperMode>() {})));
-
-        paperScheduler.run(Task.repeating(ctx -> {
-            for (var data : playerData.values()) {
-                //noinspection SynchronizationOnLocalVariableOrMethodParameter
-                synchronized (data) {
-                    data.paperTick(ctx);
-                }
-            }
-        }, Ticks.MSPT));
-        threadScheduler.run(Task.repeating(ctx -> {
-            for (var data : playerData.values()) {
-                //noinspection SynchronizationOnLocalVariableOrMethodParameter
-                synchronized (data) {
-                    data.threadTick(ctx);
-                }
-            }
-        }, 10));
-
-        // TODO configs for raycaster
-        raycast = PaperRaycast.builder();
-        raycast.blockBound(Material.BARRIER, e -> true, raycast.boundsBuilder()
-                .put(Material.BARRIER.getKey().value(), Compound.compound())
-                .get());
-    }
-
-    @Override
-    public void onDisable() {
-        for (PlayerData data : playerData.values())
-            data.disable();
-    }
-
-    @Override
-    public void load() {
-        super.load();
-        materials.load();
-    }
-
-    public PaperScheduler paperScheduler() { return paperScheduler; }
-    public PlayerData playerData(Player player) { return playerData.computeIfAbsent(player.getUniqueId(), u -> new PlayerData(this, player)); }
-    public Materials materials() { return materials; }
-
-    private enum PlayerTeleportFlag {
-        X, Y, Z, Y_ROT, X_ROT
-    }
-
-    private static final Set<PlayerTeleportFlag> positionFlags = new HashSet<>(Arrays.asList(
-            PlayerTeleportFlag.X,
-            PlayerTeleportFlag.Z,
-            PlayerTeleportFlag.Y,
-            PlayerTeleportFlag.X_ROT,
-            PlayerTeleportFlag.Y_ROT
+public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
+    private final PaperEffectors effectors = new PaperEffectors(this);
+    private final Explosion.Options explosionOptions = new Explosion.Options(List.of(
+        SoundEffect.soundEffect(Sound.sound(
+            Key.key("desolated", "generic.explosion"), Sound.Source.MASTER, 1f, 1f
+        ), 0.12, 0.16),
+        SoundEffect.soundEffect(Sound.sound(
+            Key.key("desolated", "generic.explosion_far"), Sound.Source.MASTER, 0.5f, 1f
+        ), 0.16, 0.32)
+    ), List.of(
+        new PaperParticleEffect(Particle.FLAME, 6, Vector3.ZERO, 3, null)
+    ), List.of(
+        new PaperParticleEffect(Particle.LAVA, 2, Vector3.vec3(2), 0, null),
+        new PaperParticleEffect(Particle.CAMPFIRE_COSY_SMOKE, 1, Vector3.vec3(2), 0.01, null)
     ));
 
-    private static final EquivalentConverter<PlayerTeleportFlag> teleportFlagConverter = EnumWrappers.getGenericConverter(MinecraftReflection
-            .getMinecraftClass("network.protocol.game.EnumPlayerTeleportFlags",
-                    "network.protocol.game.PacketPlayOutPosition$EnumPlayerTeleportFlags"), PlayerTeleportFlag.class);
+    public PaperEffectors effectors() { return effectors; }
+    public Explosion.Options explosionOptions() { return explosionOptions; }
 
-    public void zoom(Player player, float zoom) {
-        protocol.send(player, PacketType.Play.Server.ABILITIES, packet -> {
-            packet.getBooleans().write(0, player.isInvulnerable());
-            packet.getBooleans().write(1, player.isFlying());
-            packet.getBooleans().write(2, player.getAllowFlight());
-            packet.getBooleans().write(3, player.getGameMode() == GameMode.CREATIVE);
-            packet.getFloat().write(0, player.getFlySpeed() / 2);
-            packet.getFloat().write(1, zoom);
-        });
-    }
-
-    public void rotate(Player player, double yaw, double pitch) {
-        protocol.send(player, PacketType.Play.Server.POSITION, packet -> {
-            packet.getDoubles().write(0, 0d);
-            packet.getDoubles().write(1, 0d);
-            packet.getDoubles().write(2, 0d);
-            packet.getFloat().write(0, (float) yaw);
-            packet.getFloat().write(1, (float) pitch);
-            packet.getSets(teleportFlagConverter).write(0, positionFlags);
-        }, true);
-    }
-
-    public void air(Player player, double percent) {
-        int air = (int) (((Math.round(percent * 10d) / 10d) - 0.05) * player.getMaximumAir());
-        protocol.send(player, PacketType.Play.Server.ENTITY_METADATA, packet -> {
-            packet.getIntegers().write(0, player.getEntityId());
-            packet.getWatchableCollectionModifier().write(0, ProtocolLibAPI.watcherObjects()
-                    .add(1, // air remaining
-                            Integer.class, air)
-                    .get()
-            );
-        });
-    }
-
-    public PaperRaycast raycast(World world) {
-        return raycast.build(world);
-    }
-
-    @EventHandler
-    private void event(PlayerQuitEvent event) {
-        playerData(event.getPlayer()).disable();
-        playerData.remove(event.getPlayer().getUniqueId());
+    public void damage(LivingEntity entity, double damage, @Nullable LivingEntity source) {
+        if (entity == source)
+            entity.damage(damage);
+        else
+            entity.damage(damage, source);
     }
 
     @Override

@@ -52,7 +52,7 @@ bukkit {
     name = "Calibre"
     main = "${project.group}.${rootProject.name}.paper.CalibrePlugin"
     apiVersion = "1.18"
-    depend = listOf("ProtocolLib")
+    depend = listOf("Sokol", "ProtocolLib")
     website = "https://github.com/aecsocket/calibre"
     authors = listOf("aecsocket")
 }

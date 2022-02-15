@@ -10,14 +10,13 @@ import org.bukkit.entity.LivingEntity;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public record Explosion(
     CalibrePlugin plugin,
-    Options options,
     double power, // 1 power -> 1 damage @ 1m
     int fragments,
+    double maxDistance,
     List<SoundEffect> sounds,
     List<PaperParticleEffect> dynamicParticles,
     List<PaperParticleEffect> staticParticles
@@ -26,12 +25,34 @@ public record Explosion(
 
     @ConfigSerializable
     public record Options(
+        double exponent,
+        double minDamage,
         List<SoundEffect> sounds,
         List<PaperParticleEffect> dynamicParticles,
         List<PaperParticleEffect> staticParticles
-    ) {}
+    ) {
+        public static final Options EMPTY = new Options(1, 1, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+    }
 
-    public static Explosion explosion(CalibrePlugin plugin, Options options, double power, int fragments) {
+    public static double damage(double exp, double pwr, double dst) {
+        return Math.pow(dst, -exp) * pwr;
+    }
+
+    public static double maxDistance(double exp, double pwr, double thresh) {
+        return Math.pow(thresh / pwr, 1 / -exp);
+    }
+
+    public double damage(double distance) {
+        return damage(plugin.explosionOptions().exponent, power, distance);
+    }
+
+    public double maxDistance() {
+        return maxDistance(plugin.explosionOptions().exponent, power, plugin.explosionOptions().minDamage);
+    }
+
+    public static Explosion explosion(CalibrePlugin plugin, double power, int fragments) {
+        Options options = plugin.explosionOptions();
+
         List<SoundEffect> sounds = new ArrayList<>();
         for (var sound : options.sounds) {
             sounds.add(SoundEffect.soundEffect(
@@ -53,19 +74,18 @@ public record Explosion(
             ));
         }
 
-        return new Explosion(plugin, options, power, fragments, sounds, dynamicParticles, staticParticles);
+        return new Explosion(plugin, power, fragments, maxDistance(options.exponent, power, options.minDamage), sounds, dynamicParticles, staticParticles);
     }
 
-    public double maxDistance() {
-        return power * MAX_DISTANCE_FACTOR;
-    }
+    public record Result(
+        Map<LivingEntity, Double> damage
+    ) {}
 
-    public double damage(double distance) {
-        return power * (1 / distance);
-    }
+    public Result spawn(Location location, @Nullable LivingEntity source) {
+        Map<LivingEntity, Double> allDamage = new HashMap<>();
 
-    public void spawn(Location location, @Nullable LivingEntity source) {
         Vector3 origin = PaperUtils.toCommons(location);
+        Options options = plugin.explosionOptions();
 
         // Effects
         for (var player : location.getWorld().getPlayers()) {
@@ -78,17 +98,21 @@ public record Explosion(
         // Blunt damage
         for (var target : location.getNearbyLivingEntities(maxDistance())) {
             double distance = distance(target, location);
-            plugin.damage(target, damage(distance), source);
+            double damage = damage(options.exponent, power, distance);
+            plugin.damage(target, damage, source);
+            allDamage.put(target, damage);
         }
 
         // Shrapnel
+
+        return new Result(allDamage);
     }
 
     public static double distance(LivingEntity target, Location location) {
         return Math.max(0.001, Math.min(
-                // TODO don't use sqrt here
-                target.getLocation().distance(location),
-                target.getEyeLocation().distance(location)
+            // TODO don't use sqrt here
+            target.getLocation().distance(location),
+            target.getEyeLocation().distance(location)
         ));
     }
 }

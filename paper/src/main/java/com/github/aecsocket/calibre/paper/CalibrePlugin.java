@@ -1,42 +1,58 @@
 package com.github.aecsocket.calibre.paper;
 
-import com.github.aecsocket.minecommons.core.effect.SoundEffect;
-import com.github.aecsocket.minecommons.core.vector.cartesian.Vector3;
+import com.github.aecsocket.minecommons.core.Ticks;
+import com.github.aecsocket.minecommons.core.scheduler.Task;
 import com.github.aecsocket.minecommons.paper.effect.PaperEffectors;
-import com.github.aecsocket.minecommons.paper.effect.PaperParticleEffect;
 import com.github.aecsocket.minecommons.paper.plugin.BasePlugin;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.sound.Sound;
-import org.bukkit.Particle;
+import com.github.aecsocket.minecommons.paper.scheduler.PaperScheduler;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
+    private final PaperScheduler scheduler = new PaperScheduler(this);
     private final PaperEffectors effectors = new PaperEffectors(this);
-    private final Explosion.Options explosionOptions = new Explosion.Options(List.of(
-        SoundEffect.soundEffect(Sound.sound(
-            Key.key("desolated", "generic.explosion"), Sound.Source.MASTER, 1f, 1f
-        ), 0.12, 0.16),
-        SoundEffect.soundEffect(Sound.sound(
-            Key.key("desolated", "generic.explosion_far"), Sound.Source.MASTER, 0.5f, 1f
-        ), 0.16, 0.32)
-    ), List.of(
-        new PaperParticleEffect(Particle.FLAME, 6, Vector3.ZERO, 3, null)
-    ), List.of(
-        new PaperParticleEffect(Particle.LAVA, 2, Vector3.vec3(2), 0, null),
-        new PaperParticleEffect(Particle.CAMPFIRE_COSY_SMOKE, 1, Vector3.vec3(2), 0.01, null)
-    ));
+    private final Map<Player, PlayerData> playerData = new HashMap<>();
+    private Explosion.Options explosionOptions;
 
+    public PaperScheduler scheduler() { return scheduler; }
     public PaperEffectors effectors() { return effectors; }
     public Explosion.Options explosionOptions() { return explosionOptions; }
+
+    public PlayerData playerData(Player player) {
+        return playerData.computeIfAbsent(player, k -> new PlayerData(this, k));
+    }
+
+    @Override
+    public void onEnable() {
+        super.onEnable();
+
+        scheduler.run(Task.repeating(ctx -> {
+            var iter = playerData.entrySet().iterator();
+            while (iter.hasNext()) {
+                var entry = iter.next();
+                if (entry.getKey().isValid()) {
+                    ctx.run(Task.single(entry.getValue()::tick));
+                } else
+                    iter.remove();
+            }
+        }, Ticks.MSPT));
+    }
 
     public void damage(LivingEntity entity, double damage, @Nullable LivingEntity source) {
         if (entity == source)
             entity.damage(damage);
         else
             entity.damage(damage, source);
+    }
+
+    @Override
+    public void load() {
+        super.load();
+        explosionOptions = setting(Explosion.Options.EMPTY, (n, d) -> n.get(Explosion.Options.class, d), "explosion");
     }
 
     @Override

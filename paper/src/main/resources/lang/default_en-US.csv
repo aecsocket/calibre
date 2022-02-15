@@ -4,6 +4,7 @@ locale,en-US
 chat_prefix,,"{cal} "
 yes,,"Yes"
 no,,"No"
+location,,"<x>, <y>, <z>"
 
 error.command,,"<message>"
 error.exception.no_message,,"  <type>"
@@ -24,3 +25,7 @@ command.version,,"<name> v<version> by <authors>."
 command.reload.start,,"Reloading..."
 command.reload.end,,"Reloaded. Check console for details."
 command.setting,,"<line>"
+command.expl.spawn.generic,,"Spawned <power>x explosion at <location>","  Max dist. <max_distance>m"
+command.expl.spawn.player,,"Spawned <power>x explosion at <location>","  Dist. <distance>m  Max dist. <max_distance>m  Damage <damage> hp"
+
+explosion.info,,"<distance>m / <max_distance>m → <damage> hp"

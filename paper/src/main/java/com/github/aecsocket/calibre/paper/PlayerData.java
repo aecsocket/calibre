@@ -5,11 +5,13 @@ import com.github.aecsocket.minecommons.core.scheduler.TaskContext;
 import com.github.aecsocket.minecommons.core.vector.cartesian.Vector3;
 import com.github.aecsocket.minecommons.paper.PaperUtils;
 import com.github.aecsocket.minecommons.paper.effect.PaperParticleEffect;
+import com.github.aecsocket.minecommons.paper.raycast.PaperRaycast;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.awt.print.Paper;
 import java.util.Locale;
 
 import static net.kyori.adventure.text.Component.*;
@@ -46,8 +48,8 @@ public final class PlayerData {
                 PaperUtils.toCommons(explosionInfo.location())
             );
 
-            Explosion explosion = explosionInfo.explosion();
-            double distance = Explosion.distance(handle, explosionInfo.location());
+            Explosions.Instance explosion = explosionInfo.explosion();
+            double distance = Explosions.distance(handle, explosionInfo.location());
             handle.sendActionBar(plugin.i18n().line(locale, EXPLOSION_INFO,
                 c -> c.of("distance", () -> text(String.format(locale, "%.2f", distance))),
                 c -> c.of("max_distance", () -> text(String.format(locale, "%.2f", explosion.maxDistance()))),

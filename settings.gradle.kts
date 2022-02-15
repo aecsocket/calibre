@@ -19,20 +19,20 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         mavenLocal()
-        maven {
+       /* maven {
             url = uri("https://maven.pkg.github.com/aecsocket/minecommons")
             credentials {
                 username = System.getenv("GPR_ACTOR")
                 password = System.getenv("GPR_TOKEN")
             }
-        }
-        maven {
+        }*/
+        /*maven {
             url = uri("https://maven.pkg.github.com/aecsocket/sokol")
             credentials {
                 username = System.getenv("GPR_ACTOR")
                 password = System.getenv("GPR_TOKEN")
             }
-        }
+        }*/
         maven("https://repo.incendo.org/content/repositories/snapshots/")
         maven("https://papermc.io/repo/repository/maven-public/")
         maven("https://repo.dmulloy2.net/nexus/repository/public/")

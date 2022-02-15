@@ -16,7 +16,7 @@ import java.util.Locale;
 import static net.kyori.adventure.text.Component.*;
 
 /* package */ final class CalibreCommand extends BaseCommand<CalibrePlugin> {
-    record ExplosionInfo(Explosion explosion, Location location) {}
+    record ExplosionInfo(Explosions.Instance explosion, Location location) {}
 
     public static final String
         LOCATION = "location",
@@ -66,8 +66,8 @@ import static net.kyori.adventure.text.Component.*;
         Location location = ctx.get("location");
         double power = ctx.get("power");
 
-        Explosion explosion = Explosion.explosion(plugin, power, 0);
-        Explosion.Result res = explosion.spawn(location, pSender);
+        Explosions.Instance explosion = Explosions.instance(plugin, power, 0);
+        Explosions.Result res = explosion.spawn(location, pSender);
 
         if (pSender == null) {
             plugin.send(sender, i18n.lines(locale, COMMAND_EXPL_SPAWN_GENERIC,
@@ -75,7 +75,7 @@ import static net.kyori.adventure.text.Component.*;
                 c -> c.of("power", () -> text(format2(locale, power))),
                 c -> c.of("max_distance", () -> text(String.format(locale, "%.2f", explosion.maxDistance())))));
         } else {
-            double distance = Explosion.distance(pSender, location);
+            double distance = Explosions.distance(pSender, location);
             plugin.send(sender, i18n.lines(locale, COMMAND_EXPL_SPAWN_PLAYER,
                 c -> c.of("location", () -> renderLoc(locale, location)),
                 c -> c.of("power", () -> text(format2(locale, power))),
@@ -89,7 +89,7 @@ import static net.kyori.adventure.text.Component.*;
         Location location = ctx.get("location");
         double power = ctx.get("power");
 
-        Explosion explosion = Explosion.explosion(plugin, power, 0);
+        Explosions.Instance explosion = Explosions.instance(plugin, power, 0);
         plugin.playerData(pSender).explosionInfo = new ExplosionInfo(explosion, location);
     }
 

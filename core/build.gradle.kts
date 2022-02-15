@@ -13,7 +13,7 @@ dependencies {
 
 publishing {
     publications {
-        create<MavenPublication>("github") {
+        create<MavenPublication>("maven") {
             from(components["java"])
         }
     }

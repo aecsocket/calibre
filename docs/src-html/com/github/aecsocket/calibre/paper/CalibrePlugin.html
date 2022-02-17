@@ -13,90 +13,158 @@
 <div class="source-container">
 <pre><span class="source-line-no">001</span><span id="line-1">package com.github.aecsocket.calibre.paper;</span>
 <span class="source-line-no">002</span><span id="line-2"></span>
-<span class="source-line-no">003</span><span id="line-3">import com.github.aecsocket.minecommons.core.Ticks;</span>
-<span class="source-line-no">004</span><span id="line-4">import com.github.aecsocket.minecommons.core.scheduler.Task;</span>
-<span class="source-line-no">005</span><span id="line-5">import com.github.aecsocket.minecommons.paper.effect.PaperEffectors;</span>
-<span class="source-line-no">006</span><span id="line-6">import com.github.aecsocket.minecommons.paper.plugin.BasePlugin;</span>
-<span class="source-line-no">007</span><span id="line-7">import com.github.aecsocket.minecommons.paper.raycast.PaperRaycast;</span>
-<span class="source-line-no">008</span><span id="line-8">import com.github.aecsocket.minecommons.paper.scheduler.PaperScheduler;</span>
-<span class="source-line-no">009</span><span id="line-9">import org.bukkit.entity.LivingEntity;</span>
-<span class="source-line-no">010</span><span id="line-10">import org.bukkit.entity.Player;</span>
-<span class="source-line-no">011</span><span id="line-11">import org.checkerframework.checker.nullness.qual.Nullable;</span>
-<span class="source-line-no">012</span><span id="line-12"></span>
-<span class="source-line-no">013</span><span id="line-13">import java.text.DecimalFormat;</span>
-<span class="source-line-no">014</span><span id="line-14">import java.text.DecimalFormatSymbols;</span>
-<span class="source-line-no">015</span><span id="line-15">import java.util.HashMap;</span>
-<span class="source-line-no">016</span><span id="line-16">import java.util.Locale;</span>
-<span class="source-line-no">017</span><span id="line-17">import java.util.Map;</span>
-<span class="source-line-no">018</span><span id="line-18"></span>
-<span class="source-line-no">019</span><span id="line-19">public final class CalibrePlugin extends BasePlugin&lt;CalibrePlugin&gt; {</span>
-<span class="source-line-no">020</span><span id="line-20">    private static final Map&lt;Locale, DecimalFormat&gt; DECIMAL_FORMATS = new HashMap&lt;&gt;();</span>
-<span class="source-line-no">021</span><span id="line-21"></span>
-<span class="source-line-no">022</span><span id="line-22">    private final PaperScheduler scheduler = new PaperScheduler(this);</span>
-<span class="source-line-no">023</span><span id="line-23">    private final PaperEffectors effectors = new PaperEffectors(this);</span>
-<span class="source-line-no">024</span><span id="line-24">    private final Map&lt;Player, PlayerData&gt; playerData = new HashMap&lt;&gt;();</span>
-<span class="source-line-no">025</span><span id="line-25">    private final Explosions explosions = new Explosions(this);</span>
-<span class="source-line-no">026</span><span id="line-26">    private final Penetration penetration = new Penetration(this);</span>
-<span class="source-line-no">027</span><span id="line-27">    private PaperRaycast.Builder raycastBuilder;</span>
-<span class="source-line-no">028</span><span id="line-28"></span>
-<span class="source-line-no">029</span><span id="line-29">    public PaperScheduler scheduler() { return scheduler; }</span>
-<span class="source-line-no">030</span><span id="line-30">    public PaperEffectors effectors() { return effectors; }</span>
-<span class="source-line-no">031</span><span id="line-31">    public Explosions explosions() { return explosions; }</span>
-<span class="source-line-no">032</span><span id="line-32">    public Penetration penetration() { return penetration; }</span>
-<span class="source-line-no">033</span><span id="line-33">    public PaperRaycast.Builder raycastBuilder() { return raycastBuilder; }</span>
-<span class="source-line-no">034</span><span id="line-34"></span>
-<span class="source-line-no">035</span><span id="line-35">    public PlayerData playerData(Player player) {</span>
-<span class="source-line-no">036</span><span id="line-36">        return playerData.computeIfAbsent(player, k -&gt; new PlayerData(this, k));</span>
-<span class="source-line-no">037</span><span id="line-37">    }</span>
-<span class="source-line-no">038</span><span id="line-38"></span>
-<span class="source-line-no">039</span><span id="line-39">    @Override</span>
-<span class="source-line-no">040</span><span id="line-40">    public void onEnable() {</span>
-<span class="source-line-no">041</span><span id="line-41">        super.onEnable();</span>
-<span class="source-line-no">042</span><span id="line-42"></span>
-<span class="source-line-no">043</span><span id="line-43">        scheduler.run(Task.repeating(ctx -&gt; {</span>
-<span class="source-line-no">044</span><span id="line-44">            var iter = playerData.entrySet().iterator();</span>
-<span class="source-line-no">045</span><span id="line-45">            while (iter.hasNext()) {</span>
-<span class="source-line-no">046</span><span id="line-46">                var entry = iter.next();</span>
-<span class="source-line-no">047</span><span id="line-47">                if (entry.getKey().isValid()) {</span>
-<span class="source-line-no">048</span><span id="line-48">                    ctx.run(Task.single(entry.getValue()::tick));</span>
-<span class="source-line-no">049</span><span id="line-49">                } else</span>
-<span class="source-line-no">050</span><span id="line-50">                    iter.remove();</span>
-<span class="source-line-no">051</span><span id="line-51">            }</span>
-<span class="source-line-no">052</span><span id="line-52">        }, Ticks.MSPT));</span>
-<span class="source-line-no">053</span><span id="line-53">    }</span>
-<span class="source-line-no">054</span><span id="line-54"></span>
-<span class="source-line-no">055</span><span id="line-55">    public void damage(LivingEntity entity, double damage, @Nullable LivingEntity source) {</span>
-<span class="source-line-no">056</span><span id="line-56">        if (entity == source)</span>
-<span class="source-line-no">057</span><span id="line-57">            entity.damage(damage);</span>
-<span class="source-line-no">058</span><span id="line-58">        else</span>
-<span class="source-line-no">059</span><span id="line-59">            entity.damage(damage, source);</span>
-<span class="source-line-no">060</span><span id="line-60">    }</span>
-<span class="source-line-no">061</span><span id="line-61"></span>
-<span class="source-line-no">062</span><span id="line-62">    @Override</span>
-<span class="source-line-no">063</span><span id="line-63">    public void load() {</span>
-<span class="source-line-no">064</span><span id="line-64">        super.load();</span>
-<span class="source-line-no">065</span><span id="line-65">        explosions.load();</span>
-<span class="source-line-no">066</span><span id="line-66">        penetration.load();</span>
-<span class="source-line-no">067</span><span id="line-67">        raycastBuilder = PaperRaycast.builder(); // TODO raycast options</span>
-<span class="source-line-no">068</span><span id="line-68">        for (var data : playerData.values()) {</span>
-<span class="source-line-no">069</span><span id="line-69">            data.load();</span>
-<span class="source-line-no">070</span><span id="line-70">        }</span>
-<span class="source-line-no">071</span><span id="line-71">    }</span>
-<span class="source-line-no">072</span><span id="line-72"></span>
-<span class="source-line-no">073</span><span id="line-73">    @Override</span>
-<span class="source-line-no">074</span><span id="line-74">    protected CalibreCommand createCommand() throws Exception {</span>
-<span class="source-line-no">075</span><span id="line-75">        return new CalibreCommand(this);</span>
-<span class="source-line-no">076</span><span id="line-76">    }</span>
-<span class="source-line-no">077</span><span id="line-77"></span>
-<span class="source-line-no">078</span><span id="line-78">    public static String format2(Locale locale, double value) {</span>
-<span class="source-line-no">079</span><span id="line-79">        DecimalFormat format = DECIMAL_FORMATS.computeIfAbsent(locale, k -&gt; new DecimalFormat("0.##", DecimalFormatSymbols.getInstance(k)));</span>
-<span class="source-line-no">080</span><span id="line-80">        return format.format(value);</span>
-<span class="source-line-no">081</span><span id="line-81">    }</span>
-<span class="source-line-no">082</span><span id="line-82"></span>
-<span class="source-line-no">083</span><span id="line-83">    public static String format2Raw(Locale locale, double value) {</span>
-<span class="source-line-no">084</span><span id="line-84">        return String.format(locale, "%.2f", value);</span>
-<span class="source-line-no">085</span><span id="line-85">    }</span>
-<span class="source-line-no">086</span><span id="line-86">}</span>
+<span class="source-line-no">003</span><span id="line-3">import com.github.aecsocket.calibre.core.Projectile;</span>
+<span class="source-line-no">004</span><span id="line-4">import com.github.aecsocket.minecommons.core.Ticks;</span>
+<span class="source-line-no">005</span><span id="line-5">import com.github.aecsocket.minecommons.core.raycast.Raycast;</span>
+<span class="source-line-no">006</span><span id="line-6">import com.github.aecsocket.minecommons.core.scheduler.Task;</span>
+<span class="source-line-no">007</span><span id="line-7">import com.github.aecsocket.minecommons.core.scheduler.TaskContext;</span>
+<span class="source-line-no">008</span><span id="line-8">import com.github.aecsocket.minecommons.core.vector.cartesian.Vector3;</span>
+<span class="source-line-no">009</span><span id="line-9">import com.github.aecsocket.minecommons.paper.PaperUtils;</span>
+<span class="source-line-no">010</span><span id="line-10">import com.github.aecsocket.minecommons.paper.effect.PaperEffectors;</span>
+<span class="source-line-no">011</span><span id="line-11">import com.github.aecsocket.minecommons.paper.plugin.BasePlugin;</span>
+<span class="source-line-no">012</span><span id="line-12">import com.github.aecsocket.minecommons.paper.raycast.PaperRaycast;</span>
+<span class="source-line-no">013</span><span id="line-13">import com.github.aecsocket.minecommons.paper.scheduler.PaperScheduler;</span>
+<span class="source-line-no">014</span><span id="line-14">import com.github.aecsocket.sokol.paper.PaperBlueprint;</span>
+<span class="source-line-no">015</span><span id="line-15">import org.bukkit.Bukkit;</span>
+<span class="source-line-no">016</span><span id="line-16">import org.bukkit.Location;</span>
+<span class="source-line-no">017</span><span id="line-17">import org.bukkit.Particle;</span>
+<span class="source-line-no">018</span><span id="line-18">import org.bukkit.World;</span>
+<span class="source-line-no">019</span><span id="line-19">import org.bukkit.entity.LivingEntity;</span>
+<span class="source-line-no">020</span><span id="line-20">import org.bukkit.entity.Player;</span>
+<span class="source-line-no">021</span><span id="line-21">import org.bukkit.event.EventHandler;</span>
+<span class="source-line-no">022</span><span id="line-22">import org.bukkit.event.Listener;</span>
+<span class="source-line-no">023</span><span id="line-23">import org.bukkit.event.block.Action;</span>
+<span class="source-line-no">024</span><span id="line-24">import org.bukkit.event.player.PlayerInteractEvent;</span>
+<span class="source-line-no">025</span><span id="line-25">import org.checkerframework.checker.nullness.qual.Nullable;</span>
+<span class="source-line-no">026</span><span id="line-26"></span>
+<span class="source-line-no">027</span><span id="line-27">import java.text.DecimalFormat;</span>
+<span class="source-line-no">028</span><span id="line-28">import java.text.DecimalFormatSymbols;</span>
+<span class="source-line-no">029</span><span id="line-29">import java.util.HashMap;</span>
+<span class="source-line-no">030</span><span id="line-30">import java.util.Locale;</span>
+<span class="source-line-no">031</span><span id="line-31">import java.util.Map;</span>
+<span class="source-line-no">032</span><span id="line-32">import java.util.function.Predicate;</span>
+<span class="source-line-no">033</span><span id="line-33"></span>
+<span class="source-line-no">034</span><span id="line-34">public final class CalibrePlugin extends BasePlugin&lt;CalibrePlugin&gt; {</span>
+<span class="source-line-no">035</span><span id="line-35">    private static final Map&lt;Locale, DecimalFormat&gt; DECIMAL_FORMATS = new HashMap&lt;&gt;();</span>
+<span class="source-line-no">036</span><span id="line-36"></span>
+<span class="source-line-no">037</span><span id="line-37">    private final PaperScheduler scheduler = new PaperScheduler(this);</span>
+<span class="source-line-no">038</span><span id="line-38">    private final PaperEffectors effectors = new PaperEffectors(this);</span>
+<span class="source-line-no">039</span><span id="line-39">    private final Map&lt;Player, PlayerData&gt; playerData = new HashMap&lt;&gt;();</span>
+<span class="source-line-no">040</span><span id="line-40">    private final Explosions explosions = new Explosions(this);</span>
+<span class="source-line-no">041</span><span id="line-41">    private final Penetration penetration = new Penetration(this);</span>
+<span class="source-line-no">042</span><span id="line-42">    private PaperRaycast.Builder raycastBuilder;</span>
+<span class="source-line-no">043</span><span id="line-43"></span>
+<span class="source-line-no">044</span><span id="line-44">    public PaperScheduler scheduler() { return scheduler; }</span>
+<span class="source-line-no">045</span><span id="line-45">    public PaperEffectors effectors() { return effectors; }</span>
+<span class="source-line-no">046</span><span id="line-46">    public Explosions explosions() { return explosions; }</span>
+<span class="source-line-no">047</span><span id="line-47">    public Penetration penetration() { return penetration; }</span>
+<span class="source-line-no">048</span><span id="line-48">    public PaperRaycast.Builder raycastBuilder() { return raycastBuilder; }</span>
+<span class="source-line-no">049</span><span id="line-49"></span>
+<span class="source-line-no">050</span><span id="line-50">    public PlayerData playerData(Player player) {</span>
+<span class="source-line-no">051</span><span id="line-51">        return playerData.computeIfAbsent(player, k -&gt; new PlayerData(this, k));</span>
+<span class="source-line-no">052</span><span id="line-52">    }</span>
+<span class="source-line-no">053</span><span id="line-53"></span>
+<span class="source-line-no">054</span><span id="line-54">    @Override</span>
+<span class="source-line-no">055</span><span id="line-55">    public void onEnable() {</span>
+<span class="source-line-no">056</span><span id="line-56">        super.onEnable();</span>
+<span class="source-line-no">057</span><span id="line-57"></span>
+<span class="source-line-no">058</span><span id="line-58">        scheduler.run(Task.repeating(ctx -&gt; {</span>
+<span class="source-line-no">059</span><span id="line-59">            var iter = playerData.entrySet().iterator();</span>
+<span class="source-line-no">060</span><span id="line-60">            while (iter.hasNext()) {</span>
+<span class="source-line-no">061</span><span id="line-61">                var entry = iter.next();</span>
+<span class="source-line-no">062</span><span id="line-62">                if (entry.getKey().isValid()) {</span>
+<span class="source-line-no">063</span><span id="line-63">                    ctx.run(Task.single(entry.getValue()::tick));</span>
+<span class="source-line-no">064</span><span id="line-64">                } else</span>
+<span class="source-line-no">065</span><span id="line-65">                    iter.remove();</span>
+<span class="source-line-no">066</span><span id="line-66">            }</span>
+<span class="source-line-no">067</span><span id="line-67">        }, Ticks.MSPT));</span>
+<span class="source-line-no">068</span><span id="line-68"></span>
+<span class="source-line-no">069</span><span id="line-69">        Bukkit.getPluginManager().registerEvents(new Listener() {</span>
+<span class="source-line-no">070</span><span id="line-70">            /*</span>
+<span class="source-line-no">071</span><span id="line-71">                5.56x45mm Bullet:</span>
+<span class="source-line-no">072</span><span id="line-72">                  v = 900m/s</span>
+<span class="source-line-no">073</span><span id="line-73">                  m = 4g = 0.004kg</span>
+<span class="source-line-no">074</span><span id="line-74">                  diameter = 5.70mm = 0.0057m</span>
+<span class="source-line-no">075</span><span id="line-75">                  radius = 0.00285m</span>
+<span class="source-line-no">076</span><span id="line-76">                  cross section = πr^2 = 2.5517586328783095e-05</span>
+<span class="source-line-no">077</span><span id="line-77">                    = 0.000025517m^2</span>
+<span class="source-line-no">078</span><span id="line-78">                  ρ = 1.225kg/m^3</span>
+<span class="source-line-no">079</span><span id="line-79"></span>
+<span class="source-line-no">080</span><span id="line-80">                  Cd = 0.06 (https://sites.google.com/site/technicalarchery/technical-discussions-1/drag-coefficients-of-bullets-arrows-and-spears)</span>
+<span class="source-line-no">081</span><span id="line-81"></span>
+<span class="source-line-no">082</span><span id="line-82">                  F = ((1.225 x Cd x 2.552e-05) / 2) * 900^2</span>
+<span class="source-line-no">083</span><span id="line-83">                   -&gt; 0.30386664</span>
+<span class="source-line-no">084</span><span id="line-84"></span>
+<span class="source-line-no">085</span><span id="line-85">                  a = F / m = 0.30386664 / 0.004</span>
+<span class="source-line-no">086</span><span id="line-86">                   -&gt; 75.96666m/s^2</span>
+<span class="source-line-no">087</span><span id="line-87">                   -&gt; 3.798m/t^2</span>
+<span class="source-line-no">088</span><span id="line-88">                 */</span>
+<span class="source-line-no">089</span><span id="line-89"></span>
+<span class="source-line-no">090</span><span id="line-90">            @EventHandler</span>
+<span class="source-line-no">091</span><span id="line-91">            void onEvent(PlayerInteractEvent event) {</span>
+<span class="source-line-no">092</span><span id="line-92">                if (event.getAction() == Action.LEFT_CLICK_AIR) {</span>
+<span class="source-line-no">093</span><span id="line-93">                    Player player = event.getPlayer();</span>
+<span class="source-line-no">094</span><span id="line-94">                    World world = player.getWorld();</span>
+<span class="source-line-no">095</span><span id="line-95">                    Location eye = player.getEyeLocation();</span>
+<span class="source-line-no">096</span><span id="line-96">                    Projectile&lt;PaperRaycast.PaperBoundable&gt; projectile = new Projectile&lt;&gt;(</span>
+<span class="source-line-no">097</span><span id="line-97">                        raycastBuilder.build(world), PaperUtils.toCommons(eye), PaperUtils.toCommons(eye.getDirection().multiply(100)),</span>
+<span class="source-line-no">098</span><span id="line-98">                        Projectile.GRAVITY, 0.06, 2.552e-05, 0.004</span>
+<span class="source-line-no">099</span><span id="line-99">                    ) {</span>
+<span class="source-line-no">100</span><span id="line-100">                        @Override</span>
+<span class="source-line-no">101</span><span id="line-101">                        protected double mediumDensity(Vector3 pos) {</span>
+<span class="source-line-no">102</span><span id="line-102">                            return pos.y() &gt; 90 ? 100000000d : 1.225;</span>
+<span class="source-line-no">103</span><span id="line-103">                        }</span>
+<span class="source-line-no">104</span><span id="line-104"></span>
+<span class="source-line-no">105</span><span id="line-105">                        @Override</span>
+<span class="source-line-no">106</span><span id="line-106">                        protected Predicate&lt;PaperRaycast.PaperBoundable&gt; test() {</span>
+<span class="source-line-no">107</span><span id="line-107">                            return b -&gt; b.entity() == null || b.entity() != player;</span>
+<span class="source-line-no">108</span><span id="line-108">                        }</span>
+<span class="source-line-no">109</span><span id="line-109"></span>
+<span class="source-line-no">110</span><span id="line-110">                        @Override</span>
+<span class="source-line-no">111</span><span id="line-111">                        protected void step(TaskContext ctx, Raycast.Result&lt;PaperRaycast.PaperBoundable&gt; ray, Vector3 origin, Vector3 direction) {</span>
+<span class="source-line-no">112</span><span id="line-112">                            player.spawnParticle(Particle.END_ROD, PaperUtils.toPaper(position, world), 0);</span>
+<span class="source-line-no">113</span><span id="line-113">                        }</span>
+<span class="source-line-no">114</span><span id="line-114">                    };</span>
+<span class="source-line-no">115</span><span id="line-115">                    scheduler.run(Task.repeating(ctx -&gt; ctx.run(Task.single(projectile::tick)), Ticks.MSPT));</span>
+<span class="source-line-no">116</span><span id="line-116">                } else {</span>
+<span class="source-line-no">117</span><span id="line-117">                    scheduler.cancel();</span>
+<span class="source-line-no">118</span><span id="line-118">                }</span>
+<span class="source-line-no">119</span><span id="line-119">            }</span>
+<span class="source-line-no">120</span><span id="line-120">        }, this);</span>
+<span class="source-line-no">121</span><span id="line-121">    }</span>
+<span class="source-line-no">122</span><span id="line-122"></span>
+<span class="source-line-no">123</span><span id="line-123">    public void damage(LivingEntity entity, double damage, @Nullable LivingEntity source) {</span>
+<span class="source-line-no">124</span><span id="line-124">        if (entity == source)</span>
+<span class="source-line-no">125</span><span id="line-125">            entity.damage(damage);</span>
+<span class="source-line-no">126</span><span id="line-126">        else</span>
+<span class="source-line-no">127</span><span id="line-127">            entity.damage(damage, source);</span>
+<span class="source-line-no">128</span><span id="line-128">    }</span>
+<span class="source-line-no">129</span><span id="line-129"></span>
+<span class="source-line-no">130</span><span id="line-130">    @Override</span>
+<span class="source-line-no">131</span><span id="line-131">    public void load() {</span>
+<span class="source-line-no">132</span><span id="line-132">        super.load();</span>
+<span class="source-line-no">133</span><span id="line-133">        explosions.load();</span>
+<span class="source-line-no">134</span><span id="line-134">        penetration.load();</span>
+<span class="source-line-no">135</span><span id="line-135">        raycastBuilder = PaperRaycast.builder(); // TODO raycast options</span>
+<span class="source-line-no">136</span><span id="line-136">        for (var data : playerData.values()) {</span>
+<span class="source-line-no">137</span><span id="line-137">            data.load();</span>
+<span class="source-line-no">138</span><span id="line-138">        }</span>
+<span class="source-line-no">139</span><span id="line-139">    }</span>
+<span class="source-line-no">140</span><span id="line-140"></span>
+<span class="source-line-no">141</span><span id="line-141">    @Override</span>
+<span class="source-line-no">142</span><span id="line-142">    protected CalibreCommand createCommand() throws Exception {</span>
+<span class="source-line-no">143</span><span id="line-143">        return new CalibreCommand(this);</span>
+<span class="source-line-no">144</span><span id="line-144">    }</span>
+<span class="source-line-no">145</span><span id="line-145"></span>
+<span class="source-line-no">146</span><span id="line-146">    public static String format2(Locale locale, double value) {</span>
+<span class="source-line-no">147</span><span id="line-147">        DecimalFormat format = DECIMAL_FORMATS.computeIfAbsent(locale, k -&gt; new DecimalFormat("0.##", DecimalFormatSymbols.getInstance(k)));</span>
+<span class="source-line-no">148</span><span id="line-148">        return format.format(value);</span>
+<span class="source-line-no">149</span><span id="line-149">    }</span>
+<span class="source-line-no">150</span><span id="line-150"></span>
+<span class="source-line-no">151</span><span id="line-151">    public static String format2Raw(Locale locale, double value) {</span>
+<span class="source-line-no">152</span><span id="line-152">        return String.format(locale, "%.2f", value);</span>
+<span class="source-line-no">153</span><span id="line-153">    }</span>
+<span class="source-line-no">154</span><span id="line-154">}</span>
 
 
 

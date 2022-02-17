@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.github.aecsocket.calibre.paper"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.github.aecsocket.calibre.core"},{"l":"com.github.aecsocket.calibre.paper"}];updateSearchResults();

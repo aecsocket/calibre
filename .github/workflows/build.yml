@@ -1,0 +1,75 @@
+name: "build"
+
+on:
+  push:
+    branches: [ "**" ]
+    tags-ignore: [ "**" ]
+  pull_request:
+  release:
+    types: [ released ]
+
+jobs:
+  build:
+    # Only run on PRs if the source branch is on someone else's repo
+    if: "${{ github.event_name != 'pull_request' || github.repository != github.event.pull_request.head.repo.full_name }}"
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2
+      - uses: gradle/wrapper-validation-action@v1
+      - name: "Set up Java"
+        uses: actions/setup-java@v2
+        with:
+          java-version: 17
+          distribution: "adopt"
+      - name: "Cache Gradle"
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ secrets.CACHE_VERSION }}-${{ hashFiles('**/*.gradle.kts', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-${{ secrets.CACHE_VERSION }}-
+
+      - name: "Build"
+        run: ./gradlew build --stacktrace
+        env:
+          GPR_ACTOR: "${{ github.actor }}"
+          GPR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: "Archive test results"
+        uses: actions/upload-artifact@v2
+        with:
+          name: "test-results-${{ runner.os }}"
+          path: |
+            build/reports/
+            */build/reports/
+
+      - name: "Determine snapshot or release"
+        run: |
+          if [ "$(./gradlew properties | awk '/^version:/ { print $2; }' | grep '\-SNAPSHOT')" ]; then
+            echo "STATUS=snapshot" >> $GITHUB_ENV
+          else
+            echo "STATUS=release" >> $GITHUB_ENV
+          fi
+      - name: "Publish artifact"
+        # If:
+        #  * is a release
+        #  * or is a snapshot AND is on main/release branch
+        if: "${{ (env.STATUS == 'release' && github.event_name == 'release') || (env.STATUS != 'release' && github.event_name != 'release' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/'))) }}"
+        run: ./gradlew publish aggregateJavadoc
+        env:
+          GPR_ACTOR: "${{ github.actor }}"
+          GPR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: "Publish docs"
+        # If:
+        #  * is a release
+        #  * or is a snapshot AND is on main branch
+        if: "${{ (env.STATUS == 'release' && github.event_name == 'release') || (env.STATUS != 'release' && github.event_name != 'release' && github.ref == 'refs/heads/main') }}"
+        uses: JamesIves/github-pages-deploy-action@v4.2.2
+        with:
+          branch: gh-pages
+          folder: build/docs/aggregateJavadoc
+          target-folder: docs

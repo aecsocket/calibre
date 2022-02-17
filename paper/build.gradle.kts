@@ -15,8 +15,12 @@ dependencies {
         exclude("junit", "junit")
     }
 
-    implementation(libs.minecommonsPaper)
-    implementation(libs.sokolPaper)
+    implementation(libs.minecommonsPaper) {
+        artifact { classifier = "reobf" }
+    }
+    implementation(libs.sokolPaper) {
+        exclude("com.github.aecsocket", "minecommons-paper")
+    }
     implementation(libs.bstatsPaper)
 
     compileOnly(libs.protocolLib)

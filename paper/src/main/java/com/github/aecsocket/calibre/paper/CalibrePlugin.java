@@ -10,15 +10,20 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
+    private static final Map<Locale, DecimalFormat> DECIMAL_FORMATS = new HashMap<>();
+
     private final PaperScheduler scheduler = new PaperScheduler(this);
     private final PaperEffectors effectors = new PaperEffectors(this);
     private final Map<Player, PlayerData> playerData = new HashMap<>();
-    private Explosions explosions;
-    private Penetration penetration;
+    private final Explosions explosions = new Explosions(this);
+    private final Penetration penetration = new Penetration(this);
     private PaperRaycast.Builder raycastBuilder;
 
     public PaperScheduler scheduler() { return scheduler; }
@@ -57,13 +62,25 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
     @Override
     public void load() {
         super.load();
-        explosions = setting(Explosions.DEFAULT, (n, d) -> n.get(Explosions.class, d), "explosions");
-        penetration = setting(Penetration.DEFAULT, (n, d) -> n.get(Penetration.class, d), "penetration");
+        explosions.load();
+        penetration.load();
         raycastBuilder = PaperRaycast.builder(); // TODO raycast options
+        for (var data : playerData.values()) {
+            data.load();
+        }
     }
 
     @Override
     protected CalibreCommand createCommand() throws Exception {
         return new CalibreCommand(this);
+    }
+
+    public static String format2(Locale locale, double value) {
+        DecimalFormat format = DECIMAL_FORMATS.computeIfAbsent(locale, k -> new DecimalFormat("0.##", DecimalFormatSymbols.getInstance(k)));
+        return format.format(value);
+    }
+
+    public static String format2Raw(Locale locale, double value) {
+        return String.format(locale, "%.2f", value);
     }
 }

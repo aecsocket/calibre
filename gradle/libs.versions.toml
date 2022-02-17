@@ -3,7 +3,7 @@
 junit = "5.7.2"
 minecraft = "1.18.1"
 
-minecommons = "1.4.0-SNAPSHOT"
+minecommons = "1.4.1-SNAPSHOT"
 sokol = "2.0.0-SNAPSHOT"
 findBugs = "3.0.2"
 bstats = "2.2.1"

@@ -14,6 +14,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import java.util.Locale;
 
 import static net.kyori.adventure.text.Component.*;
+import static com.github.aecsocket.calibre.paper.CalibrePlugin.format2;
 
 /* package */ final class CalibreCommand extends BaseCommand<CalibrePlugin> {
     record ExplosionInfo(Explosions.Instance explosion, Location location) {}
@@ -50,10 +51,6 @@ import static net.kyori.adventure.text.Component.*;
             .handler(c -> handle(c, this::explosionInfoOff)));
     }
 
-    private String format2(Locale locale, double value) {
-        return String.format(locale, "%.2f", value);
-    }
-
     private Component renderLoc(Locale locale, Location location) {
         return i18n.line(locale, LOCATION,
             c -> c.of("x", () -> text(format2(locale, location.getX()))),
@@ -66,8 +63,8 @@ import static net.kyori.adventure.text.Component.*;
         Location location = ctx.get("location");
         double power = ctx.get("power");
 
-        Explosions.Instance explosion = Explosions.instance(plugin, power, 0);
-        Explosions.Result res = explosion.spawn(location, pSender);
+        Explosions.Instance explosion = plugin.explosions().instance(power, 0);
+        explosion.spawn(location, pSender);
 
         if (pSender == null) {
             plugin.send(sender, i18n.lines(locale, COMMAND_EXPL_SPAWN_GENERIC,
@@ -75,13 +72,15 @@ import static net.kyori.adventure.text.Component.*;
                 c -> c.of("power", () -> text(format2(locale, power))),
                 c -> c.of("max_distance", () -> text(String.format(locale, "%.2f", explosion.maxDistance())))));
         } else {
-            double distance = Explosions.distance(pSender, location);
+            Explosions.Instance.DamageComponent damage = explosion.computeDamage(location, pSender);
             plugin.send(sender, i18n.lines(locale, COMMAND_EXPL_SPAWN_PLAYER,
                 c -> c.of("location", () -> renderLoc(locale, location)),
                 c -> c.of("power", () -> text(format2(locale, power))),
-                c -> c.of("distance", () -> text(format2(locale, distance))),
                 c -> c.of("max_distance", () -> text(format2(locale, explosion.maxDistance()))),
-                c -> c.of("damage", () -> text(format2(locale, explosion.damage(distance))))));
+                c -> c.of("distance", () -> text(format2(locale, damage.distance()))),
+                c -> c.of("damage", () -> text(format2(locale, damage.damage()))),
+                c -> c.of("hardness", () -> text(format2(locale, damage.hardness()))),
+                c -> c.of("penetration", () -> text(format2(locale, explosion.penetration())))));
         }
     }
 
@@ -89,7 +88,7 @@ import static net.kyori.adventure.text.Component.*;
         Location location = ctx.get("location");
         double power = ctx.get("power");
 
-        Explosions.Instance explosion = Explosions.instance(plugin, power, 0);
+        Explosions.Instance explosion = plugin.explosions().instance(power, 0);
         plugin.playerData(pSender).explosionInfo = new ExplosionInfo(explosion, location);
     }
 

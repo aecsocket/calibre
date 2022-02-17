@@ -61,32 +61,54 @@ public abstract class Projectile<B extends Boundable> {
     public void tick(TaskContext ctx) {
         double step = ctx.delta() / 1000d;
         double sqrSpeed = velocity.sqrLength();
+        double speed = Math.sqrt(sqrSpeed);
+        Vector3 direction = velocity.divide(speed);
+
+        double mediumDensity = mediumDensity(position);
+        double drag = drag(mediumDensity, dragCoeff, dragArea, sqrSpeed, mass);
+        speed = Math.max(EPSILON, speed - drag);
+
+        velocity = direction.multiply(speed);
+        velocity = velocity.y(velocity.y() - (gravity * step));
 
         if (sqrSpeed > 0) {
-            double speed = Math.sqrt(sqrSpeed);
             double distance = speed * step;
             Vector3 origin = position;
-            Vector3 direction = velocity.divide(speed);
             var ray = raycast.cast(position, direction, distance, test());
-            position = ray.pos().add(direction.multiply(EPSILON));
-            travelled += ray.distance() + EPSILON;
             var hit = ray.hit();
-            // TODO hit
-            if (hit != null) {
-                ctx.cancel();
+            position = ray.pos();
+            travelled += ray.distance() + EPSILON;
+            if (hit == null) {
+                miss(ctx, origin, direction, speed, ray);
+            } else {
+                hit(ctx, origin, direction, speed, ray, hit);
+            }
+            if (ctx.cancelled()) {
+                removed();
                 return;
             }
-            step(ctx, ray, origin, direction);
 
-            double mediumDensity = mediumDensity(position);
-            double drag = drag(mediumDensity, dragCoeff, dragArea, sqrSpeed, mass);
-
-            velocity = direction.multiply(Math.max(EPSILON, speed - drag * step));
-            velocity = velocity.y(velocity.y() - (gravity * step));
+            step(ctx, origin, direction, speed, ray);
         }
     }
 
-    protected void step(TaskContext ctx, Raycast.Result<B> ray, Vector3 origin, Vector3 direction) {}
+    protected void step(TaskContext ctx, Vector3 origin, Vector3 direction, double speed, Raycast.Result<B> ray) {}
+
+    protected void miss(TaskContext ctx, Vector3 origin, Vector3 direction, double speed, Raycast.Result<B> ray) {}
+
+    protected void hit(TaskContext ctx, Vector3 origin, Vector3 direction, double speed, Raycast.Result<B> ray, Raycast.Hit<B> hit) {}
+
+    protected void removed() {}
+
+    protected void deflect(Vector3 direction, Vector3 normal, double power) {
+        position = position.subtract(direction.multiply(EPSILON));
+        velocity = Vector3.reflect(velocity, normal).multiply(power);
+    }
+
+    protected void penetrate(Vector3 direction, Vector3 out, double penetration) {
+        position = out.add(direction.multiply(EPSILON));
+        travelled += penetration + EPSILON;
+    }
 
     /*
     mediumDensity = kg/m3

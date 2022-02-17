@@ -5,7 +5,9 @@ import com.github.aecsocket.minecommons.core.Ticks;
 import com.github.aecsocket.minecommons.core.raycast.Raycast;
 import com.github.aecsocket.minecommons.core.scheduler.Task;
 import com.github.aecsocket.minecommons.core.scheduler.TaskContext;
+import com.github.aecsocket.minecommons.core.vector.cartesian.Ray3;
 import com.github.aecsocket.minecommons.core.vector.cartesian.Vector3;
+import com.github.aecsocket.minecommons.core.vector.polar.Coord3;
 import com.github.aecsocket.minecommons.paper.PaperUtils;
 import com.github.aecsocket.minecommons.paper.effect.PaperEffectors;
 import com.github.aecsocket.minecommons.paper.plugin.BasePlugin;
@@ -29,6 +31,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 
 public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
@@ -93,9 +96,11 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                     Player player = event.getPlayer();
                     World world = player.getWorld();
                     Location eye = player.getEyeLocation();
+                    Vector3 pos = PaperUtils.toCommons(eye);
+                    Vector3 dir = PaperUtils.toCommons(eye.getDirection());
                     Projectile<PaperRaycast.PaperBoundable> projectile = new Projectile<>(
-                        raycastBuilder.build(world), PaperUtils.toCommons(eye), PaperUtils.toCommons(eye.getDirection().multiply(100)),
-                        Projectile.GRAVITY, 0.06, 2.552e-05, 0.004
+                        raycastBuilder.build(world), pos, dir.multiply(30),
+                        0, 0.06, 2.552e-05, 0.004
                     ) {
                         @Override
                         protected double mediumDensity(Vector3 pos) {
@@ -108,8 +113,24 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                         }
 
                         @Override
-                        protected void step(TaskContext ctx, Raycast.Result<PaperRaycast.PaperBoundable> ray, Vector3 origin, Vector3 direction) {
+                        protected void step(TaskContext ctx, Vector3 origin, Vector3 direction, double speed, Raycast.Result<PaperRaycast.PaperBoundable> ray) {
                             player.spawnParticle(Particle.END_ROD, PaperUtils.toPaper(position, world), 0);
+                        }
+
+                        @Override
+                        protected void hit(TaskContext ctx, Vector3 origin, Vector3 direction, double speed, Raycast.Result<PaperRaycast.PaperBoundable> ray, Raycast.Hit<PaperRaycast.PaperBoundable> hit) {
+                            double dot = direction.dot(hit.normal());
+                            if (Math.abs(dot) < 0.2) {
+                                deflect(direction, hit.normal(), 0.5);
+                            } else {
+                                penetrate(direction, hit.out(), hit.penetration());
+                                velocity = velocity.multiply(0.5);
+                                Coord3 coord = Coord3.coord3(speed, velocity.sphericalYaw(), velocity.sphericalPitch());
+                                velocity = coord
+                                    .yaw(coord.yaw() + ThreadLocalRandom.current().nextGaussian() * 0.05)
+                                    .pitch(coord.pitch() + ThreadLocalRandom.current().nextGaussian() * 0.05)
+                                    .cartesian();
+                            }
                         }
                     };
                     scheduler.run(Task.repeating(ctx -> ctx.run(Task.single(projectile::tick)), Ticks.MSPT));

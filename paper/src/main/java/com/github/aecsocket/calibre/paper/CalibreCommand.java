@@ -30,7 +30,6 @@ import static com.github.aecsocket.calibre.paper.CalibrePlugin.format2;
 
         var expl = root
             .literal("expl", ArgumentDescription.of("Perform explosion debug accounts."));
-
         manager.command(expl
             .literal("spawn", ArgumentDescription.of("Spawns an explosion."))
             .argument(LocationArgument.of("location"), ArgumentDescription.of("The location to spawn at."))
@@ -47,6 +46,7 @@ import static com.github.aecsocket.calibre.paper.CalibrePlugin.format2;
         manager.command(expl
             .literal("info", ArgumentDescription.of("Shows info on explosion statistics."))
             .literal("off", ArgumentDescription.of("Disables the info."))
+            .permission(permission("explosion.info"))
             .senderType(Player.class)
             .handler(c -> handle(c, this::explosionInfoOff)));
     }

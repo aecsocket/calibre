@@ -26,7 +26,7 @@ command.reload.start,,"Reloading..."
 command.reload.end,,"Reloaded. Check console for details."
 command.setting,,"<line>"
 command.expl.spawn.generic,,"Spawned <power>x explosion at <location>","  Max dist. <max_distance>m"
-command.expl.spawn.player,,"Spawned <power>x explosion at <location>","  Dist. <distance>m   Max dist. <max_distance>m","  Hardness <hardness>hd   Penetration <penetration>hd   Damage <damage>hp"
+command.expl.spawn.player,,"Spawned <power>x explosion at <location>","  Dist. <distance>m   Max dist. <max_distance>m","  Hardness <hardness>hd   Penetration <penetration>hd","  Damage <damage>hp"
 
 explosion.info.result,,"<distance>  |  <penetration>  →  <damage>"
 explosion.info.in_range,,"<distance>m / <max_distance>m"

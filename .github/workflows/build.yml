@@ -46,6 +46,12 @@ jobs:
           path: |
             build/reports/
             */build/reports/
+      - name: "Upload JAR artifact"
+        uses: actions/upload-artifact@v2
+        with:
+          name: "jar"
+          path: |
+            */build/libs/*.jar
 
       - name: "Determine snapshot or release"
         run: |

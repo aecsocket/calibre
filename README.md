@@ -35,6 +35,8 @@ API, based on the Sokol data-driving library.
 
 ### [Latest Snapshots](https://github.com/aecsocket/calibre/actions/workflows/build.yml)
 
+**Note: you need to download the `-all` jar.**
+
 ## Packages
 
 Using any package from the GitHub Packages registry requires you to

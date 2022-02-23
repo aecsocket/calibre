@@ -28,7 +28,7 @@ public final class Penetration {
     private Config config;
     private final Map<Material, Map<BlockData, Double>> hardness = new HashMap<>();
 
-    public Penetration(CalibrePlugin plugin) {
+    Penetration(CalibrePlugin plugin) {
         this.plugin = plugin;
     }
 

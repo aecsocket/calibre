@@ -7,9 +7,15 @@ import com.github.aecsocket.minecommons.core.vector.cartesian.Vector3;
 
 import java.util.function.Predicate;
 
-public abstract class Projectile<B extends Boundable> {
-    public static final double GRAVITY = 9.81;
-    public static final double EPSILON = 0.001;
+public abstract class Projectile<B extends Boundable, M extends Projectile.Medium<B>> {
+    public static final double
+        GRAVITY = 9.81,
+        EPSILON = 0.001;
+
+    public interface Medium<B> {
+        double density();
+        boolean isOf(B hit);
+    }
 
     protected final Raycast<B> raycast;
     protected Vector3 position;
@@ -19,10 +25,11 @@ public abstract class Projectile<B extends Boundable> {
     protected double dragArea;
     protected double mass;
 
+    private M medium;
+    private double speed;
     private double travelled;
-    private int collisions;
 
-    public Projectile(Raycast<B> raycast, Vector3 position, Vector3 velocity, double gravity, double dragCoeff, double dragArea, double mass) {
+    public Projectile(Raycast<B> raycast, Vector3 position, Vector3 velocity, double gravity, double dragCoeff, double dragArea, double mass, M medium) {
         this.raycast = raycast;
         this.position = position;
         this.velocity = velocity;
@@ -30,6 +37,7 @@ public abstract class Projectile<B extends Boundable> {
         this.dragCoeff = dragCoeff;
         this.dragArea = dragArea;
         this.mass = mass;
+        this.medium = medium;
     }
 
     public Raycast<B> raycast() { return raycast; }
@@ -52,53 +60,77 @@ public abstract class Projectile<B extends Boundable> {
     public double mass() { return mass; }
     public void mass(double mass) { this.mass = mass; }
 
-    protected abstract double mediumDensity(Vector3 pos);
-    protected abstract Predicate<B> test();
-
+    public M medium() { return medium; }
+    public double speed() { return speed; }
     public double travelled() { return travelled; }
-    public int collisions() { return collisions; }
+
+    protected abstract Predicate<B> castTest();
+    protected abstract M mediumOf(Raycast.Result<B> ray, Raycast.Hit<B> hit);
+
+    protected double step(TaskContext ctx, double sec) {
+        velocity = velocity.y(velocity.y() - gravity * sec);
+        double sqrSpeed = velocity.sqrLength();
+        if (sqrSpeed <= 0)
+            return 0; // no seconds left to process
+
+        speed = Math.sqrt(sqrSpeed);
+        Vector3 direction = velocity.divide(speed);
+        // drag applies deceleration to the speed
+        // it can, at most, bring the speed to 0, but never invert direction
+        double drag = drag(medium.density(), dragCoeff, dragArea, sqrSpeed, mass);
+        speed = Math.max(0, speed - drag * sec);
+        velocity = direction.multiply(speed);
+        if (speed <= 0)
+            return 0;
+
+        Vector3 epsilon = direction.multiply(EPSILON);
+        double distance = speed * sec;
+        var ray = raycast.cast(position, direction, distance, b ->  !medium.isOf(b) && castTest().test(b));
+
+        var hit = ray.hit();
+        double rayDist = ray.distance();
+        if (hit == null) {
+            position = ray.pos();
+            travelled += rayDist;
+        } else {
+            M newMedium = mediumOf(ray, hit);
+            changeMedium(new StepContext(ctx, direction, speed, epsilon), ray, ray.pos(), medium, newMedium);
+            medium = newMedium;
+
+            if (rayDist > 0) {
+                // ray started outside the bound
+                position = ray.pos();
+                travelled += rayDist;
+            } else {
+                // ray started inside the bound
+                // so we manually move the pos forward
+                distance = hit.distOut();
+                position = position.add(direction.multiply(distance));
+                travelled += distance;
+                rayDist = distance;
+            }
+        }
+
+        double remaining = 1 - rayDist / distance;
+        return remaining > EPSILON ? remaining * sec : 0;
+    }
 
     public void tick(TaskContext ctx) {
-        double step = ctx.delta() / 1000d;
-        double sqrSpeed = velocity.sqrLength();
-        double speed = Math.sqrt(sqrSpeed);
-        Vector3 direction = velocity.divide(speed);
-
-        double mediumDensity = mediumDensity(position);
-        double drag = drag(mediumDensity, dragCoeff, dragArea, sqrSpeed, mass);
-        speed = Math.max(EPSILON, speed - drag);
-
-        velocity = direction.multiply(speed);
-        velocity = velocity.y(velocity.y() - (gravity * step));
-
-        if (sqrSpeed > 0) {
-            double distance = speed * step;
-            Vector3 origin = position;
-            var ray = raycast.cast(position, direction, distance, test());
-            var hit = ray.hit();
-            position = ray.pos();
-            travelled += ray.distance() + EPSILON;
-            if (hit == null) {
-                miss(ctx, origin, direction, speed, ray);
-            } else {
-                hit(ctx, origin, direction, speed, ray, hit);
-            }
+        for (double sec = ctx.delta() / 1000d; sec > 0; sec = step(ctx, sec)) {
             if (ctx.cancelled()) {
-                removed();
-                return;
+                removed(ctx);
+                break;
             }
-
-            step(ctx, origin, direction, speed, ray);
         }
     }
 
-    protected void step(TaskContext ctx, Vector3 origin, Vector3 direction, double speed, Raycast.Result<B> ray) {}
+    public record StepContext(
+        TaskContext task, Vector3 direction, double speed, Vector3 epsilon
+    ) {}
 
-    protected void miss(TaskContext ctx, Vector3 origin, Vector3 direction, double speed, Raycast.Result<B> ray) {}
+    protected void changeMedium(StepContext ctx, Raycast.Result<B> ray, Vector3 position, M oldMedium, M newMedium) {}
 
-    protected void hit(TaskContext ctx, Vector3 origin, Vector3 direction, double speed, Raycast.Result<B> ray, Raycast.Hit<B> hit) {}
-
-    protected void removed() {}
+    protected void removed(TaskContext ctx) {}
 
     protected void deflect(Vector3 direction, Vector3 normal, double power) {
         position = position.subtract(direction.multiply(EPSILON));
@@ -118,6 +150,8 @@ public abstract class Projectile<B extends Boundable> {
     mass = kg
      */
     public static double drag(double mediumDensity, double dragCoeff, double area, double sqrSpeed, double mass) {
-        return (((mediumDensity * dragCoeff * area) / 2) * sqrSpeed) * mass;
+        double force = (mediumDensity * dragCoeff * area * sqrSpeed) / 2;
+        // a = F / m
+        return force / mass;
     }
 }

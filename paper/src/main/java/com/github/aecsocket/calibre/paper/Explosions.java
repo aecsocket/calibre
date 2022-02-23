@@ -31,7 +31,7 @@ public final class Explosions {
     private final CalibrePlugin plugin;
     private Config config;
 
-    public Explosions(CalibrePlugin plugin) {
+    Explosions(CalibrePlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -138,7 +138,7 @@ public final class Explosions {
         }
 
         public DamageComponent computeDamage(Location location, LivingEntity target) {
-            return computeDamage(plugin.raycastBuilder().build(location.getWorld()), PaperUtils.toCommons(location), target);
+            return computeDamage(plugin.raycasts().build(PaperRaycast.Options.DEFAULT, location.getWorld()), PaperUtils.toCommons(location), target);
         }
 
         public void spawn(Location location, @Nullable LivingEntity source) {
@@ -153,7 +153,7 @@ public final class Explosions {
             }
 
             // Blunt damage
-            PaperRaycast raycast = plugin.raycastBuilder().build(location.getWorld());
+            PaperRaycast raycast = plugin.raycasts().build(PaperRaycast.Options.DEFAULT, location.getWorld());
             for (var target : PaperUtils.nearbyEntitiesSorted(location, Vector3.vec3(maxDistance), e -> e instanceof LivingEntity f ? f : null)) {
                 double damage = computeDamage(raycast, origin, target).damage;
                 if (damage > config.minDamage) {

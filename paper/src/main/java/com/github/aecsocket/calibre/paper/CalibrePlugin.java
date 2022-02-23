@@ -3,7 +3,6 @@ package com.github.aecsocket.calibre.paper;
 import com.github.aecsocket.calibre.core.Projectile;
 import com.github.aecsocket.minecommons.core.Ticks;
 import com.github.aecsocket.minecommons.core.bounds.Bound;
-import com.github.aecsocket.minecommons.core.bounds.Box;
 import com.github.aecsocket.minecommons.core.raycast.Raycast;
 import com.github.aecsocket.minecommons.core.scheduler.Task;
 import com.github.aecsocket.minecommons.core.scheduler.TaskContext;
@@ -27,7 +26,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.objectmapping.ObjectMapper;
-import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 
 import java.text.DecimalFormat;
@@ -91,6 +89,48 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                    -> 3.798m/t^2
                  */
 
+            record PaperMedium(double density, @Nullable BlockData block, @Nullable Entity entity) implements Projectile.Medium<PaperRaycast.PaperBoundable> {
+                @Override
+                public String toString() {
+                    StringJoiner res = new StringJoiner(":");
+                    res.add(""+density);
+                    if (block != null)
+                        res.add(block.getMaterial().getKey().value());
+                    if (entity != null)
+                        res.add(entity.getName());
+                    return "[" + res.toString() + "]";
+                }
+
+                // so this is bad cause it only compares blocks by material
+                // TODO make it compare by more stuff for blocks
+                @Override
+                public boolean isOf(PaperRaycast.PaperBoundable hit) {
+                    if (block != null && hit.block() != null && block.getMaterial() == hit.block().getType()) return true;
+                    if (entity != null && hit.entity() != null && hit.entity().getEntityId() == entity.getEntityId()) return true;
+                    return false;
+                }
+
+                boolean hasWater() {
+                    if (block == null)
+                        return false;
+                    if (block.getMaterial() == Material.WATER)
+                        return true;
+                    if (block instanceof Waterlogged wl && wl.isWaterlogged())
+                        return true;
+                    return false;
+                }
+            }
+
+            PaperMedium mediumOf0(Block block) {
+                Material mat = block.getType();
+                return new PaperMedium(switch (mat) {
+                    case AIR -> 1.225;
+                    case WATER -> 997;
+                    case LAVA -> 2500;
+                    default -> mat.getBlastResistance() * 500;
+                }, block.getBlockData(), null);
+            }
+
             @EventHandler
             void onEvent(PlayerInteractEvent event) {
                 if (event.getAction() == Action.LEFT_CLICK_AIR) {
@@ -100,47 +140,13 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                     Vector3 pos = PaperUtils.toCommons(eye);
                     Vector3 dir = PaperUtils.toCommons(eye.getDirection());
 
-                    record PaperMedium(double density, @Nullable BlockData block, @Nullable Entity entity) implements Projectile.Medium<PaperRaycast.PaperBoundable> {
-                        @Override
-                        public String toString() {
-                            StringJoiner res = new StringJoiner(":");
-                            res.add(""+density);
-                            if (block != null)
-                                res.add(block.getMaterial().getKey().value());
-                            if (entity != null)
-                                res.add(entity.getName());
-                            return "[" + res.toString() + "]";
-                        }
-
-                        // so this is bad cause it only compares blocks by material
-                        // TODO make it compare by more stuff for blocks
-                        @Override
-                        public boolean isOf(PaperRaycast.PaperBoundable hit) {
-                            if (block != null && hit.block() != null && block.getMaterial() == hit.block().getType()) return true;
-                            if (entity != null && hit.entity() != null && hit.entity().getEntityId() == entity.getEntityId()) return true;
-                            return false;
-                        }
-
-                        boolean hasWater() {
-                            if (block == null)
-                                return false;
-                            if (block.getMaterial() == Material.WATER)
-                                return true;
-                            if (block instanceof Waterlogged wl && wl.isWaterlogged())
-                                return true;
-                            return false;
-                        }
-                    }
-
-                    PaperMedium air = new PaperMedium(1.225, Material.AIR.createBlockData(), null);
-
                     PaperRaycast.Options options = new PaperRaycast.Options(
                         new PaperRaycast.Options.OfBlock(false, false, null),
                         new PaperRaycast.Options.OfEntity(null)
                     );
                     Projectile<PaperRaycast.PaperBoundable, PaperMedium> projectile = new Projectile<>(
                         raycasts.build(options, world), pos, dir.multiply(50), Projectile.GRAVITY,
-                        0.06, 2.55e-5, 0.004, air
+                        0.06, 2.55e-5, 0.004, mediumOf0(eye.getBlock())
                     ) {
                         @Override
                         protected Predicate<PaperRaycast.PaperBoundable> castTest() {
@@ -154,12 +160,7 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                                 return new PaperMedium(0, null, obj.entity());
                             }
                             if (obj.block() != null) {
-                                return new PaperMedium(switch (obj.block().getType()) {
-                                    //case WATER -> 997;
-                                    case WATER -> 1000;
-                                    case LAVA -> 2500;
-                                    default -> obj.block().getType().getBlastResistance() * 500;
-                                }, obj.block().getBlockData(), null);
+                                return mediumOf0(obj.block());
                             }
                             throw new IllegalStateException();
                         }
@@ -178,16 +179,18 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                         @Override
                         protected void changeMedium(StepContext ctx, Raycast.Result<PaperRaycast.PaperBoundable> ray, Vector3 position, PaperMedium oldMedium, PaperMedium newMedium) {
                             super.changeMedium(ctx, ray, position, oldMedium, newMedium);
-                            //player.sendMessage(oldMedium + " -> " + newMedium + " / " + ray.hit());
                             Location location = PaperUtils.toPaper(position, world);
                             world.spawnParticle(Particle.END_ROD, location, 0);
 
-                            /*if (oldMedium.hasWater() != newMedium.hasWater()) {
-                                player.sendMessage("splash @ " + ray.pos().y());
+                            if (
+                                newMedium.block != null
+                                && oldMedium.hasWater() != newMedium.hasWater()
+                                && !newMedium.block.getMaterial().isCollidable()
+                            ) {
                                 world.spawnParticle(Particle.WATER_SPLASH, location, 16);
                                 world.spawnParticle(Particle.WATER_BUBBLE, location, 4, 0.05, 0, 0.05, 0);
                                 world.playSound(location, Sound.ENTITY_GENERIC_SPLASH, 1f, 1f);
-                            }*/
+                            }
 
                             /*if (ray.)
 

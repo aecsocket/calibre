@@ -99,12 +99,13 @@ public abstract class Projectile<B extends Boundable, M extends Projectile.Mediu
 
             if (rayDist > 0) {
                 // ray started outside the bound
-                position = ray.pos();
-                travelled += rayDist;
+                // move it inwards by the epsilon so, on the next step, it is inside the bound
+                position = ray.pos().add(epsilon);
+                travelled += rayDist + EPSILON;
             } else {
                 // ray started inside the bound
                 // so we manually move the pos forward
-                distance = hit.distOut();
+                distance = -rayDist;
                 position = position.add(direction.multiply(distance));
                 travelled += distance;
                 rayDist = distance;

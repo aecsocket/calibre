@@ -44,7 +44,7 @@
 <span class="source-line-no">031</span><span id="line-31">    private final CalibrePlugin plugin;</span>
 <span class="source-line-no">032</span><span id="line-32">    private Config config;</span>
 <span class="source-line-no">033</span><span id="line-33"></span>
-<span class="source-line-no">034</span><span id="line-34">    public Explosions(CalibrePlugin plugin) {</span>
+<span class="source-line-no">034</span><span id="line-34">    Explosions(CalibrePlugin plugin) {</span>
 <span class="source-line-no">035</span><span id="line-35">        this.plugin = plugin;</span>
 <span class="source-line-no">036</span><span id="line-36">    }</span>
 <span class="source-line-no">037</span><span id="line-37"></span>
@@ -151,7 +151,7 @@
 <span class="source-line-no">138</span><span id="line-138">        }</span>
 <span class="source-line-no">139</span><span id="line-139"></span>
 <span class="source-line-no">140</span><span id="line-140">        public DamageComponent computeDamage(Location location, LivingEntity target) {</span>
-<span class="source-line-no">141</span><span id="line-141">            return computeDamage(plugin.raycastBuilder().build(location.getWorld()), PaperUtils.toCommons(location), target);</span>
+<span class="source-line-no">141</span><span id="line-141">            return computeDamage(plugin.raycasts().build(PaperRaycast.Options.DEFAULT, location.getWorld()), PaperUtils.toCommons(location), target);</span>
 <span class="source-line-no">142</span><span id="line-142">        }</span>
 <span class="source-line-no">143</span><span id="line-143"></span>
 <span class="source-line-no">144</span><span id="line-144">        public void spawn(Location location, @Nullable LivingEntity source) {</span>
@@ -166,7 +166,7 @@
 <span class="source-line-no">153</span><span id="line-153">            }</span>
 <span class="source-line-no">154</span><span id="line-154"></span>
 <span class="source-line-no">155</span><span id="line-155">            // Blunt damage</span>
-<span class="source-line-no">156</span><span id="line-156">            PaperRaycast raycast = plugin.raycastBuilder().build(location.getWorld());</span>
+<span class="source-line-no">156</span><span id="line-156">            PaperRaycast raycast = plugin.raycasts().build(PaperRaycast.Options.DEFAULT, location.getWorld());</span>
 <span class="source-line-no">157</span><span id="line-157">            for (var target : PaperUtils.nearbyEntitiesSorted(location, Vector3.vec3(maxDistance), e -&gt; e instanceof LivingEntity f ? f : null)) {</span>
 <span class="source-line-no">158</span><span id="line-158">                double damage = computeDamage(raycast, origin, target).damage;</span>
 <span class="source-line-no">159</span><span id="line-159">                if (damage &gt; config.minDamage) {</span>

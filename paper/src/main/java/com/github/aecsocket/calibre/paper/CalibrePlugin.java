@@ -1,5 +1,6 @@
 package com.github.aecsocket.calibre.paper;
 
+import com.github.aecsocket.calibre.core.Bullet;
 import com.github.aecsocket.calibre.core.Projectile;
 import com.github.aecsocket.minecommons.core.Ticks;
 import com.github.aecsocket.minecommons.core.bounds.Bound;
@@ -7,7 +8,9 @@ import com.github.aecsocket.minecommons.core.raycast.Raycast;
 import com.github.aecsocket.minecommons.core.scheduler.Task;
 import com.github.aecsocket.minecommons.core.scheduler.TaskContext;
 import com.github.aecsocket.minecommons.core.serializers.BasicBoundSerializer;
+import com.github.aecsocket.minecommons.core.vector.cartesian.Vector2;
 import com.github.aecsocket.minecommons.core.vector.cartesian.Vector3;
+import com.github.aecsocket.minecommons.core.vector.polar.Coord3;
 import com.github.aecsocket.minecommons.paper.PaperUtils;
 import com.github.aecsocket.minecommons.paper.effect.PaperEffectors;
 import com.github.aecsocket.minecommons.paper.plugin.BasePlugin;
@@ -31,6 +34,7 @@ import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 
 public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
@@ -89,11 +93,11 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                    -> 3.798m/t^2
                  */
 
-            record PaperMedium(double density, @Nullable BlockData block, @Nullable Entity entity) implements Projectile.Medium<PaperRaycast.PaperBoundable> {
+            record PaperMedium(double friction, @Nullable BlockData block, @Nullable Entity entity) implements Projectile.Medium<PaperRaycast.PaperBoundable> {
                 @Override
                 public String toString() {
                     StringJoiner res = new StringJoiner(":");
-                    res.add(""+density);
+                    res.add("μ=" + friction);
                     if (block != null)
                         res.add(block.getMaterial().getKey().value());
                     if (entity != null)
@@ -105,29 +109,30 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                 // TODO make it compare by more stuff for blocks
                 @Override
                 public boolean isOf(PaperRaycast.PaperBoundable hit) {
-                    if (block != null && hit.block() != null && block.getMaterial() == hit.block().getType()) return true;
-                    if (entity != null && hit.entity() != null && hit.entity().getEntityId() == entity.getEntityId()) return true;
-                    return false;
+                    //System.out.println(block + " / " + hit.block());
+                    return (block != null && hit.block() != null && block.getMaterial() == hit.block().getType())
+                        || (entity != null && hit.entity() != null && hit.entity().getEntityId() == entity.getEntityId());
                 }
 
                 boolean hasWater() {
-                    if (block == null)
-                        return false;
-                    if (block.getMaterial() == Material.WATER)
-                        return true;
-                    if (block instanceof Waterlogged wl && wl.isWaterlogged())
-                        return true;
-                    return false;
+                    return block != null && hasWater(block);
+                }
+
+                static boolean hasWater(BlockData block) {
+                    return block.getMaterial() == Material.WATER
+                        || block instanceof Waterlogged wl && wl.isWaterlogged();
                 }
             }
 
             PaperMedium mediumOf0(Block block) {
+                BlockData data = block.getBlockData();
                 Material mat = block.getType();
+                double air = 0.03;
                 return new PaperMedium(switch (mat) {
-                    case AIR -> 1.225;
-                    case WATER -> 997;
-                    case LAVA -> 2500;
-                    default -> mat.getBlastResistance() * 500;
+                    case AIR -> air;
+                    case WATER -> air * (997 / 1.225);
+                    case LAVA -> air * (2500 / 1.225);
+                    default -> mat.getBlastResistance() * 200; // todo
                 }, block.getBlockData(), null);
             }
 
@@ -144,9 +149,8 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                         new PaperRaycast.Options.OfBlock(false, false, null),
                         new PaperRaycast.Options.OfEntity(null)
                     );
-                    Projectile<PaperRaycast.PaperBoundable, PaperMedium> projectile = new Projectile<>(
-                        raycasts.build(options, world), pos, dir.multiply(50), Projectile.GRAVITY,
-                        0.06, 2.55e-5, 0.004, mediumOf0(eye.getBlock())
+                    Projectile<PaperRaycast.PaperBoundable, PaperMedium> projectile = new Bullet<>(
+                        raycasts.build(options, world), pos, dir.multiply(50), Projectile.GRAVITY, mediumOf0(eye.getBlock())
                     ) {
                         @Override
                         protected Predicate<PaperRaycast.PaperBoundable> castTest() {
@@ -157,7 +161,7 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                         protected PaperMedium mediumOf(Raycast.Result<PaperRaycast.PaperBoundable> ray, Raycast.Hit<PaperRaycast.PaperBoundable> hit) {
                             var obj = hit.hit();
                             if (obj.entity() != null) {
-                                return new PaperMedium(0, null, obj.entity());
+                                return new PaperMedium(0.1, null, obj.entity());
                             }
                             if (obj.block() != null) {
                                 return mediumOf0(obj.block());
@@ -166,19 +170,38 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                         }
 
                         @Override
-                        protected double step(TaskContext ctx, double sec) {
-                            if (!world.isChunkLoaded((int) position.x() / 16, (int) position.z() / 16)) {
+                        protected double hardness(PaperRaycast.PaperBoundable hit) {
+                            return hit.map(block -> penetration.hardness(block.getBlockData()), entity -> 0d); // todo hard
+                        }
+
+                        @Override
+                        protected double penetration() {
+                            return 10;
+                        }
+
+                        @Override
+                        protected Vector2 penetrationDeflect() {
+                            return Vector2.vec2(0.05);
+                        }
+
+                        @Override
+                        protected double deflectThreshold() {
+                            return 0.5;
+                        }
+
+                        @Override
+                        protected double step(TaskContext ctx, double sec, double distance) {
+                            if (!new Location(world, position.x(), position.y(), position.z()).isChunkLoaded()) {
                                 ctx.cancel();
                                 return 0;
                             }
-                            double res = super.step(ctx, sec);
+                            double res = super.step(ctx, sec, distance);
                             player.spawnParticle(Particle.FLAME, PaperUtils.toPaper(position, world), 0);
                             return res;
                         }
 
                         @Override
-                        protected void changeMedium(StepContext ctx, Raycast.Result<PaperRaycast.PaperBoundable> ray, Vector3 position, PaperMedium oldMedium, PaperMedium newMedium) {
-                            super.changeMedium(ctx, ray, position, oldMedium, newMedium);
+                        protected boolean changeMedium(StepContext ctx, Raycast.Result<PaperRaycast.PaperBoundable> ray, Raycast.Hit<PaperRaycast.PaperBoundable> hit, Vector3 position, PaperMedium oldMedium, PaperMedium newMedium) {
                             Location location = PaperUtils.toPaper(position, world);
                             world.spawnParticle(Particle.END_ROD, location, 0);
 
@@ -192,86 +215,10 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                                 world.playSound(location, Sound.ENTITY_GENERIC_SPLASH, 1f, 1f);
                             }
 
-                            /*if (ray.)
-
-                            double power = speed / originalSpeed;
-                            var bound = ray.hit().hi
-
-                            double penetration = 1 - hardness(bound) / (penetration() * power);
-                            if (penetration > 0) {
-                                // penetrates
-                                penetrate(direction, hit.out(), hit.penetration());
-                                velocity = velocity.multiply(Math.min(1, penetration));
-                                Coord3 coord = Coord3.coord3(speed, velocity.sphericalYaw(), velocity.sphericalPitch());
-                                // TODO deflection inside a medium stuff, make it variable
-                                velocity = coord
-                                        .yaw(coord.yaw() + ThreadLocalRandom.current().nextGaussian() * 0.05)
-                                        .pitch(coord.pitch() + ThreadLocalRandom.current().nextGaussian() * 0.05)
-                                        .cartesian();
-                                ++penetrated;
-                            } else {
-                                // try deflect
-                                Vector3 normal = hit.normal();
-                                double dot = Math.abs(direction.dot(normal));
-                                double deflectMult = 1 - dot / (deflectThreshold(bound) * power);
-                                if (deflectMult > 0) {
-                                    // deflect
-                                    deflect(direction, normal, deflectMult);
-                                } else {
-                                    // stuck
-                                    ctx.cancel();
-                                }
-                            }*/
+                            return super.changeMedium(ctx, ray, hit, position, oldMedium, newMedium);
                         }
                     };
-                    /*Projectile<PaperRaycast.PaperBoundable> projectile = new Bullet<>(
-                        raycastBuilder.build(world), pos, dir.multiply(100), Projectile.GRAVITY,
-                        0.06, 2.55e-5, 0.004
-                    ) {
-                        @Override
-                        protected double deflectThreshold(PaperRaycast.PaperBoundable hit) {
-                            return 0.2;
-                        }
-
-                        @Override
-                        protected double penetration() {
-                            return 5;
-                        }
-
-                        @Override
-                        protected double hardness(PaperRaycast.PaperBoundable hit) {
-                            return hit.block() == null ? 0 : penetration.hardness(hit.block().getBlockData());
-                        }
-
-                        @Override
-                        protected double mediumDensity(Vector3 pos) {
-                            // air = 1.225 kg/m^3
-                            // water = 997 kg/m^3
-                            // lava = 2500 kg/m^3
-                            Material mat = world.getBlockAt((int) pos.x(), (int) pos.y(), (int) pos.z()).getType();
-                            return switch (mat) {
-                                case WATER -> 150000;
-                                case LAVA -> 2500;
-                                default -> 1.225;
-                            };
-                        }
-
-                        @Override
-                        protected Predicate<PaperRaycast.PaperBoundable> test() {
-                            return b -> b.entity() == null || b.entity() != player;
-                        }
-
-                        @Override
-                        protected void step(TaskContext ctx, Vector3 origin, Vector3 direction, double speed, Raycast.Result<PaperRaycast.PaperBoundable> ray) {
-                            super.step(ctx, origin, direction, speed, ray);
-                            if (!world.isChunkLoaded((int) position.x() / 16, (int) position.z() / 16)) {
-                                ctx.cancel();
-                                return;
-                            }
-                            player.spawnParticle(Particle.END_ROD, PaperUtils.toPaper(position, world), 0);
-                        }
-                    };*/
-                    scheduler.run(Task.repeating(ctx -> ctx.run(Task.single(projectile::tick)), Ticks.MSPT));
+                    scheduler.run(Task.repeating(projectile::tick, Ticks.MSPT));
                 } else {
                     scheduler.cancel();
                 }

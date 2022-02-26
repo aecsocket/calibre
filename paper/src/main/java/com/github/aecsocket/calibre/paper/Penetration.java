@@ -19,13 +19,15 @@ public final class Penetration {
 
     @ConfigSerializable
     public record Config(
+        Map<BlockData, Double> density,
         Map<BlockData, Double> hardness
     ) {
-        public static final Config DEFAULT = new Config(Collections.emptyMap());
+        public static final Config DEFAULT = new Config(Collections.emptyMap(), Collections.emptyMap());
     }
 
     private final CalibrePlugin plugin;
     private Config config;
+    private final Map<Material, Map<BlockData, Double>> density = new HashMap<>();
     private final Map<Material, Map<BlockData, Double>> hardness = new HashMap<>();
 
     Penetration(CalibrePlugin plugin) {
@@ -36,11 +38,14 @@ public final class Penetration {
 
     public void load() {
         config = plugin.setting(Config.DEFAULT, (n, d) -> n.get(Config.class, d), "penetration");
+        density.clear();
+        config.density.forEach((data, val) -> density
+            .computeIfAbsent(data.getMaterial(), k -> new HashMap<>())
+            .put(data, val));
         hardness.clear();
-        for (var entry : config.hardness.entrySet()) {
-            hardness.computeIfAbsent(entry.getKey().getMaterial(), k -> new HashMap<>())
-                .put(entry.getKey(), entry.getValue());
-        }
+        config.hardness.forEach((data, val) -> hardness
+            .computeIfAbsent(data.getMaterial(), k -> new HashMap<>())
+            .put(data, val));
     }
 
     public double hardness(BlockData block) {

@@ -1,11 +1,16 @@
 package com.github.aecsocket.calibre.core;
 
+import com.github.aecsocket.minecommons.core.Numbers;
 import com.github.aecsocket.minecommons.core.raycast.Boundable;
 import com.github.aecsocket.minecommons.core.raycast.Raycast;
+import com.github.aecsocket.minecommons.core.scheduler.TaskContext;
 import com.github.aecsocket.minecommons.core.vector.cartesian.Vector2;
 import com.github.aecsocket.minecommons.core.vector.cartesian.Vector3;
+import com.github.aecsocket.minecommons.core.vector.polar.Coord3;
 
-public abstract class Bullet<B extends Boundable, M extends Projectile.Medium<B>> extends Projectile<B, M> {
+import java.util.concurrent.ThreadLocalRandom;
+
+public abstract class Bullet<B extends Boundable, M extends Projectile.Fluid<B>> extends Projectile<B, M> {
     private final double originalSpeed;
 
     public Bullet(Raycast<B> raycast, Vector3 position, Vector3 velocity, double gravity, M medium) {
@@ -20,12 +25,11 @@ public abstract class Bullet<B extends Boundable, M extends Projectile.Medium<B>
     protected abstract Vector2 penetrationDeflect();
     protected abstract double deflectThreshold();
 
-    @Override
+    /*@Override
     protected boolean changeMedium(StepContext ctx, Raycast.Result<B> ray, Raycast.Hit<B> hit, Vector3 position, M oldMedium, M newMedium) {
-        return super.changeMedium(ctx, ray, hit, position, oldMedium, newMedium);
-        /*double hardness = hardness(hit.hit());
+        //return super.changeMedium(ctx, ray, hit, position, oldMedium, newMedium);
+        double hardness = hardness(hit.hit());
         double power = Numbers.clamp01(speed() / originalSpeed);
-        System.out.println("power = " + power);
         double penetration = penetration() * power;
         double penMult;
         if (penetration > 0 && (penMult = 1 - Numbers.clamp01(hardness / (penetration * power))) > 0) {
@@ -46,12 +50,13 @@ public abstract class Bullet<B extends Boundable, M extends Projectile.Medium<B>
             if (deflectMult > 0) {
                 // deflect
                 this.position = position.subtract(ctx.direction().multiply(EPSILON));
+                travelled += ray.distance() - EPSILON;
                 velocity = Vector3.reflect(velocity, normal).multiply(deflectMult);
             } else {
                 // stuck
                 ctx.task().cancel();
             }
             return false;
-        }*/
-    }
+        }
+    }*/
 }

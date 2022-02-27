@@ -1,6 +1,5 @@
 package com.github.aecsocket.calibre.paper;
 
-import com.github.aecsocket.calibre.core.Bullet;
 import com.github.aecsocket.calibre.core.Projectile;
 import com.github.aecsocket.minecommons.core.Ticks;
 import com.github.aecsocket.minecommons.core.bounds.Bound;
@@ -10,17 +9,14 @@ import com.github.aecsocket.minecommons.core.scheduler.TaskContext;
 import com.github.aecsocket.minecommons.core.serializers.BasicBoundSerializer;
 import com.github.aecsocket.minecommons.core.vector.cartesian.Vector2;
 import com.github.aecsocket.minecommons.core.vector.cartesian.Vector3;
-import com.github.aecsocket.minecommons.core.vector.polar.Coord3;
 import com.github.aecsocket.minecommons.paper.PaperUtils;
 import com.github.aecsocket.minecommons.paper.effect.PaperEffectors;
 import com.github.aecsocket.minecommons.paper.plugin.BasePlugin;
 import com.github.aecsocket.minecommons.paper.raycast.PaperRaycast;
 import com.github.aecsocket.minecommons.paper.scheduler.PaperScheduler;
+import com.google.common.collect.ImmutableMap;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Waterlogged;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -92,50 +88,26 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                    -> 3.798m/t^2
                  */
 
-            record PaperMedium(double friction, @Nullable BlockData block, @Nullable Entity entity) implements Projectile.Medium<PaperRaycast.PaperBoundable> {
+            record PaperFluid(double density, Material material) implements Projectile.Fluid<PaperRaycast.PaperBoundable> {
                 @Override
                 public String toString() {
-                    StringJoiner res = new StringJoiner(":");
-                    res.add("μ=" + friction);
-                    if (block != null)
-                        res.add(block.getMaterial().getKey().value());
-                    if (entity != null)
-                        res.add(entity.getName());
-                    return "[" + res.toString() + "]";
+                    return "[μ=" + density + ":" + material.key().value() + "]";
                 }
 
-                // so this is bad cause it only compares blocks by material
-                // TODO make it compare by more stuff for blocks
                 @Override
                 public boolean isOf(PaperRaycast.PaperBoundable hit) {
-                    //System.out.println(block + " / " + hit.block());
-                    return (block != null && hit.block() != null && block.getMaterial() == hit.block().getType())
-                        || (entity != null && hit.entity() != null && hit.entity().getEntityId() == entity.getEntityId());
-                }
-
-                boolean hasWater() {
-                    return block != null && hasWater(block);
-                }
-
-                static boolean hasWater(BlockData block) {
-                    return block.getMaterial() == Material.WATER
-                        || block instanceof Waterlogged wl && wl.isWaterlogged();
+                    return hit.block() != null && hit.block().getType() == material;
                 }
             }
 
-            PaperMedium mediumOf0(Block block) {
-                BlockData data = block.getBlockData();
-                Material mat = block.getType();
-                return new PaperMedium(switch (mat) {
-                    case AIR -> 0.005;
-                    case WATER -> 1;
-                    case LAVA -> 0.025;
-                    default -> mat.getBlastResistance() * 10; // todo
-                    /*case AIR -> 0.999;
-                    case WATER -> 0.99;
-                    case LAVA -> 0.98;
-                    default -> 0.5; // todo*/
-                }, block.getBlockData(), null);
+            PaperFluid air = new PaperFluid(1.225, Material.AIR);
+            Map<Material, PaperFluid> fluids = ImmutableMap.<Material, PaperFluid>builder()
+                .put(Material.WATER, new PaperFluid(997, Material.WATER))
+                .put(Material.LAVA, new PaperFluid(2500, Material.LAVA))
+                .build();
+
+            Optional<PaperFluid> optFluid(Block block) {
+                return Optional.ofNullable(fluids.get(block.getType()));
             }
 
             @EventHandler
@@ -151,8 +123,8 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                         new PaperRaycast.Options.OfBlock(false, false, null),
                         new PaperRaycast.Options.OfEntity(null)
                     );
-                    Projectile<PaperRaycast.PaperBoundable, PaperMedium> projectile = new Bullet<>(
-                        raycasts.build(options, world), pos, dir.multiply(910), Projectile.GRAVITY, mediumOf0(eye.getBlock())
+                    Projectile<PaperRaycast.PaperBoundable, PaperFluid> projectile = new Projectile<>(
+                        raycasts.build(options, world), pos, dir.multiply(50), Projectile.GRAVITY, optFluid(eye.getBlock()).orElse(air)
                     ) {
                         @Override
                         protected Predicate<PaperRaycast.PaperBoundable> castTest() {
@@ -160,18 +132,53 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                         }
 
                         @Override
-                        protected PaperMedium mediumOf(Raycast.Result<PaperRaycast.PaperBoundable> ray, Raycast.Hit<PaperRaycast.PaperBoundable> hit) {
-                            var obj = hit.hit();
-                            if (obj.entity() != null) {
-                                return new PaperMedium(0.1, null, obj.entity());
-                            }
-                            if (obj.block() != null) {
-                                return mediumOf0(obj.block());
-                            }
-                            throw new IllegalStateException();
+                        protected @Nullable PaperFluid fluidOf(Raycast.Result<PaperRaycast.PaperBoundable> ray, Raycast.Hit<PaperRaycast.PaperBoundable> hit) {
+                            if (hit.hit().block() == null)
+                                return null;
+                            return optFluid(hit.hit().block()).orElse(null);
                         }
 
                         @Override
+                        protected double dragCoeff() { return 0.06; }
+
+                        @Override
+                        protected double dragArea() { return 2.55e-5; }
+
+                        @Override
+                        protected double mass() { return 0.004; }
+
+                        @Override
+                        protected double changeFluid(TaskContext ctx, double sec, double maxDistance, Raycast.Result<PaperRaycast.PaperBoundable> ray, Raycast.Hit<PaperRaycast.PaperBoundable> hit, PaperFluid oldFluid, PaperFluid newFluid) {
+                            Location location = PaperUtils.toPaper(ray.pos(), world);
+                            if (
+                                newFluid.material == Material.WATER ^ oldFluid.material == Material.WATER
+                            ) {
+                                player.spawnParticle(Particle.WATER_SPLASH, location, 16);
+                                player.spawnParticle(Particle.WATER_BUBBLE, location, 4);
+                                player.playSound(location, Sound.ENTITY_GENERIC_SPLASH, 1f, 1f);
+                            }
+                            return super.changeFluid(ctx, sec, maxDistance, ray, hit, oldFluid, newFluid);
+                        }
+
+                        @Override
+                        protected double step(TaskContext ctx, double sec) {
+                            if (!new Location(world, position.x(), position.y(), position.z()).isChunkLoaded()) {
+                                ctx.cancel();
+                                return 0;
+                            }
+
+                            Vector3 origin = position;
+                            double res = super.step(ctx, sec);
+                            Vector3 direction = position.subtract(origin);
+                            double distance = direction.length();
+                            direction = direction.divide(distance);
+                            for (double d = 0; d < distance; d += 3) {
+                                player.spawnParticle(Particle.FLAME, PaperUtils.toPaper(origin.add(direction.multiply(d)), world), 0);
+                            }
+                            return res;
+                        }
+
+                        /*@Override
                         protected double hardness(PaperRaycast.PaperBoundable hit) {
                             return hit.map(block -> penetration.hardness(block.getBlockData()), entity -> 0d); // todo hard
                         }
@@ -215,7 +222,7 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                         }
 
                         @Override
-                        protected boolean changeMedium(StepContext ctx, Raycast.Result<PaperRaycast.PaperBoundable> ray, Raycast.Hit<PaperRaycast.PaperBoundable> hit, Vector3 position, PaperMedium oldMedium, PaperMedium newMedium) {
+                        protected boolean changeMedium(StepContext ctx, Raycast.Result<PaperRaycast.PaperBoundable> ray, Raycast.Hit<PaperRaycast.PaperBoundable> hit, Vector3 position, PaperFluid oldMedium, PaperFluid newMedium) {
                             Location location = PaperUtils.toPaper(position, world);
                             world.spawnParticle(Particle.END_ROD, location, 0);
 
@@ -230,7 +237,7 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                             }
 
                             return super.changeMedium(ctx, ray, hit, position, oldMedium, newMedium);
-                        }
+                        }*/
                     };
                     scheduler.run(Task.repeating(projectile::tick, Ticks.MSPT));
                 } else {

@@ -34,7 +34,6 @@ import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 
 public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
@@ -127,12 +126,15 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
             PaperMedium mediumOf0(Block block) {
                 BlockData data = block.getBlockData();
                 Material mat = block.getType();
-                double air = 0.03;
                 return new PaperMedium(switch (mat) {
-                    case AIR -> air;
-                    case WATER -> air * (997 / 1.225);
-                    case LAVA -> air * (2500 / 1.225);
-                    default -> mat.getBlastResistance() * 200; // todo
+                    case AIR -> 0.005;
+                    case WATER -> 1;
+                    case LAVA -> 0.025;
+                    default -> mat.getBlastResistance() * 10; // todo
+                    /*case AIR -> 0.999;
+                    case WATER -> 0.99;
+                    case LAVA -> 0.98;
+                    default -> 0.5; // todo*/
                 }, block.getBlockData(), null);
             }
 
@@ -150,7 +152,7 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                         new PaperRaycast.Options.OfEntity(null)
                     );
                     Projectile<PaperRaycast.PaperBoundable, PaperMedium> projectile = new Bullet<>(
-                        raycasts.build(options, world), pos, dir.multiply(50), Projectile.GRAVITY, mediumOf0(eye.getBlock())
+                        raycasts.build(options, world), pos, dir.multiply(910), Projectile.GRAVITY, mediumOf0(eye.getBlock())
                     ) {
                         @Override
                         protected Predicate<PaperRaycast.PaperBoundable> castTest() {
@@ -190,14 +192,26 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                         }
 
                         @Override
-                        protected double step(TaskContext ctx, double sec, double distance) {
+                        protected void tick0(TaskContext ctx, double sec) {
+                            Vector3 origin = position;
+                            Vector3 direction = direction();
+                            double distance = travelled();
+
+                            super.tick0(ctx, sec);
+
+                            distance = travelled() - distance;
+                            for (double d = 0; d < distance; d += 3) {
+                                player.spawnParticle(Particle.FLAME, PaperUtils.toPaper(origin.add(direction.multiply(d)), world), 0);
+                            }
+                        }
+
+                        @Override
+                        protected double step(TaskContext ctx, double remaining) {
                             if (!new Location(world, position.x(), position.y(), position.z()).isChunkLoaded()) {
                                 ctx.cancel();
                                 return 0;
                             }
-                            double res = super.step(ctx, sec, distance);
-                            player.spawnParticle(Particle.FLAME, PaperUtils.toPaper(position, world), 0);
-                            return res;
+                            return super.step(ctx, remaining);
                         }
 
                         @Override

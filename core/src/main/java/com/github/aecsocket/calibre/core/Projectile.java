@@ -4,7 +4,10 @@ import com.github.aecsocket.minecommons.core.raycast.Boundable;
 import com.github.aecsocket.minecommons.core.raycast.Raycast;
 import com.github.aecsocket.minecommons.core.scheduler.TaskContext;
 import com.github.aecsocket.minecommons.core.vector.cartesian.Vector3;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public abstract class Projectile<B extends Boundable, M extends Projectile.Medium<B>> {
@@ -24,6 +27,7 @@ public abstract class Projectile<B extends Boundable, M extends Projectile.Mediu
 
     private M medium;
     private double speed;
+    private Vector3 direction;
     private double travelled;
 
     public Projectile(Raycast<B> raycast, Vector3 position, Vector3 velocity, double gravity, M medium) {
@@ -47,45 +51,60 @@ public abstract class Projectile<B extends Boundable, M extends Projectile.Mediu
 
     public M medium() { return medium; }
     public double speed() { return speed; }
+    public Vector3 direction() { return direction; }
     public double travelled() { return travelled; }
 
     protected abstract Predicate<B> castTest();
     protected abstract M mediumOf(Raycast.Result<B> ray, Raycast.Hit<B> hit);
 
-    protected double step(TaskContext ctx, double sec, double distance) {
-        Vector3 direction = velocity.divide(speed);
+    protected double step(TaskContext ctx, double remaining) {
         Vector3 epsilon = direction.multiply(EPSILON);
-        var ray = raycast.cast(position, direction, distance, b -> !medium.isOf(b) && castTest().test(b));
+        double friction = medium.friction() * speed;
+        //double distance = speed * friction * remaining;
+        double distance = Math.max(0, (speed - (friction * remaining)) * remaining);
+        if (distance <= 0) {
+            velocity = Vector3.ZERO;
+            return 0;
+        }
 
+        System.out.printf("%.3f * %.3f * %.3f\n", speed, friction, remaining);
+        var ray = raycast.cast(position, direction, distance, b -> !medium.isOf(b) && castTest().test(b));
         var hit = ray.hit();
-        double penetration = 0;
         M oldMedium = medium;
+        double penetrated;
         if (hit == null) {
-            penetration = ray.distance();
+            // this ray penetrated the full distance of our current medium
+            penetrated = ray.distance();
         } else {
             M newMedium = mediumOf(ray, hit);
-            if (changeMedium(new StepContext(ctx, direction, speed, epsilon), ray, hit, ray.pos(), oldMedium, newMedium)) {
+            var atomicDir = new AtomicReference<>(direction);
+            if (changeMedium(new StepContext(ctx, direction, speed, epsilon, atomicDir::set), ray, hit, ray.pos(), oldMedium, newMedium)) {
                 medium = newMedium;
                 if (ray.distance() > 0) {
                     // ray started outside the bound
                     // move it inwards by the epsilon so, on the next step, it is inside the bound
-                    penetration += EPSILON;
+                    penetrated = ray.distance() + EPSILON;
                 } else {
                     // ray started inside the bound
                     // so we manually move the pos forward
                     // use distOut here rather than negative rayDist, since it avoids weird large gaps
-                    penetration = hit.distOut();
+                    penetrated = hit.distOut();
                 }
+            } else {
+                // else we didn't change medium, so we assume our implementation handles it
+                penetrated = 0;
             }
+            direction = atomicDir.get();
         }
-        travelled += penetration;
 
-        System.out.println(oldMedium + " speed = " + speed + " - " + oldMedium.friction() + " over " + sec + "s over " + penetration + "m");
-        speed = Math.max(EPSILON, speed - oldMedium.friction() * sec * penetration);
+        double d = speed;
+        speed = Math.max(EPSILON, speed - friction * remaining * penetrated);
         velocity = direction.multiply(speed);
-        position = position.add(direction.multiply(penetration));
-
-        return distance - penetration;
+        System.out.printf("%.3f -> %.3f (med = %s, fric = %.3f, rem = %.3f, pen = %.3f)\n", d, speed, medium, friction, remaining, penetrated);
+        travelled += penetrated;
+        position = position.add(direction.multiply(penetrated));
+        remaining *= 1 - penetrated / distance;
+        return remaining > EPSILON ? remaining : 0;
     }
 
     public void tick(TaskContext ctx) {
@@ -95,18 +114,29 @@ public abstract class Projectile<B extends Boundable, M extends Projectile.Mediu
         if (sqrSpeed <= 0)
             return;
         speed = Math.sqrt(sqrSpeed);
+        direction = velocity.divide(speed);
 
-        for (double distance = speed * (ctx.delta() / 1000d); distance > EPSILON; distance = step(ctx, sec, distance)) {
+        tick0(ctx, sec);
+    }
+
+    protected void tick0(TaskContext ctx, double sec) {
+        for (double remaining = sec; remaining > EPSILON; remaining = step(ctx, remaining)) {
             if (ctx.cancelled()) {
                 removed(ctx);
                 break;
             }
+            direction = velocity.divide(speed);
         }
     }
 
     public record StepContext(
-        TaskContext task, Vector3 direction, double speed, Vector3 epsilon
-    ) {}
+        TaskContext task, Vector3 direction, double speed, Vector3 epsilon,
+        Consumer<Vector3> setDirection
+    ) {
+        public void direction(Vector3 direction) {
+            setDirection.accept(direction);
+        }
+    }
 
     protected boolean changeMedium(StepContext ctx, Raycast.Result<B> ray, Raycast.Hit<B> hit, Vector3 position, M oldMedium, M newMedium) {
         return true;

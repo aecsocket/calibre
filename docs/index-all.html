@@ -54,9 +54,9 @@ loadScripts(document, 'script');</script>
 <dl class="index">
 <dt><a href="com/github/aecsocket/calibre/paper/Raycasts.html#build(com.github.aecsocket.minecommons.paper.raycast.PaperRaycast.Options,org.bukkit.World)" class="member-name-link">build(PaperRaycast.Options, World)</a> - Method in class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/Raycasts.html" title="class in com.github.aecsocket.calibre.paper">Raycasts</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Bullet.html" class="type-name-link" title="class in com.github.aecsocket.calibre.core">Bullet</a>&lt;<a href="com/github/aecsocket/calibre/core/Bullet.html" title="type parameter in Bullet">B</a> extends <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Boundable.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Boundable</a>,<wbr><a href="com/github/aecsocket/calibre/core/Bullet.html" title="type parameter in Bullet">M</a> extends <a href="com/github/aecsocket/calibre/core/Projectile.Medium.html" title="interface in com.github.aecsocket.calibre.core">Projectile.Medium</a>&lt;<a href="com/github/aecsocket/calibre/core/Bullet.html" title="type parameter in Bullet">B</a>&gt;&gt; - Class in <a href="com/github/aecsocket/calibre/core/package-summary.html">com.github.aecsocket.calibre.core</a></dt>
+<dt><a href="com/github/aecsocket/calibre/core/Bullet.html" class="type-name-link" title="class in com.github.aecsocket.calibre.core">Bullet</a>&lt;<a href="com/github/aecsocket/calibre/core/Bullet.html" title="type parameter in Bullet">B</a> extends <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Boundable.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Boundable</a>,<wbr><a href="com/github/aecsocket/calibre/core/Bullet.html" title="type parameter in Bullet">M</a> extends <a href="com/github/aecsocket/calibre/core/Projectile.Fluid.html" title="interface in com.github.aecsocket.calibre.core">Projectile.Fluid</a>&lt;<a href="com/github/aecsocket/calibre/core/Bullet.html" title="type parameter in Bullet">B</a>&gt;&gt; - Class in <a href="com/github/aecsocket/calibre/core/package-summary.html">com.github.aecsocket.calibre.core</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Bullet.html#%3Cinit%3E(com.github.aecsocket.minecommons.core.raycast.Raycast,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,double,double,double,double,M)" class="member-name-link">Bullet(Raycast&lt;B&gt;, Vector3, Vector3, double, double, double, double, M)</a> - Constructor for class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Bullet.html" title="class in com.github.aecsocket.calibre.core">Bullet</a></dt>
+<dt><a href="com/github/aecsocket/calibre/core/Bullet.html#%3Cinit%3E(com.github.aecsocket.minecommons.core.raycast.Raycast,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,double,M)" class="member-name-link">Bullet(Raycast&lt;B&gt;, Vector3, Vector3, double, M)</a> - Constructor for class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Bullet.html" title="class in com.github.aecsocket.calibre.core">Bullet</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:C">C</h2>
@@ -67,7 +67,9 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/core/Projectile.html#castTest()" class="member-name-link">castTest()</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#changeMedium(com.github.aecsocket.calibre.core.Projectile.StepContext,com.github.aecsocket.minecommons.core.raycast.Raycast.Result,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,M,M)" class="member-name-link">changeMedium(Projectile.StepContext, Raycast.Result&lt;B&gt;, Vector3, M, M)</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
+<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#changeFluid(com.github.aecsocket.minecommons.core.scheduler.TaskContext,double,double,com.github.aecsocket.minecommons.core.raycast.Raycast.Result,com.github.aecsocket.minecommons.core.raycast.Raycast.Hit,F,F)" class="member-name-link">changeFluid(TaskContext, double, double, Raycast.Result&lt;B&gt;, Raycast.Hit&lt;B&gt;, F, F)</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#collided(com.github.aecsocket.minecommons.core.scheduler.TaskContext,double,double,com.github.aecsocket.minecommons.core.raycast.Raycast.Result,com.github.aecsocket.minecommons.core.raycast.Raycast.Hit)" class="member-name-link">collided(TaskContext, double, double, Raycast.Result&lt;B&gt;, Raycast.Hit&lt;B&gt;)</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/core/package-summary.html">com.github.aecsocket.calibre.core</a> - package com.github.aecsocket.calibre.core</dt>
 <dd>&nbsp;</dd>
@@ -85,7 +87,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Creates an instance of a <code>Config</code> record class.</div>
 </dd>
-<dt><a href="com/github/aecsocket/calibre/paper/Penetration.Config.html#%3Cinit%3E(java.util.Map)" class="member-name-link">Config(Map&lt;BlockData, Double&gt;)</a> - Constructor for record class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/Penetration.Config.html" title="class in com.github.aecsocket.calibre.paper">Penetration.Config</a></dt>
+<dt><a href="com/github/aecsocket/calibre/paper/Penetration.Config.html#%3Cinit%3E(java.util.Map,java.util.Map)" class="member-name-link">Config(Map&lt;BlockData, Double&gt;, Map&lt;BlockData, Double&gt;)</a> - Constructor for record class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/Penetration.Config.html" title="class in com.github.aecsocket.calibre.paper">Penetration.Config</a></dt>
 <dd>
 <div class="block">Creates an instance of a <code>Config</code> record class.</div>
 </dd>
@@ -112,33 +114,25 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/paper/Penetration.Config.html#DEFAULT" class="member-name-link">DEFAULT</a> - Static variable in record class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/Penetration.Config.html" title="class in com.github.aecsocket.calibre.paper">Penetration.Config</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#deflect(com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,double)" class="member-name-link">deflect(Vector3, Vector3, double)</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
+<dt><a href="com/github/aecsocket/calibre/core/Bullet.html#deflectThreshold()" class="member-name-link">deflectThreshold()</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Bullet.html" title="class in com.github.aecsocket.calibre.core">Bullet</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Bullet.html#deflectThreshold(B)" class="member-name-link">deflectThreshold(B)</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Bullet.html" title="class in com.github.aecsocket.calibre.core">Bullet</a></dt>
+<dt><a href="com/github/aecsocket/calibre/core/Projectile.Fluid.html#density()" class="member-name-link">density()</a> - Method in interface com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.Fluid.html" title="interface in com.github.aecsocket.calibre.core">Projectile.Fluid</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.Medium.html#density()" class="member-name-link">density()</a> - Method in interface com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.Medium.html" title="interface in com.github.aecsocket.calibre.core">Projectile.Medium</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.StepContext.html#direction()" class="member-name-link">direction()</a> - Method in record class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.StepContext.html" title="class in com.github.aecsocket.calibre.core">Projectile.StepContext</a></dt>
+<dt><a href="com/github/aecsocket/calibre/paper/Penetration.Config.html#density()" class="member-name-link">density()</a> - Method in record class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/Penetration.Config.html" title="class in com.github.aecsocket.calibre.paper">Penetration.Config</a></dt>
 <dd>
-<div class="block">Returns the value of the <code>direction</code> record component.</div>
+<div class="block">Returns the value of the <code>density</code> record component.</div>
 </dd>
+<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#direction" class="member-name-link">direction</a> - Variable in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#direction()" class="member-name-link">direction()</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/paper/Explosions.Instance.DamageComponent.html#distance()" class="member-name-link">distance()</a> - Method in record class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/Explosions.Instance.DamageComponent.html" title="class in com.github.aecsocket.calibre.paper">Explosions.Instance.DamageComponent</a></dt>
 <dd>
 <div class="block">Returns the value of the <code>distance</code> record component.</div>
 </dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#drag(double,double,double,double,double)" class="member-name-link">drag(double, double, double, double, double)</a> - Static method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#dragArea" class="member-name-link">dragArea</a> - Variable in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/core/Projectile.html#dragArea()" class="member-name-link">dragArea()</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#dragArea(double)" class="member-name-link">dragArea(double)</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#dragCoeff" class="member-name-link">dragCoeff</a> - Variable in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/core/Projectile.html#dragCoeff()" class="member-name-link">dragCoeff()</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#dragCoeff(double)" class="member-name-link">dragCoeff(double)</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/paper/Explosions.Config.html#dynamicParticles()" class="member-name-link">dynamicParticles()</a> - Method in record class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/Explosions.Config.html" title="class in com.github.aecsocket.calibre.paper">Explosions.Config</a></dt>
 <dd>
@@ -149,16 +143,8 @@ loadScripts(document, 'script');</script>
 <dl class="index">
 <dt><a href="com/github/aecsocket/calibre/paper/CalibrePlugin.html#effectors()" class="member-name-link">effectors()</a> - Method in class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/CalibrePlugin.html" title="class in com.github.aecsocket.calibre.paper">CalibrePlugin</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.StepContext.html#epsilon()" class="member-name-link">epsilon()</a> - Method in record class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.StepContext.html" title="class in com.github.aecsocket.calibre.core">Projectile.StepContext</a></dt>
-<dd>
-<div class="block">Returns the value of the <code>epsilon</code> record component.</div>
-</dd>
 <dt><a href="com/github/aecsocket/calibre/core/Projectile.html#EPSILON" class="member-name-link">EPSILON</a> - Static variable in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.StepContext.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.StepContext.html" title="class in com.github.aecsocket.calibre.core">Projectile.StepContext</a></dt>
-<dd>
-<div class="block">Indicates whether some other object is "equal to" this one.</div>
-</dd>
 <dt><a href="com/github/aecsocket/calibre/paper/Explosions.Config.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/Explosions.Config.html" title="class in com.github.aecsocket.calibre.paper">Explosions.Config</a></dt>
 <dd>
 <div class="block">Indicates whether some other object is "equal to" this one.</div>
@@ -202,6 +188,12 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:F">F</h2>
 <dl class="index">
+<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#fluid" class="member-name-link">fluid</a> - Variable in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#fluid()" class="member-name-link">fluid()</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#fluidOf(com.github.aecsocket.minecommons.core.raycast.Raycast.Result,com.github.aecsocket.minecommons.core.raycast.Raycast.Hit)" class="member-name-link">fluidOf(Raycast.Result&lt;B&gt;, Raycast.Hit&lt;B&gt;)</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/paper/CalibrePlugin.html#format2(java.util.Locale,double)" class="member-name-link">format2(Locale, double)</a> - Static method in class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/CalibrePlugin.html" title="class in com.github.aecsocket.calibre.paper">CalibrePlugin</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/paper/CalibrePlugin.html#format2Raw(java.util.Locale,double)" class="member-name-link">format2Raw(Locale, double)</a> - Static method in class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/CalibrePlugin.html" title="class in com.github.aecsocket.calibre.paper">CalibrePlugin</a></dt>
@@ -240,10 +232,6 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/paper/Penetration.html#hardness(org.bukkit.block.data.BlockData)" class="member-name-link">hardness(BlockData)</a> - Method in class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/Penetration.html" title="class in com.github.aecsocket.calibre.paper">Penetration</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.StepContext.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.StepContext.html" title="class in com.github.aecsocket.calibre.core">Projectile.StepContext</a></dt>
-<dd>
-<div class="block">Returns a hash code value for this object.</div>
-</dd>
 <dt><a href="com/github/aecsocket/calibre/paper/Explosions.Config.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/Explosions.Config.html" title="class in com.github.aecsocket.calibre.paper">Explosions.Config</a></dt>
 <dd>
 <div class="block">Returns a hash code value for this object.</div>
@@ -263,7 +251,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/paper/Explosions.Instance.html#%3Cinit%3E(double,int)" class="member-name-link">Instance(double, int)</a> - Constructor for class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/Explosions.Instance.html" title="class in com.github.aecsocket.calibre.paper">Explosions.Instance</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.Medium.html#isOf(B)" class="member-name-link">isOf(B)</a> - Method in interface com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.Medium.html" title="interface in com.github.aecsocket.calibre.core">Projectile.Medium</a></dt>
+<dt><a href="com/github/aecsocket/calibre/core/Projectile.Fluid.html#isOf(B)" class="member-name-link">isOf(B)</a> - Method in interface com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.Fluid.html" title="interface in com.github.aecsocket.calibre.core">Projectile.Fluid</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:L">L</h2>
@@ -281,24 +269,18 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:M">M</h2>
 <dl class="index">
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#mass" class="member-name-link">mass</a> - Variable in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/core/Projectile.html#mass()" class="member-name-link">mass()</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#mass(double)" class="member-name-link">mass(double)</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/paper/Explosions.Instance.html#maxDistance()" class="member-name-link">maxDistance()</a> - Method in class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/Explosions.Instance.html" title="class in com.github.aecsocket.calibre.paper">Explosions.Instance</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/paper/Explosions.html#maxDistance(double)" class="member-name-link">maxDistance(double)</a> - Method in class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/Explosions.html" title="class in com.github.aecsocket.calibre.paper">Explosions</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#medium()" class="member-name-link">medium()</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#mediumOf(com.github.aecsocket.minecommons.core.raycast.Raycast.Result,com.github.aecsocket.minecommons.core.raycast.Raycast.Hit)" class="member-name-link">mediumOf(Raycast.Result&lt;B&gt;, Raycast.Hit&lt;B&gt;)</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/paper/Explosions.Config.html#minDamage()" class="member-name-link">minDamage()</a> - Method in record class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/Explosions.Config.html" title="class in com.github.aecsocket.calibre.paper">Explosions.Config</a></dt>
 <dd>
 <div class="block">Returns the value of the <code>minDamage</code> record component.</div>
 </dd>
+<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#miss(com.github.aecsocket.minecommons.core.scheduler.TaskContext,double,double,com.github.aecsocket.minecommons.core.raycast.Raycast.Result)" class="member-name-link">miss(TaskContext, double, double, Raycast.Result&lt;B&gt;)</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
+<dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:O">O</h2>
 <dl class="index">
@@ -309,8 +291,6 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:P">P</h2>
 <dl class="index">
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#penetrate(com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,double)" class="member-name-link">penetrate(Vector3, Vector3, double)</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/core/Bullet.html#penetration()" class="member-name-link">penetration()</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Bullet.html" title="class in com.github.aecsocket.calibre.core">Bullet</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/paper/CalibrePlugin.html#penetration()" class="member-name-link">penetration()</a> - Method in class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/CalibrePlugin.html" title="class in com.github.aecsocket.calibre.paper">CalibrePlugin</a></dt>
@@ -329,6 +309,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/paper/Penetration.Config.html" class="type-name-link" title="class in com.github.aecsocket.calibre.paper">Penetration.Config</a> - Record Class in <a href="com/github/aecsocket/calibre/paper/package-summary.html">com.github.aecsocket.calibre.paper</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/github/aecsocket/calibre/core/Bullet.html#penetrationDeflect()" class="member-name-link">penetrationDeflect()</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Bullet.html" title="class in com.github.aecsocket.calibre.core">Bullet</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/paper/CalibrePlugin.html#playerData(org.bukkit.entity.Player)" class="member-name-link">playerData(Player)</a> - Method in class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/CalibrePlugin.html" title="class in com.github.aecsocket.calibre.paper">CalibrePlugin</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/paper/PlayerData.html" class="type-name-link" title="class in com.github.aecsocket.calibre.paper">PlayerData</a> - Class in <a href="com/github/aecsocket/calibre/paper/package-summary.html">com.github.aecsocket.calibre.paper</a></dt>
@@ -343,13 +325,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/paper/Explosions.Instance.html#power()" class="member-name-link">power()</a> - Method in class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/Explosions.Instance.html" title="class in com.github.aecsocket.calibre.paper">Explosions.Instance</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.html" class="type-name-link" title="class in com.github.aecsocket.calibre.core">Projectile</a>&lt;<a href="com/github/aecsocket/calibre/core/Projectile.html" title="type parameter in Projectile">B</a> extends <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Boundable.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Boundable</a>,<wbr><a href="com/github/aecsocket/calibre/core/Projectile.html" title="type parameter in Projectile">M</a> extends <a href="com/github/aecsocket/calibre/core/Projectile.Medium.html" title="interface in com.github.aecsocket.calibre.core">Projectile.Medium</a>&lt;<a href="com/github/aecsocket/calibre/core/Projectile.html" title="type parameter in Projectile">B</a>&gt;&gt; - Class in <a href="com/github/aecsocket/calibre/core/package-summary.html">com.github.aecsocket.calibre.core</a></dt>
+<dt><a href="com/github/aecsocket/calibre/core/Projectile.html" class="type-name-link" title="class in com.github.aecsocket.calibre.core">Projectile</a>&lt;<a href="com/github/aecsocket/calibre/core/Projectile.html" title="type parameter in Projectile">B</a> extends <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Boundable.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Boundable</a>,<wbr><a href="com/github/aecsocket/calibre/core/Projectile.html" title="type parameter in Projectile">F</a> extends <a href="com/github/aecsocket/calibre/core/Projectile.Fluid.html" title="interface in com.github.aecsocket.calibre.core">Projectile.Fluid</a>&lt;<a href="com/github/aecsocket/calibre/core/Projectile.html" title="type parameter in Projectile">B</a>&gt;&gt; - Class in <a href="com/github/aecsocket/calibre/core/package-summary.html">com.github.aecsocket.calibre.core</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#%3Cinit%3E(com.github.aecsocket.minecommons.core.raycast.Raycast,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,double,double,double,double,M)" class="member-name-link">Projectile(Raycast&lt;B&gt;, Vector3, Vector3, double, double, double, double, M)</a> - Constructor for class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
+<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#%3Cinit%3E(com.github.aecsocket.minecommons.core.raycast.Raycast,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,double,F)" class="member-name-link">Projectile(Raycast&lt;B&gt;, Vector3, Vector3, double, F)</a> - Constructor for class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.Medium.html" class="type-name-link" title="interface in com.github.aecsocket.calibre.core">Projectile.Medium</a>&lt;<a href="com/github/aecsocket/calibre/core/Projectile.Medium.html" title="type parameter in Projectile.Medium">B</a>&gt; - Interface in <a href="com/github/aecsocket/calibre/core/package-summary.html">com.github.aecsocket.calibre.core</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.StepContext.html" class="type-name-link" title="class in com.github.aecsocket.calibre.core">Projectile.StepContext</a> - Record Class in <a href="com/github/aecsocket/calibre/core/package-summary.html">com.github.aecsocket.calibre.core</a></dt>
+<dt><a href="com/github/aecsocket/calibre/core/Projectile.Fluid.html" class="type-name-link" title="interface in com.github.aecsocket.calibre.core">Projectile.Fluid</a>&lt;<a href="com/github/aecsocket/calibre/core/Projectile.Fluid.html" title="type parameter in Projectile.Fluid">B</a>&gt; - Interface in <a href="com/github/aecsocket/calibre/core/package-summary.html">com.github.aecsocket.calibre.core</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:R">R</h2>
@@ -375,29 +355,19 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/aecsocket/calibre/paper/Explosions.Instance.html#spawn(org.bukkit.Location,org.bukkit.entity.LivingEntity)" class="member-name-link">spawn(Location, LivingEntity)</a> - Method in class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/Explosions.Instance.html" title="class in com.github.aecsocket.calibre.paper">Explosions.Instance</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#speed" class="member-name-link">speed</a> - Variable in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/core/Projectile.html#speed()" class="member-name-link">speed()</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.StepContext.html#speed()" class="member-name-link">speed()</a> - Method in record class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.StepContext.html" title="class in com.github.aecsocket.calibre.core">Projectile.StepContext</a></dt>
-<dd>
-<div class="block">Returns the value of the <code>speed</code> record component.</div>
-</dd>
 <dt><a href="com/github/aecsocket/calibre/paper/Explosions.Config.html#staticParticles()" class="member-name-link">staticParticles()</a> - Method in record class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/Explosions.Config.html" title="class in com.github.aecsocket.calibre.paper">Explosions.Config</a></dt>
 <dd>
 <div class="block">Returns the value of the <code>staticParticles</code> record component.</div>
 </dd>
 <dt><a href="com/github/aecsocket/calibre/core/Projectile.html#step(com.github.aecsocket.minecommons.core.scheduler.TaskContext,double)" class="member-name-link">step(TaskContext, double)</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.StepContext.html#%3Cinit%3E(com.github.aecsocket.minecommons.core.scheduler.TaskContext,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,double,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3)" class="member-name-link">StepContext(TaskContext, Vector3, double, Vector3)</a> - Constructor for record class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.StepContext.html" title="class in com.github.aecsocket.calibre.core">Projectile.StepContext</a></dt>
-<dd>
-<div class="block">Creates an instance of a <code>StepContext</code> record class.</div>
-</dd>
 </dl>
 <h2 class="title" id="I:T">T</h2>
 <dl class="index">
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.StepContext.html#task()" class="member-name-link">task()</a> - Method in record class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.StepContext.html" title="class in com.github.aecsocket.calibre.core">Projectile.StepContext</a></dt>
-<dd>
-<div class="block">Returns the value of the <code>task</code> record component.</div>
-</dd>
 <dt><a href="com/github/aecsocket/calibre/core/Projectile.html#tick(com.github.aecsocket.minecommons.core.scheduler.TaskContext)" class="member-name-link">tick(TaskContext)</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/paper/PlayerData.html#tick(com.github.aecsocket.minecommons.core.scheduler.TaskContext)" class="member-name-link">tick(TaskContext)</a> - Method in class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/PlayerData.html" title="class in com.github.aecsocket.calibre.paper">PlayerData</a></dt>
@@ -405,10 +375,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/github/aecsocket/calibre/paper/Explosions.Instance.DamageComponent.html#to()" class="member-name-link">to()</a> - Method in record class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/Explosions.Instance.DamageComponent.html" title="class in com.github.aecsocket.calibre.paper">Explosions.Instance.DamageComponent</a></dt>
 <dd>
 <div class="block">Returns the value of the <code>to</code> record component.</div>
-</dd>
-<dt><a href="com/github/aecsocket/calibre/core/Projectile.StepContext.html#toString()" class="member-name-link">toString()</a> - Method in record class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.StepContext.html" title="class in com.github.aecsocket.calibre.core">Projectile.StepContext</a></dt>
-<dd>
-<div class="block">Returns a string representation of this record class.</div>
 </dd>
 <dt><a href="com/github/aecsocket/calibre/paper/Explosions.Config.html#toString()" class="member-name-link">toString()</a> - Method in record class com.github.aecsocket.calibre.paper.<a href="com/github/aecsocket/calibre/paper/Explosions.Config.html" title="class in com.github.aecsocket.calibre.paper">Explosions.Config</a></dt>
 <dd>
@@ -422,6 +388,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns a string representation of this record class.</div>
 </dd>
+<dt><a href="com/github/aecsocket/calibre/core/Projectile.html#travelled" class="member-name-link">travelled</a> - Variable in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/github/aecsocket/calibre/core/Projectile.html#travelled()" class="member-name-link">travelled()</a> - Method in class com.github.aecsocket.calibre.core.<a href="com/github/aecsocket/calibre/core/Projectile.html" title="class in com.github.aecsocket.calibre.core">Projectile</a></dt>
 <dd>&nbsp;</dd>
 </dl>

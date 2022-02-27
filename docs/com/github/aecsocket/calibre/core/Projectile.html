@@ -68,10 +68,10 @@ loadScripts(document, 'script');</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 <div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">com.github.aecsocket.calibre.core</a></div>
-<h1 title="Class Projectile" class="title">Class Projectile&lt;B extends <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Boundable.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Boundable</a>,<wbr>M extends <a href="Projectile.Medium.html" title="interface in com.github.aecsocket.calibre.core">Projectile.Medium</a>&lt;B&gt;&gt;</h1>
+<h1 title="Class Projectile" class="title">Class Projectile&lt;B extends <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Boundable.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Boundable</a>,<wbr>F extends <a href="Projectile.Fluid.html" title="interface in com.github.aecsocket.calibre.core">Projectile.Fluid</a>&lt;B&gt;&gt;</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance">com.github.aecsocket.calibre.core.Projectile&lt;B,<wbr>M&gt;</div>
+<div class="inheritance">com.github.aecsocket.calibre.core.Projectile&lt;B,<wbr>F&gt;</div>
 </div>
 <section class="class-description" id="class-description">
 <dl class="notes">
@@ -79,7 +79,7 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="Bullet.html" title="class in com.github.aecsocket.calibre.core">Bullet</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-10">Projectile</a>&lt;B extends <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Boundable.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Boundable</a>,<wbr>M extends <a href="Projectile.Medium.html" title="interface in com.github.aecsocket.calibre.core">Projectile.Medium</a>&lt;B&gt;&gt;</span>
+<div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-12">Projectile</a>&lt;B extends <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Boundable.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Boundable</a>,<wbr>F extends <a href="Projectile.Fluid.html" title="interface in com.github.aecsocket.calibre.core">Projectile.Fluid</a>&lt;B&gt;&gt;</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 </section>
 <section class="summary">
@@ -94,11 +94,8 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Class</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="Projectile.Medium.html" class="type-name-link" title="interface in com.github.aecsocket.calibre.core">Projectile.Medium</a>&lt;<a href="Projectile.Medium.html" title="type parameter in Projectile.Medium">B</a>&gt;</code></div>
+<div class="col-second even-row-color"><code><a href="Projectile.Fluid.html" class="type-name-link" title="interface in com.github.aecsocket.calibre.core">Projectile.Fluid</a>&lt;<a href="Projectile.Fluid.html" title="type parameter in Projectile.Fluid">B</a>&gt;</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static final record&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="Projectile.StepContext.html" class="type-name-link" title="class in com.github.aecsocket.calibre.core">Projectile.StepContext</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -111,14 +108,14 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Field</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>protected double</code></div>
-<div class="col-second even-row-color"><code><a href="#dragArea" class="member-name-link">dragArea</a></code></div>
+<div class="col-first even-row-color"><code>protected <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a></code></div>
+<div class="col-second even-row-color"><code><a href="#direction" class="member-name-link">direction</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>protected double</code></div>
-<div class="col-second odd-row-color"><code><a href="#dragCoeff" class="member-name-link">dragCoeff</a></code></div>
+<div class="col-first odd-row-color"><code>static final double</code></div>
+<div class="col-second odd-row-color"><code><a href="#EPSILON" class="member-name-link">EPSILON</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>static final double</code></div>
-<div class="col-second even-row-color"><code><a href="#EPSILON" class="member-name-link">EPSILON</a></code></div>
+<div class="col-first even-row-color"><code>protected <a href="Projectile.html" title="type parameter in Projectile">F</a></code></div>
+<div class="col-second even-row-color"><code><a href="#fluid" class="member-name-link">fluid</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>protected double</code></div>
 <div class="col-second odd-row-color"><code><a href="#gravity" class="member-name-link">gravity</a></code></div>
@@ -126,18 +123,21 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static final double</code></div>
 <div class="col-second even-row-color"><code><a href="#GRAVITY" class="member-name-link">GRAVITY</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>protected <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#position" class="member-name-link">position</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>protected final <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;</code></div>
+<div class="col-second even-row-color"><code><a href="#raycast" class="member-name-link">raycast</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>protected double</code></div>
-<div class="col-second odd-row-color"><code><a href="#mass" class="member-name-link">mass</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#speed" class="member-name-link">speed</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>protected <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a></code></div>
-<div class="col-second even-row-color"><code><a href="#position" class="member-name-link">position</a></code></div>
+<div class="col-first even-row-color"><code>protected double</code></div>
+<div class="col-second even-row-color"><code><a href="#travelled" class="member-name-link">travelled</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>protected final <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;</code></div>
-<div class="col-second odd-row-color"><code><a href="#raycast" class="member-name-link">raycast</a></code></div>
+<div class="col-first odd-row-color"><code>protected <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#velocity" class="member-name-link">velocity</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>protected <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a></code></div>
-<div class="col-second even-row-color"><code><a href="#velocity" class="member-name-link">velocity</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -149,14 +149,11 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.github.aecsocket.minecommons.core.raycast.Raycast,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,double,double,double,double,M)" class="member-name-link">Projectile</a><wbr>(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;raycast,
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.github.aecsocket.minecommons.core.raycast.Raycast,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,double,F)" class="member-name-link">Projectile</a><wbr>(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;raycast,
  <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;position,
  <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;velocity,
  double&nbsp;gravity,
- double&nbsp;dragCoeff,
- double&nbsp;dragArea,
- double&nbsp;mass,
- <a href="Projectile.html" title="type parameter in Projectile">M</a>&nbsp;medium)</code></div>
+ <a href="Projectile.html" title="type parameter in Projectile">F</a>&nbsp;fluid)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
@@ -166,7 +163,7 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab3" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab3', 3)" class="table-tab">Abstract Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab3" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab3', 3)" class="table-tab">Abstract Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel">
 <div class="summary-table three-column-summary" aria-labelledby="method-summary-table-tab0">
 <div class="table-header col-first">Modifier and Type</div>
@@ -175,92 +172,84 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Predicate.html" title="class or interface in java.util.function" class="external-link">Predicate</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#castTest()" class="member-name-link">castTest</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#changeMedium(com.github.aecsocket.calibre.core.Projectile.StepContext,com.github.aecsocket.minecommons.core.raycast.Raycast.Result,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,M,M)" class="member-name-link">changeMedium</a><wbr>(<a href="Projectile.StepContext.html" title="class in com.github.aecsocket.calibre.core">Projectile.StepContext</a>&nbsp;ctx,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected double</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#changeFluid(com.github.aecsocket.minecommons.core.scheduler.TaskContext,double,double,com.github.aecsocket.minecommons.core.raycast.Raycast.Result,com.github.aecsocket.minecommons.core.raycast.Raycast.Hit,F,F)" class="member-name-link">changeFluid</a><wbr>(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/scheduler/TaskContext.html" title="class or interface in com.github.aecsocket.minecommons.core.scheduler" class="external-link">TaskContext</a>&nbsp;ctx,
+ double&nbsp;sec,
+ double&nbsp;maxDistance,
  <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.Result.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast.Result</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;ray,
- <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;position,
- <a href="Projectile.html" title="type parameter in Projectile">M</a>&nbsp;oldMedium,
- <a href="Projectile.html" title="type parameter in Projectile">M</a>&nbsp;newMedium)</code></div>
+ <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.Hit.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast.Hit</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;hit,
+ <a href="Projectile.html" title="type parameter in Projectile">F</a>&nbsp;oldFluid,
+ <a href="Projectile.html" title="type parameter in Projectile">F</a>&nbsp;newFluid)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#deflect(com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,double)" class="member-name-link">deflect</a><wbr>(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;direction,
- <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;normal,
- double&nbsp;power)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected double</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#collided(com.github.aecsocket.minecommons.core.scheduler.TaskContext,double,double,com.github.aecsocket.minecommons.core.raycast.Raycast.Result,com.github.aecsocket.minecommons.core.raycast.Raycast.Hit)" class="member-name-link">collided</a><wbr>(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/scheduler/TaskContext.html" title="class or interface in com.github.aecsocket.minecommons.core.scheduler" class="external-link">TaskContext</a>&nbsp;ctx,
+ double&nbsp;sec,
+ double&nbsp;maxDistance,
+ <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.Result.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast.Result</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;ray,
+ <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.Hit.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast.Hit</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;hit)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static double</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#drag(double,double,double,double,double)" class="member-name-link">drag</a><wbr>(double&nbsp;mediumDensity,
- double&nbsp;dragCoeff,
- double&nbsp;area,
- double&nbsp;sqrSpeed,
- double&nbsp;mass)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#dragArea()" class="member-name-link">dragArea</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#dragArea(double)" class="member-name-link">dragArea</a><wbr>(double&nbsp;dragArea)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#direction()" class="member-name-link">direction</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#dragCoeff()" class="member-name-link">dragCoeff</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract double</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#dragArea()" class="member-name-link">dragArea</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract double</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#dragCoeff()" class="member-name-link">dragCoeff</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Projectile.html" title="type parameter in Projectile">F</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fluid()" class="member-name-link">fluid</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#dragCoeff(double)" class="member-name-link">dragCoeff</a><wbr>(double&nbsp;dragCoeff)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract @Nullable <a href="Projectile.html" title="type parameter in Projectile">F</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#fluidOf(com.github.aecsocket.minecommons.core.raycast.Raycast.Result,com.github.aecsocket.minecommons.core.raycast.Raycast.Hit)" class="member-name-link">fluidOf</a><wbr>(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.Result.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast.Result</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;ray,
+ <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.Hit.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast.Hit</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;hit)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#gravity()" class="member-name-link">gravity</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#gravity(double)" class="member-name-link">gravity</a><wbr>(double&nbsp;gravity)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#mass()" class="member-name-link">mass</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract double</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#mass()" class="member-name-link">mass</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected double</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#miss(com.github.aecsocket.minecommons.core.scheduler.TaskContext,double,double,com.github.aecsocket.minecommons.core.raycast.Raycast.Result)" class="member-name-link">miss</a><wbr>(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/scheduler/TaskContext.html" title="class or interface in com.github.aecsocket.minecommons.core.scheduler" class="external-link">TaskContext</a>&nbsp;ctx,
+ double&nbsp;sec,
+ double&nbsp;maxDistance,
+ <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.Result.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast.Result</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;ray)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#position()" class="member-name-link">position</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#mass(double)" class="member-name-link">mass</a><wbr>(double&nbsp;mass)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#position(com.github.aecsocket.minecommons.core.vector.cartesian.Vector3)" class="member-name-link">position</a><wbr>(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;position)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Projectile.html" title="type parameter in Projectile">M</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#medium()" class="member-name-link">medium</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#raycast()" class="member-name-link">raycast</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract <a href="Projectile.html" title="type parameter in Projectile">M</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#mediumOf(com.github.aecsocket.minecommons.core.raycast.Raycast.Result,com.github.aecsocket.minecommons.core.raycast.Raycast.Hit)" class="member-name-link">mediumOf</a><wbr>(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.Result.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast.Result</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;ray,
- <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.Hit.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast.Hit</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;hit)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#penetrate(com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,double)" class="member-name-link">penetrate</a><wbr>(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;direction,
- <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;out,
- double&nbsp;penetration)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removed(com.github.aecsocket.minecommons.core.scheduler.TaskContext)" class="member-name-link">removed</a><wbr>(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/scheduler/TaskContext.html" title="class or interface in com.github.aecsocket.minecommons.core.scheduler" class="external-link">TaskContext</a>&nbsp;ctx)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#speed()" class="member-name-link">speed</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#position()" class="member-name-link">position</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected double</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#step(com.github.aecsocket.minecommons.core.scheduler.TaskContext,double)" class="member-name-link">step</a><wbr>(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/scheduler/TaskContext.html" title="class or interface in com.github.aecsocket.minecommons.core.scheduler" class="external-link">TaskContext</a>&nbsp;ctx,
+ double&nbsp;sec)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#position(com.github.aecsocket.minecommons.core.vector.cartesian.Vector3)" class="member-name-link">position</a><wbr>(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;position)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#raycast()" class="member-name-link">raycast</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removed(com.github.aecsocket.minecommons.core.scheduler.TaskContext)" class="member-name-link">removed</a><wbr>(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/scheduler/TaskContext.html" title="class or interface in com.github.aecsocket.minecommons.core.scheduler" class="external-link">TaskContext</a>&nbsp;ctx)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#tick(com.github.aecsocket.minecommons.core.scheduler.TaskContext)" class="member-name-link">tick</a><wbr>(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/scheduler/TaskContext.html" title="class or interface in com.github.aecsocket.minecommons.core.scheduler" class="external-link">TaskContext</a>&nbsp;ctx)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#speed()" class="member-name-link">speed</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#travelled()" class="member-name-link">travelled</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected double</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#step(com.github.aecsocket.minecommons.core.scheduler.TaskContext,double)" class="member-name-link">step</a><wbr>(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/scheduler/TaskContext.html" title="class or interface in com.github.aecsocket.minecommons.core.scheduler" class="external-link">TaskContext</a>&nbsp;ctx,
- double&nbsp;sec)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#velocity()" class="member-name-link">velocity</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#tick(com.github.aecsocket.minecommons.core.scheduler.TaskContext)" class="member-name-link">tick</a><wbr>(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/scheduler/TaskContext.html" title="class or interface in com.github.aecsocket.minecommons.core.scheduler" class="external-link">TaskContext</a>&nbsp;ctx)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#velocity(com.github.aecsocket.minecommons.core.vector.cartesian.Vector3)" class="member-name-link">velocity</a><wbr>(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;velocity)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#travelled()" class="member-name-link">travelled</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#velocity()" class="member-name-link">velocity</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#velocity(com.github.aecsocket.minecommons.core.vector.cartesian.Vector3)" class="member-name-link">velocity</a><wbr>(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;velocity)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -281,7 +270,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="GRAVITY">
 <h3>GRAVITY</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-11">GRAVITY</a></span></div>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-13">GRAVITY</a></span></div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -295,7 +284,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="EPSILON">
 <h3>EPSILON</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-11">EPSILON</a></span></div>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-13">EPSILON</a></span></div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -309,43 +298,49 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="raycast">
 <h3>raycast</h3>
-<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type"><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a> extends <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Boundable.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Boundable</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-20">raycast</a></span></div>
+<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type"><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a> extends <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Boundable.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Boundable</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-22">raycast</a></span></div>
 </section>
 </li>
 <li>
 <section class="detail" id="position">
 <h3>position</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-21">position</a></span></div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-23">position</a></span></div>
 </section>
 </li>
 <li>
 <section class="detail" id="velocity">
 <h3>velocity</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-22">velocity</a></span></div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-24">velocity</a></span></div>
 </section>
 </li>
 <li>
 <section class="detail" id="gravity">
 <h3>gravity</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-23">gravity</a></span></div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-25">gravity</a></span></div>
 </section>
 </li>
 <li>
-<section class="detail" id="dragCoeff">
-<h3>dragCoeff</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-24">dragCoeff</a></span></div>
+<section class="detail" id="fluid">
+<h3>fluid</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="Projectile.html" title="type parameter in Projectile">F</a> extends <a href="Projectile.Fluid.html" title="interface in com.github.aecsocket.calibre.core">Projectile.Fluid</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-27">fluid</a></span></div>
 </section>
 </li>
 <li>
-<section class="detail" id="dragArea">
-<h3>dragArea</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-25">dragArea</a></span></div>
+<section class="detail" id="speed">
+<h3>speed</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-28">speed</a></span></div>
 </section>
 </li>
 <li>
-<section class="detail" id="mass">
-<h3>mass</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-26">mass</a></span></div>
+<section class="detail" id="direction">
+<h3>direction</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-29">direction</a></span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="travelled">
+<h3>travelled</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-30">travelled</a></span></div>
 </section>
 </li>
 </ul>
@@ -357,16 +352,13 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(com.github.aecsocket.minecommons.core.raycast.Raycast,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,double,double,double,double,M)">
-<h3 id="&lt;init&gt;(com.github.aecsocket.minecommons.core.raycast.Raycast,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,double,double,double,double,com.github.aecsocket.calibre.core.Projectile.Medium)">Projectile</h3>
+<section class="detail" id="&lt;init&gt;(com.github.aecsocket.minecommons.core.raycast.Raycast,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,double,F)">
+<h3 id="&lt;init&gt;(com.github.aecsocket.minecommons.core.raycast.Raycast,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,double,com.github.aecsocket.calibre.core.Projectile.Fluid)">Projectile</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-32">Projectile</a></span><wbr><span class="parameters">(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;raycast,
  <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;position,
  <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;velocity,
  double&nbsp;gravity,
- double&nbsp;dragCoeff,
- double&nbsp;dragArea,
- double&nbsp;mass,
- <a href="Projectile.html" title="type parameter in Projectile">M</a>&nbsp;medium)</span></div>
+ <a href="Projectile.html" title="type parameter in Projectile">F</a>&nbsp;fluid)</span></div>
 </section>
 </li>
 </ul>
@@ -380,165 +372,148 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="raycast()">
 <h3>raycast</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-43">raycast</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-40">raycast</a></span>()</div>
 </section>
 </li>
 <li>
 <section class="detail" id="position()">
 <h3>position</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-45">position</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-42">position</a></span>()</div>
 </section>
 </li>
 <li>
 <section class="detail" id="position(com.github.aecsocket.minecommons.core.vector.cartesian.Vector3)">
 <h3>position</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-46">position</a></span><wbr><span class="parameters">(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;position)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-43">position</a></span><wbr><span class="parameters">(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;position)</span></div>
 </section>
 </li>
 <li>
 <section class="detail" id="velocity()">
 <h3>velocity</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-48">velocity</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-45">velocity</a></span>()</div>
 </section>
 </li>
 <li>
 <section class="detail" id="velocity(com.github.aecsocket.minecommons.core.vector.cartesian.Vector3)">
 <h3>velocity</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-49">velocity</a></span><wbr><span class="parameters">(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;velocity)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-46">velocity</a></span><wbr><span class="parameters">(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;velocity)</span></div>
 </section>
 </li>
 <li>
 <section class="detail" id="gravity()">
 <h3>gravity</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-51">gravity</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-48">gravity</a></span>()</div>
 </section>
 </li>
 <li>
 <section class="detail" id="gravity(double)">
 <h3>gravity</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-52">gravity</a></span><wbr><span class="parameters">(double&nbsp;gravity)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-49">gravity</a></span><wbr><span class="parameters">(double&nbsp;gravity)</span></div>
 </section>
 </li>
 <li>
-<section class="detail" id="dragCoeff()">
-<h3>dragCoeff</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-54">dragCoeff</a></span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="dragCoeff(double)">
-<h3>dragCoeff</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-55">dragCoeff</a></span><wbr><span class="parameters">(double&nbsp;dragCoeff)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="dragArea()">
-<h3>dragArea</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-57">dragArea</a></span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="dragArea(double)">
-<h3>dragArea</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-58">dragArea</a></span><wbr><span class="parameters">(double&nbsp;dragArea)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="mass()">
-<h3>mass</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-60">mass</a></span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="mass(double)">
-<h3>mass</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-61">mass</a></span><wbr><span class="parameters">(double&nbsp;mass)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="medium()">
-<h3>medium</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Projectile.html" title="type parameter in Projectile">M</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-63">medium</a></span>()</div>
+<section class="detail" id="fluid()">
+<h3>fluid</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Projectile.html" title="type parameter in Projectile">F</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-51">fluid</a></span>()</div>
 </section>
 </li>
 <li>
 <section class="detail" id="speed()">
 <h3>speed</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-64">speed</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-52">speed</a></span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="direction()">
+<h3>direction</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-53">direction</a></span>()</div>
 </section>
 </li>
 <li>
 <section class="detail" id="travelled()">
 <h3>travelled</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-65">travelled</a></span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="castTest()">
-<h3>castTest</h3>
-<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Predicate.html" title="class or interface in java.util.function" class="external-link">Predicate</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-67">castTest</a></span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="mediumOf(com.github.aecsocket.minecommons.core.raycast.Raycast.Result,com.github.aecsocket.minecommons.core.raycast.Raycast.Hit)">
-<h3>mediumOf</h3>
-<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type"><a href="Projectile.html" title="type parameter in Projectile">M</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-68">mediumOf</a></span><wbr><span class="parameters">(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.Result.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast.Result</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;ray,
- <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.Hit.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast.Hit</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;hit)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="step(com.github.aecsocket.minecommons.core.scheduler.TaskContext,double)">
-<h3>step</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-70">step</a></span><wbr><span class="parameters">(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/scheduler/TaskContext.html" title="class or interface in com.github.aecsocket.minecommons.core.scheduler" class="external-link">TaskContext</a>&nbsp;ctx,
- double&nbsp;sec)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-54">travelled</a></span>()</div>
 </section>
 </li>
 <li>
 <section class="detail" id="tick(com.github.aecsocket.minecommons.core.scheduler.TaskContext)">
 <h3>tick</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-119">tick</a></span><wbr><span class="parameters">(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/scheduler/TaskContext.html" title="class or interface in com.github.aecsocket.minecommons.core.scheduler" class="external-link">TaskContext</a>&nbsp;ctx)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-56">tick</a></span><wbr><span class="parameters">(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/scheduler/TaskContext.html" title="class or interface in com.github.aecsocket.minecommons.core.scheduler" class="external-link">TaskContext</a>&nbsp;ctx)</span></div>
 </section>
 </li>
 <li>
-<section class="detail" id="changeMedium(com.github.aecsocket.calibre.core.Projectile.StepContext,com.github.aecsocket.minecommons.core.raycast.Raycast.Result,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,M,M)">
-<h3 id="changeMedium(com.github.aecsocket.calibre.core.Projectile.StepContext,com.github.aecsocket.minecommons.core.raycast.Raycast.Result,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,com.github.aecsocket.calibre.core.Projectile.Medium,com.github.aecsocket.calibre.core.Projectile.Medium)">changeMedium</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-132">changeMedium</a></span><wbr><span class="parameters">(<a href="Projectile.StepContext.html" title="class in com.github.aecsocket.calibre.core">Projectile.StepContext</a>&nbsp;ctx,
- <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.Result.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast.Result</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;ray,
- <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;position,
- <a href="Projectile.html" title="type parameter in Projectile">M</a>&nbsp;oldMedium,
- <a href="Projectile.html" title="type parameter in Projectile">M</a>&nbsp;newMedium)</span></div>
+<section class="detail" id="castTest()">
+<h3>castTest</h3>
+<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Predicate.html" title="class or interface in java.util.function" class="external-link">Predicate</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-65">castTest</a></span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="fluidOf(com.github.aecsocket.minecommons.core.raycast.Raycast.Result,com.github.aecsocket.minecommons.core.raycast.Raycast.Hit)">
+<h3>fluidOf</h3>
+<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type">@Nullable <a href="Projectile.html" title="type parameter in Projectile">F</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-66">fluidOf</a></span><wbr><span class="parameters">(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.Result.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast.Result</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;ray,
+ <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.Hit.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast.Hit</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;hit)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="dragCoeff()">
+<h3>dragCoeff</h3>
+<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-68">dragCoeff</a></span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="dragArea()">
+<h3>dragArea</h3>
+<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-69">dragArea</a></span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="mass()">
+<h3>mass</h3>
+<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-70">mass</a></span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="step(com.github.aecsocket.minecommons.core.scheduler.TaskContext,double)">
+<h3>step</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-72">step</a></span><wbr><span class="parameters">(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/scheduler/TaskContext.html" title="class or interface in com.github.aecsocket.minecommons.core.scheduler" class="external-link">TaskContext</a>&nbsp;ctx,
+ double&nbsp;sec)</span></div>
 </section>
 </li>
 <li>
 <section class="detail" id="removed(com.github.aecsocket.minecommons.core.scheduler.TaskContext)">
 <h3>removed</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-134">removed</a></span><wbr><span class="parameters">(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/scheduler/TaskContext.html" title="class or interface in com.github.aecsocket.minecommons.core.scheduler" class="external-link">TaskContext</a>&nbsp;ctx)</span></div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-101">removed</a></span><wbr><span class="parameters">(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/scheduler/TaskContext.html" title="class or interface in com.github.aecsocket.minecommons.core.scheduler" class="external-link">TaskContext</a>&nbsp;ctx)</span></div>
 </section>
 </li>
 <li>
-<section class="detail" id="deflect(com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,double)">
-<h3>deflect</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-136">deflect</a></span><wbr><span class="parameters">(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;direction,
- <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;normal,
- double&nbsp;power)</span></div>
+<section class="detail" id="miss(com.github.aecsocket.minecommons.core.scheduler.TaskContext,double,double,com.github.aecsocket.minecommons.core.raycast.Raycast.Result)">
+<h3>miss</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-103">miss</a></span><wbr><span class="parameters">(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/scheduler/TaskContext.html" title="class or interface in com.github.aecsocket.minecommons.core.scheduler" class="external-link">TaskContext</a>&nbsp;ctx,
+ double&nbsp;sec,
+ double&nbsp;maxDistance,
+ <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.Result.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast.Result</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;ray)</span></div>
 </section>
 </li>
 <li>
-<section class="detail" id="penetrate(com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,com.github.aecsocket.minecommons.core.vector.cartesian.Vector3,double)">
-<h3>penetrate</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-141">penetrate</a></span><wbr><span class="parameters">(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;direction,
- <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/vector/cartesian/Vector3.html" title="class or interface in com.github.aecsocket.minecommons.core.vector.cartesian" class="external-link">Vector3</a>&nbsp;out,
- double&nbsp;penetration)</span></div>
+<section class="detail" id="collided(com.github.aecsocket.minecommons.core.scheduler.TaskContext,double,double,com.github.aecsocket.minecommons.core.raycast.Raycast.Result,com.github.aecsocket.minecommons.core.raycast.Raycast.Hit)">
+<h3>collided</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-110">collided</a></span><wbr><span class="parameters">(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/scheduler/TaskContext.html" title="class or interface in com.github.aecsocket.minecommons.core.scheduler" class="external-link">TaskContext</a>&nbsp;ctx,
+ double&nbsp;sec,
+ double&nbsp;maxDistance,
+ <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.Result.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast.Result</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;ray,
+ <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.Hit.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast.Hit</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;hit)</span></div>
 </section>
 </li>
 <li>
-<section class="detail" id="drag(double,double,double,double,double)">
-<h3>drag</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-153">drag</a></span><wbr><span class="parameters">(double&nbsp;mediumDensity,
- double&nbsp;dragCoeff,
- double&nbsp;area,
- double&nbsp;sqrSpeed,
- double&nbsp;mass)</span></div>
+<section class="detail" id="changeFluid(com.github.aecsocket.minecommons.core.scheduler.TaskContext,double,double,com.github.aecsocket.minecommons.core.raycast.Raycast.Result,com.github.aecsocket.minecommons.core.raycast.Raycast.Hit,F,F)">
+<h3 id="changeFluid(com.github.aecsocket.minecommons.core.scheduler.TaskContext,double,double,com.github.aecsocket.minecommons.core.raycast.Raycast.Result,com.github.aecsocket.minecommons.core.raycast.Raycast.Hit,com.github.aecsocket.calibre.core.Projectile.Fluid,com.github.aecsocket.calibre.core.Projectile.Fluid)">changeFluid</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/github/aecsocket/calibre/core/Projectile.html#line-126">changeFluid</a></span><wbr><span class="parameters">(<a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/scheduler/TaskContext.html" title="class or interface in com.github.aecsocket.minecommons.core.scheduler" class="external-link">TaskContext</a>&nbsp;ctx,
+ double&nbsp;sec,
+ double&nbsp;maxDistance,
+ <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.Result.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast.Result</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;ray,
+ <a href="https://aecsocket.github.io/minecommons/docs/com/github/aecsocket/minecommons/core/raycast/Raycast.Hit.html" title="class or interface in com.github.aecsocket.minecommons.core.raycast" class="external-link">Raycast.Hit</a>&lt;<a href="Projectile.html" title="type parameter in Projectile">B</a>&gt;&nbsp;hit,
+ <a href="Projectile.html" title="type parameter in Projectile">F</a>&nbsp;oldFluid,
+ <a href="Projectile.html" title="type parameter in Projectile">F</a>&nbsp;newFluid)</span></div>
 </section>
 </li>
 </ul>

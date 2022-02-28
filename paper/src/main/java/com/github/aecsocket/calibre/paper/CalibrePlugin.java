@@ -7,7 +7,6 @@ import com.github.aecsocket.minecommons.core.raycast.Raycast;
 import com.github.aecsocket.minecommons.core.scheduler.Task;
 import com.github.aecsocket.minecommons.core.scheduler.TaskContext;
 import com.github.aecsocket.minecommons.core.serializers.BasicBoundSerializer;
-import com.github.aecsocket.minecommons.core.vector.cartesian.Vector2;
 import com.github.aecsocket.minecommons.core.vector.cartesian.Vector3;
 import com.github.aecsocket.minecommons.paper.PaperUtils;
 import com.github.aecsocket.minecommons.paper.effect.PaperEffectors;
@@ -17,6 +16,9 @@ import com.github.aecsocket.minecommons.paper.scheduler.PaperScheduler;
 import com.google.common.collect.ImmutableMap;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Waterlogged;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -88,26 +90,44 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                    -> 3.798m/t^2
                  */
 
-            record PaperFluid(double density, Material material) implements Projectile.Fluid<PaperRaycast.PaperBoundable> {
-                @Override
-                public String toString() {
-                    return "[μ=" + density + ":" + material.key().value() + "]";
+            public static boolean hasWater0(BlockData block) {
+                return block.getMaterial() == Material.WATER
+                    || block instanceof Waterlogged wl && wl.isWaterlogged();
+            }
+
+            interface PaperMedium extends Projectile.Medium<PaperRaycast.PaperBoundable> {}
+
+            record BlockMedium(double density, BlockData block) implements PaperMedium {
+                public BlockMedium(BlockData block) {
+                    this(0, block);
                 }
 
                 @Override
                 public boolean isOf(PaperRaycast.PaperBoundable hit) {
-                    return hit.block() != null && hit.block().getType() == material;
+                    // TODO
+                    return hit.block() != null && hit.block().getType() == block.getMaterial();
+                }
+
+                public boolean hasWater() {
+                    return hasWater0(block);
                 }
             }
 
-            PaperFluid air = new PaperFluid(1.225, Material.AIR);
-            Map<Material, PaperFluid> fluids = ImmutableMap.<Material, PaperFluid>builder()
-                .put(Material.WATER, new PaperFluid(997, Material.WATER))
-                .put(Material.LAVA, new PaperFluid(2500, Material.LAVA))
-                .build();
+            record EntityMedium(double density, Entity entity) implements PaperMedium {
+                public EntityMedium(Entity entity) {
+                    this(0, entity);
+                }
 
-            Optional<PaperFluid> optFluid(Block block) {
-                return Optional.ofNullable(fluids.get(block.getType()));
+                @Override
+                public boolean isOf(PaperRaycast.PaperBoundable hit) {
+                    return hit.entity() != null && hit.entity().getEntityId() == entity.getEntityId();
+                }
+            }
+
+            BlockMedium air = new BlockMedium(Material.AIR.createBlockData());
+
+            BlockMedium optMedium(Block block) {
+                return new BlockMedium(block.getBlockData());
             }
 
             @EventHandler
@@ -123,8 +143,8 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                         new PaperRaycast.Options.OfBlock(false, false, null),
                         new PaperRaycast.Options.OfEntity(null)
                     );
-                    Projectile<PaperRaycast.PaperBoundable, PaperFluid> projectile = new Projectile<>(
-                        raycasts.build(options, world), pos, dir.multiply(50), Projectile.GRAVITY, optFluid(eye.getBlock()).orElse(air)
+                    Projectile<PaperRaycast.PaperBoundable, PaperMedium> projectile = new Projectile<>(
+                        raycasts.build(options, world), pos, dir.multiply(30), Projectile.GRAVITY, optMedium(eye.getBlock())
                     ) {
                         @Override
                         protected Predicate<PaperRaycast.PaperBoundable> castTest() {
@@ -132,32 +152,27 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                         }
 
                         @Override
-                        protected @Nullable PaperFluid fluidOf(Raycast.Result<PaperRaycast.PaperBoundable> ray, Raycast.Hit<PaperRaycast.PaperBoundable> hit) {
-                            if (hit.hit().block() == null)
-                                return null;
-                            return optFluid(hit.hit().block()).orElse(null);
+                        protected PaperMedium mediumOf(Raycast.Result<PaperRaycast.PaperBoundable> ray, Raycast.Hit<PaperRaycast.PaperBoundable> hit) {
+                            var bnd = hit.hit();
+                            if (bnd.block() != null)
+                                return new BlockMedium(bnd.block().getBlockData());
+                            else if (bnd.entity() != null)
+                                return new EntityMedium(bnd.entity());
+                            throw new IllegalStateException();
                         }
 
                         @Override
-                        protected double dragCoeff() { return 0.06; }
-
-                        @Override
-                        protected double dragArea() { return 2.55e-5; }
-
-                        @Override
-                        protected double mass() { return 0.004; }
-
-                        @Override
-                        protected double changeFluid(TaskContext ctx, double sec, double maxDistance, Raycast.Result<PaperRaycast.PaperBoundable> ray, Raycast.Hit<PaperRaycast.PaperBoundable> hit, PaperFluid oldFluid, PaperFluid newFluid) {
+                        protected double collided(TaskContext ctx, double sec, double maxDistance, Raycast.Result<PaperRaycast.PaperBoundable> ray, Raycast.Hit<PaperRaycast.PaperBoundable> hit, PaperMedium oldMedium, PaperMedium newMedium) {
                             Location location = PaperUtils.toPaper(ray.pos(), world);
                             if (
-                                newFluid.material == Material.WATER ^ oldFluid.material == Material.WATER
+                                oldMedium instanceof BlockMedium b1
+                                && newMedium instanceof BlockMedium b2
+                                && b1.hasWater() != b2.hasWater()
                             ) {
                                 player.spawnParticle(Particle.WATER_SPLASH, location, 16);
-                                player.spawnParticle(Particle.WATER_BUBBLE, location, 4);
                                 player.playSound(location, Sound.ENTITY_GENERIC_SPLASH, 1f, 1f);
                             }
-                            return super.changeFluid(ctx, sec, maxDistance, ray, hit, oldFluid, newFluid);
+                            return super.collided(ctx, sec, maxDistance, ray, hit, oldMedium, newMedium);
                         }
 
                         @Override
@@ -173,7 +188,11 @@ public final class CalibrePlugin extends BasePlugin<CalibrePlugin> {
                             double distance = direction.length();
                             direction = direction.divide(distance);
                             for (double d = 0; d < distance; d += 3) {
-                                player.spawnParticle(Particle.FLAME, PaperUtils.toPaper(origin.add(direction.multiply(d)), world), 0);
+                                Location location = PaperUtils.toPaper(origin.add(direction.multiply(d)), world);
+                                if (hasWater0(location.getBlock().getBlockData())) {
+                                    player.spawnParticle(Particle.WATER_BUBBLE, location, 4);
+                                }
+                                player.spawnParticle(Particle.FLAME, location, 0);
                             }
                             return res;
                         }

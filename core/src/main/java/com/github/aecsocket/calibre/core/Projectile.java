@@ -9,13 +9,13 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.function.Predicate;
 
-public abstract class Projectile<B extends Boundable, F extends Projectile.Fluid<B>> {
+public abstract class Projectile<B extends Boundable, M extends Projectile.Medium<B>> {
     public static final double
         GRAVITY = 9.81,
         EPSILON = 0.001;
 
-    public interface Fluid<B> {
-        double density();
+    public interface Medium<B> {
+        double density(); // in u/m
         boolean isOf(B hit);
     }
 
@@ -24,17 +24,17 @@ public abstract class Projectile<B extends Boundable, F extends Projectile.Fluid
     protected Vector3 velocity;
     protected double gravity;
 
-    protected F fluid;
+    protected M medium;
     protected double speed = -1;
-    protected Vector3 direction;
+    protected Vector3 direction = Vector3.ZERO;
     protected double travelled;
 
-    public Projectile(Raycast<B> raycast, Vector3 position, Vector3 velocity, double gravity, F fluid) {
+    public Projectile(Raycast<B> raycast, Vector3 position, Vector3 velocity, double gravity, M medium) {
         this.raycast = raycast;
         this.position = position;
         this.velocity = velocity;
         this.gravity = gravity;
-        this.fluid = fluid;
+        this.medium = medium;
     }
 
     public Raycast<B> raycast() { return raycast; }
@@ -48,7 +48,7 @@ public abstract class Projectile<B extends Boundable, F extends Projectile.Fluid
     public double gravity() { return gravity; }
     public void gravity(double gravity) { this.gravity = gravity; }
 
-    public F fluid() { return fluid; }
+    public M medium() { return medium; }
     public double speed() { return speed; }
     public Vector3 direction() { return direction; }
     public double travelled() { return travelled; }
@@ -63,11 +63,7 @@ public abstract class Projectile<B extends Boundable, F extends Projectile.Fluid
     }
 
     protected abstract Predicate<B> castTest();
-    protected abstract @Nullable F fluidOf(Raycast.Result<B> ray, Raycast.Hit<B> hit);
-
-    protected abstract double dragCoeff();
-    protected abstract double dragArea();
-    protected abstract double mass();
+    protected abstract M mediumOf(Raycast.Result<B> ray, Raycast.Hit<B> hit);
 
     protected double step(TaskContext ctx, double sec) {
         velocity = velocity.y(velocity.y() - gravity * sec);
@@ -78,10 +74,18 @@ public abstract class Projectile<B extends Boundable, F extends Projectile.Fluid
         }
         direction = velocity.divide(speed);
 
-        double maxDistance = speed * sec;
-        var ray = raycast.cast(position, direction, maxDistance, bnd -> !fluid.isOf(bnd) && castTest().test(bnd));
+        double maxDistance = Math.max(0, speed - (medium.density() * sec)) * sec;
+        var ray = raycast.cast(position, direction, maxDistance, bnd -> !medium.isOf(bnd) && castTest().test(bnd));
         var hit = ray.hit();
-        F oldFluid = fluid;
+
+        if (hit == null) {
+            return miss(ctx, sec, maxDistance, ray);
+        } else {
+            M newMedium = mediumOf(ray, hit);
+            return collided(ctx, sec, maxDistance, ray, hit, medium, newMedium);
+        }
+
+        /*F oldFluid = fluid;
         double penetrate;
         if (hit == null) {
             System.out.printf("(miss, dst = %.3f)\n", ray.distance());
@@ -95,40 +99,24 @@ public abstract class Projectile<B extends Boundable, F extends Projectile.Fluid
         }
 
         speed = Math.max(0, speed - dragCoeff() * fluid.density() * speed * speed * 0.5 * dragArea());
-        return sec * Numbers.clamp01(1 - penetrate / maxDistance);
+        return sec * Numbers.clamp01(1 - penetrate / maxDistance);*/
     }
 
     protected void removed(TaskContext ctx) {}
 
     protected double miss(TaskContext ctx, double sec, double maxDistance, Raycast.Result<B> ray) {
-        double penetrate = ray.distance();
-        travelled += penetrate;
-        position = position.add(direction.multiply(penetrate));
-        return penetrate;
+        double distance = ray.distance();
+        travelled += distance;
+        position = ray.pos();
+        return 0;
     }
 
-    protected double collided(TaskContext ctx, double sec, double maxDistance, Raycast.Result<B> ray, Raycast.Hit<B> hit) {
-        position = hit.out();
-        if (ray.distance() > 0) {
-            // start outside the bound
-            double penetrate = ray.distance();
-            travelled += penetrate + hit.penetration();
-            position = hit.out();
-            return penetrate;
-        } else {
-            // start inside the bound
-            double penetrate = hit.distOut();
-            travelled += penetrate;
-            return penetrate;
-        }
-    }
-
-    protected double changeFluid(TaskContext ctx, double sec, double maxDistance, Raycast.Result<B> ray, Raycast.Hit<B> hit, F oldFluid, F newFluid) {
-        double penetrate = ray.distance() > 0 ? ray.distance() + EPSILON : hit.distOut();
-        fluid = newFluid;
-        travelled += penetrate;
-        position = ray.pos().add(direction.multiply(EPSILON));
-        return penetrate;
+    protected double collided(TaskContext ctx, double sec, double maxDistance, Raycast.Result<B> ray, Raycast.Hit<B> hit, M oldMedium, M newMedium) {
+        medium = newMedium;
+        double distance = (ray.distance() > 0 ? ray.distance() + hit.penetration() : hit.distOut()) + EPSILON;
+        travelled += distance;
+        position = position.add(direction.multiply(distance));
+        return sec * (1 - Numbers.clamp01(distance / maxDistance));
     }
 
     /*protected abstract Predicate<B> castTest();

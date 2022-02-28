@@ -10,7 +10,7 @@ import com.github.aecsocket.minecommons.core.vector.polar.Coord3;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-public abstract class Bullet<B extends Boundable, M extends Projectile.Fluid<B>> extends Projectile<B, M> {
+public abstract class Bullet<B extends Boundable, M extends Projectile.Medium<B>> extends Projectile<B, M> {
     private final double originalSpeed;
 
     public Bullet(Raycast<B> raycast, Vector3 position, Vector3 velocity, double gravity, M medium) {

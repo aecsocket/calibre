@@ -1,46 +1,31 @@
 plugins {
-    id("java-library")
-    id("maven-publish")
+    kotlin("jvm")
     id("com.github.johnrengelman.shadow")
-    id("net.minecrell.plugin-yml.bukkit")
     id("xyz.jpenilla.run-paper")
+    id("net.minecrell.plugin-yml.bukkit")
+}
+
+val minecraftVersion = libs.versions.minecraft.get()
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://jitpack.io")
 }
 
 dependencies {
-    api(projects.calibreCore) {
-        exclude("com.github.aecsocket", "minecommons-core")
-        exclude("com.github.aecsocket", "sokol-core")
-    }
-    compileOnly(libs.paper) {
-        exclude("junit", "junit")
-    }
-
-    implementation(libs.minecommonsPaper) {
-        artifact { classifier = "reobf" }
-    }
-    implementation(libs.sokolPaper) {
-        exclude("com.github.aecsocket", "minecommons-paper")
-    }
+    api(projects.calibreCore)
+    compileOnly("io.papermc.paper", "paper-api", "$minecraftVersion-R0.1-SNAPSHOT")
+    implementation(libs.alexandriaPaper) { artifact { classifier = "reobf" } }
     implementation(libs.bstatsPaper)
+    implementation(libs.packetEvents)
 
-    compileOnly(libs.protocolLib)
+    //library("org.jetbrains.kotlin", "kotlin-stdlib-jdk8")
 }
 
 tasks {
     shadowJar {
-        listOf(
-            "io.leangen.geantyref",
-            "org.spongepowered.configurate",
-            "com.typesafe.config",
-            "au.com.bytecode.opencsv",
-            "cloud.commandframework",
-            "net.kyori.adventure.text.minimessage",
-            "net.kyori.adventure.serializer.configurate4",
-            "com.github.stefvanschie.inventoryframework",
-            "com.github.aecsocket.minecommons",
-            "com.github.aecsocket.sokol",
-            "org.bstats"
-        ).forEach { relocate(it, "${rootProject.group}.${rootProject.name}.lib.$it") }
     }
 
     assemble {
@@ -48,34 +33,14 @@ tasks {
     }
 
     runServer {
-        minecraftVersion(libs.versions.minecraft.forUseAtConfigurationTime().get())
+        minecraftVersion(libs.versions.minecraft.get())
     }
 }
 
 bukkit {
     name = "Calibre"
-    main = "${project.group}.${rootProject.name}.paper.CalibrePlugin"
+    main = "${project.group}.paper.CalibrePlugin"
     apiVersion = "1.18"
-    depend = listOf("Sokol", "ProtocolLib")
-    website = "https://github.com/aecsocket/calibre"
     authors = listOf("aecsocket")
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            from(components["java"])
-        }
-    }
-
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/aecsocket/calibre")
-            credentials {
-                username = System.getenv("GPR_ACTOR")
-                password = System.getenv("GPR_TOKEN")
-            }
-        }
-    }
+    website = "https://aecsocket.github.com/calibre"
 }

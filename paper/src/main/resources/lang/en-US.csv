@@ -1,9 +1,0 @@
-key,comments,string
-locale,en-US
-
-feature.item_description.line,,"  <line>"
-feature.slot_display.indent,,"  "
-feature.slot_display.entry,,"  <padding><indent><slot>  <value>"
-feature.slot_display.child,,"<name>"
-feature.slot_display.empty,,"empty"
-feature.slot_display.required,,"required"

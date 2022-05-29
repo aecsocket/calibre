@@ -39,12 +39,11 @@ jobs:
         env:
           GPR_ACTOR: "${{ github.actor }}"
           GPR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-      - name: "Archive test results"
+      - name: "Upload test results artifact"
         uses: actions/upload-artifact@v2
         with:
           name: "test-results-${{ runner.os }}"
           path: |
-            build/reports/
             */build/reports/
       - name: "Upload JAR artifact"
         uses: actions/upload-artifact@v2

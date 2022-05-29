@@ -89,6 +89,12 @@ class CalibrePlugin : BasePlugin() {
 
     override fun loadInternal(log: LogList, settings: ConfigurationNode): Boolean {
         if (super.loadInternal(log, settings)) {
+
+            log.line(LogLevel.VERBOSE) { "Verbose" }
+            log.line(LogLevel.INFO) { "Info" }
+            log.line(LogLevel.WARNING) { "Warning" }
+            log.line(LogLevel.ERROR) { "Error" }
+
             try {
                 this.settings = settings.force()
             } catch (ex: SerializationException) {

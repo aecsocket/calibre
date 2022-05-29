@@ -41,6 +41,6 @@ bukkit {
     name = "Calibre"
     main = "${project.group}.paper.CalibrePlugin"
     apiVersion = "1.18"
-    authors = listOf("aecsocket")
+    authors = listOf("aecsocket", "other")
     website = "https://aecsocket.github.com/calibre"
 }

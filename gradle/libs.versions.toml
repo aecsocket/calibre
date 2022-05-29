@@ -2,7 +2,7 @@
 
 minecraft = "1.18.2"
 
-alexandria = "0.3.3-SNAPSHOT"
+alexandria = "0.3.3"
 bstats = "2.2.1"
 packetEvents = "2.0-SNAPSHOT"
 

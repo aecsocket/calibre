@@ -19,9 +19,8 @@ dependencies {
     compileOnly("io.papermc.paper", "paper-api", "$minecraftVersion-R0.1-SNAPSHOT")
     implementation(libs.alexandriaPaper) { artifact { classifier = "reobf" } }
     implementation(libs.bstatsPaper)
-    implementation(libs.packetEvents)
-
-    //library("org.jetbrains.kotlin", "kotlin-stdlib-jdk8")
+    implementation(libs.packetEventsApi)
+    implementation(libs.packetEventsSpigot)
 }
 
 tasks {
@@ -41,6 +40,6 @@ bukkit {
     name = "Calibre"
     main = "${project.group}.paper.CalibrePlugin"
     apiVersion = "1.18"
-    authors = listOf("aecsocket", "other")
+    authors = listOf("aecsocket")
     website = "https://aecsocket.github.com/calibre"
 }

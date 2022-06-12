@@ -6,8 +6,13 @@ plugins {
 
 allprojects {
     group = "com.github.aecsocket.calibre"
-    version = "2.1.1"
+    version = "2.1.2"
     description = "Platform-agnostic, modular gun framework"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
 }
 
 subprojects {

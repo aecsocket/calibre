@@ -5,9 +5,11 @@ import com.github.retrooper.packetevents.event.PacketReceiveEvent
 import com.github.retrooper.packetevents.protocol.packettype.PacketType
 import org.bukkit.entity.Player
 
-internal class CalibrePacketListener(private val plugin: CalibrePlugin) : PacketListenerAbstract() {
+internal class CalibrePacketListener(
+    private val plugin: CalibrePlugin
+) : PacketListenerAbstract() {
     override fun onPacketReceive(event: PacketReceiveEvent) {
-        val player = event.player
+        /*val player = event.player
         if (player !is Player)
             return
         val playerData = plugin.playerData(player)
@@ -18,6 +20,6 @@ internal class CalibrePacketListener(private val plugin: CalibrePlugin) : Packet
             PacketType.Play.Client.PLAYER_DIGGING -> {
                 playerData.holdingRClick = false
             }
-        }
+        }*/
     }
 }

@@ -8,6 +8,9 @@ internal class CalibreCommand(plugin: CalibrePlugin) : CloudCommand<CalibrePlugi
     { manager, rootName -> manager.commandBuilder(rootName, desc("Core plugin command."), "cal") }
 ) {
     init {
-
+        manager.command(root
+            .literal("inspect")
+            .handler {  }
+        )
     }
 }

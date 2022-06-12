@@ -1,5 +1,6 @@
 package com.github.aecsocket.calibre.paper
 
+import com.github.aecsocket.alexandria.core.Input
 import com.github.aecsocket.alexandria.core.LogLevel
 import com.github.aecsocket.alexandria.core.LogList
 import com.github.aecsocket.alexandria.core.effect.ParticleEffect
@@ -13,8 +14,10 @@ import com.github.aecsocket.alexandria.paper.effect.PaperEffectors
 import com.github.aecsocket.alexandria.paper.effect.SimulatedSounds
 import com.github.aecsocket.alexandria.paper.extension.registerEvents
 import com.github.aecsocket.alexandria.paper.extension.scheduleRepeating
+import com.github.aecsocket.alexandria.paper.packet.PacketInputListener
 import com.github.aecsocket.alexandria.paper.plugin.BasePlugin
 import com.github.retrooper.packetevents.PacketEvents
+import com.github.retrooper.packetevents.event.PacketListenerPriority
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
 import org.bukkit.Bukkit
 import org.bukkit.World
@@ -62,7 +65,23 @@ class CalibrePlugin : BasePlugin() {
         super.onEnable()
         effectors = PaperEffectors(this)
         sounds = SimulatedSounds(this, effectors::player)
-        PacketEvents.getAPI().eventManager.registerListener(CalibrePacketListener(this))
+        PacketEvents.getAPI().eventManager.apply {
+            registerListener(CalibrePacketListener(this@CalibrePlugin))
+            registerListener(PacketInputListener { event ->
+                val player = event.player
+                when (val input = event.input) {
+                    is Input.Mouse -> {
+                        if (input.button == Input.MOUSE_RIGHT) {
+                            when (input.state) {
+                                Input.MOUSE_DOWN -> true
+                                Input.MOUSE_UP -> false
+                                else -> null
+                            }?.let { playerData(event.player).holdingRClick = it }
+                        }
+                    }
+                }
+            }, PacketListenerPriority.NORMAL)
+        }
         PacketEvents.getAPI().init()
         CalibreCommand(this)
         registerEvents(CalibreListener(this))
@@ -80,6 +99,8 @@ class CalibrePlugin : BasePlugin() {
                 last = time
             }
         }.start()
+
+        DemoInspectView(this)
     }
 
     override fun onDisable() {

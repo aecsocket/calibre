@@ -38,6 +38,7 @@ class CalibrePlugin : BasePlugin() {
         val entityTargetRadius: Double,
         val damage: Double,
         val speed: Double,
+        val fireDelay: Long,
         val offset: Vector3,
         val indoorSounds: List<SoundEffect>,
         val outdoorSounds: List<SoundEffect>,
@@ -68,15 +69,21 @@ class CalibrePlugin : BasePlugin() {
         PacketEvents.getAPI().eventManager.apply {
             registerListener(CalibrePacketListener(this@CalibrePlugin))
             registerListener(PacketInputListener { event ->
-                val player = event.player
                 when (val input = event.input) {
                     is Input.Mouse -> {
-                        if (input.button == Input.MOUSE_RIGHT) {
+                        if (input.button == Input.MouseButton.RIGHT) {
+                            val playerData = playerData(event.player)
                             when (input.state) {
-                                Input.MOUSE_DOWN -> true
-                                Input.MOUSE_UP -> false
-                                else -> null
-                            }?.let { playerData(event.player).holdingRClick = it }
+                                Input.MouseState.DOWN -> {
+                                    playerData.doRightClick()
+                                    true
+                                }
+                                Input.MouseState.UP -> false
+                                else -> {
+                                    playerData.doRightClick()
+                                    null
+                                }
+                            }?.let { playerData.holdingRClick = it }
                         }
                     }
                 }
@@ -99,8 +106,6 @@ class CalibrePlugin : BasePlugin() {
                 last = time
             }
         }.start()
-
-        DemoInspectView(this)
     }
 
     override fun onDisable() {
@@ -110,12 +115,6 @@ class CalibrePlugin : BasePlugin() {
 
     override fun loadInternal(log: LogList, settings: ConfigurationNode): Boolean {
         if (super.loadInternal(log, settings)) {
-
-            log.line(LogLevel.VERBOSE) { "Verbose" }
-            log.line(LogLevel.INFO) { "Info" }
-            log.line(LogLevel.WARNING) { "Warning" }
-            log.line(LogLevel.ERROR) { "Error" }
-
             try {
                 this.settings = settings.force()
             } catch (ex: SerializationException) {

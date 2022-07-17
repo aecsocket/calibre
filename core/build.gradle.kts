@@ -5,11 +5,11 @@ plugins {
 repositories {
     mavenLocal()
     mavenCentral()
-    maven("https://jitpack.io")
+    maven("https://gitlab.com/api/v4/groups/9631292/-/packages/maven")
 }
 
 dependencies {
-    implementation(libs.alexandriaCore)
+    compileOnly(libs.alexandriaCore)
 
     testImplementation(kotlin("test"))
 }

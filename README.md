@@ -1,15 +1,15 @@
 <div align="center">
 
-# [Calibre](https://aecsocket.github.io/calibre)
+<h1> <a href="https://phosphorous.gitlab.io/calibre">
+<img src="icon.svg" height="64"> Calibre
+</a> </h1>
 
-![version](https://img.shields.io/github/v/release/aecsocket/calibre?sort=semver)
-[![build](https://github.com/aecsocket/calibre/actions/workflows/build.yml/badge.svg)](https://github.com/aecsocket/calibre/actions/workflows/build.yml)
+[![Latest version](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fgitlab.com%2Fapi%2Fv4%2Fprojects%237886356%2Fpackages%2Fmaven%2Fcom%2Fgitlab%2Faecsocket%2Fcalibre%2Fcalibre-core%2Fmaven-metadata.xml)](https://gitlab.com/phosphorous/calibre/-/packages/8023113)
+[![Pipeline status](https://img.shields.io/gitlab/pipeline-status/phosphorous/calibre?branch=main)](https://gitlab.com/phosphorous/calibre/-/pipelines/latest)
 
 </div>
 
-Platform-agnostic modular gun framework.
+Platform-agnostic composable weapons framework, acting as an expansion to the Sokol composition framework to
+create fully customisable, modular and complex weapons systems, from firearms to explosives.
 
-NOTE: the current code is **awful** and is basically just a testing ground for features.
-Don't even think of using this plugin right now.
-
-### [Quickstart and documentation](https://aecsocket.github.io/calibre)
+### [Quickstart and documentation](https://phosphorous.gitlab.io/calibre)

@@ -6,7 +6,7 @@ plugins {
 
 allprojects {
     group = "com.gitlab.aecsocket.calibre"
-    version = "2.2.0-SNAPSHOT"
+    version = "2.2.1-SNAPSHOT"
     description = "Platform-agnostic composable weapons framework"
 }
 
@@ -43,10 +43,6 @@ subprojects {
                 .replace("@version@", project.version.toString())
                 .replace("@description@", project.description.toString())
                 .replace("@group@", project.group.toString())
-                .replace("@kotlin-version@", libs.versions.kotlin.get())
-                .replace("@adventure-version@", libs.versions.adventure.get())
-                .replace("@configurate-version@", libs.versions.configurate.get())
-                .replace("@cloud-version@", libs.versions.cloud.get())
             }
         }
     }
@@ -66,7 +62,7 @@ subprojects {
         }
 
         publications {
-            create<MavenPublication>("mavenJava") {
+            create<MavenPublication>("maven") {
                 from(components["java"])
             }
         }

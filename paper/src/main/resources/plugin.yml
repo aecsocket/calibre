@@ -5,6 +5,5 @@ version: "@version@"
 api-version: "1.19"
 authors: [ "aecsocket" ]
 website: "https://phosphorous.gitlab.io/calibre"
-depend:
-  - "Alexandria"
-  - "Sokol"
+
+depend: [ "KtRuntime", "Alexandria", "Sokol" ]

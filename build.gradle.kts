@@ -6,8 +6,8 @@ plugins {
 
 allprojects {
     group = "com.gitlab.aecsocket.calibre"
-    version = "2.2.1-SNAPSHOT"
-    description = "Platform-agnostic composable weapons framework"
+    version = "2.2.2"
+    description = "Composable weapons framework"
 }
 
 repositories {

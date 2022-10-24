@@ -20,16 +20,20 @@ dependencies {
     api(projects.calibreCore)
     paperDevBundle("$minecraft-R0.1-SNAPSHOT")
 
-    // plugins
-    compileOnly(libs.glossaCore)
-    compileOnly(libs.cloudCore)
-    compileOnly(libs.cloudPaper)
-    compileOnly(libs.configurateExtraKotlin)
     compileOnly(libs.adventureExtraKotlin)
-    compileOnly(libs.packetEventsApi)
-    compileOnly(libs.packetEventsSpigot)
+
+    compileOnly(libs.glossaCore)
+
+    compileOnly(libs.configurateCore)
+    compileOnly(libs.configurateExtraKotlin)
+
+    compileOnly(libs.cloudPaper)
+    compileOnly(libs.cloudMinecraftExtras) { isTransitive = false }
+
     compileOnly(libs.alexandriaCore)
     compileOnly(libs.alexandriaPaper)
+
+    compileOnly(libs.packetEventsSpigot)
 
     compileOnly(libs.sokolCore)
     compileOnly(libs.sokolPaper)
@@ -37,7 +41,9 @@ dependencies {
     // shaded
     implementation(libs.bstatsPaper)
 
-    testImplementation(kotlin("test"))
+
+    testImplementation(platform("org.junit:junit-bom:5.9.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
 }
 
 tasks {
@@ -45,10 +51,10 @@ tasks {
         mergeServiceFiles()
         exclude("kotlin/")
         listOf(
-            "org.bstats",
-
             "org.jetbrains",
             "org.intellij",
+
+            "org.bstats",
         ).forEach { relocate(it, "${project.group}.lib.$it") }
     }
 

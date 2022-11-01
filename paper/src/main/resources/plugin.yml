@@ -6,4 +6,4 @@ api-version: "1.19"
 authors: [ "aecsocket" ]
 website: "https://phosphorous.gitlab.io/calibre"
 
-depend: [ "KtRuntime", "Alexandria", "Sokol" ]
+depend: [ "KtRuntime", "Alexandria", "CraftBullet", "Sokol" ]

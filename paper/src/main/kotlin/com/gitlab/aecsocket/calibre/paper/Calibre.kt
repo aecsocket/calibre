@@ -4,8 +4,8 @@ import com.gitlab.aecsocket.alexandria.core.LogLevel
 import com.gitlab.aecsocket.alexandria.core.LogList
 import com.gitlab.aecsocket.alexandria.paper.AlexandriaAPI
 import com.gitlab.aecsocket.alexandria.paper.BasePlugin
-import com.gitlab.aecsocket.calibre.paper.component.CalibreTest
-import com.gitlab.aecsocket.calibre.paper.component.CalibreTestSystem
+import com.gitlab.aecsocket.calibre.paper.component.*
+import com.gitlab.aecsocket.sokol.core.componentType
 import com.gitlab.aecsocket.sokol.paper.SokolAPI
 import org.bstats.bukkit.Metrics
 import org.spongepowered.configurate.ConfigurationNode
@@ -56,10 +56,15 @@ class Calibre : BasePlugin() {
         SokolAPI.registerConsumer(
             onInit = {
                 engine
-                    .systemFactory { it.define(CalibreTestSystem(it)) }
-
-                    .componentType<CalibreTest>()
-                registerComponentType(CalibreTest.Type)
+                    .systemFactory { LauncherSystem(this@Calibre, it) }
+                    .systemFactory { LauncherOriginSystem(it) }
+                    .systemFactory { LauncherPhysicsRecoilSystem(it) }
+                    .componentType<Launcher>()
+                    .componentType<LauncherOrigin>()
+                    .componentType<LauncherPhysicsRecoil>()
+                registerComponentType(Launcher.Type)
+                registerComponentType(LauncherOrigin.Type)
+                registerComponentType(LauncherPhysicsRecoil.Type)
             }
         )
     }

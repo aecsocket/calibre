@@ -4,39 +4,33 @@ import com.gitlab.aecsocket.alexandria.core.physics.Transform
 import com.gitlab.aecsocket.alexandria.paper.extension.key
 import com.gitlab.aecsocket.calibre.paper.CalibreAPI
 import com.gitlab.aecsocket.sokol.core.*
-import org.spongepowered.configurate.ConfigurationNode
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Setting
 
-data class LauncherOrigin(val profile: Profile) : PersistentComponent {
+data class LaunchTransform(val profile: Profile) : MarkerPersistentComponent {
     companion object {
-        val Key = CalibreAPI.key("launcher_origin")
+        val Key = CalibreAPI.key("launch_transform")
         val Type = ComponentType.deserializing<Profile>(Key)
     }
 
-    override val componentType get() = LauncherOrigin::class
+    override val componentType get() = LaunchTransform::class
     override val key get() = Key
-
-    override fun write(ctx: NBTTagContext) = ctx.makeCompound()
-
-    override fun write(node: ConfigurationNode) {}
 
     @ConfigSerializable
     data class Profile(
         @Setting(nodeFromParent = true) val transform: Transform
     ) : NonReadingComponentProfile {
-        override fun readEmpty() = LauncherOrigin(this)
+        override fun readEmpty() = LaunchTransform(this)
     }
 }
 
-@All(LauncherOrigin::class)
-class LauncherOriginSystem(mappers: ComponentIdAccess) : SokolSystem {
-    private val mLauncherOrigin = mappers.componentMapper<LauncherOrigin>()
+@All(LaunchTransform::class)
+class LaunchTransformSystem(mappers: ComponentIdAccess) : SokolSystem {
+    private val mLaunchTransform = mappers.componentMapper<LaunchTransform>()
 
     @Subscribe
     fun on(event: LauncherSystem.Build, entity: SokolEntity) {
-        val launcherOrigin = mLauncherOrigin.get(entity).profile
-
+        val launcherOrigin = mLaunchTransform.get(entity).profile
         event.launchOrigin += launcherOrigin.transform
     }
 }

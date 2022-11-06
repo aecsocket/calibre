@@ -7,7 +7,7 @@ import com.gitlab.aecsocket.sokol.paper.component.PositionWrite
 import org.spongepowered.configurate.ConfigurationNode
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 
-class ProjectileBullet(val profile: Profile) : PersistentComponent {
+class ProjectileBullet(val profile: Profile) : MarkerPersistentComponent {
     companion object {
         val Key = CalibreAPI.key("projectile_bullet")
         val Type = ComponentType.deserializing<Profile>(Key)
@@ -15,10 +15,6 @@ class ProjectileBullet(val profile: Profile) : PersistentComponent {
 
     override val componentType get() = ProjectileBullet::class
     override val key get() = Key
-
-    override fun write(ctx: NBTTagContext) = ctx.makeCompound()
-
-    override fun write(node: ConfigurationNode) {}
 
     @ConfigSerializable
     data class Profile(

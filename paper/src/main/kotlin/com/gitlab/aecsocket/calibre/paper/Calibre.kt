@@ -56,15 +56,26 @@ class Calibre : BasePlugin() {
         SokolAPI.registerConsumer(
             onInit = {
                 engine
+                    .systemFactory { CompleteSystem(it) }
+                    .systemFactory { CompleteItemSystem(it) }
+                    .systemFactory { LaunchOriginTarget }
+                    .systemFactory { LaunchOriginPositionedInjectorSystem(it) }
+                    .systemFactory { LaunchOriginItemInjectorSystem(it) }
                     .systemFactory { LauncherSystem(this@Calibre, it) }
-                    .systemFactory { LauncherOriginSystem(it) }
-                    .systemFactory { LauncherPhysicsRecoilSystem(it) }
+                    .systemFactory { LaunchTransformSystem(it) }
+                    .systemFactory { LaunchPhysicsRecoilSystem(it) }
+                    .componentType<Complete>()
+                    .componentType<RequiredSlot>()
+                    .componentType<CompleteItem>()
+                    .componentType<LaunchOrigin>()
                     .componentType<Launcher>()
-                    .componentType<LauncherOrigin>()
-                    .componentType<LauncherPhysicsRecoil>()
+                    .componentType<LaunchTransform>()
+                    .componentType<LaunchPhysicsRecoil>()
+                registerComponentType(RequiredSlot.Type)
+                registerComponentType(CompleteItem.Type)
                 registerComponentType(Launcher.Type)
-                registerComponentType(LauncherOrigin.Type)
-                registerComponentType(LauncherPhysicsRecoil.Type)
+                registerComponentType(LaunchTransform.Type)
+                registerComponentType(LaunchPhysicsRecoil.Type)
             }
         )
     }

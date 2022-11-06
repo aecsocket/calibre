@@ -17,8 +17,8 @@ private const val VELOCITY = "velocity"
 
 data class ProjectileRaycast(
     val profile: Profile,
-    var position: Vector3,
-    var velocity: Vector3
+    private val dPosition: Delta<Vector3>,
+    private val dVelocity: Delta<Vector3>
 ) : PersistentComponent {
     companion object {
         val Key = CalibreAPI.key("projectile_raycast")
@@ -28,7 +28,22 @@ data class ProjectileRaycast(
     override val componentType get() = ProjectileRaycast::class
     override val key get() = Key
 
+    override val dirty get() = dPosition.dirty || dVelocity.dirty
+
+    constructor(
+        profile: Profile,
+        position: Vector3,
+        velocity: Vector3
+    ) : this(profile, Delta(position), Delta(velocity))
+
+    var position by dPosition
+    var velocity by dVelocity
+
     override fun write(ctx: NBTTagContext) = ctx.makeCompound()
+
+    override fun writeDelta(tag: NBTTag): NBTTag {
+        return tag
+    }
 
     override fun write(node: ConfigurationNode) {}
 

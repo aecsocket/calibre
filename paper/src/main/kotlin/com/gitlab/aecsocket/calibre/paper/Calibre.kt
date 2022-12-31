@@ -1,37 +1,40 @@
 package com.gitlab.aecsocket.calibre.paper
 
-import com.gitlab.aecsocket.alexandria.core.LogLevel
+import com.github.retrooper.packetevents.PacketEvents
+import com.github.retrooper.packetevents.event.PacketListenerAbstract
+import com.github.retrooper.packetevents.event.PacketReceiveEvent
 import com.gitlab.aecsocket.alexandria.core.LogList
 import com.gitlab.aecsocket.alexandria.paper.AlexandriaAPI
 import com.gitlab.aecsocket.alexandria.paper.BasePlugin
-import com.gitlab.aecsocket.calibre.paper.component.*
-import com.gitlab.aecsocket.sokol.core.componentType
+import com.gitlab.aecsocket.alexandria.paper.PluginManifest
+import com.gitlab.aecsocket.calibre.paper.component.Firearm
+import com.gitlab.aecsocket.calibre.paper.component.FirearmSystem
+import com.gitlab.aecsocket.glossa.core.force
 import com.gitlab.aecsocket.sokol.paper.SokolAPI
-import org.bstats.bukkit.Metrics
+import com.gitlab.aecsocket.sokol.paper.persistentComponent
+import net.kyori.adventure.text.format.TextColor
+import org.bukkit.entity.Player
 import org.spongepowered.configurate.ConfigurationNode
-import org.spongepowered.configurate.kotlin.extensions.get
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
-import org.spongepowered.configurate.serialize.SerializationException
 
 private const val BSTATS_ID = 10479
 
 private lateinit var instance: Calibre
 val CalibreAPI get() = instance
 
-class Calibre : BasePlugin() {
+class Calibre : BasePlugin(PluginManifest("calibre",
+    accentColor = TextColor.color(0xd75e50),
+    langPaths = listOf(
+        "lang/default_en-US.conf"
+    ),
+    savedPaths = listOf(
+        "settings.conf"
+    )
+)) {
     @ConfigSerializable
     data class Settings(
         val enableBstats: Boolean = true,
     )
-
-    private data class Registration(
-        val onInit: InitContext.() -> Unit,
-        val onPostInit: PostInitContext.() -> Unit,
-    )
-
-    interface InitContext
-
-    interface PostInitContext
 
     init {
         instance = this
@@ -39,8 +42,6 @@ class Calibre : BasePlugin() {
 
     lateinit var settings: Settings private set
     val players = CalibrePlayerFeature(this)
-
-    private val registrations = ArrayList<Registration>()
 
     override fun onEnable() {
         super.onEnable()
@@ -55,53 +56,25 @@ class Calibre : BasePlugin() {
         )
         SokolAPI.registerConsumer(
             onInit = {
-                engine
-                    .systemFactory { CompleteSystem(it) }
-                    .systemFactory { CompleteItemSystem(it) }
-                    .systemFactory { LaunchOriginTarget }
-                    .systemFactory { LaunchOriginPositionedInjectorSystem(it) }
-                    .systemFactory { LaunchOriginItemInjectorSystem(it) }
-                    .systemFactory { LauncherSystem(this@Calibre, it) }
-                    .systemFactory { LaunchTransformSystem(it) }
-                    .systemFactory { LaunchPhysicsRecoilSystem(it) }
-                    .componentType<Complete>()
-                    .componentType<RequiredSlot>()
-                    .componentType<CompleteItem>()
-                    .componentType<LaunchOrigin>()
-                    .componentType<Launcher>()
-                    .componentType<LaunchTransform>()
-                    .componentType<LaunchPhysicsRecoil>()
-                registerComponentType(RequiredSlot.Type)
-                registerComponentType(CompleteItem.Type)
-                registerComponentType(Launcher.Type)
-                registerComponentType(LaunchTransform.Type)
-                registerComponentType(LaunchPhysicsRecoil.Type)
+                system { FirearmSystem(it) }
+
+                persistentComponent(Firearm.Type)
+
+                components.stats.stats(Firearm.Stats.All)
             }
         )
+        PacketEvents.getAPI().eventManager.registerListener(object : PacketListenerAbstract() {
+            override fun onPacketReceive(event: PacketReceiveEvent) {
+                val player = event.player as? Player ?: return
+                //player.sendMessage("pkt ${event.packetType}")
+            }
+        })
     }
 
-    override fun loadInternal(log: LogList, settings: ConfigurationNode): Boolean {
-        if (super.loadInternal(log, settings)) {
-            try {
-                this.settings = settings.get { Settings() }
-            } catch (ex: SerializationException) {
-                log.line(LogLevel.Error, ex) { "Could not load settings file" }
-                return false
-            }
+    override fun loadInternal(log: LogList, config: ConfigurationNode): Boolean {
+        if (!super.loadInternal(log, config)) return false
 
-            if (this.settings.enableBstats) {
-                Metrics(this, BSTATS_ID)
-            }
-
-            return true
-        }
-        return false
-    }
-
-    fun registerConsumer(
-        onInit: InitContext.() -> Unit = {},
-        onPostInit: PostInitContext.() -> Unit = {},
-    ) {
-        registrations.add(Registration(onInit, onPostInit))
+        settings = config.force()
+        return true
     }
 }

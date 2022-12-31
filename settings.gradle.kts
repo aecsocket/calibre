@@ -7,8 +7,8 @@ pluginManagement {
     }
 
     plugins {
-        kotlin("jvm") version "1.7.10"
-        id("org.jetbrains.dokka") version "1.7.10"
+        kotlin("jvm") version "1.7.20"
+        id("org.jetbrains.dokka") version "1.7.20"
 
         id("io.papermc.paperweight.userdev") version "1.3.6"
         id("com.github.johnrengelman.shadow") version "7.1.2"

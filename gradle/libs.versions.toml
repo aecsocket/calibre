@@ -2,16 +2,17 @@
 
 minecraft = "1.19.2"
 
-kotlin = "1.7.10"
+kotlin = "1.7.20"
 adventure = "4.11.0"
 glossa = "0.5.2"
 configurate = "4.1.2"
-cloud = "1.8.0-SNAPSHOT"
+cloud = "1.8.0"
 bstats = "3.0.0"
 alexandria = "0.5.4"
 packetEvents = "2.0-SNAPSHOT"
-craftbullet = "0.1.3"
-sokol = "2.4.0"
+craftbullet = "0.2.2"
+libBulletJme = "17.2.0"
+sokol = "2.4.1"
 
 [libraries]
 
@@ -39,6 +40,8 @@ packetEventsSpigot = { group = "com.github.retrooper.packetevents", name = "spig
 
 craftbulletCore = { group = "com.gitlab.aecsocket.craftbullet", name = "craftbullet-core", version.ref = "craftbullet" }
 craftbulletPaper = { group = "com.gitlab.aecsocket.craftbullet", name = "craftbullet-paper", version.ref = "craftbullet" }
+
+libBulletJme = { group = "com.github.stephengold", name = "Libbulletjme", version.ref = "libBulletJme" }
 
 sokolCore = { group = "com.gitlab.aecsocket.sokol", name = "sokol-core", version.ref = "sokol" }
 sokolPaper = { group = "com.gitlab.aecsocket.sokol", name = "sokol-paper", version.ref = "sokol" }

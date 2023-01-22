@@ -8,11 +8,11 @@ import com.gitlab.aecsocket.alexandria.paper.AlexandriaAPI
 import com.gitlab.aecsocket.alexandria.paper.BasePlugin
 import com.gitlab.aecsocket.alexandria.paper.PluginManifest
 import com.gitlab.aecsocket.calibre.paper.component.Firearm
-import com.gitlab.aecsocket.calibre.paper.component.FirearmSystem
+import com.gitlab.aecsocket.calibre.paper.component.LaserEffects
 import com.gitlab.aecsocket.glossa.core.force
 import com.gitlab.aecsocket.sokol.paper.SokolAPI
-import com.gitlab.aecsocket.sokol.paper.persistentComponent
 import net.kyori.adventure.text.format.TextColor
+import org.bstats.bukkit.Metrics
 import org.bukkit.entity.Player
 import org.spongepowered.configurate.ConfigurationNode
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
@@ -47,20 +47,17 @@ class Calibre : BasePlugin(PluginManifest("calibre",
         super.onEnable()
         CalibreCommand(this)
         AlexandriaAPI.registerConsumer(this,
-            onInit = {
-                serializers
+            onInit = { ctx ->
+                ctx.serializers
             },
-            onLoad = {
-                addDefaultI18N()
+            onLoad = { ctx ->
+                ctx.addDefaultI18N()
             }
         )
         SokolAPI.registerConsumer(
-            onInit = {
-                system { FirearmSystem(it) }
-
-                persistentComponent(Firearm.Type)
-
-                components.stats.stats(Firearm.Stats.All)
+            onInit = { ctx ->
+                Firearm.init(ctx)
+                LaserEffects.init(ctx)
             }
         )
         PacketEvents.getAPI().eventManager.registerListener(object : PacketListenerAbstract() {
@@ -73,8 +70,12 @@ class Calibre : BasePlugin(PluginManifest("calibre",
 
     override fun loadInternal(log: LogList, config: ConfigurationNode): Boolean {
         if (!super.loadInternal(log, config)) return false
-
         settings = config.force()
+
+        if (settings.enableBstats) {
+            Metrics(this, BSTATS_ID)
+        }
+
         return true
     }
 }

@@ -1,7 +1,6 @@
 package com.gitlab.aecsocket.calibre.paper.component
 
 import com.gitlab.aecsocket.alexandria.core.physics.Transform
-import com.gitlab.aecsocket.alexandria.core.physics.Vector3
 import com.gitlab.aecsocket.alexandria.paper.AlexandriaAPI
 import com.gitlab.aecsocket.alexandria.paper.ParticleEngineEffect
 import com.gitlab.aecsocket.alexandria.paper.extension.key

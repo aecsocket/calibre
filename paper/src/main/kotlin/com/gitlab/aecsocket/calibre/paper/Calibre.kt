@@ -7,7 +7,7 @@ import com.gitlab.aecsocket.alexandria.core.LogList
 import com.gitlab.aecsocket.alexandria.paper.AlexandriaAPI
 import com.gitlab.aecsocket.alexandria.paper.BasePlugin
 import com.gitlab.aecsocket.alexandria.paper.PluginManifest
-import com.gitlab.aecsocket.calibre.paper.component.Firearm
+import com.gitlab.aecsocket.calibre.paper.component.Launcher
 import com.gitlab.aecsocket.calibre.paper.component.LaserEffects
 import com.gitlab.aecsocket.glossa.core.force
 import com.gitlab.aecsocket.sokol.paper.SokolAPI
@@ -56,7 +56,7 @@ class Calibre : BasePlugin(PluginManifest("calibre",
         )
         SokolAPI.registerConsumer(
             onInit = { ctx ->
-                Firearm.init(ctx)
+                Launcher.init(ctx)
                 LaserEffects.init(ctx)
             }
         )

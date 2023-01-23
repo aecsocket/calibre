@@ -3,9 +3,11 @@ package com.gitlab.aecsocket.calibre.paper
 import com.github.retrooper.packetevents.PacketEvents
 import com.github.retrooper.packetevents.event.PacketListenerAbstract
 import com.github.retrooper.packetevents.event.PacketReceiveEvent
+import com.gitlab.aecsocket.alexandria.core.LogLevel
 import com.gitlab.aecsocket.alexandria.core.LogList
 import com.gitlab.aecsocket.alexandria.paper.AlexandriaAPI
 import com.gitlab.aecsocket.alexandria.paper.BasePlugin
+import com.gitlab.aecsocket.alexandria.paper.BasePluginSettings
 import com.gitlab.aecsocket.alexandria.paper.PluginManifest
 import com.gitlab.aecsocket.calibre.paper.component.Launcher
 import com.gitlab.aecsocket.calibre.paper.component.LaserEffects
@@ -22,7 +24,7 @@ private const val BSTATS_ID = 10479
 private lateinit var instance: Calibre
 val CalibreAPI get() = instance
 
-class Calibre : BasePlugin(PluginManifest("calibre",
+class Calibre : BasePlugin<Calibre.Settings>(PluginManifest("calibre",
     accentColor = TextColor.color(0xd75e50),
     langPaths = listOf(
         "lang/default_en-US.conf"
@@ -30,17 +32,18 @@ class Calibre : BasePlugin(PluginManifest("calibre",
     savedPaths = listOf(
         "settings.conf"
     )
-)) {
+), Settings::class, Settings()
+) {
     @ConfigSerializable
     data class Settings(
+        override val logLevel: LogLevel = LogLevel.Verbose,
         val enableBstats: Boolean = true,
-    )
+    ) : BasePluginSettings
 
     init {
         instance = this
     }
 
-    lateinit var settings: Settings private set
     val players = CalibrePlayerFeature(this)
 
     override fun onEnable() {
@@ -68,9 +71,8 @@ class Calibre : BasePlugin(PluginManifest("calibre",
         })
     }
 
-    override fun loadInternal(log: LogList, config: ConfigurationNode): Boolean {
-        if (!super.loadInternal(log, config)) return false
-        settings = config.force()
+    override fun loadInternal(log: LogList): Boolean {
+        if (!super.loadInternal(log)) return false
 
         if (settings.enableBstats) {
             Metrics(this, BSTATS_ID)
